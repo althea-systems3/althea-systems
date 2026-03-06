@@ -1,5 +1,38 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## CI/CD and Deployment
+
+### CI (GitHub Actions)
+
+A workflow is configured in `.github/workflows/ci.yml`.
+
+- On each pull request: runs `npm ci`, `npm run lint`, `npm run test`.
+- On push to `main`: runs `npm ci`, `npm run lint`, `npm run test`, `npm run build`.
+
+### Vercel deployment
+
+This repository is intended to be connected to Vercel with Git integration:
+
+- `main` branch -> Production deployment.
+- Feature branches / pull requests -> Preview deployments.
+
+The website is currently available at: `https://althea-systems.vercel.app/fr`.
+
+### Required environment variables
+
+Use `.env.example` as the source of truth for required variables.
+
+Configure these variables in Vercel for the appropriate environments (Production, Preview, Development):
+
+- Supabase variables.
+- Firebase variables.
+
+### Health endpoint
+
+An API health endpoint is available at:
+
+- `GET /api/health` -> `{ "status": "ok" }`
+
 ## Getting Started
 
 First, run the development server:
