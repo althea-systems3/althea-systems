@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
+import { Inter, Poppins } from "next/font/google"
 import "./globals.css"
 import { defaultLocale, isRtlLocale, locales, type AppLocale } from "@/lib/i18n"
 
@@ -7,6 +8,19 @@ export const metadata: Metadata = {
   title: "Althea Systems",
   description: "Base front-end e-commerce Next.js avec i18n et accessibilite.",
 }
+
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-body",
+  display: "swap",
+})
+
+const poppins = Poppins({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-heading",
+  weight: ["600"],
+  display: "swap",
+})
 
 function toLocale(value?: string): AppLocale {
   if (value && locales.includes(value as AppLocale)) {
@@ -25,7 +39,9 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={isRtlLocale(locale) ? "rtl" : "ltr"}>
-      <body>{children}</body>
+      <body className={`${inter.variable} ${poppins.variable}`}>
+        {children}
+      </body>
     </html>
   )
 }

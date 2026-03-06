@@ -4,6 +4,67 @@
     "subtitle": "Next.js starter ready for your international e-commerce.",
     "cta": "Try Shadcn"
   },
+  "Layout": {
+    "search": "Search",
+    "searchPlaceholder": "Search for a product or category...",
+    "cart": "Open cart",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "footer": "Footer",
+    "socials": "Social media",
+    "languageLabel": "Language selection",
+    "menuHint": "The menu adapts to the current authentication state.",
+    "menuItems": {
+      "settings": "My settings",
+      "orders": "My orders",
+      "terms": "Terms of use",
+      "legal": "Legal notice",
+      "contact": "Contact",
+      "about": "About",
+      "logout": "Sign out",
+      "signIn": "Sign in",
+      "signUp": "Sign up"
+    }
+  },
+  "Pages": {
+    "terms": {
+      "title": "Terms of Use",
+      "description": "Read the full set of terms that apply to the use of the Althea Systems website."
+    },
+    "legal": {
+      "title": "Legal notice",
+      "description": "Find the legal and editorial information related to this e-commerce website."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Our team is available to answer your sales and technical questions."
+    },
+    "about": {
+      "title": "About",
+      "description": "Althea Systems helps businesses with a scalable and performance-focused e-commerce platform."
+    },
+    "signIn": {
+      "title": "Sign in",
+      "description": "Access your customer space to track orders and manage your account data."
+    },
+    "signUp": {
+      "title": "Sign up",
+      "description": "Create an account to unlock order tracking and a personalized shopping experience."
+    },
+    "settings": {
+      "title": "My settings",
+      "description": "Update your profile, security information, and personal preferences."
+    },
+    "orders": {
+      "title": "My orders",
+      "description": "Review your order history and monitor processing status in real time."
+    },
+    "cart": {
+      "title": "Cart",
+      "description": "Review your items, adjust quantities, and get ready to checkout."
+    }
+  },
   "A11y": {
     "skip": "Skip to main content"
   }

@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { routing } from "@/i18n/routing"
+import { MainLayout } from "@/components/layout/main-layout"
 
 type LocaleLayoutProps = {
   children: React.ReactNode
@@ -38,7 +39,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
+      <MainLayout>{children}</MainLayout>
     </NextIntlClientProvider>
   )
 }

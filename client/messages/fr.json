@@ -4,6 +4,67 @@
     "subtitle": "Projet Next.js pret pour votre e-commerce international.",
     "cta": "Tester Shadcn"
   },
+  "Layout": {
+    "search": "Recherche",
+    "searchPlaceholder": "Rechercher un produit, une categorie...",
+    "cart": "Voir le panier",
+    "menu": "Menu",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "footer": "Pied de page",
+    "socials": "Reseaux sociaux",
+    "languageLabel": "Choix de langue",
+    "menuHint": "Le menu s'adapte selon l'etat de connexion.",
+    "menuItems": {
+      "settings": "Mes parametres",
+      "orders": "Mes commandes",
+      "terms": "CGU",
+      "legal": "Mentions legales",
+      "contact": "Contact",
+      "about": "A propos",
+      "logout": "Se deconnecter",
+      "signIn": "Se connecter",
+      "signUp": "S'inscrire"
+    }
+  },
+  "Pages": {
+    "terms": {
+      "title": "Conditions Generales d'Utilisation",
+      "description": "Consultez ici l'ensemble des conditions applicables a l'utilisation du site Althea Systems."
+    },
+    "legal": {
+      "title": "Mentions legales",
+      "description": "Retrouvez les informations juridiques et editoriales du site e-commerce."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Notre equipe est disponible pour repondre a vos questions commerciales et techniques."
+    },
+    "about": {
+      "title": "A propos",
+      "description": "Althea Systems accompagne les entreprises avec une plateforme e-commerce performante et evolutive."
+    },
+    "signIn": {
+      "title": "Se connecter",
+      "description": "Accedez a votre espace client pour suivre vos commandes et gerer vos informations."
+    },
+    "signUp": {
+      "title": "S'inscrire",
+      "description": "Creez un compte pour beneficier d'un suivi de commande et d'une experience personnalisee."
+    },
+    "settings": {
+      "title": "Mes parametres",
+      "description": "Mettez a jour vos informations de profil, de securite et de preferences personnelles."
+    },
+    "orders": {
+      "title": "Mes commandes",
+      "description": "Consultez l'historique de vos commandes et l'etat de traitement en temps reel."
+    },
+    "cart": {
+      "title": "Panier",
+      "description": "Revoyez vos articles, ajustez les quantites et preparez votre validation de commande."
+    }
+  },
   "A11y": {
     "skip": "Aller au contenu principal"
   }
