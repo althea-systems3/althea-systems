@@ -1,0 +1,10 @@
+{
+  "Home": {
+    "title": "Althea Systems frontend base",
+    "subtitle": "Next.js starter ready for your international e-commerce.",
+    "cta": "Try Shadcn"
+  },
+  "A11y": {
+    "skip": "Skip to main content"
+  }
+}

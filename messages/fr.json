@@ -1,0 +1,10 @@
+{
+  "Home": {
+    "title": "Base front-end Althea Systems",
+    "subtitle": "Projet Next.js pret pour votre e-commerce international.",
+    "cta": "Tester Shadcn"
+  },
+  "A11y": {
+    "skip": "Aller au contenu principal"
+  }
+}
