@@ -4,6 +4,17 @@
     "subtitle": "Projet Next.js pret pour votre e-commerce international.",
     "cta": "Tester Shadcn"
   },
+  "HomeCarousel": {
+    "ariaLabel": "Carrousel promotionnel de la page d'accueil",
+    "slideCounter": "Slide {current} sur {total}",
+    "previous": "Slide precedente",
+    "next": "Slide suivante",
+    "goToSlide": "Aller a la slide {index}",
+    "pauseAutoSlide": "Mettre en pause le defilement automatique",
+    "resumeAutoSlide": "Reprendre le defilement automatique",
+    "fallbackTitle": "Promotions bientot disponibles",
+    "fallbackDescription": "Aucune slide n'est disponible pour le moment. Revenez dans quelques instants."
+  },
   "Layout": {
     "search": "Recherche",
     "searchPlaceholder": "Rechercher un produit, une categorie...",

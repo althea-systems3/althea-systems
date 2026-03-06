@@ -4,6 +4,17 @@
     "subtitle": "قاعدة Next.js جاهزة للتجارة الإلكترونية متعددة اللغات.",
     "cta": "اختبار Shadcn"
   },
+  "HomeCarousel": {
+    "ariaLabel": "كاروسيل العروض في الصفحة الرئيسية",
+    "slideCounter": "الشريحة {current} من {total}",
+    "previous": "الشريحة السابقة",
+    "next": "الشريحة التالية",
+    "goToSlide": "الانتقال إلى الشريحة {index}",
+    "pauseAutoSlide": "إيقاف التحريك التلقائي",
+    "resumeAutoSlide": "استئناف التحريك التلقائي",
+    "fallbackTitle": "العروض ستتوفر قريبا",
+    "fallbackDescription": "لا توجد شرائح متاحة حاليا. يرجى المحاولة بعد قليل."
+  },
   "Layout": {
     "search": "بحث",
     "searchPlaceholder": "ابحث عن منتج او فئة...",
