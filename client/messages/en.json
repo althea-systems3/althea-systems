@@ -4,6 +4,17 @@
     "subtitle": "Next.js starter ready for your international e-commerce.",
     "cta": "Try Shadcn"
   },
+  "HomeCarousel": {
+    "ariaLabel": "Homepage promotional carousel",
+    "slideCounter": "Slide {current} of {total}",
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "goToSlide": "Go to slide {index}",
+    "pauseAutoSlide": "Pause automatic slide rotation",
+    "resumeAutoSlide": "Resume automatic slide rotation",
+    "fallbackTitle": "Promotions coming soon",
+    "fallbackDescription": "No slide is available right now. Please check back in a moment."
+  },
   "Layout": {
     "search": "Search",
     "searchPlaceholder": "Search for a product or category...",

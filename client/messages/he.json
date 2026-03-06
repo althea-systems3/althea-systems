@@ -4,6 +4,17 @@
     "subtitle": "בסיס Next.js מוכן למסחר אלקטרוני רב-לשוני.",
     "cta": "נסה את Shadcn"
   },
+  "HomeCarousel": {
+    "ariaLabel": "קרוסלת מבצעים בדף הבית",
+    "slideCounter": "שקופית {current} מתוך {total}",
+    "previous": "שקופית קודמת",
+    "next": "שקופית הבאה",
+    "goToSlide": "עבור לשקופית {index}",
+    "pauseAutoSlide": "השהה גלילה אוטומטית",
+    "resumeAutoSlide": "המשך גלילה אוטומטית",
+    "fallbackTitle": "מבצעים יופיעו בקרוב",
+    "fallbackDescription": "אין כרגע שקופיות זמינות. נסה שוב בעוד רגע."
+  },
   "Layout": {
     "search": "חיפוש",
     "searchPlaceholder": "חפש מוצר או קטגוריה...",
