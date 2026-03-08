@@ -5,6 +5,7 @@
     "cta": "اختبار Shadcn"
   },
   "HomeCarousel": {
+    "badgeLabel": "عرض",
     "ariaLabel": "كاروسيل العروض في الصفحة الرئيسية",
     "slideCounter": "الشريحة {current} من {total}",
     "previous": "الشريحة السابقة",

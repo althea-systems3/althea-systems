@@ -5,6 +5,7 @@
     "cta": "Tester Shadcn"
   },
   "HomeCarousel": {
+    "badgeLabel": "Promotion",
     "ariaLabel": "Carrousel promotionnel de la page d'accueil",
     "slideCounter": "Slide {current} sur {total}",
     "previous": "Slide precedente",

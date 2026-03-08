@@ -5,6 +5,7 @@
     "cta": "נסה את Shadcn"
   },
   "HomeCarousel": {
+    "badgeLabel": "מבצע",
     "ariaLabel": "קרוסלת מבצעים בדף הבית",
     "slideCounter": "שקופית {current} מתוך {total}",
     "previous": "שקופית קודמת",

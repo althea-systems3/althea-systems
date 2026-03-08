@@ -93,13 +93,13 @@ function ProductPage({ id }) {
 
 ```js
 // WRONG — clever but unreadable
-const r = d.reduce((a,c) => (a[c.cat]=(a[c.cat]||0)+1,a), {});
+const r = d.reduce((a, c) => ((a[c.cat] = (a[c.cat] || 0) + 1), a), {})
 
 // CORRECT
 const productCountByCategory = products.reduce((accumulator, product) => {
-  accumulator[product.category] = (accumulator[product.category] ?? 0) + 1;
-  return accumulator;
-}, {});
+  accumulator[product.category] = (accumulator[product.category] ?? 0) + 1
+  return accumulator
+}, {})
 ```
 
 ---
@@ -117,11 +117,11 @@ const productCountByCategory = products.reduce((accumulator, product) => {
 ```js
 // WRONG
 // Increment count by 1
-count++;
+count++
 
 // CORRECT
 // Prices are returned in cents from the API, convert to euros for display
-const displayPrice = rawPrice / 100;
+const displayPrice = rawPrice / 100
 ```
 
 ---
@@ -138,18 +138,18 @@ const displayPrice = rawPrice / 100;
 // WRONG
 async function fetchProducts() {
   try {
-    return await api.get('/products');
+    return await api.get("/products")
   } catch (e) {} // forbidden
 }
 
 // CORRECT
 async function fetchProducts() {
   try {
-    const response = await api.get('/products');
-    return response.data;
+    const response = await api.get("/products")
+    return response.data
   } catch (error) {
-    logger.error('fetchProducts failed', { error });
-    throw new Error('Unable to load products. Please try again.');
+    logger.error("fetchProducts failed", { error })
+    throw new Error("Unable to load products. Please try again.")
   }
 }
 ```
@@ -165,13 +165,13 @@ async function fetchProducts() {
 ```jsx
 // WRONG — tightly coupled to global store
 function ProductCard({ id }) {
-  const dispatch = useGlobalStore(s => s.dispatch);
-  return <button onClick={() => dispatch({ type: 'ADD', id })}>Add</button>;
+  const dispatch = useGlobalStore((s) => s.dispatch)
+  return <button onClick={() => dispatch({ type: "ADD", id })}>Add</button>
 }
 
 // CORRECT — behavior injected via props
 function ProductCard({ product, onAddToCart }) {
-  return <button onClick={() => onAddToCart(product)}>Add</button>;
+  return <button onClick={() => onAddToCart(product)}>Add</button>
 }
 ```
 
@@ -229,17 +229,32 @@ src/
 - Tests must be independent — no test relies on the state of another.
 
 ```js
-describe('calculateCartTotal', () => {
-  it('returns the sum of all item prices multiplied by quantity', () => {
-    const items = [{ price: 10, quantity: 2 }, { price: 5, quantity: 1 }];
-    expect(calculateCartTotal(items)).toBe(25);
-  });
+describe("calculateCartTotal", () => {
+  it("returns the sum of all item prices multiplied by quantity", () => {
+    const items = [
+      { price: 10, quantity: 2 },
+      { price: 5, quantity: 1 },
+    ]
+    expect(calculateCartTotal(items)).toBe(25)
+  })
 
-  it('returns 0 for an empty cart', () => {
-    expect(calculateCartTotal([])).toBe(0);
-  });
-});
+  it("returns 0 for an empty cart", () => {
+    expect(calculateCartTotal([])).toBe(0)
+  })
+})
 ```
+
+---
+
+## PRE-PUSH CHECKS
+
+- Before every push, you MUST run these commands successfully:
+  - `npm run lint`
+  - `npm run test`
+  - `npm run build`
+- A push is forbidden if one of these commands fails.
+- If `npm run build` fails for any reason, you MUST investigate and fix the issue before pushing.
+- Never ignore, bypass, or postpone a failing pre-push check.
 
 ---
 
@@ -250,15 +265,15 @@ describe('calculateCartTotal', () => {
 
 ```js
 // WRONG
-if (token.age > 24) expireToken();
-const slides = items.slice(0, 3);
+if (token.age > 24) expireToken()
+const slides = items.slice(0, 3)
 
 // CORRECT
-const TOKEN_EXPIRY_HOURS = 24;
-const MAX_CAROUSEL_SLIDES = 3;
+const TOKEN_EXPIRY_HOURS = 24
+const MAX_CAROUSEL_SLIDES = 3
 
-if (token.age > TOKEN_EXPIRY_HOURS) expireToken();
-const slides = items.slice(0, MAX_CAROUSEL_SLIDES);
+if (token.age > TOKEN_EXPIRY_HOURS) expireToken()
+const slides = items.slice(0, MAX_CAROUSEL_SLIDES)
 ```
 
 ---
@@ -274,13 +289,23 @@ const slides = items.slice(0, MAX_CAROUSEL_SLIDES);
 
 ```jsx
 // WRONG
-{items.map((item, i) => <Item key={i} />)}
-<span>{order.status === 'done' ? 'Done' : order.status === 'pending' ? 'Pending' : '?'}</span>
+{
+  items.map((item, i) => <Item key={i} />)
+}
+;<span>
+  {order.status === "done"
+    ? "Done"
+    : order.status === "pending"
+      ? "Pending"
+      : "?"}
+</span>
 
 // CORRECT
-{items.map(item => <Item key={item.id} />)}
-const statusLabel = getOrderStatusLabel(order.status);
-<span>{statusLabel}</span>
+{
+  items.map((item) => <Item key={item.id} />)
+}
+const statusLabel = getOrderStatusLabel(order.status)
+;<span>{statusLabel}</span>
 ```
 
 ---
