@@ -16,6 +16,19 @@
     "fallbackTitle": "العروض ستتوفر قريبا",
     "fallbackDescription": "لا توجد شرائح متاحة حاليا. يرجى المحاولة بعد قليل."
   },
+  "HomeCategoryGrid": {
+    "title": "تصفح الفئات",
+    "description": "استكشف عائلات المنتجات للوصول بسرعة إلى القسم المناسب في الكتالوج.",
+    "loadingLabel": "جار تحميل الفئات",
+    "errorTitle": "الفئات غير متاحة مؤقتا",
+    "errorDescription": "تعذر تحميل الفئات حاليا. يرجى المحاولة لاحقا.",
+    "fallbackDataTitle": "يتم عرض بيانات فئات مؤقتة",
+    "fallbackDataDescription": "الفئات المعروضة مؤقتة حتى يتم ربط بيانات الواجهة الخلفية.",
+    "emptyTitle": "لا توجد فئات متاحة",
+    "emptyDescription": "لم يتم نشر أي فئات نشطة بعد.",
+    "categoryImageAlt": "صورة معبرة عن الفئة {categoryName}",
+    "categoryLinkLabel": "عرض فئة {categoryName}"
+  },
   "Layout": {
     "search": "بحث",
     "searchPlaceholder": "ابحث عن منتج او فئة...",
@@ -75,6 +88,10 @@
     "cart": {
       "title": "السلة",
       "description": "راجع المنتجات وعدل الكميات ثم انتقل إلى اتمام الطلب."
+    },
+    "category": {
+      "title": "الفئة: {categorySlug}",
+      "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
     }
   },
   "A11y": {

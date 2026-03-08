@@ -16,6 +16,19 @@
     "fallbackTitle": "מבצעים יופיעו בקרוב",
     "fallbackDescription": "אין כרגע שקופיות זמינות. נסה שוב בעוד רגע."
   },
+  "HomeCategoryGrid": {
+    "title": "גלו קטגוריות",
+    "description": "עברו בין משפחות המוצרים והגיעו במהירות לקטלוג המתאים.",
+    "loadingLabel": "טוען קטגוריות",
+    "errorTitle": "הקטגוריות אינן זמינות זמנית",
+    "errorDescription": "לא ניתן לטעון קטגוריות כרגע. נסו שוב מאוחר יותר.",
+    "fallbackDataTitle": "מוצגים נתוני קטגוריות זמניים",
+    "fallbackDataDescription": "הקטגוריות המוצגות זמניות עד לחיבור נתוני הבקאנד.",
+    "emptyTitle": "אין קטגוריות זמינות",
+    "emptyDescription": "עדיין לא פורסמו קטגוריות פעילות.",
+    "categoryImageAlt": "תמונה מייצגת עבור הקטגוריה {categoryName}",
+    "categoryLinkLabel": "פתח את הקטגוריה {categoryName}"
+  },
   "Layout": {
     "search": "חיפוש",
     "searchPlaceholder": "חפש מוצר או קטגוריה...",
@@ -75,6 +88,10 @@
     "cart": {
       "title": "סל קניות",
       "description": "בדוק את הפריטים, עדכן כמויות והמשך לתשלום."
+    },
+    "category": {
+      "title": "קטגוריה: {categorySlug}",
+      "description": "דף הקטלוג של הקטגוריה {categorySlug} יורחב עם מוצרים כאשר החיבור לבקאנד יושלם."
     }
   },
   "A11y": {

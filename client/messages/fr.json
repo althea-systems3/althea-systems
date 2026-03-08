@@ -16,6 +16,19 @@
     "fallbackTitle": "Promotions bientot disponibles",
     "fallbackDescription": "Aucune slide n'est disponible pour le moment. Revenez dans quelques instants."
   },
+  "HomeCategoryGrid": {
+    "title": "Nos categories",
+    "description": "Explorez nos univers produits et trouvez rapidement la gamme adaptee a votre besoin.",
+    "loadingLabel": "Chargement des categories",
+    "errorTitle": "Categories temporairement indisponibles",
+    "errorDescription": "Impossible de charger les categories pour le moment. Veuillez reessayer plus tard.",
+    "fallbackDataTitle": "Affichage temporaire des categories",
+    "fallbackDataDescription": "Les categories affichees sont temporaires jusqu'a la connexion du backend.",
+    "emptyTitle": "Aucune categorie disponible",
+    "emptyDescription": "Les categories actives n'ont pas encore ete publiees.",
+    "categoryImageAlt": "Image representative de la categorie {categoryName}",
+    "categoryLinkLabel": "Voir la categorie {categoryName}"
+  },
   "Layout": {
     "search": "Recherche",
     "searchPlaceholder": "Rechercher un produit, une categorie...",
@@ -75,6 +88,10 @@
     "cart": {
       "title": "Panier",
       "description": "Revoyez vos articles, ajustez les quantites et preparez votre validation de commande."
+    },
+    "category": {
+      "title": "Categorie : {categorySlug}",
+      "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
     }
   },
   "A11y": {
