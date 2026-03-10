@@ -72,7 +72,9 @@ export interface Database {
       panier: TableHelper<Panier>;
       ligne_panier: TableHelper<LignePanier>;
     };
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {};
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Functions: {};
   };
 }
