@@ -18,6 +18,11 @@ import {
 import type { ComponentType, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import {
   FOOTER_LINK_ITEMS,
   INSTAGRAM_SOCIAL_URL,
   LINKEDIN_SOCIAL_URL,
@@ -175,18 +180,20 @@ export function MainLayout({ children }: MainLayoutProps) {
               <label htmlFor="global-search" className="sr-only">
                 {translateLayout("search")}
               </label>
-              <div className="relative">
-                <Search
-                  className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-slate-500"
-                  aria-hidden="true"
-                />
-                <input
+              <InputGroup>
+                <InputGroupInput
                   id="global-search"
                   type="search"
                   placeholder={translateLayout("searchPlaceholder")}
-                  className="w-full rounded-full border border-border bg-white py-2 ps-9 pe-3 text-sm text-slate-700 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cta"
+                  className="ps-9"
                 />
-              </div>
+                <InputGroupAddon
+                  align="inline-start"
+                  className="text-slate-500"
+                >
+                  <Search className="size-4" aria-hidden="true" />
+                </InputGroupAddon>
+              </InputGroup>
             </form>
           </div>
         </div>

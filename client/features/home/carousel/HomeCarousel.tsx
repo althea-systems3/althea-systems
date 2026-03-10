@@ -3,7 +3,16 @@
 import Image from "next/image"
 import { useTranslations } from "next-intl"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { useHomeCarousel } from "./useHomeCarousel"
@@ -33,32 +42,36 @@ export function HomeCarousel() {
 
   if (isCarouselLoading) {
     return (
-      <section
+      <Card
         aria-live="polite"
-        className="relative overflow-hidden rounded-2xl bg-slate-100"
+        className="relative overflow-hidden bg-slate-100"
       >
-        <div className="animate-pulse p-8 sm:p-12 lg:p-16">
-          <div className="h-6 w-40 rounded bg-slate-200" />
-          <div className="mt-4 h-5 w-3/4 rounded bg-slate-200" />
-          <div className="mt-8 h-10 w-36 rounded-full bg-slate-200" />
-        </div>
-      </section>
+        <CardContent className="space-y-4 p-8 sm:p-12 lg:p-16">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-10 w-36 rounded-full" />
+        </CardContent>
+      </Card>
     )
   }
 
   if (hasNoSlides) {
     return (
-      <section
+      <Card
         aria-live="polite"
-        className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center sm:p-10"
+        className="border-dashed border-slate-300 bg-white text-center"
       >
-        <h2 className="heading-font text-2xl text-brand-nav">
-          {translateCarousel("fallbackTitle")}
-        </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600 sm:text-base">
-          {translateCarousel("fallbackDescription")}
-        </p>
-      </section>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-brand-nav">
+            {translateCarousel("fallbackTitle")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CardDescription className="mx-auto max-w-xl text-sm text-slate-600 sm:text-base">
+            {translateCarousel("fallbackDescription")}
+          </CardDescription>
+        </CardContent>
+      </Card>
     )
   }
 
@@ -107,6 +120,9 @@ export function HomeCarousel() {
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-900/35 to-transparent" />
 
               <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white sm:p-10 lg:max-w-2xl">
+                <Badge className="w-fit bg-brand-cta text-white hover:bg-brand-cta/90">
+                  {translateCarousel("badgeLabel")}
+                </Badge>
                 <h2 className="heading-font text-center text-2xl sm:text-3xl lg:text-left lg:text-4xl">
                   {carouselSlide.title}
                 </h2>
