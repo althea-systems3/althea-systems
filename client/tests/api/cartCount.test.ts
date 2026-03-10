@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-// -- Mocks Supabase --
-
 const mockGetUser = vi.fn();
-const mockSelect = vi.fn();
-const mockEq = vi.fn();
-const mockLimit = vi.fn();
-const mockSingle = vi.fn();
+const mockGetCartSessionId = vi.fn();
+
+// NOTE: from('panier') → .select().eq().limit(1).single()
+// NOTE: from('ligne_panier') → .select().eq()
+const mockPanierSingle = vi.fn();
+const mockLignePanierEq = vi.fn();
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(() => Promise.resolve({})),
@@ -20,13 +20,20 @@ vi.mock('@/lib/supabase/server', () => ({
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
-    from: () => ({ select: mockSelect }),
+    from: (tableName: string) => {
+      if (tableName === 'panier') {
+        return {
+          select: () => ({
+            eq: () => ({ limit: () => ({ single: mockPanierSingle }) }),
+          }),
+        };
+      }
+      return {
+        select: () => ({ eq: mockLignePanierEq }),
+      };
+    },
   }),
 }));
-
-// -- Mock session panier guest --
-
-const mockGetCartSessionId = vi.fn();
 
 vi.mock('@/lib/auth/cartSession', () => ({
   getCartSessionId: () => mockGetCartSessionId(),
@@ -37,10 +44,6 @@ import { GET } from '@/app/api/cart/count/route';
 describe('GET /api/cart/count', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockSelect.mockReturnValue({ eq: mockEq });
-    mockEq.mockReturnValue({ limit: mockLimit });
-    mockLimit.mockReturnValue({ single: mockSingle });
   });
 
   it('retourne un panier vide quand aucun utilisateur ni session guest', async () => {
@@ -57,10 +60,10 @@ describe('GET /api/cart/count', () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: 'user-123' } },
     });
-    mockSingle.mockResolvedValueOnce({
+    mockPanierSingle.mockResolvedValueOnce({
       data: { id_panier: 'cart-abc' },
     });
-    mockEq.mockResolvedValueOnce({
+    mockLignePanierEq.mockResolvedValueOnce({
       data: [
         { quantite: 2, produit: { prix_ttc: 10.50 } },
         { quantite: 1, produit: { prix_ttc: 5.00 } },
@@ -77,13 +80,11 @@ describe('GET /api/cart/count', () => {
   it('retourne le count et total pour un guest avec session cookie', async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
     mockGetCartSessionId.mockResolvedValue('session-xyz');
-    mockSingle.mockResolvedValueOnce({
+    mockPanierSingle.mockResolvedValueOnce({
       data: { id_panier: 'cart-guest' },
     });
-    mockEq.mockResolvedValueOnce({
-      data: [
-        { quantite: 3, produit: { prix_ttc: 8.00 } },
-      ],
+    mockLignePanierEq.mockResolvedValueOnce({
+      data: [{ quantite: 3, produit: { prix_ttc: 8.00 } }],
     });
 
     const response = await GET();
@@ -97,10 +98,10 @@ describe('GET /api/cart/count', () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: 'user-456' } },
     });
-    mockSingle.mockResolvedValueOnce({
+    mockPanierSingle.mockResolvedValueOnce({
       data: { id_panier: 'cart-empty' },
     });
-    mockEq.mockResolvedValueOnce({ data: [] });
+    mockLignePanierEq.mockResolvedValueOnce({ data: [] });
 
     const response = await GET();
     const body = await response.json();
