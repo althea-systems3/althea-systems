@@ -7,6 +7,10 @@ import { getCartSessionId } from '@/lib/auth/cartSession';
 
 export const dynamic = 'force-dynamic';
 
+// NOTE: Types temporaires en attendant les types auto-générés Supabase
+interface PanierRow { id_panier: string }
+interface CartLineRow { quantite: number; produit: { prix_ttc: number } | null }
+
 const EMPTY_CART_RESPONSE = { count: 0, total: 0 };
 
 export async function GET() {
@@ -31,45 +35,47 @@ export async function GET() {
 
 async function fetchCartByUserId(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
-  userId: string
-) {
-  const { data: userCart } = await supabaseAdmin
+  userId: string,
+): Promise<PanierRow | null> {
+  const { data } = await supabaseAdmin
     .from('panier')
     .select('id_panier')
     .eq('id_utilisateur', userId)
     .limit(1)
     .single();
 
-  return userCart;
+  return data as PanierRow | null;
 }
 
 async function fetchCartBySession(
-  supabaseAdmin: ReturnType<typeof createAdminClient>
-) {
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+): Promise<PanierRow | null> {
   const sessionId = await getCartSessionId();
 
   if (!sessionId) {
     return null;
   }
 
-  const { data: guestCart } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from('panier')
     .select('id_panier')
     .eq('session_id', sessionId)
     .limit(1)
     .single();
 
-  return guestCart;
+  return data as PanierRow | null;
 }
 
 async function calculateCartTotals(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
-  cartId: string
+  cartId: string,
 ) {
-  const { data: cartLines } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from('ligne_panier')
     .select('quantite, produit:id_produit(prix_ttc)')
     .eq('id_panier', cartId);
+
+  const cartLines = data as CartLineRow[] | null;
 
   if (!cartLines || cartLines.length === 0) {
     return EMPTY_CART_RESPONSE;
@@ -77,11 +83,11 @@ async function calculateCartTotals(
 
   const totalItemsCount = cartLines.reduce(
     (sum, line) => sum + line.quantite,
-    0
+    0,
   );
 
   const totalPrice = cartLines.reduce((sum, line) => {
-    const productPrice = (line.produit as { prix_ttc: number } | null)?.prix_ttc ?? 0;
+    const productPrice = line.produit?.prix_ttc ?? 0;
     return sum + line.quantite * Number(productPrice);
   }, 0);
 

@@ -8,6 +8,10 @@ import { verifyCsrf } from '@/lib/auth/csrf';
 
 export const dynamic = 'force-dynamic';
 
+// NOTE: Types temporaires en attendant les types auto-générés Supabase
+interface PanierRow { id_panier: string }
+interface LignePanierRow { id_produit: string; quantite: number }
+
 export async function POST(request: NextRequest) {
   const csrfError = verifyCsrf(request);
 
@@ -61,21 +65,21 @@ export async function POST(request: NextRequest) {
 
 async function fetchGuestCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
-  sessionId: string
-) {
-  const { data: guestCart } = await supabaseAdmin
+  sessionId: string,
+): Promise<PanierRow | null> {
+  const { data } = await supabaseAdmin
     .from('panier')
     .select('id_panier')
     .eq('session_id', sessionId)
     .single();
 
-  return guestCart;
+  return data as PanierRow | null;
 }
 
 async function fetchOrCreateUserCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
-  userId: string
-) {
+  userId: string,
+): Promise<PanierRow | null> {
   const { data: existingCart } = await supabaseAdmin
     .from('panier')
     .select('id_panier')
@@ -83,27 +87,29 @@ async function fetchOrCreateUserCart(
     .single();
 
   if (existingCart) {
-    return existingCart;
+    return existingCart as PanierRow;
   }
 
   const { data: newCart } = await supabaseAdmin
     .from('panier')
-    .insert({ id_utilisateur: userId })
+    .insert({ id_utilisateur: userId } as never)
     .select('id_panier')
     .single();
 
-  return newCart;
+  return newCart as PanierRow | null;
 }
 
 async function mergeGuestLinesIntoUserCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   guestCartId: string,
-  userCartId: string
+  userCartId: string,
 ) {
-  const { data: guestLines } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from('ligne_panier')
     .select('id_produit, quantite')
     .eq('id_panier', guestCartId);
+
+  const guestLines = data as LignePanierRow[] | null;
 
   if (!guestLines || guestLines.length === 0) {
     return;
@@ -119,15 +125,15 @@ async function mergeGuestLinesIntoUserCart(
           id_panier: userCartId,
           id_produit: guestLine.id_produit,
           quantite: guestLine.quantite,
-        },
-        { onConflict: 'id_panier,id_produit' }
+        } as never,
+        { onConflict: 'id_panier,id_produit' },
       );
   }
 }
 
 async function deleteGuestCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
-  guestCartId: string
+  guestCartId: string,
 ) {
   // NOTE: ON DELETE CASCADE supprime aussi les ligne_panier associées
   await supabaseAdmin
