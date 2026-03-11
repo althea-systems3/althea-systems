@@ -29,6 +29,23 @@
     "categoryImageAlt": "صورة معبرة عن الفئة {categoryName}",
     "categoryLinkLabel": "عرض فئة {categoryName}"
   },
+  "HomeTopProductsGrid": {
+    "title": "افضل المنتجات حاليا",
+    "description": "اكتشف المنتجات المميزة المرتبة من لوحة الادارة.",
+    "loadingLabel": "جار تحميل افضل المنتجات",
+    "errorTitle": "افضل المنتجات غير متاحة مؤقتا",
+    "errorDescription": "تعذر تحميل افضل المنتجات حاليا. يرجى المحاولة لاحقا.",
+    "fallbackDataTitle": "يتم عرض بيانات مؤقتة لافضل المنتجات",
+    "fallbackDataDescription": "المنتجات المعروضة مؤقتة حتى اكتمال ربط الواجهة الخلفية.",
+    "emptyTitle": "لا توجد منتجات مميزة",
+    "emptyDescription": "لم يتم نشر اي منتج مميز نشط بعد.",
+    "productImageAlt": "الصورة الرئيسية للمنتج {productName}",
+    "missingImageLabel": "صورة المنتج قريبا",
+    "productLinkLabel": "عرض صفحة المنتج {productName}",
+    "availabilityAvailable": "متوفر",
+    "availabilityOutOfStock": "نفد المخزون",
+    "priceUnavailable": "السعر غير متاح"
+  },
   "Layout": {
     "search": "بحث",
     "searchPlaceholder": "ابحث عن منتج او فئة...",

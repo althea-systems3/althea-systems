@@ -29,6 +29,23 @@
     "categoryImageAlt": "Image representative de la categorie {categoryName}",
     "categoryLinkLabel": "Voir la categorie {categoryName}"
   },
+  "HomeTopProductsGrid": {
+    "title": "Les Top Produits du moment",
+    "description": "Decouvrez les produits vedettes mis en avant et ordonnes depuis le backoffice.",
+    "loadingLabel": "Chargement des top produits",
+    "errorTitle": "Top produits temporairement indisponibles",
+    "errorDescription": "Impossible de charger les top produits pour le moment. Veuillez reessayer plus tard.",
+    "fallbackDataTitle": "Affichage temporaire des top produits",
+    "fallbackDataDescription": "Les produits affiches sont temporaires jusqu'a la finalisation du backend.",
+    "emptyTitle": "Aucun top produit disponible",
+    "emptyDescription": "Aucun produit vedette actif n'a encore ete publie.",
+    "productImageAlt": "Image principale du produit {productName}",
+    "missingImageLabel": "Image produit bientot disponible",
+    "productLinkLabel": "Voir la fiche produit {productName}",
+    "availabilityAvailable": "Disponible",
+    "availabilityOutOfStock": "Rupture",
+    "priceUnavailable": "Prix non disponible"
+  },
   "Layout": {
     "search": "Recherche",
     "searchPlaceholder": "Rechercher un produit, une categorie...",

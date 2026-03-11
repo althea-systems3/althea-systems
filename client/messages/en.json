@@ -29,6 +29,23 @@
     "categoryImageAlt": "Representative image for category {categoryName}",
     "categoryLinkLabel": "Open category {categoryName}"
   },
+  "HomeTopProductsGrid": {
+    "title": "Top Products Right Now",
+    "description": "Discover featured products curated and ordered from the backoffice.",
+    "loadingLabel": "Loading top products",
+    "errorTitle": "Top products are temporarily unavailable",
+    "errorDescription": "We cannot load top products right now. Please try again later.",
+    "fallbackDataTitle": "Temporary top product data is displayed",
+    "fallbackDataDescription": "Displayed products are temporary until backend delivery is complete.",
+    "emptyTitle": "No top product available",
+    "emptyDescription": "No active featured product has been published yet.",
+    "productImageAlt": "Main image for product {productName}",
+    "missingImageLabel": "Product image coming soon",
+    "productLinkLabel": "Open product page for {productName}",
+    "availabilityAvailable": "Available",
+    "availabilityOutOfStock": "Out of stock",
+    "priceUnavailable": "Price unavailable"
+  },
   "Layout": {
     "search": "Search",
     "searchPlaceholder": "Search for a product or category...",

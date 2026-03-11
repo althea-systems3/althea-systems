@@ -29,6 +29,23 @@
     "categoryImageAlt": "תמונה מייצגת עבור הקטגוריה {categoryName}",
     "categoryLinkLabel": "פתח את הקטגוריה {categoryName}"
   },
+  "HomeTopProductsGrid": {
+    "title": "מוצרי הטופ של הרגע",
+    "description": "גלו מוצרים מובילים שנבחרו ומסודרים מלוח הניהול.",
+    "loadingLabel": "טוען מוצרי טופ",
+    "errorTitle": "מוצרי הטופ אינם זמינים זמנית",
+    "errorDescription": "לא ניתן לטעון את מוצרי הטופ כרגע. נסו שוב מאוחר יותר.",
+    "fallbackDataTitle": "מוצגים נתוני מוצרי טופ זמניים",
+    "fallbackDataDescription": "המוצרים המוצגים זמניים עד להשלמת חיבור הבקאנד.",
+    "emptyTitle": "אין מוצרי טופ זמינים",
+    "emptyDescription": "עדיין לא פורסם מוצר מוביל פעיל.",
+    "productImageAlt": "תמונה ראשית עבור המוצר {productName}",
+    "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+    "productLinkLabel": "פתח את דף המוצר של {productName}",
+    "availabilityAvailable": "זמין",
+    "availabilityOutOfStock": "אזל מהמלאי",
+    "priceUnavailable": "המחיר לא זמין"
+  },
   "Layout": {
     "search": "חיפוש",
     "searchPlaceholder": "חפש מוצר או קטגוריה...",
