@@ -62,6 +62,11 @@ export interface LignePanier {
   quantite: number;
 }
 
+export interface ProduitCategorie {
+  id_produit: string;
+  id_categorie: string;
+}
+
 // NOTE: Type Database minimal pour typer le client Supabase.
 // Remplacer par les types auto-générés (npx supabase gen types)
 // une fois le projet connecté à Supabase.
@@ -82,6 +87,7 @@ export interface Database {
       panier: TableHelper<Panier>;
       ligne_panier: TableHelper<LignePanier>;
       carrousel: TableHelper<Carrousel>;
+      produit_categorie: TableHelper<ProduitCategorie>;
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {};
