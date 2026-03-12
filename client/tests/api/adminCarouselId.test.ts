@@ -11,12 +11,9 @@ const mockSelectSingle = vi.fn();
 const mockUpdateSingle = vi.fn();
 const mockDeleteEq = vi.fn();
 const mockSelectOrder = vi.fn();
-const mockUpdateEq = vi.fn();
 
 const mockFirestoreGet = vi.fn();
-const mockFirestoreDelete = vi.fn();
 const mockStorageGetFiles = vi.fn();
-const mockFileDelete = vi.fn();
 
 vi.mock('@/lib/auth/adminGuard', () => ({
   verifyAdminAccess: () => mockVerifyAdminAccess(),
