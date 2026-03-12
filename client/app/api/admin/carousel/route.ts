@@ -5,14 +5,15 @@ import { getFirestoreClient } from '@/lib/firebase/admin';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
-import { isValidRedirectUrl } from '@/lib/carousel/validation';
+import {
+  validateTitre,
+  validateLienRedirection,
+} from '@/lib/carousel/validation';
 import {
   MAX_CAROUSEL_SLIDES,
   FIRESTORE_IMAGES_CARROUSEL,
 } from '@/lib/carousel/constants';
 import type { Carrousel } from '@/lib/supabase/types';
-
-const TITRE_MAX_LENGTH = 100;
 
 async function fetchAllSlides(): Promise<Carrousel[] | null> {
   const supabase = createAdminClient();
@@ -57,30 +58,6 @@ async function computeNextOrdre(): Promise<number> {
 
   const lastSlide = data as { ordre: number } | null;
   return lastSlide ? lastSlide.ordre + 1 : 1;
-}
-
-function validateTitre(titre: unknown): string | null {
-  if (!titre || typeof titre !== 'string' || titre.trim().length === 0) {
-    return 'Le titre est obligatoire.';
-  }
-
-  if (titre.length > TITRE_MAX_LENGTH) {
-    return `Le titre ne doit pas dépasser ${TITRE_MAX_LENGTH} caractères.`;
-  }
-
-  return null;
-}
-
-function validateLienRedirection(lien: unknown): string | null {
-  if (!lien) {
-    return null;
-  }
-
-  if (typeof lien !== 'string' || !isValidRedirectUrl(lien)) {
-    return 'Le lien doit être une URL interne (commençant par /).';
-  }
-
-  return null;
 }
 
 async function createFirestoreImageDoc(

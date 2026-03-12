@@ -32,6 +32,32 @@ export function isImageWithinSizeLimit(sizeBytes: number): boolean {
   return sizeBytes > 0 && sizeBytes <= MAX_IMAGE_SIZE_BYTES;
 }
 
+const TITRE_MAX_LENGTH = 100;
+
+export function validateTitre(titre: unknown): string | null {
+  if (!titre || typeof titre !== 'string' || titre.trim().length === 0) {
+    return 'Le titre est obligatoire.';
+  }
+
+  if (titre.length > TITRE_MAX_LENGTH) {
+    return `Le titre ne doit pas dépasser ${TITRE_MAX_LENGTH} caractères.`;
+  }
+
+  return null;
+}
+
+export function validateLienRedirection(lien: unknown): string | null {
+  if (!lien) {
+    return null;
+  }
+
+  if (typeof lien !== 'string' || !isValidRedirectUrl(lien)) {
+    return 'Le lien doit être une URL interne (commençant par /).';
+  }
+
+  return null;
+}
+
 export function generateSecureFileName(
   originalName: string,
   slideId: string,
