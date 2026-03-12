@@ -9,11 +9,21 @@ const intlMiddleware = createIntlMiddleware(routing)
 
 const PROTECTED_PATHS = ["/mes-parametres", "/mes-commandes"]
 const AUTH_PATHS = ["/connexion", "/inscription"]
+const ADMIN_API_PREFIX = "/api/admin"
 
 export default async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // NOTE: Les routes /api/admin/* sont protégées au niveau du proxy
+  const isAdminApiRoute = pathname.startsWith(ADMIN_API_PREFIX)
+
+  if (isAdminApiRoute) {
+    return handleAdminApiRoute(request)
+  }
+
   const intlResponse = intlMiddleware(request)
 
-  const pathWithoutLocale = extractPathWithoutLocale(request.nextUrl.pathname)
+  const pathWithoutLocale = extractPathWithoutLocale(pathname)
   const isProtectedRoute = PROTECTED_PATHS.some((path) =>
     pathWithoutLocale.startsWith(path),
   )
@@ -92,6 +102,40 @@ function createSupabaseProxyClient(
   )
 }
 
+async function handleAdminApiRoute(
+  request: NextRequest,
+): Promise<NextResponse> {
+  const hasSupabaseConfig =
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+    Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
+  if (!hasSupabaseConfig) {
+    return NextResponse.json(
+      { error: "Authentification requise." },
+      { status: 401 },
+    )
+  }
+
+  const response = NextResponse.next()
+  const supabaseClient = createSupabaseProxyClient(request, response)
+
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json(
+      { error: "Authentification requise." },
+      { status: 401 },
+    )
+  }
+
+  return response
+}
+
 export const config = {
-  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)"],
+  matcher: [
+    "/((?!trpc|_next|_vercel|.*\\..*).(?!api/(?!admin)).*)",
+    "/api/admin/:path*",
+  ],
 }
