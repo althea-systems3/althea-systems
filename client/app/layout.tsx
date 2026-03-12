@@ -39,7 +39,10 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={isRtlLocale(locale) ? "rtl" : "ltr"}>
-      <body className={`${inter.variable} ${poppins.variable}`}>
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} ${poppins.variable}`}
+      >
         {children}
       </body>
     </html>

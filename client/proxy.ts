@@ -134,8 +134,5 @@ async function handleAdminApiRoute(
 }
 
 export const config = {
-  matcher: [
-    "/((?!trpc|_next|_vercel|.*\\..*).(?!api/(?!admin)).*)",
-    "/api/admin/:path*",
-  ],
+  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)", "/api/admin/:path*"],
 }

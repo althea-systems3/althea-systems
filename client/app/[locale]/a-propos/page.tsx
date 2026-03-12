@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
@@ -177,9 +178,12 @@ export default async function AboutPage() {
     <section className="container py-10 sm:py-14 lg:py-16">
       <div className="mx-auto grid max-w-5xl gap-6 sm:gap-8">
         <header className="rounded-2xl border border-border/80 bg-[#d4f4f7]/60 p-5 sm:p-7">
-          <p className="text-sm font-medium text-[#0a7490]">
+          <Badge
+            variant="secondary"
+            className="w-fit bg-[#d4f4f7] text-[#0a7490] hover:bg-[#c7edf1]"
+          >
             {localeContent.badge}
-          </p>
+          </Badge>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#0a2540] sm:text-3xl">
             {t("title")}
           </h1>

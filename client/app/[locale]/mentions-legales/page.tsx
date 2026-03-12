@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "@/i18n/navigation"
 
@@ -291,15 +292,21 @@ export default async function LegalPage() {
     <section className="container py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
         <header className="rounded-2xl border border-border/80 bg-[#d4f4f7]/60 p-5 sm:p-7">
+          <Badge
+            variant="secondary"
+            className="w-fit bg-[#d4f4f7] text-[#0a7490] hover:bg-[#c7edf1]"
+          >
+            Althea Systems
+          </Badge>
           <h1 className="text-2xl font-bold tracking-tight text-[#0a2540] sm:text-3xl">
             {t("title")}
           </h1>
           <p className="mt-2 text-base text-muted-foreground">
             {t("description")}
           </p>
-          <p className="mt-3 text-sm text-muted-foreground/70">
+          <Badge variant="outline" className="mt-3 w-fit text-slate-700">
             {localeContent.lastUpdatedLabel} : {localeContent.lastUpdatedDate}
-          </p>
+          </Badge>
         </header>
 
         <div className="grid gap-4 sm:grid-cols-2">
