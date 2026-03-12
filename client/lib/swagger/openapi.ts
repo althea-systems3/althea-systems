@@ -507,6 +507,301 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/categories": {
+      get: {
+        tags: ["Admin - Catégories"],
+        summary: "Lister toutes les catégories",
+        description: "Retourne toutes les catégories triées par ordre avec comptage produits. Accès admin requis.",
+        responses: {
+          "200": {
+            description: "Liste des catégories",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    categories: {
+                      type: "array",
+                      items: {
+                        allOf: [
+                          { $ref: "#/components/schemas/Categorie" },
+                          {
+                            type: "object",
+                            properties: {
+                              nombre_produits: { type: "integer", example: 5 },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+        },
+      },
+      post: {
+        tags: ["Admin - Catégories"],
+        summary: "Créer une catégorie",
+        description: "Crée une nouvelle catégorie. Le slug doit être unique. Accès admin requis.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["nom", "slug"],
+                properties: {
+                  nom: { type: "string", example: "Bijoux" },
+                  slug: { type: "string", example: "bijoux" },
+                  description: { type: "string", nullable: true },
+                  statut: { type: "string", enum: ["active", "inactive"], example: "active" },
+                  image_url: { type: "string", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Catégorie créée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: { $ref: "#/components/schemas/Categorie" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Validation échouée ou slug déjà utilisé" },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+        },
+      },
+    },
+    "/api/admin/categories/{id}": {
+      put: {
+        tags: ["Admin - Catégories"],
+        summary: "Modifier une catégorie",
+        description: "Met à jour les champs d une catégorie existante. Accès admin requis.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nom: { type: "string" },
+                  slug: { type: "string" },
+                  description: { type: "string", nullable: true },
+                  statut: { type: "string", enum: ["active", "inactive"] },
+                  image_url: { type: "string", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Catégorie modifiée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: { $ref: "#/components/schemas/Categorie" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Validation échouée ou slug déjà utilisé" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Catégories"],
+        summary: "Supprimer une catégorie",
+        description: "Supprime la catégorie, ses images Firestore et Storage. Refusé si des produits sont liés. Accès admin requis.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Catégorie supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Produits liés à cette catégorie" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
+    },
+    "/api/admin/categories/{id}/status": {
+      patch: {
+        tags: ["Admin - Catégories"],
+        summary: "Activer / désactiver une catégorie",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["statut"],
+                properties: {
+                  statut: { type: "string", enum: ["active", "inactive"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: { $ref: "#/components/schemas/Categorie" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Statut invalide" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
+    },
+    "/api/admin/categories/{id}/upload": {
+      post: {
+        tags: ["Admin - Catégories"],
+        summary: "Uploader une image pour une catégorie",
+        description: "Upload une image dans Firebase Storage. Formats : jpeg, png, webp. Taille max : 5 Mo.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                required: ["file"],
+                properties: {
+                  file: { type: "string", format: "binary" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Image uploadée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    url: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Fichier invalide" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
+    },
+    "/api/admin/categories/reorder": {
+      patch: {
+        tags: ["Admin - Catégories"],
+        summary: "Réordonner les catégories",
+        description: "Change l ordre d affichage des catégories. Pas de doublons, ordre entier positif.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["categories"],
+                properties: {
+                  categories: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      required: ["id", "ordre_affiche"],
+                      properties: {
+                        id: { type: "string" },
+                        ordre_affiche: { type: "integer", minimum: 1 },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Ordre mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides" },
+          "404": { description: "Une ou plusieurs catégories introuvables" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -567,6 +862,18 @@ export const openApiSpec = {
           lien_redirection: { type: "string", nullable: true },
           ordre: { type: "integer" },
           actif: { type: "boolean" },
+          image_url: { type: "string", nullable: true },
+        },
+      },
+      Categorie: {
+        type: "object",
+        properties: {
+          id_categorie: { type: "string" },
+          nom: { type: "string" },
+          description: { type: "string", nullable: true },
+          slug: { type: "string" },
+          ordre_affiche: { type: "integer" },
+          statut: { type: "string", enum: ["active", "inactive"] },
           image_url: { type: "string", nullable: true },
         },
       },
