@@ -38,6 +38,16 @@ export interface Produit {
   est_top_produit: boolean;
 }
 
+export interface Carrousel {
+  id_slide: string;
+  titre: string;
+  texte: string | null;
+  lien_redirection: string | null;
+  ordre: number;
+  actif: boolean;
+  image_url: string | null;
+}
+
 export interface Panier {
   id_panier: string;
   id_utilisateur: string | null;
@@ -71,6 +81,7 @@ export interface Database {
       produit: TableHelper<Produit>;
       panier: TableHelper<Panier>;
       ligne_panier: TableHelper<LignePanier>;
+      carrousel: TableHelper<Carrousel>;
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {};
