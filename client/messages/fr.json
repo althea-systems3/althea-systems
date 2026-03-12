@@ -88,11 +88,84 @@
     },
     "signIn": {
       "title": "Se connecter",
-      "description": "Accedez a votre espace client pour suivre vos commandes et gerer vos informations."
+      "description": "Accedez a votre espace client pour suivre vos commandes et gerer vos informations.",
+      "form": {
+        "title": "Connexion client",
+        "description": "Renseignez vos identifiants pour acceder a votre compte.",
+        "fields": {
+          "email": {
+            "label": "Adresse e-mail",
+            "placeholder": "vous@entreprise.com"
+          },
+          "password": {
+            "label": "Mot de passe",
+            "placeholder": "Votre mot de passe"
+          },
+          "rememberSession": "Se souvenir de moi sur cet appareil"
+        },
+        "actions": {
+          "submit": "Se connecter",
+          "noAccount": "Vous n'avez pas encore de compte ?",
+          "goToSignUp": "Creer un compte"
+        },
+        "validation": {
+          "emailRequired": "L'adresse e-mail est obligatoire.",
+          "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+          "passwordRequired": "Le mot de passe est obligatoire."
+        },
+        "messages": {
+          "success": "Interface prete : integration API d'authentification a connecter.",
+          "errorHint": "Corrigez les champs signales puis reessayez."
+        }
+      }
     },
     "signUp": {
       "title": "S'inscrire",
-      "description": "Creez un compte pour beneficier d'un suivi de commande et d'une experience personnalisee."
+      "description": "Creez un compte pour beneficier d'un suivi de commande et d'une experience personnalisee.",
+      "form": {
+        "title": "Creation de compte",
+        "description": "Creez votre espace professionnel en quelques etapes.",
+        "fields": {
+          "fullName": {
+            "label": "Nom complet",
+            "placeholder": "Prenom Nom"
+          },
+          "email": {
+            "label": "Adresse e-mail",
+            "placeholder": "vous@entreprise.com"
+          },
+          "password": {
+            "label": "Mot de passe",
+            "placeholder": "Choisissez un mot de passe"
+          },
+          "passwordConfirmation": {
+            "label": "Confirmer le mot de passe",
+            "placeholder": "Retapez votre mot de passe"
+          },
+          "acceptTerms": "J'accepte les conditions d'utilisation et la politique de confidentialite."
+        },
+        "actions": {
+          "submit": "Creer mon compte",
+          "hasAccount": "Vous avez deja un compte ?",
+          "goToSignIn": "Se connecter"
+        },
+        "validation": {
+          "fullNameRequired": "Le nom complet est obligatoire.",
+          "emailRequired": "L'adresse e-mail est obligatoire.",
+          "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+          "passwordRequired": "Le mot de passe est obligatoire.",
+          "passwordMinLength": "Le mot de passe doit contenir au moins 8 caracteres.",
+          "passwordConfirmationRequired": "La confirmation du mot de passe est obligatoire.",
+          "passwordsMismatch": "Les mots de passe ne correspondent pas.",
+          "termsRequired": "Vous devez accepter les conditions pour continuer."
+        },
+        "messages": {
+          "success": "Interface prete : integration API d'inscription a connecter.",
+          "passwordHint": "Utilisez 8 caracteres minimum avec majuscule, minuscule et chiffre.",
+          "passwordStrong": "Mot de passe robuste detecte.",
+          "errorHint": "Corrigez les champs signales puis reessayez."
+        }
+      }
     },
     "settings": {
       "title": "Mes parametres",

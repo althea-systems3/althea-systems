@@ -88,11 +88,84 @@
     },
     "signIn": {
       "title": "تسجيل الدخول",
-      "description": "ادخل إلى حسابك لمتابعة الطلبات وإدارة بياناتك الشخصية."
+      "description": "ادخل إلى حسابك لمتابعة الطلبات وإدارة بياناتك الشخصية.",
+      "form": {
+        "title": "تسجيل دخول العميل",
+        "description": "ادخل بياناتك للوصول إلى حسابك.",
+        "fields": {
+          "email": {
+            "label": "البريد الإلكتروني",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "كلمة المرور",
+            "placeholder": "كلمة المرور الخاصة بك"
+          },
+          "rememberSession": "تذكرني على هذا الجهاز"
+        },
+        "actions": {
+          "submit": "تسجيل الدخول",
+          "noAccount": "ليس لديك حساب بعد؟",
+          "goToSignUp": "إنشاء حساب"
+        },
+        "validation": {
+          "emailRequired": "البريد الإلكتروني مطلوب.",
+          "emailInvalid": "يرجى إدخال بريد إلكتروني صالح.",
+          "passwordRequired": "كلمة المرور مطلوبة."
+        },
+        "messages": {
+          "success": "الواجهة جاهزة: يلزم ربط API المصادقة لاحقا.",
+          "errorHint": "يرجى تصحيح الحقول المحددة ثم المحاولة مرة أخرى."
+        }
+      }
     },
     "signUp": {
       "title": "انشاء حساب",
-      "description": "انشئ حسابا للاستفادة من تتبع الطلبات وتجربة مخصصة."
+      "description": "انشئ حسابا للاستفادة من تتبع الطلبات وتجربة مخصصة.",
+      "form": {
+        "title": "إنشاء حساب",
+        "description": "أنشئ مساحة عملك المهنية في خطوات بسيطة.",
+        "fields": {
+          "fullName": {
+            "label": "الاسم الكامل",
+            "placeholder": "الاسم الأول واسم العائلة"
+          },
+          "email": {
+            "label": "البريد الإلكتروني",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "كلمة المرور",
+            "placeholder": "اختر كلمة مرور"
+          },
+          "passwordConfirmation": {
+            "label": "تأكيد كلمة المرور",
+            "placeholder": "أعد كتابة كلمة المرور"
+          },
+          "acceptTerms": "أوافق على شروط الاستخدام وسياسة الخصوصية."
+        },
+        "actions": {
+          "submit": "إنشاء حسابي",
+          "hasAccount": "لديك حساب بالفعل؟",
+          "goToSignIn": "تسجيل الدخول"
+        },
+        "validation": {
+          "fullNameRequired": "الاسم الكامل مطلوب.",
+          "emailRequired": "البريد الإلكتروني مطلوب.",
+          "emailInvalid": "يرجى إدخال بريد إلكتروني صالح.",
+          "passwordRequired": "كلمة المرور مطلوبة.",
+          "passwordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+          "passwordConfirmationRequired": "تأكيد كلمة المرور مطلوب.",
+          "passwordsMismatch": "كلمتا المرور غير متطابقتين.",
+          "termsRequired": "يجب الموافقة على الشروط للمتابعة."
+        },
+        "messages": {
+          "success": "الواجهة جاهزة: يلزم ربط API التسجيل لاحقا.",
+          "passwordHint": "استخدم 8 أحرف على الأقل مع حرف كبير وصغير ورقم.",
+          "passwordStrong": "تم اكتشاف كلمة مرور قوية.",
+          "errorHint": "يرجى تصحيح الحقول المحددة ثم المحاولة مرة أخرى."
+        }
+      }
     },
     "settings": {
       "title": "اعداداتي",

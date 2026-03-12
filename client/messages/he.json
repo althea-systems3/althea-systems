@@ -88,11 +88,84 @@
     },
     "signIn": {
       "title": "התחבר",
-      "description": "היכנס לחשבון שלך כדי לעקוב אחר הזמנות ולנהל את הנתונים שלך."
+      "description": "היכנס לחשבון שלך כדי לעקוב אחר הזמנות ולנהל את הנתונים שלך.",
+      "form": {
+        "title": "כניסת לקוח",
+        "description": "הזן את פרטי ההתחברות כדי לגשת לחשבון שלך.",
+        "fields": {
+          "email": {
+            "label": "דואר אלקטרוני",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "סיסמה",
+            "placeholder": "הסיסמה שלך"
+          },
+          "rememberSession": "זכור אותי במכשיר זה"
+        },
+        "actions": {
+          "submit": "התחבר",
+          "noAccount": "אין לך חשבון עדיין?",
+          "goToSignUp": "צור חשבון"
+        },
+        "validation": {
+          "emailRequired": "נדרש להזין דואר אלקטרוני.",
+          "emailInvalid": "יש להזין כתובת דואר אלקטרוני תקינה.",
+          "passwordRequired": "נדרשת סיסמה."
+        },
+        "messages": {
+          "success": "הממשק מוכן: יש לחבר את API האימות בהמשך.",
+          "errorHint": "תקן את השדות המסומנים ונסה שוב."
+        }
+      }
     },
     "signUp": {
       "title": "הירשם",
-      "description": "צור חשבון כדי ליהנות ממעקב הזמנות וחוויית קנייה מותאמת."
+      "description": "צור חשבון כדי ליהנות ממעקב הזמנות וחוויית קנייה מותאמת.",
+      "form": {
+        "title": "יצירת חשבון",
+        "description": "צור מרחב מקצועי בכמה שלבים פשוטים.",
+        "fields": {
+          "fullName": {
+            "label": "שם מלא",
+            "placeholder": "שם פרטי ושם משפחה"
+          },
+          "email": {
+            "label": "דואר אלקטרוני",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "סיסמה",
+            "placeholder": "בחר סיסמה"
+          },
+          "passwordConfirmation": {
+            "label": "אימות סיסמה",
+            "placeholder": "הקלד שוב את הסיסמה"
+          },
+          "acceptTerms": "אני מאשר את תנאי השימוש ומדיניות הפרטיות."
+        },
+        "actions": {
+          "submit": "צור את החשבון שלי",
+          "hasAccount": "כבר יש לך חשבון?",
+          "goToSignIn": "התחבר"
+        },
+        "validation": {
+          "fullNameRequired": "נדרש שם מלא.",
+          "emailRequired": "נדרש דואר אלקטרוני.",
+          "emailInvalid": "יש להזין כתובת דואר אלקטרוני תקינה.",
+          "passwordRequired": "נדרשת סיסמה.",
+          "passwordMinLength": "הסיסמה חייבת להכיל לפחות 8 תווים.",
+          "passwordConfirmationRequired": "נדרש אימות סיסמה.",
+          "passwordsMismatch": "הסיסמאות אינן תואמות.",
+          "termsRequired": "יש לאשר את התנאים כדי להמשיך."
+        },
+        "messages": {
+          "success": "הממשק מוכן: יש לחבר את API ההרשמה בהמשך.",
+          "passwordHint": "השתמש לפחות ב-8 תווים עם אות גדולה, אות קטנה ומספר.",
+          "passwordStrong": "זוהתה סיסמה חזקה.",
+          "errorHint": "תקן את השדות המסומנים ונסה שוב."
+        }
+      }
     },
     "settings": {
       "title": "ההגדרות שלי",

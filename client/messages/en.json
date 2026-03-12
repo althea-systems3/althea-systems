@@ -88,11 +88,84 @@
     },
     "signIn": {
       "title": "Sign in",
-      "description": "Access your customer space to track orders and manage your account data."
+      "description": "Access your customer space to track orders and manage your account data.",
+      "form": {
+        "title": "Customer sign in",
+        "description": "Enter your credentials to access your account.",
+        "fields": {
+          "email": {
+            "label": "Email address",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "Password",
+            "placeholder": "Your password"
+          },
+          "rememberSession": "Remember me on this device"
+        },
+        "actions": {
+          "submit": "Sign in",
+          "noAccount": "Do not have an account yet?",
+          "goToSignUp": "Create an account"
+        },
+        "validation": {
+          "emailRequired": "Email address is required.",
+          "emailInvalid": "Please enter a valid email address.",
+          "passwordRequired": "Password is required."
+        },
+        "messages": {
+          "success": "UI ready: connect authentication API integration next.",
+          "errorHint": "Fix the highlighted fields and try again."
+        }
+      }
     },
     "signUp": {
       "title": "Sign up",
-      "description": "Create an account to unlock order tracking and a personalized shopping experience."
+      "description": "Create an account to unlock order tracking and a personalized shopping experience.",
+      "form": {
+        "title": "Create account",
+        "description": "Create your professional space in just a few steps.",
+        "fields": {
+          "fullName": {
+            "label": "Full name",
+            "placeholder": "First name Last name"
+          },
+          "email": {
+            "label": "Email address",
+            "placeholder": "you@company.com"
+          },
+          "password": {
+            "label": "Password",
+            "placeholder": "Choose a password"
+          },
+          "passwordConfirmation": {
+            "label": "Confirm password",
+            "placeholder": "Type your password again"
+          },
+          "acceptTerms": "I accept the terms of use and privacy policy."
+        },
+        "actions": {
+          "submit": "Create my account",
+          "hasAccount": "Already have an account?",
+          "goToSignIn": "Sign in"
+        },
+        "validation": {
+          "fullNameRequired": "Full name is required.",
+          "emailRequired": "Email address is required.",
+          "emailInvalid": "Please enter a valid email address.",
+          "passwordRequired": "Password is required.",
+          "passwordMinLength": "Password must contain at least 8 characters.",
+          "passwordConfirmationRequired": "Password confirmation is required.",
+          "passwordsMismatch": "Passwords do not match.",
+          "termsRequired": "You must accept the terms to continue."
+        },
+        "messages": {
+          "success": "UI ready: connect sign-up API integration next.",
+          "passwordHint": "Use at least 8 characters with uppercase, lowercase, and a number.",
+          "passwordStrong": "Strong password detected.",
+          "errorHint": "Fix the highlighted fields and try again."
+        }
+      }
     },
     "settings": {
       "title": "My settings",

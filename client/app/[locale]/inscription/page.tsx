@@ -1,8 +1,5 @@
-import { getTranslations } from "next-intl/server"
-import { StaticPage } from "@/components/layout/static-page"
+import { SignUpForm } from "@/features/auth/SignUpForm"
 
-export default async function SignUpPage() {
-  const t = await getTranslations("Pages.signUp")
-
-  return <StaticPage title={t("title")} description={t("description")} />
+export default function SignUpPage() {
+  return <SignUpForm />
 }
