@@ -1,4 +1,26 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi, beforeEach } from "vitest"
+
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: () => ({
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          order: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      }),
+    }),
+  }),
+}));
+
+vi.mock('@/lib/firebase/admin', () => ({
+  getFirestoreClient: () => ({
+    collection: () => ({
+      where: () => ({
+        get: vi.fn().mockResolvedValue({ docs: [] }),
+      }),
+    }),
+  }),
+}));
 
 import { GET as getCarouselRoute } from "@/app/api/carousel/route"
 import { GET as getCategoriesRoute } from "@/app/api/categories/route"
@@ -6,6 +28,10 @@ import { GET as getHealthRoute } from "@/app/api/health/route"
 import { GET as getTopProductsRoute } from "@/app/api/top-products/route"
 
 describe("Public API routes smoke tests", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it("returns an ok status for health route", async () => {
     const response = await getHealthRoute()
     const responseBody = await response.json()
@@ -14,7 +40,7 @@ describe("Public API routes smoke tests", () => {
     expect(responseBody).toEqual({ status: "ok" })
   })
 
-  it("returns at least one slide in carousel route", async () => {
+  it("returns fallback slides in carousel route", async () => {
     const response = await getCarouselRoute()
     const responseBody = await response.json()
 
