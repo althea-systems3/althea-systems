@@ -184,6 +184,36 @@
       "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
     }
   },
+  "CataloguePage": {
+    "hero": {
+      "imageAlt": "Image de la categorie {categoryName}",
+      "notFoundTitle": "Categorie introuvable",
+      "notFoundDescription": "La categorie demandee n'existe pas ou n'est plus disponible.",
+      "errorTitle": "Categorie temporairement indisponible",
+      "errorDescription": "Impossible de charger les informations de cette categorie. Veuillez reessayer plus tard."
+    },
+    "products": {
+      "sectionTitle": "Produits de la categorie",
+      "gridLabel": "Liste des produits",
+      "loadingLabel": "Chargement des produits",
+      "errorTitle": "Produits temporairement indisponibles",
+      "errorDescription": "Impossible de charger les produits pour le moment. Veuillez reessayer plus tard.",
+      "emptyTitle": "Aucun produit disponible",
+      "emptyDescription": "Cette categorie ne contient pas encore de produits publies.",
+      "productImageAlt": "Image principale du produit {productName}",
+      "missingImageLabel": "Image produit bientot disponible",
+      "productLinkLabel": "Voir la fiche produit {productName}",
+      "availabilityAvailable": "Disponible",
+      "availabilityOutOfStock": "En rupture de stock",
+      "priceUnavailable": "Prix non disponible",
+      "paginationLabel": "Navigation dans la liste des produits",
+      "previousPage": "Page precedente",
+      "nextPage": "Page suivante",
+      "previous": "Precedent",
+      "next": "Suivant",
+      "pageCounter": "Page {page} sur {totalPages} — {total} produits"
+    }
+  },
   "A11y": {
     "skip": "Aller au contenu principal"
   }

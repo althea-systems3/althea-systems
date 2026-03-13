@@ -184,6 +184,36 @@
       "description": "This category catalog page for {categorySlug} will be enriched with products once the backend is connected."
     }
   },
+  "CataloguePage": {
+    "hero": {
+      "imageAlt": "Image for category {categoryName}",
+      "notFoundTitle": "Category not found",
+      "notFoundDescription": "The requested category does not exist or is no longer available.",
+      "errorTitle": "Category temporarily unavailable",
+      "errorDescription": "We cannot load the information for this category. Please try again later."
+    },
+    "products": {
+      "sectionTitle": "Products in this category",
+      "gridLabel": "Product list",
+      "loadingLabel": "Loading products",
+      "errorTitle": "Products temporarily unavailable",
+      "errorDescription": "We cannot load products right now. Please try again later.",
+      "emptyTitle": "No products available",
+      "emptyDescription": "This category does not have any published products yet.",
+      "productImageAlt": "Main image for product {productName}",
+      "missingImageLabel": "Product image coming soon",
+      "productLinkLabel": "Open product page for {productName}",
+      "availabilityAvailable": "Available",
+      "availabilityOutOfStock": "Out of stock",
+      "priceUnavailable": "Price unavailable",
+      "paginationLabel": "Product list navigation",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "previous": "Previous",
+      "next": "Next",
+      "pageCounter": "Page {page} of {totalPages} — {total} products"
+    }
+  },
   "A11y": {
     "skip": "Skip to main content"
   }

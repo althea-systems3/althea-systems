@@ -184,6 +184,36 @@
       "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
     }
   },
+  "CataloguePage": {
+    "hero": {
+      "imageAlt": "صورة الفئة {categoryName}",
+      "notFoundTitle": "الفئة غير موجودة",
+      "notFoundDescription": "الفئة المطلوبة غير موجودة او لم تعد متاحة.",
+      "errorTitle": "الفئة غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل معلومات هذه الفئة. يرجى المحاولة لاحقا."
+    },
+    "products": {
+      "sectionTitle": "منتجات الفئة",
+      "gridLabel": "قائمة المنتجات",
+      "loadingLabel": "جار تحميل المنتجات",
+      "errorTitle": "المنتجات غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل المنتجات حاليا. يرجى المحاولة لاحقا.",
+      "emptyTitle": "لا توجد منتجات",
+      "emptyDescription": "لا تحتوي هذه الفئة على منتجات منشورة بعد.",
+      "productImageAlt": "الصورة الرئيسية للمنتج {productName}",
+      "missingImageLabel": "صورة المنتج قريبا",
+      "productLinkLabel": "عرض صفحة المنتج {productName}",
+      "availabilityAvailable": "متوفر",
+      "availabilityOutOfStock": "نفد المخزون",
+      "priceUnavailable": "السعر غير متاح",
+      "paginationLabel": "التنقل في قائمة المنتجات",
+      "previousPage": "الصفحة السابقة",
+      "nextPage": "الصفحة التالية",
+      "previous": "السابق",
+      "next": "التالي",
+      "pageCounter": "الصفحة {page} من {totalPages} — {total} منتج"
+    }
+  },
   "A11y": {
     "skip": "تخطي إلى المحتوى الرئيسي"
   }

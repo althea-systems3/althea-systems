@@ -184,6 +184,36 @@
       "description": "דף הקטלוג של הקטגוריה {categorySlug} יורחב עם מוצרים כאשר החיבור לבקאנד יושלם."
     }
   },
+  "CataloguePage": {
+    "hero": {
+      "imageAlt": "תמונה עבור הקטגוריה {categoryName}",
+      "notFoundTitle": "הקטגוריה לא נמצאה",
+      "notFoundDescription": "הקטגוריה המבוקשת אינה קיימת או שאינה זמינה עוד.",
+      "errorTitle": "הקטגוריה אינה זמינה זמנית",
+      "errorDescription": "לא ניתן לטעון את פרטי הקטגוריה. נסו שוב מאוחר יותר."
+    },
+    "products": {
+      "sectionTitle": "מוצרים בקטגוריה",
+      "gridLabel": "רשימת מוצרים",
+      "loadingLabel": "טוען מוצרים",
+      "errorTitle": "המוצרים אינם זמינים זמנית",
+      "errorDescription": "לא ניתן לטעון מוצרים כרגע. נסו שוב מאוחר יותר.",
+      "emptyTitle": "אין מוצרים זמינים",
+      "emptyDescription": "לקטגוריה זו אין עדיין מוצרים מפורסמים.",
+      "productImageAlt": "תמונה ראשית עבור המוצר {productName}",
+      "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+      "productLinkLabel": "פתח את דף המוצר של {productName}",
+      "availabilityAvailable": "זמין",
+      "availabilityOutOfStock": "אזל מהמלאי",
+      "priceUnavailable": "המחיר לא זמין",
+      "paginationLabel": "ניווט ברשימת המוצרים",
+      "previousPage": "עמוד קודם",
+      "nextPage": "עמוד הבא",
+      "previous": "הקודם",
+      "next": "הבא",
+      "pageCounter": "עמוד {page} מתוך {totalPages} — {total} מוצרים"
+    }
+  },
   "A11y": {
     "skip": "דלג לתוכן הראשי"
   }
