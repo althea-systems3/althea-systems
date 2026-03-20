@@ -65,7 +65,7 @@ describe('GET /api/top-products', () => {
     expect(body.isFallbackData).toBe(true);
   });
 
-  it('retourne le fallback si aucun top produit', async () => {
+  it('retourne une liste vide si aucun top produit', async () => {
     mockSupabaseOrder.mockResolvedValue({
       data: [],
       error: null,
@@ -75,7 +75,8 @@ describe('GET /api/top-products', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.isFallbackData).toBe(true);
+    expect(body.isFallbackData).toBe(false);
+    expect(body.products).toHaveLength(0);
   });
 
   it('retourne les top produits enrichis avec images Firestore', async () => {

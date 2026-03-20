@@ -135,7 +135,10 @@ export async function GET() {
     const products = (rawTopProducts ?? []) as Produit[];
 
     if (products.length === 0) {
-      return createFallbackResponse();
+      return NextResponse.json({
+        products: [],
+        isFallbackData: false,
+      });
     }
 
     const productIds = products.map((p) => p.id_produit);

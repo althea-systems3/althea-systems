@@ -135,8 +135,12 @@ export async function GET() {
 
     const activeSlides = await fetchActiveSlides();
 
-    if (!activeSlides || activeSlides.length === 0) {
+    if (!activeSlides) {
       return createFallbackResponse();
+    }
+
+    if (activeSlides.length === 0) {
+      return NextResponse.json({ slides: [], isFallbackData: false });
     }
 
     const slideIds = activeSlides.map((slide) => slide.id_slide);

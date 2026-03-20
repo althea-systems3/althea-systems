@@ -120,7 +120,10 @@ export async function GET() {
     const categories = (rawCategories ?? []) as Categorie[];
 
     if (categories.length === 0) {
-      return createFallbackResponse();
+      return NextResponse.json({
+        categories: [],
+        isFallbackData: false,
+      });
     }
 
     const categoryIds = categories.map((c) => c.id_categorie);
