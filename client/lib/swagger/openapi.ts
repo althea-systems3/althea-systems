@@ -802,6 +802,149 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/top-produits": {
+      get: {
+        tags: ["Admin - Top Produits"],
+        summary: "Lister les produits vedettes",
+        description: "Retourne tous les produits marqués comme top, triés par priorité.",
+        responses: {
+          "200": {
+            description: "Liste des top produits",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    produits: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Produit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Admin - Top Produits"],
+        summary: "Ajouter un produit aux vedettes",
+        description: "Marque un produit publié comme top produit. Limite de 8 produits vedettes.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["id_produit"],
+                properties: {
+                  id_produit: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Produit ajouté aux vedettes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    produit: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Produit non publié, déjà top, ou limite atteinte" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+    },
+    "/api/admin/top-produits/{id}": {
+      delete: {
+        tags: ["Admin - Top Produits"],
+        summary: "Retirer un produit des vedettes",
+        description: "Retire un produit de la sélection home sans le supprimer du catalogue. Réindexe les priorités.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Produit retiré des vedettes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Produit pas dans les top" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+    },
+    "/api/admin/top-produits/reorder": {
+      patch: {
+        tags: ["Admin - Top Produits"],
+        summary: "Réordonner les produits vedettes",
+        description: "Change l ordre de priorité des top produits. Pas de doublons, priorité entier positif.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["produits"],
+                properties: {
+                  produits: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      required: ["id", "priorite"],
+                      properties: {
+                        id: { type: "string" },
+                        priorite: { type: "integer", minimum: 1 },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Ordre mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides" },
+          "404": { description: "Un ou plusieurs produits introuvables dans les top" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -875,6 +1018,22 @@ export const openApiSpec = {
           ordre_affiche: { type: "integer" },
           statut: { type: "string", enum: ["active", "inactive"] },
           image_url: { type: "string", nullable: true },
+        },
+      },
+      Produit: {
+        type: "object",
+        properties: {
+          id_produit: { type: "string" },
+          nom: { type: "string" },
+          description: { type: "string", nullable: true },
+          slug: { type: "string" },
+          prix_ht: { type: "number" },
+          tva: { type: "string", enum: ["20", "10", "5.5", "0"] },
+          prix_ttc: { type: "number" },
+          quantite_stock: { type: "integer" },
+          statut: { type: "string", enum: ["publie", "brouillon"] },
+          priorite: { type: "integer" },
+          est_top_produit: { type: "boolean" },
         },
       },
     },
