@@ -1099,6 +1099,158 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/products/{slug}": {
+      get: {
+        tags: ["Produit public"],
+        summary: "Détail d'un produit par slug",
+        description: "Retourne un produit publié avec images Firestore triées, caractéristiques techniques et disponibilité.",
+        parameters: [
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "interface-audio-dsp-24",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Produit trouvé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        slug: { type: "string" },
+                        description: { type: "string", nullable: true },
+                        priceHt: { type: "number" },
+                        tva: { type: "string" },
+                        priceTtc: { type: "number" },
+                        stockQuantity: { type: "integer" },
+                        isAvailable: { type: "boolean" },
+                        characteristics: { type: "object", nullable: true },
+                        images: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              url: { type: "string" },
+                              ordre: { type: "integer" },
+                              isMain: { type: "boolean" },
+                              altText: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Produit inexistant ou non publié" },
+        },
+      },
+    },
+    "/api/products/{slug}/similar": {
+      get: {
+        tags: ["Produit public"],
+        summary: "Produits similaires",
+        description: "Retourne jusqu'à 6 produits similaires issus des mêmes catégories, triés par disponibilité. Enrichis avec image principale Firestore.",
+        parameters: [
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "interface-audio-dsp-24",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Liste de produits similaires",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          priceTtc: { type: "number", nullable: true },
+                          isAvailable: { type: "boolean" },
+                          imageUrl: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Produit courant inexistant" },
+        },
+      },
+    },
+    "/api/cart/items": {
+      post: {
+        tags: ["Panier"],
+        summary: "Ajouter un produit au panier",
+        description: "Ajoute un produit au panier. Supporte guest (cookie session) et utilisateur connecté. Vérifie stock côté serveur. Incrémente si la ligne existe déjà.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["id_produit", "quantite"],
+                properties: {
+                  id_produit: { type: "string", example: "b2c3d4e5-0001-4000-8000-000000000001" },
+                  quantite: { type: "integer", minimum: 1, example: 1 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Nouvelle ligne créée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    cartLine: {
+                      type: "object",
+                      properties: {
+                        id_ligne_panier: { type: "string" },
+                        id_panier: { type: "string" },
+                        id_produit: { type: "string" },
+                        quantite: { type: "integer" },
+                      },
+                    },
+                    isNewLine: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "200": { description: "Ligne existante incrémentée" },
+          "400": { description: "Payload invalide, rupture de stock ou stock insuffisant" },
+          "404": { description: "Produit inexistant ou non publié" },
+        },
+      },
+    },
   },
   components: {
     schemas: {
