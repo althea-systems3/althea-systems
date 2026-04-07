@@ -993,6 +993,112 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/catalogue/{slug}": {
+      get: {
+        tags: ["Catalogue public"],
+        summary: "Détail d'une catégorie par slug",
+        description: "Retourne les informations d'une catégorie active avec image Firestore. 404 si inactive ou inexistante.",
+        parameters: [
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "audio-professionnel",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Catégorie trouvée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        slug: { type: "string" },
+                        description: { type: "string", nullable: true },
+                        imageUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    notFound: { type: "boolean", example: false },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Catégorie inexistante ou inactive" },
+        },
+      },
+    },
+    "/api/catalogue/{slug}/products": {
+      get: {
+        tags: ["Catalogue public"],
+        summary: "Produits paginés d'une catégorie",
+        description: "Retourne les produits publiés liés à une catégorie, triés par priorité puis disponibilité. Images enrichies depuis Firestore ImagesProduits.",
+        parameters: [
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "audio-professionnel",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", default: 12, maximum: 24 },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée de produits",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          imageUrl: { type: "string", nullable: true },
+                          price: { type: "number", nullable: true },
+                          isAvailable: { type: "boolean" },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        pageSize: { type: "integer" },
+                        total: { type: "integer" },
+                        totalPages: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Catégorie inexistante ou inactive" },
+        },
+      },
+    },
   },
   components: {
     schemas: {

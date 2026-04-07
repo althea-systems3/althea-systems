@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server"
 
 import { createAdminClient } from "@/lib/supabase/admin"
+import { getFirestoreClient } from "@/lib/firebase/admin"
+import { FIRESTORE_IMAGES_PRODUITS } from "@/lib/top-produits/constants"
 import type { Categorie, Produit, ProduitCategorie } from "@/lib/supabase/types"
 
 const DEFAULT_PAGE = 1
 const DEFAULT_PAGE_SIZE = 12
 const MAX_PAGE_SIZE = 24
+const FIRESTORE_IN_QUERY_LIMIT = 30
 
 type CatalogueProductPayload = {
   id: string
@@ -62,12 +65,67 @@ function sortProducts(products: Produit[]): Produit[] {
   })
 }
 
-function mapToPayload(product: Produit): CatalogueProductPayload {
+type FirestoreImageDoc = {
+  produit_id: string
+  images: { url: string; est_principale: boolean }[]
+}
+
+function extractMainImageUrl(imageDoc: FirestoreImageDoc): string | null {
+  const mainImage = imageDoc.images?.find((img) => img.est_principale)
+  return mainImage?.url ?? imageDoc.images?.[0]?.url ?? null
+}
+
+function splitIntoBatches(items: string[]): string[][] {
+  const batches: string[][] = []
+  for (let i = 0; i < items.length; i += FIRESTORE_IN_QUERY_LIMIT) {
+    batches.push(items.slice(i, i + FIRESTORE_IN_QUERY_LIMIT))
+  }
+  return batches
+}
+
+async function fetchProductImages(
+  productIds: string[],
+): Promise<Map<string, string>> {
+  const imageMap = new Map<string, string>()
+
+  if (productIds.length === 0) {
+    return imageMap
+  }
+
+  try {
+    const firestore = getFirestoreClient()
+
+    for (const batch of splitIntoBatches(productIds)) {
+      const snapshot = await firestore
+        .collection(FIRESTORE_IMAGES_PRODUITS)
+        .where("produit_id", "in", batch)
+        .get()
+
+      snapshot.docs.forEach((doc) => {
+        const imageDoc = doc.data() as FirestoreImageDoc
+        const imageUrl = extractMainImageUrl(imageDoc)
+
+        if (imageUrl) {
+          imageMap.set(imageDoc.produit_id, imageUrl)
+        }
+      })
+    }
+  } catch (error) {
+    console.error("Erreur chargement images Firestore produits", { error })
+  }
+
+  return imageMap
+}
+
+function mapToPayload(
+  product: Produit,
+  imageUrl: string | null,
+): CatalogueProductPayload {
   return {
     id: product.id_produit,
     name: product.nom,
     slug: product.slug,
-    imageUrl: null,
+    imageUrl,
     price: product.prix_ttc ?? null,
     isAvailable: product.quantite_stock > 0,
   }
@@ -185,6 +243,9 @@ export async function GET(
     const offset = (safePage - 1) * pageSize
     const paginated = sorted.slice(offset, offset + pageSize)
 
+    const paginatedIds = paginated.map((p) => p.id_produit)
+    const imageMap = await fetchProductImages(paginatedIds)
+
     const pagination: PaginationMeta = {
       page: safePage,
       pageSize,
@@ -193,7 +254,9 @@ export async function GET(
     }
 
     return NextResponse.json({
-      products: paginated.map(mapToPayload),
+      products: paginated.map((p) =>
+        mapToPayload(p, imageMap.get(p.id_produit) ?? null),
+      ),
       pagination,
     })
   } catch (error) {
