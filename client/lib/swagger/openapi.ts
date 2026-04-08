@@ -182,7 +182,7 @@ export const openApiSpec = {
       post: {
         tags: ["Panier"],
         summary: "Fusionner le panier guest dans le panier utilisateur",
-        description: "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Transfère les lignes du panier guest vers le panier de l'utilisateur connecté, puis supprime le panier guest.",
+        description: "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Additionne les quantités guest et user pour chaque produit, plafonne au stock disponible, exclut les produits non publiés, puis supprime le panier guest.",
         parameters: [
           {
             name: "x-csrf-token",
@@ -243,6 +243,50 @@ export const openApiSpec = {
               },
             },
           },
+        },
+      },
+    },
+    "/api/cart": {
+      get: {
+        tags: ["Panier"],
+        summary: "Lecture complète du panier",
+        description: "Retourne le panier avec lignes détaillées (nom, slug, prix, stock, disponibilité), images Firestore, sous-totaux par ligne et totaux globaux. Supporte guest (cookie session) et utilisateur connecté. Exclut silencieusement les produits non publiés.",
+        responses: {
+          "200": {
+            description: "Contenu du panier",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    cartId: { type: "string", nullable: true },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          productId: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          priceTtc: { type: "number" },
+                          quantity: { type: "integer" },
+                          stockQuantity: { type: "integer" },
+                          isAvailable: { type: "boolean" },
+                          isStockSufficient: { type: "boolean" },
+                          subtotalTtc: { type: "number" },
+                          imageUrl: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                    totalItems: { type: "integer", example: 3 },
+                    totalTtc: { type: "number", example: 2198.98 },
+                  },
+                },
+              },
+            },
+          },
+          "500": { description: "Erreur serveur" },
         },
       },
     },
@@ -1248,6 +1292,116 @@ export const openApiSpec = {
           "200": { description: "Ligne existante incrémentée" },
           "400": { description: "Payload invalide, rupture de stock ou stock insuffisant" },
           "404": { description: "Produit inexistant ou non publié" },
+        },
+      },
+    },
+    "/api/cart/items/{id}": {
+      patch: {
+        tags: ["Panier"],
+        summary: "Modifier la quantité d'une ligne",
+        description: "Met à jour la quantité d'une ligne panier. Si quantité = 0, suppression implicite. Vérifie la propriété du panier et le stock disponible. Maximum 99 unités par ligne.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID de la ligne panier (id_ligne_panier)",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["quantite"],
+                properties: {
+                  quantite: { type: "integer", minimum: 0, maximum: 99, example: 3 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Ligne mise à jour ou supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  oneOf: [
+                    {
+                      type: "object",
+                      properties: {
+                        cartLine: {
+                          type: "object",
+                          properties: {
+                            id_ligne_panier: { type: "string" },
+                            id_panier: { type: "string" },
+                            id_produit: { type: "string" },
+                            quantite: { type: "integer" },
+                          },
+                        },
+                      },
+                    },
+                    {
+                      type: "object",
+                      properties: {
+                        deleted: { type: "boolean", example: true },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Quantité invalide ou stock insuffisant",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: { type: "string" },
+                    availableStock: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Panier ou ligne introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Panier"],
+        summary: "Supprimer une ligne du panier",
+        description: "Supprime une ligne panier. Vérifie la propriété du panier avant suppression.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID de la ligne panier (id_ligne_panier)",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Ligne supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    deleted: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Panier ou ligne introuvable" },
+          "500": { description: "Erreur serveur" },
         },
       },
     },
