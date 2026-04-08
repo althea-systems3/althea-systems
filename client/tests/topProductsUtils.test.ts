@@ -14,7 +14,7 @@ describe("topProductsUtils", () => {
     const productPath = getTopProductPagePath(productSlug)
 
     // Assert
-    expect(productPath).toBe("/catalogue/switch-industriel-redondant")
+    expect(productPath).toBe("/catalogue/produit/switch-industriel-redondant")
   })
 
   it("returns true when there is no product to display", () => {
