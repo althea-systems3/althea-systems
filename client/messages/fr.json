@@ -179,6 +179,10 @@
       "title": "Panier",
       "description": "Revoyez vos articles, ajustez les quantites et preparez votre validation de commande."
     },
+    "checkout": {
+      "title": "Checkout",
+      "description": "Finalisez votre commande en verifiant vos informations de livraison et de paiement."
+    },
     "category": {
       "title": "Categorie : {categorySlug}",
       "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
@@ -342,6 +346,57 @@
       "error": "Une erreur est survenue pendant la recherche.",
       "empty": "Aucun resultat trouve.",
       "results": "{count} resultats trouves."
+    }
+  },
+  "CartPage": {
+    "title": "Votre panier",
+    "description": "Ajustez les quantites, retirez des produits et verifiez votre total avant de passer en caisse.",
+    "states": {
+      "loadingLabel": "Chargement du panier",
+      "errorTitle": "Panier temporairement indisponible",
+      "errorDescription": "Impossible de charger votre panier pour le moment. Veuillez reessayer.",
+      "retry": "Reessayer",
+      "emptyTitle": "Votre panier est vide",
+      "emptyDescription": "Ajoutez des produits pour commencer votre commande.",
+      "emptyCta": "Explorer les produits"
+    },
+    "line": {
+      "sectionLabel": "Lignes du panier",
+      "imageAlt": "Image principale du produit {productName}",
+      "missingImageLabel": "Image produit bientot disponible",
+      "unitPrice": "Prix unitaire : {price}",
+      "statusAvailable": "Disponible",
+      "statusOutOfStock": "Rupture",
+      "statusStockConflict": "Stock a corriger",
+      "quantityLabel": "Quantite",
+      "decreaseQuantity": "Diminuer la quantite de {productName}",
+      "quantityInputLabel": "Quantite pour {productName}",
+      "increaseQuantity": "Augmenter la quantite de {productName}",
+      "stockConflictDescription": "Stock restant : {stock}. Reduisez la quantite pour continuer.",
+      "outOfStockDescription": "Ce produit est actuellement en rupture.",
+      "updatingLabel": "Mise a jour en cours...",
+      "subtotalLabel": "Sous-total",
+      "removeLine": "Supprimer {productName} du panier",
+      "removeAction": "Supprimer"
+    },
+    "summary": {
+      "title": "Recapitulatif",
+      "totalItems": "Total articles",
+      "totalItemsValue": "{count} article(s)",
+      "totalTtc": "Total TTC",
+      "checkoutAction": "Passer a la caisse",
+      "checkoutBlockedStock": "Corrigez les lignes en rupture ou en conflit de stock pour continuer.",
+      "checkoutBlockedUpdating": "Patientez pendant la mise a jour du panier."
+    },
+    "feedback": {
+      "refreshing": "Synchronisation du panier...",
+      "lineRemoved": "Produit supprime du panier.",
+      "quantityUpdated": "Quantite mise a jour."
+    },
+    "errors": {
+      "stockInsufficient": "Stock insuffisant. Quantite disponible : {availableStock}.",
+      "updateLineFallback": "Impossible de mettre a jour cette ligne.",
+      "refreshFallback": "Le panier a ete modifie, mais la synchronisation complete a echoue."
     }
   },
   "A11y": {

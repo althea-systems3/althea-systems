@@ -179,6 +179,10 @@
       "title": "Cart",
       "description": "Review your items, adjust quantities, and get ready to checkout."
     },
+    "checkout": {
+      "title": "Checkout",
+      "description": "Finalize your order by confirming shipping and payment details."
+    },
     "category": {
       "title": "Category: {categorySlug}",
       "description": "This category catalog page for {categorySlug} will be enriched with products once the backend is connected."
@@ -342,6 +346,57 @@
       "error": "A search error occurred.",
       "empty": "No result found.",
       "results": "{count} results found."
+    }
+  },
+  "CartPage": {
+    "title": "Your cart",
+    "description": "Update quantities, remove products, and review your total before checkout.",
+    "states": {
+      "loadingLabel": "Loading cart",
+      "errorTitle": "Cart temporarily unavailable",
+      "errorDescription": "We cannot load your cart right now. Please try again.",
+      "retry": "Try again",
+      "emptyTitle": "Your cart is empty",
+      "emptyDescription": "Add products to start your order.",
+      "emptyCta": "Browse products"
+    },
+    "line": {
+      "sectionLabel": "Cart lines",
+      "imageAlt": "Main image for product {productName}",
+      "missingImageLabel": "Product image coming soon",
+      "unitPrice": "Unit price: {price}",
+      "statusAvailable": "Available",
+      "statusOutOfStock": "Out of stock",
+      "statusStockConflict": "Stock to fix",
+      "quantityLabel": "Quantity",
+      "decreaseQuantity": "Decrease quantity for {productName}",
+      "quantityInputLabel": "Quantity for {productName}",
+      "increaseQuantity": "Increase quantity for {productName}",
+      "stockConflictDescription": "Remaining stock: {stock}. Reduce quantity to continue.",
+      "outOfStockDescription": "This product is currently out of stock.",
+      "updatingLabel": "Updating line...",
+      "subtotalLabel": "Line subtotal",
+      "removeLine": "Remove {productName} from cart",
+      "removeAction": "Remove"
+    },
+    "summary": {
+      "title": "Summary",
+      "totalItems": "Total items",
+      "totalItemsValue": "{count} item(s)",
+      "totalTtc": "Total incl. tax",
+      "checkoutAction": "Proceed to checkout",
+      "checkoutBlockedStock": "Fix out-of-stock or invalid quantity lines before checkout.",
+      "checkoutBlockedUpdating": "Please wait while cart updates are in progress."
+    },
+    "feedback": {
+      "refreshing": "Synchronizing cart...",
+      "lineRemoved": "Product removed from cart.",
+      "quantityUpdated": "Quantity updated."
+    },
+    "errors": {
+      "stockInsufficient": "Insufficient stock. Available quantity: {availableStock}.",
+      "updateLineFallback": "Unable to update this cart line.",
+      "refreshFallback": "Cart changed, but full synchronization failed."
     }
   },
   "A11y": {

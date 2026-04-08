@@ -179,6 +179,10 @@
       "title": "السلة",
       "description": "راجع المنتجات وعدل الكميات ثم انتقل إلى اتمام الطلب."
     },
+    "checkout": {
+      "title": "اتمام الطلب",
+      "description": "اكمل طلبك عبر التحقق من بيانات الشحن والدفع."
+    },
     "category": {
       "title": "الفئة: {categorySlug}",
       "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
@@ -342,6 +346,57 @@
       "error": "حدث خطا اثناء البحث.",
       "empty": "لم يتم العثور على نتائج.",
       "results": "تم العثور على {count} نتائج."
+    }
+  },
+  "CartPage": {
+    "title": "سلتك",
+    "description": "عدّل الكميات واحذف المنتجات وتحقق من الإجمالي قبل الانتقال للدفع.",
+    "states": {
+      "loadingLabel": "جار تحميل السلة",
+      "errorTitle": "السلة غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل السلة حاليا. حاول مرة أخرى.",
+      "retry": "إعادة المحاولة",
+      "emptyTitle": "سلتك فارغة",
+      "emptyDescription": "أضف منتجات لبدء الطلب.",
+      "emptyCta": "استعراض المنتجات"
+    },
+    "line": {
+      "sectionLabel": "عناصر السلة",
+      "imageAlt": "الصورة الرئيسية للمنتج {productName}",
+      "missingImageLabel": "صورة المنتج قريبا",
+      "unitPrice": "السعر للوحدة: {price}",
+      "statusAvailable": "متوفر",
+      "statusOutOfStock": "نفد المخزون",
+      "statusStockConflict": "يلزم تصحيح الكمية",
+      "quantityLabel": "الكمية",
+      "decreaseQuantity": "تقليل كمية {productName}",
+      "quantityInputLabel": "كمية {productName}",
+      "increaseQuantity": "زيادة كمية {productName}",
+      "stockConflictDescription": "المخزون المتاح: {stock}. الرجاء تقليل الكمية للمتابعة.",
+      "outOfStockDescription": "هذا المنتج غير متوفر حاليا.",
+      "updatingLabel": "جار تحديث السطر...",
+      "subtotalLabel": "المجموع الفرعي",
+      "removeLine": "حذف {productName} من السلة",
+      "removeAction": "حذف"
+    },
+    "summary": {
+      "title": "الملخص",
+      "totalItems": "إجمالي العناصر",
+      "totalItemsValue": "{count} عنصر",
+      "totalTtc": "الإجمالي شامل الضريبة",
+      "checkoutAction": "الانتقال إلى الدفع",
+      "checkoutBlockedStock": "عدّل العناصر غير المتاحة أو ذات الكمية غير الصالحة قبل المتابعة.",
+      "checkoutBlockedUpdating": "يرجى الانتظار حتى يكتمل تحديث السلة."
+    },
+    "feedback": {
+      "refreshing": "جار مزامنة السلة...",
+      "lineRemoved": "تم حذف المنتج من السلة.",
+      "quantityUpdated": "تم تحديث الكمية."
+    },
+    "errors": {
+      "stockInsufficient": "المخزون غير كاف. الكمية المتاحة: {availableStock}.",
+      "updateLineFallback": "تعذر تحديث هذا السطر.",
+      "refreshFallback": "تم تعديل السلة لكن فشلت المزامنة الكاملة."
     }
   },
   "A11y": {

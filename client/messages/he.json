@@ -179,6 +179,10 @@
       "title": "סל קניות",
       "description": "בדוק את הפריטים, עדכן כמויות והמשך לתשלום."
     },
+    "checkout": {
+      "title": "תשלום",
+      "description": "סיים את ההזמנה על ידי אימות פרטי משלוח ותשלום."
+    },
     "category": {
       "title": "קטגוריה: {categorySlug}",
       "description": "דף הקטלוג של הקטגוריה {categorySlug} יורחב עם מוצרים כאשר החיבור לבקאנד יושלם."
@@ -342,6 +346,57 @@
       "error": "אירעה שגיאה במהלך החיפוש.",
       "empty": "לא נמצאו תוצאות.",
       "results": "נמצאו {count} תוצאות."
+    }
+  },
+  "CartPage": {
+    "title": "העגלה שלך",
+    "description": "עדכנו כמויות, הסירו מוצרים ובדקו את הסכום לפני המעבר לתשלום.",
+    "states": {
+      "loadingLabel": "טוען עגלה",
+      "errorTitle": "העגלה לא זמינה זמנית",
+      "errorDescription": "לא ניתן לטעון את העגלה כרגע. נסו שוב.",
+      "retry": "נסה שוב",
+      "emptyTitle": "העגלה שלך ריקה",
+      "emptyDescription": "הוסיפו מוצרים כדי להתחיל הזמנה.",
+      "emptyCta": "עבור למוצרים"
+    },
+    "line": {
+      "sectionLabel": "שורות עגלה",
+      "imageAlt": "תמונה ראשית עבור המוצר {productName}",
+      "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+      "unitPrice": "מחיר ליחידה: {price}",
+      "statusAvailable": "זמין",
+      "statusOutOfStock": "אזל מהמלאי",
+      "statusStockConflict": "נדרש תיקון כמות",
+      "quantityLabel": "כמות",
+      "decreaseQuantity": "הקטן כמות עבור {productName}",
+      "quantityInputLabel": "כמות עבור {productName}",
+      "increaseQuantity": "הגדל כמות עבור {productName}",
+      "stockConflictDescription": "מלאי זמין: {stock}. יש להפחית כמות כדי להמשיך.",
+      "outOfStockDescription": "המוצר הזה כרגע אינו זמין.",
+      "updatingLabel": "מעדכן שורה...",
+      "subtotalLabel": "סכום ביניים",
+      "removeLine": "הסר את {productName} מהעגלה",
+      "removeAction": "הסר"
+    },
+    "summary": {
+      "title": "סיכום",
+      "totalItems": "סך פריטים",
+      "totalItemsValue": "{count} פריט(ים)",
+      "totalTtc": "סהכ כולל מעמ",
+      "checkoutAction": "המשך לתשלום",
+      "checkoutBlockedStock": "תקן שורות ללא מלאי או עם כמות לא תקינה לפני המשך לתשלום.",
+      "checkoutBlockedUpdating": "יש להמתין לסיום עדכון העגלה."
+    },
+    "feedback": {
+      "refreshing": "מסנכרן עגלה...",
+      "lineRemoved": "המוצר הוסר מהעגלה.",
+      "quantityUpdated": "הכמות עודכנה."
+    },
+    "errors": {
+      "stockInsufficient": "אין מספיק מלאי. כמות זמינה: {availableStock}.",
+      "updateLineFallback": "לא ניתן לעדכן שורה זו.",
+      "refreshFallback": "העגלה עודכנה אך סנכרון מלא נכשל."
     }
   },
   "A11y": {
