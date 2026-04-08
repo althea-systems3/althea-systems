@@ -179,6 +179,10 @@
       "title": "Panier",
       "description": "Revoyez vos articles, ajustez les quantites et preparez votre validation de commande."
     },
+    "checkout": {
+      "title": "Checkout",
+      "description": "Finalisez votre commande en verifiant vos informations de livraison et de paiement."
+    },
     "category": {
       "title": "Categorie : {categorySlug}",
       "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
@@ -212,6 +216,187 @@
       "previous": "Precedent",
       "next": "Suivant",
       "pageCounter": "Page {page} sur {totalPages} — {total} produits"
+    }
+  },
+  "ProductPage": {
+    "loadingLabel": "Chargement de la fiche produit",
+    "errorTitle": "Produit temporairement indisponible",
+    "errorDescription": "Impossible de charger cette fiche produit pour le moment. Veuillez reessayer plus tard.",
+    "notFoundTitle": "Produit introuvable",
+    "notFoundDescription": "Le produit demande n'existe pas ou n'est plus disponible.",
+    "priceUnavailable": "Prix non disponible",
+    "descriptionFallback": "Aucune description n'est disponible pour ce produit.",
+    "availabilityAvailable": "Disponible",
+    "availabilityOutOfStock": "En rupture de stock",
+    "stockLabel": "Stock : {stock}",
+    "gallery": {
+      "sectionLabel": "Galerie d'images du produit",
+      "imageAlt": "Image {index} du produit {productName}",
+      "fallbackLabel": "Image produit bientot disponible",
+      "previousImage": "Image precedente",
+      "nextImage": "Image suivante",
+      "goToImage": "Aller a l'image {index}",
+      "imageCounter": "Image {current} sur {total}"
+    },
+    "characteristics": {
+      "title": "Caracteristiques techniques",
+      "empty": "Aucune caracteristique technique n'est renseignee pour ce produit."
+    },
+    "cta": {
+      "addToCart": "Ajouter au panier",
+      "adding": "Ajout en cours...",
+      "outOfStock": "Indisponible",
+      "success": "Produit ajoute au panier.",
+      "error": "Impossible d'ajouter ce produit au panier.",
+      "errorWithReason": "Impossible d'ajouter ce produit : {reason}"
+    },
+    "similar": {
+      "title": "Produits similaires",
+      "description": "Poursuivez votre navigation avec des references proches de ce produit.",
+      "loadingLabel": "Chargement des produits similaires",
+      "errorTitle": "Produits similaires temporairement indisponibles",
+      "errorDescription": "Impossible de charger les produits similaires pour le moment.",
+      "emptyTitle": "Aucun produit similaire",
+      "emptyDescription": "Aucune suggestion n'est disponible pour ce produit.",
+      "productImageAlt": "Image principale du produit {productName}",
+      "missingImageLabel": "Image produit bientot disponible",
+      "productLinkLabel": "Voir la fiche produit {productName}",
+      "priceUnavailable": "Prix non disponible",
+      "availabilityAvailable": "Disponible",
+      "availabilityOutOfStock": "En rupture de stock"
+    }
+  },
+  "SearchPage": {
+    "title": "Recherche avancee",
+    "description": "Affinez votre recherche avec des facettes combinees pour trouver rapidement les produits les plus pertinents.",
+    "filters": {
+      "title": "Filtres",
+      "openMobile": "Afficher les filtres",
+      "closeMobile": "Masquer les filtres",
+      "quickTextLabel": "Texte global",
+      "quickTextPlaceholder": "Ex: automate, switch, audio...",
+      "titleLabel": "Texte du titre",
+      "titlePlaceholder": "Filtrer sur le titre",
+      "descriptionLabel": "Texte de la description",
+      "descriptionPlaceholder": "Filtrer sur la description",
+      "characteristicsLabel": "Caracteristiques techniques",
+      "characteristicsPlaceholder": "Ex: Modbus, 24 canaux, IP67...",
+      "priceTitle": "Prix TTC",
+      "priceMinLabel": "Prix minimum",
+      "priceMinPlaceholder": "Min",
+      "priceMaxLabel": "Prix maximum",
+      "priceMaxPlaceholder": "Max",
+      "priceRangeHint": "Plage catalogue: {min} a {max}",
+      "categoriesTitle": "Categories",
+      "categoriesLoadingLabel": "Chargement des categories de filtre",
+      "categoriesError": "Impossible de charger les categories.",
+      "categoriesEmpty": "Aucune categorie disponible.",
+      "availableOnlyLabel": "Disponible uniquement",
+      "resetAll": "Reinitialiser les filtres"
+    },
+    "sort": {
+      "criteriaLabel": "Trier par",
+      "orderLabel": "Ordre",
+      "criteriaOptions": {
+        "price": "Prix",
+        "newness": "Nouveaute",
+        "availability": "Disponibilite"
+      },
+      "orderOptions": {
+        "asc": "Ascendant",
+        "desc": "Descendant"
+      }
+    },
+    "results": {
+      "title": "Resultats",
+      "count": "{count} produit(s)",
+      "refreshing": "Mise a jour des resultats...",
+      "paginationLabel": "Navigation des resultats de recherche",
+      "previousPage": "Precedent",
+      "nextPage": "Suivant",
+      "pageCounter": "Page {page} sur {totalPages}"
+    },
+    "activeFilters": {
+      "title": "Filtres actifs",
+      "quickText": "Texte: {value}",
+      "title": "Titre: {value}",
+      "description": "Description: {value}",
+      "characteristics": "Caracteristiques: {value}",
+      "priceMin": "Prix min: {value}",
+      "priceMax": "Prix max: {value}",
+      "category": "Categorie: {categoryName}",
+      "availableOnly": "Disponible uniquement",
+      "removeLabel": "Retirer le filtre {filterLabel}",
+      "resetAll": "Tout effacer"
+    },
+    "states": {
+      "noCriteriaTitle": "Commencez votre recherche",
+      "noCriteriaDescription": "Aucun critere n'est encore saisi.",
+      "noCriteriaHint": "Renseignez un ou plusieurs filtres pour afficher des resultats.",
+      "loadingLabel": "Chargement des resultats de recherche",
+      "emptyTitle": "Aucun resultat",
+      "emptyDescription": "Aucun produit ne correspond aux filtres selectionnes.",
+      "errorTitle": "Erreur de recherche",
+      "errorDescription": "Impossible de charger les resultats pour le moment. Veuillez reessayer.",
+      "partialDataNotice": "Certains resultats sont affiches avec des donnees secondaires manquantes."
+    },
+    "announcements": {
+      "noCriteria": "Aucun critere de recherche saisi.",
+      "loading": "Chargement des resultats en cours.",
+      "error": "Une erreur est survenue pendant la recherche.",
+      "empty": "Aucun resultat trouve.",
+      "results": "{count} resultats trouves."
+    }
+  },
+  "CartPage": {
+    "title": "Votre panier",
+    "description": "Ajustez les quantites, retirez des produits et verifiez votre total avant de passer en caisse.",
+    "states": {
+      "loadingLabel": "Chargement du panier",
+      "errorTitle": "Panier temporairement indisponible",
+      "errorDescription": "Impossible de charger votre panier pour le moment. Veuillez reessayer.",
+      "retry": "Reessayer",
+      "emptyTitle": "Votre panier est vide",
+      "emptyDescription": "Ajoutez des produits pour commencer votre commande.",
+      "emptyCta": "Explorer les produits"
+    },
+    "line": {
+      "sectionLabel": "Lignes du panier",
+      "imageAlt": "Image principale du produit {productName}",
+      "missingImageLabel": "Image produit bientot disponible",
+      "unitPrice": "Prix unitaire : {price}",
+      "statusAvailable": "Disponible",
+      "statusOutOfStock": "Rupture",
+      "statusStockConflict": "Stock a corriger",
+      "quantityLabel": "Quantite",
+      "decreaseQuantity": "Diminuer la quantite de {productName}",
+      "quantityInputLabel": "Quantite pour {productName}",
+      "increaseQuantity": "Augmenter la quantite de {productName}",
+      "stockConflictDescription": "Stock restant : {stock}. Reduisez la quantite pour continuer.",
+      "outOfStockDescription": "Ce produit est actuellement en rupture.",
+      "updatingLabel": "Mise a jour en cours...",
+      "subtotalLabel": "Sous-total",
+      "removeLine": "Supprimer {productName} du panier",
+      "removeAction": "Supprimer"
+    },
+    "summary": {
+      "title": "Recapitulatif",
+      "totalItems": "Total articles",
+      "totalItemsValue": "{count} article(s)",
+      "totalTtc": "Total TTC",
+      "checkoutAction": "Passer a la caisse",
+      "checkoutBlockedStock": "Corrigez les lignes en rupture ou en conflit de stock pour continuer.",
+      "checkoutBlockedUpdating": "Patientez pendant la mise a jour du panier."
+    },
+    "feedback": {
+      "refreshing": "Synchronisation du panier...",
+      "lineRemoved": "Produit supprime du panier.",
+      "quantityUpdated": "Quantite mise a jour."
+    },
+    "errors": {
+      "stockInsufficient": "Stock insuffisant. Quantite disponible : {availableStock}.",
+      "updateLineFallback": "Impossible de mettre a jour cette ligne.",
+      "refreshFallback": "Le panier a ete modifie, mais la synchronisation complete a echoue."
     }
   },
   "A11y": {

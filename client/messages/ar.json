@@ -179,6 +179,10 @@
       "title": "السلة",
       "description": "راجع المنتجات وعدل الكميات ثم انتقل إلى اتمام الطلب."
     },
+    "checkout": {
+      "title": "اتمام الطلب",
+      "description": "اكمل طلبك عبر التحقق من بيانات الشحن والدفع."
+    },
     "category": {
       "title": "الفئة: {categorySlug}",
       "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
@@ -212,6 +216,187 @@
       "previous": "السابق",
       "next": "التالي",
       "pageCounter": "الصفحة {page} من {totalPages} — {total} منتج"
+    }
+  },
+  "ProductPage": {
+    "loadingLabel": "جار تحميل صفحة المنتج",
+    "errorTitle": "المنتج غير متاح مؤقتا",
+    "errorDescription": "تعذر تحميل صفحة هذا المنتج حاليا. يرجى المحاولة لاحقا.",
+    "notFoundTitle": "المنتج غير موجود",
+    "notFoundDescription": "المنتج المطلوب غير موجود او لم يعد متاحا.",
+    "priceUnavailable": "السعر غير متاح",
+    "descriptionFallback": "لا يوجد وصف متاح لهذا المنتج.",
+    "availabilityAvailable": "متوفر",
+    "availabilityOutOfStock": "نفد المخزون",
+    "stockLabel": "المخزون: {stock}",
+    "gallery": {
+      "sectionLabel": "معرض صور المنتج",
+      "imageAlt": "الصورة {index} للمنتج {productName}",
+      "fallbackLabel": "صورة المنتج قريبا",
+      "previousImage": "الصورة السابقة",
+      "nextImage": "الصورة التالية",
+      "goToImage": "الانتقال إلى الصورة {index}",
+      "imageCounter": "الصورة {current} من {total}"
+    },
+    "characteristics": {
+      "title": "الخصائص التقنية",
+      "empty": "لا توجد خصائص تقنية متاحة لهذا المنتج."
+    },
+    "cta": {
+      "addToCart": "اضف إلى السلة",
+      "adding": "جار الاضافة...",
+      "outOfStock": "غير متوفر",
+      "success": "تمت اضافة المنتج إلى السلة.",
+      "error": "تعذر اضافة هذا المنتج إلى السلة.",
+      "errorWithReason": "تعذر اضافة هذا المنتج: {reason}"
+    },
+    "similar": {
+      "title": "منتجات مشابهة",
+      "description": "واصل التصفح مع منتجات قريبة من هذا المنتج.",
+      "loadingLabel": "جار تحميل المنتجات المشابهة",
+      "errorTitle": "المنتجات المشابهة غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل المنتجات المشابهة حاليا.",
+      "emptyTitle": "لا توجد منتجات مشابهة",
+      "emptyDescription": "لا توجد اقتراحات متاحة لهذا المنتج.",
+      "productImageAlt": "الصورة الرئيسية للمنتج {productName}",
+      "missingImageLabel": "صورة المنتج قريبا",
+      "productLinkLabel": "عرض صفحة المنتج {productName}",
+      "priceUnavailable": "السعر غير متاح",
+      "availabilityAvailable": "متوفر",
+      "availabilityOutOfStock": "نفد المخزون"
+    }
+  },
+  "SearchPage": {
+    "title": "بحث متقدم",
+    "description": "حسن نتائجك باستخدام عدة فلاتر مجتمعة للوصول بسرعة إلى المنتجات المناسبة.",
+    "filters": {
+      "title": "الفلاتر",
+      "openMobile": "عرض الفلاتر",
+      "closeMobile": "اخفاء الفلاتر",
+      "quickTextLabel": "نص عام",
+      "quickTextPlaceholder": "مثال: سويتش، متحكم، صوت...",
+      "titleLabel": "نص العنوان",
+      "titlePlaceholder": "تصفية حسب العنوان",
+      "descriptionLabel": "نص الوصف",
+      "descriptionPlaceholder": "تصفية حسب الوصف",
+      "characteristicsLabel": "الخصائص التقنية",
+      "characteristicsPlaceholder": "مثال: Modbus، 24 قناة، IP67...",
+      "priceTitle": "السعر شامل الضريبة",
+      "priceMinLabel": "الحد الادنى للسعر",
+      "priceMinPlaceholder": "الادنى",
+      "priceMaxLabel": "الحد الاقصى للسعر",
+      "priceMaxPlaceholder": "الاقصى",
+      "priceRangeHint": "نطاق الكتالوج: من {min} الى {max}",
+      "categoriesTitle": "الفئات",
+      "categoriesLoadingLabel": "جار تحميل فلاتر الفئات",
+      "categoriesError": "تعذر تحميل الفئات.",
+      "categoriesEmpty": "لا توجد فئات متاحة.",
+      "availableOnlyLabel": "المتوفر فقط",
+      "resetAll": "اعادة تعيين الفلاتر"
+    },
+    "sort": {
+      "criteriaLabel": "الترتيب حسب",
+      "orderLabel": "الاتجاه",
+      "criteriaOptions": {
+        "price": "السعر",
+        "newness": "الاحدث",
+        "availability": "التوفر"
+      },
+      "orderOptions": {
+        "asc": "تصاعدي",
+        "desc": "تنازلي"
+      }
+    },
+    "results": {
+      "title": "النتائج",
+      "count": "{count} منتج",
+      "refreshing": "جار تحديث النتائج...",
+      "paginationLabel": "التنقل في نتائج البحث",
+      "previousPage": "السابق",
+      "nextPage": "التالي",
+      "pageCounter": "الصفحة {page} من {totalPages}"
+    },
+    "activeFilters": {
+      "title": "الفلاتر النشطة",
+      "quickText": "النص: {value}",
+      "title": "العنوان: {value}",
+      "description": "الوصف: {value}",
+      "characteristics": "الخصائص: {value}",
+      "priceMin": "اقل سعر: {value}",
+      "priceMax": "اعلى سعر: {value}",
+      "category": "الفئة: {categoryName}",
+      "availableOnly": "المتوفر فقط",
+      "removeLabel": "ازالة الفلتر {filterLabel}",
+      "resetAll": "مسح الكل"
+    },
+    "states": {
+      "noCriteriaTitle": "ابدأ البحث",
+      "noCriteriaDescription": "لم يتم ادخال اي معيار بعد.",
+      "noCriteriaHint": "املأ معيارا واحدا او اكثر لعرض النتائج.",
+      "loadingLabel": "جار تحميل نتائج البحث",
+      "emptyTitle": "لا توجد نتائج",
+      "emptyDescription": "لا يوجد منتج يطابق الفلاتر المحددة.",
+      "errorTitle": "خطا في البحث",
+      "errorDescription": "تعذر تحميل النتائج حاليا. حاول مرة اخرى.",
+      "partialDataNotice": "بعض النتائج معروضة مع بيانات ثانوية ناقصة."
+    },
+    "announcements": {
+      "noCriteria": "لم يتم ادخال معايير بحث.",
+      "loading": "جار تحميل نتائج البحث.",
+      "error": "حدث خطا اثناء البحث.",
+      "empty": "لم يتم العثور على نتائج.",
+      "results": "تم العثور على {count} نتائج."
+    }
+  },
+  "CartPage": {
+    "title": "سلتك",
+    "description": "عدّل الكميات واحذف المنتجات وتحقق من الإجمالي قبل الانتقال للدفع.",
+    "states": {
+      "loadingLabel": "جار تحميل السلة",
+      "errorTitle": "السلة غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل السلة حاليا. حاول مرة أخرى.",
+      "retry": "إعادة المحاولة",
+      "emptyTitle": "سلتك فارغة",
+      "emptyDescription": "أضف منتجات لبدء الطلب.",
+      "emptyCta": "استعراض المنتجات"
+    },
+    "line": {
+      "sectionLabel": "عناصر السلة",
+      "imageAlt": "الصورة الرئيسية للمنتج {productName}",
+      "missingImageLabel": "صورة المنتج قريبا",
+      "unitPrice": "السعر للوحدة: {price}",
+      "statusAvailable": "متوفر",
+      "statusOutOfStock": "نفد المخزون",
+      "statusStockConflict": "يلزم تصحيح الكمية",
+      "quantityLabel": "الكمية",
+      "decreaseQuantity": "تقليل كمية {productName}",
+      "quantityInputLabel": "كمية {productName}",
+      "increaseQuantity": "زيادة كمية {productName}",
+      "stockConflictDescription": "المخزون المتاح: {stock}. الرجاء تقليل الكمية للمتابعة.",
+      "outOfStockDescription": "هذا المنتج غير متوفر حاليا.",
+      "updatingLabel": "جار تحديث السطر...",
+      "subtotalLabel": "المجموع الفرعي",
+      "removeLine": "حذف {productName} من السلة",
+      "removeAction": "حذف"
+    },
+    "summary": {
+      "title": "الملخص",
+      "totalItems": "إجمالي العناصر",
+      "totalItemsValue": "{count} عنصر",
+      "totalTtc": "الإجمالي شامل الضريبة",
+      "checkoutAction": "الانتقال إلى الدفع",
+      "checkoutBlockedStock": "عدّل العناصر غير المتاحة أو ذات الكمية غير الصالحة قبل المتابعة.",
+      "checkoutBlockedUpdating": "يرجى الانتظار حتى يكتمل تحديث السلة."
+    },
+    "feedback": {
+      "refreshing": "جار مزامنة السلة...",
+      "lineRemoved": "تم حذف المنتج من السلة.",
+      "quantityUpdated": "تم تحديث الكمية."
+    },
+    "errors": {
+      "stockInsufficient": "المخزون غير كاف. الكمية المتاحة: {availableStock}.",
+      "updateLineFallback": "تعذر تحديث هذا السطر.",
+      "refreshFallback": "تم تعديل السلة لكن فشلت المزامنة الكاملة."
     }
   },
   "A11y": {

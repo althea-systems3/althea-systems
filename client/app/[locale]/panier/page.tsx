@@ -1,8 +1,9 @@
-import { getTranslations } from "next-intl/server"
-import { StaticPage } from "@/components/layout/static-page"
+import { CartPage } from "@/features/cart/CartPage"
 
-export default async function CartPage() {
-  const t = await getTranslations("Pages.cart")
-
-  return <StaticPage title={t("title")} description={t("description")} />
+export default function CartPageRoute() {
+  return (
+    <section className="container py-8 pb-14 sm:py-10 sm:pb-20">
+      <CartPage />
+    </section>
+  )
 }

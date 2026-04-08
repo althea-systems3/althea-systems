@@ -116,7 +116,7 @@ export function CatalogueProductGrid({
       {!isLoading && !hasError && products.length > 0 ? (
         <>
           <ul
-            className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 md:gap-5 lg:grid-cols-4"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-5 lg:grid-cols-4"
             aria-label={t("products.gridLabel")}
           >
             {products.map((product, index) => (

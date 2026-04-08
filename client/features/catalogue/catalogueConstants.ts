@@ -13,4 +13,4 @@ export const CATALOGUE_PRODUCTS_SKELETON_CARD_IDS = [
   "catalogue-product-skeleton-8",
 ]
 
-export const CATALOGUE_PRODUCT_PAGE_PATH_PREFIX = "/catalogue"
+export const CATALOGUE_PRODUCT_PAGE_PATH_PREFIX = "/produits"

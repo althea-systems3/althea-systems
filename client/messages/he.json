@@ -179,6 +179,10 @@
       "title": "סל קניות",
       "description": "בדוק את הפריטים, עדכן כמויות והמשך לתשלום."
     },
+    "checkout": {
+      "title": "תשלום",
+      "description": "סיים את ההזמנה על ידי אימות פרטי משלוח ותשלום."
+    },
     "category": {
       "title": "קטגוריה: {categorySlug}",
       "description": "דף הקטלוג של הקטגוריה {categorySlug} יורחב עם מוצרים כאשר החיבור לבקאנד יושלם."
@@ -212,6 +216,187 @@
       "previous": "הקודם",
       "next": "הבא",
       "pageCounter": "עמוד {page} מתוך {totalPages} — {total} מוצרים"
+    }
+  },
+  "ProductPage": {
+    "loadingLabel": "טוען דף מוצר",
+    "errorTitle": "המוצר אינו זמין זמנית",
+    "errorDescription": "לא ניתן לטעון את דף המוצר כרגע. נסו שוב מאוחר יותר.",
+    "notFoundTitle": "המוצר לא נמצא",
+    "notFoundDescription": "המוצר המבוקש אינו קיים או שאינו זמין עוד.",
+    "priceUnavailable": "המחיר לא זמין",
+    "descriptionFallback": "אין תיאור זמין למוצר זה.",
+    "availabilityAvailable": "זמין",
+    "availabilityOutOfStock": "אזל מהמלאי",
+    "stockLabel": "מלאי: {stock}",
+    "gallery": {
+      "sectionLabel": "גלריית תמונות מוצר",
+      "imageAlt": "תמונה {index} של המוצר {productName}",
+      "fallbackLabel": "תמונת מוצר תופיע בקרוב",
+      "previousImage": "תמונה קודמת",
+      "nextImage": "תמונה הבאה",
+      "goToImage": "עבור לתמונה {index}",
+      "imageCounter": "תמונה {current} מתוך {total}"
+    },
+    "characteristics": {
+      "title": "מפרט טכני",
+      "empty": "אין מפרט טכני זמין עבור מוצר זה."
+    },
+    "cta": {
+      "addToCart": "הוסף לסל",
+      "adding": "מוסיף...",
+      "outOfStock": "לא זמין",
+      "success": "המוצר נוסף לסל.",
+      "error": "לא ניתן להוסיף את המוצר לסל.",
+      "errorWithReason": "לא ניתן להוסיף את המוצר: {reason}"
+    },
+    "similar": {
+      "title": "מוצרים דומים",
+      "description": "המשך לגלוש עם מוצרים קשורים למוצר זה.",
+      "loadingLabel": "טוען מוצרים דומים",
+      "errorTitle": "מוצרים דומים אינם זמינים זמנית",
+      "errorDescription": "לא ניתן לטעון מוצרים דומים כרגע.",
+      "emptyTitle": "אין מוצרים דומים",
+      "emptyDescription": "אין המלצות זמינות למוצר זה.",
+      "productImageAlt": "תמונה ראשית עבור המוצר {productName}",
+      "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+      "productLinkLabel": "פתח את דף המוצר של {productName}",
+      "priceUnavailable": "המחיר לא זמין",
+      "availabilityAvailable": "זמין",
+      "availabilityOutOfStock": "אזל מהמלאי"
+    }
+  },
+  "SearchPage": {
+    "title": "חיפוש מתקדם",
+    "description": "שלבו מספר מסננים כדי למצוא במהירות מוצרים רלוונטיים.",
+    "filters": {
+      "title": "מסננים",
+      "openMobile": "הצג מסננים",
+      "closeMobile": "הסתר מסננים",
+      "quickTextLabel": "טקסט חופשי",
+      "quickTextPlaceholder": "לדוגמה: switch, controller, audio...",
+      "titleLabel": "טקסט בכותרת",
+      "titlePlaceholder": "סינון לפי כותרת",
+      "descriptionLabel": "טקסט בתיאור",
+      "descriptionPlaceholder": "סינון לפי תיאור",
+      "characteristicsLabel": "מאפיינים טכניים",
+      "characteristicsPlaceholder": "לדוגמה: Modbus, 24 channels, IP67...",
+      "priceTitle": "מחיר כולל מעמ",
+      "priceMinLabel": "מחיר מינימלי",
+      "priceMinPlaceholder": "מינימום",
+      "priceMaxLabel": "מחיר מקסימלי",
+      "priceMaxPlaceholder": "מקסימום",
+      "priceRangeHint": "טווח קטלוג: {min} עד {max}",
+      "categoriesTitle": "קטגוריות",
+      "categoriesLoadingLabel": "טוען מסנני קטגוריות",
+      "categoriesError": "לא ניתן לטעון קטגוריות.",
+      "categoriesEmpty": "אין קטגוריות זמינות.",
+      "availableOnlyLabel": "זמין בלבד",
+      "resetAll": "איפוס מסננים"
+    },
+    "sort": {
+      "criteriaLabel": "מיין לפי",
+      "orderLabel": "סדר",
+      "criteriaOptions": {
+        "price": "מחיר",
+        "newness": "חדשות",
+        "availability": "זמינות"
+      },
+      "orderOptions": {
+        "asc": "עולה",
+        "desc": "יורד"
+      }
+    },
+    "results": {
+      "title": "תוצאות",
+      "count": "{count} מוצרים",
+      "refreshing": "מרענן תוצאות...",
+      "paginationLabel": "ניווט בתוצאות החיפוש",
+      "previousPage": "הקודם",
+      "nextPage": "הבא",
+      "pageCounter": "עמוד {page} מתוך {totalPages}"
+    },
+    "activeFilters": {
+      "title": "מסננים פעילים",
+      "quickText": "טקסט: {value}",
+      "title": "כותרת: {value}",
+      "description": "תיאור: {value}",
+      "characteristics": "מאפיינים: {value}",
+      "priceMin": "מחיר מינימלי: {value}",
+      "priceMax": "מחיר מקסימלי: {value}",
+      "category": "קטגוריה: {categoryName}",
+      "availableOnly": "זמין בלבד",
+      "removeLabel": "הסר מסנן {filterLabel}",
+      "resetAll": "נקה הכל"
+    },
+    "states": {
+      "noCriteriaTitle": "התחילו בחיפוש",
+      "noCriteriaDescription": "טרם הוזנו קריטריונים.",
+      "noCriteriaHint": "מלאו מסנן אחד או יותר כדי להציג תוצאות.",
+      "loadingLabel": "טוען תוצאות חיפוש",
+      "emptyTitle": "אין תוצאות",
+      "emptyDescription": "לא נמצא מוצר שתואם למסננים שבחרתם.",
+      "errorTitle": "שגיאת חיפוש",
+      "errorDescription": "לא ניתן לטעון את התוצאות כרגע. נסו שוב.",
+      "partialDataNotice": "חלק מהתוצאות מוצגות עם נתונים משניים חסרים."
+    },
+    "announcements": {
+      "noCriteria": "לא הוזנו קריטריוני חיפוש.",
+      "loading": "תוצאות החיפוש נטענות.",
+      "error": "אירעה שגיאה במהלך החיפוש.",
+      "empty": "לא נמצאו תוצאות.",
+      "results": "נמצאו {count} תוצאות."
+    }
+  },
+  "CartPage": {
+    "title": "העגלה שלך",
+    "description": "עדכנו כמויות, הסירו מוצרים ובדקו את הסכום לפני המעבר לתשלום.",
+    "states": {
+      "loadingLabel": "טוען עגלה",
+      "errorTitle": "העגלה לא זמינה זמנית",
+      "errorDescription": "לא ניתן לטעון את העגלה כרגע. נסו שוב.",
+      "retry": "נסה שוב",
+      "emptyTitle": "העגלה שלך ריקה",
+      "emptyDescription": "הוסיפו מוצרים כדי להתחיל הזמנה.",
+      "emptyCta": "עבור למוצרים"
+    },
+    "line": {
+      "sectionLabel": "שורות עגלה",
+      "imageAlt": "תמונה ראשית עבור המוצר {productName}",
+      "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+      "unitPrice": "מחיר ליחידה: {price}",
+      "statusAvailable": "זמין",
+      "statusOutOfStock": "אזל מהמלאי",
+      "statusStockConflict": "נדרש תיקון כמות",
+      "quantityLabel": "כמות",
+      "decreaseQuantity": "הקטן כמות עבור {productName}",
+      "quantityInputLabel": "כמות עבור {productName}",
+      "increaseQuantity": "הגדל כמות עבור {productName}",
+      "stockConflictDescription": "מלאי זמין: {stock}. יש להפחית כמות כדי להמשיך.",
+      "outOfStockDescription": "המוצר הזה כרגע אינו זמין.",
+      "updatingLabel": "מעדכן שורה...",
+      "subtotalLabel": "סכום ביניים",
+      "removeLine": "הסר את {productName} מהעגלה",
+      "removeAction": "הסר"
+    },
+    "summary": {
+      "title": "סיכום",
+      "totalItems": "סך פריטים",
+      "totalItemsValue": "{count} פריט(ים)",
+      "totalTtc": "סהכ כולל מעמ",
+      "checkoutAction": "המשך לתשלום",
+      "checkoutBlockedStock": "תקן שורות ללא מלאי או עם כמות לא תקינה לפני המשך לתשלום.",
+      "checkoutBlockedUpdating": "יש להמתין לסיום עדכון העגלה."
+    },
+    "feedback": {
+      "refreshing": "מסנכרן עגלה...",
+      "lineRemoved": "המוצר הוסר מהעגלה.",
+      "quantityUpdated": "הכמות עודכנה."
+    },
+    "errors": {
+      "stockInsufficient": "אין מספיק מלאי. כמות זמינה: {availableStock}.",
+      "updateLineFallback": "לא ניתן לעדכן שורה זו.",
+      "refreshFallback": "העגלה עודכנה אך סנכרון מלא נכשל."
     }
   },
   "A11y": {
