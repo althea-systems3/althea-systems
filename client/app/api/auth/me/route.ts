@@ -20,7 +20,7 @@ export async function GET() {
 
   const { data: userProfile } = await supabaseClient
     .from('utilisateur')
-    .select('nom_complet, est_admin, statut')
+    .select('nom_complet, est_admin, statut, email_verifie')
     .eq('id_utilisateur', user.id)
     .single();
 
@@ -32,6 +32,7 @@ export async function GET() {
       nomComplet: userProfile?.nom_complet ?? '',
       isAdmin: userProfile?.est_admin ?? false,
       statut: userProfile?.statut ?? 'en_attente',
+      emailVerifie: userProfile?.email_verifie ?? false,
       locale: user.user_metadata?.locale ?? 'fr',
     },
   });
