@@ -138,7 +138,7 @@ export function SignUpForm() {
     safeNextPath === "/checkout" ||
     Boolean(safeNextPath?.startsWith("/checkout?"))
 
-  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mes-parametres"
+  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mon-compte"
   const nextPath = safeNextPath ?? fallbackNextPath
 
   const [signUpFormValues, setSignUpFormValues] = useState(

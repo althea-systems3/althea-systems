@@ -1,8 +1,13 @@
-import { getTranslations } from "next-intl/server"
-import { StaticPage } from "@/components/layout/static-page"
+import { redirect } from "next/navigation"
 
-export default async function SettingsPage() {
-  const t = await getTranslations("Pages.settings")
+type LegacySettingsPageProps = {
+  params: Promise<{ locale: string }>
+}
 
-  return <StaticPage title={t("title")} description={t("description")} />
+export default async function LegacySettingsPage({
+  params,
+}: LegacySettingsPageProps) {
+  const { locale } = await params
+
+  redirect(`/${locale}/mon-compte/profil`)
 }

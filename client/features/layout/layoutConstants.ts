@@ -26,8 +26,8 @@ export type LayoutMenuItem = {
 }
 
 export const AUTHENTICATED_MENU_ITEMS: LayoutMenuItem[] = [
-  { key: "settings", href: "/mes-parametres" },
-  { key: "orders", href: "/mes-commandes" },
+  { key: "settings", href: "/mon-compte/profil" },
+  { key: "orders", href: "/mon-compte/commandes" },
   { key: "terms", href: "/cgu" },
   { key: "legal", href: "/mentions-legales" },
   { key: "contact", href: "/contact" },

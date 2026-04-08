@@ -139,7 +139,7 @@ export function SignInForm() {
     Boolean(safeNextPath?.startsWith("/checkout?"))
 
   const sourceContext = isCheckoutEntry ? "checkout" : null
-  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mes-parametres"
+  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mon-compte"
   const nextPath = safeNextPath ?? fallbackNextPath
 
   const [signInFormValues, setSignInFormValues] = useState(

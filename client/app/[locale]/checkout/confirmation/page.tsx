@@ -37,7 +37,7 @@ export default async function CheckoutConfirmationPage({
               asChild
               className="bg-brand-cta text-white hover:bg-brand-cta/90"
             >
-              <Link href="/mes-commandes">Voir mes commandes</Link>
+              <Link href="/mon-compte/commandes">Voir mes commandes</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/catalogue">Continuer mes achats</Link>
