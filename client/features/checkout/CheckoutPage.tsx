@@ -1002,6 +1002,14 @@ export function CheckoutPage() {
                             className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
                           />
                         </div>
+                        <p className="text-sm text-slate-600">
+                          <Link
+                            href="/mot-de-passe-oublie?source=checkout&next=/checkout"
+                            className="font-medium text-brand-cta hover:underline"
+                          >
+                            Mot de passe oublie ?
+                          </Link>
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           <Button
                             type="button"
@@ -1019,7 +1027,7 @@ export function CheckoutPage() {
                             )}
                           </Button>
                           <Button type="button" variant="outline" asChild>
-                            <Link href="/connexion">
+                            <Link href="/connexion?source=checkout&next=/checkout">
                               Ouvrir la page connexion
                             </Link>
                           </Button>

@@ -105,8 +105,13 @@
         },
         "actions": {
           "submit": "Se connecter",
+          "submitting": "Connexion...",
           "noAccount": "Vous n'avez pas encore de compte ?",
-          "goToSignUp": "Creer un compte"
+          "goToSignUp": "Creer un compte",
+          "goToForgotPassword": "Mot de passe oublie ?",
+          "showPassword": "Afficher le mot de passe",
+          "hidePassword": "Masquer le mot de passe",
+          "goToCheckout": "Revenir au checkout"
         },
         "validation": {
           "emailRequired": "L'adresse e-mail est obligatoire.",
@@ -114,8 +119,96 @@
           "passwordRequired": "Le mot de passe est obligatoire."
         },
         "messages": {
-          "success": "Interface prete : integration API d'authentification a connecter.",
-          "errorHint": "Corrigez les champs signales puis reessayez."
+          "errorHint": "Corrigez les champs signales puis reessayez.",
+          "invalidCredentials": "Compte inexistant ou mot de passe incorrect.",
+          "accountNotFound": "Aucun compte correspondant a cette adresse e-mail.",
+          "incorrectPassword": "Mot de passe incorrect.",
+          "accountNotVerified": "Ce compte n'est pas encore verifie. Verifiez votre e-mail.",
+          "sessionExpired": "Votre session a expire. Connectez-vous pour continuer.",
+          "serverError": "Une erreur serveur temporaire est survenue. Reessayez.",
+          "signInFailed": "Connexion impossible pour le moment. Reessayez.",
+          "passwordResetSuccess": "Mot de passe reinitialise avec succes. Connectez-vous.",
+          "verificationSuccess": "Adresse e-mail verifiee. Vous pouvez vous connecter."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublie",
+      "description": "Recevez un lien de reinitialisation pour definir un nouveau mot de passe en toute securite.",
+      "form": {
+        "title": "Reinitialiser le mot de passe",
+        "description": "Saisissez l'adresse e-mail associee a votre compte.",
+        "fields": {
+          "email": {
+            "label": "Adresse e-mail",
+            "placeholder": "vous@entreprise.com"
+          }
+        },
+        "actions": {
+          "submit": "Envoyer le lien",
+          "submitting": "Envoi...",
+          "hasAccount": "Vous vous souvenez de votre mot de passe ?",
+          "goToSignIn": "Se connecter",
+          "noAccount": "Vous n'avez pas encore de compte ?",
+          "goToSignUp": "Creer un compte",
+          "goToCheckout": "Revenir au checkout"
+        },
+        "validation": {
+          "emailRequired": "L'adresse e-mail est obligatoire.",
+          "emailInvalid": "Veuillez saisir une adresse e-mail valide."
+        },
+        "messages": {
+          "errorHint": "Corrigez les champs signales puis reessayez.",
+          "requestFailed": "Impossible d'envoyer le lien de reinitialisation pour le moment.",
+          "rateLimited": "Trop de demandes. Patientez avant de reessayer.",
+          "serverError": "Une erreur serveur temporaire est survenue. Reessayez plus tard.",
+          "emailSentNeutral": "Si cette adresse e-mail existe, un lien de reinitialisation a ete envoye.",
+          "nextStepHint": "Consultez aussi vos spams ou promotions si vous ne voyez pas l'e-mail."
+        }
+      }
+    },
+    "resetPassword": {
+      "title": "Nouveau mot de passe",
+      "description": "Choisissez un nouveau mot de passe robuste pour securiser votre compte.",
+      "form": {
+        "title": "Definir un nouveau mot de passe",
+        "description": "Renseignez puis confirmez votre nouveau mot de passe.",
+        "fields": {
+          "password": {
+            "label": "Nouveau mot de passe",
+            "placeholder": "Saisissez votre nouveau mot de passe"
+          },
+          "passwordConfirmation": {
+            "label": "Confirmer le nouveau mot de passe",
+            "placeholder": "Retapez votre nouveau mot de passe"
+          }
+        },
+        "actions": {
+          "submit": "Mettre a jour le mot de passe",
+          "submitting": "Mise a jour...",
+          "showPassword": "Afficher le mot de passe",
+          "hidePassword": "Masquer le mot de passe",
+          "requestNewLink": "Demander un nouveau lien",
+          "goToSignIn": "Retour a la connexion"
+        },
+        "validation": {
+          "passwordRequired": "Le mot de passe est obligatoire.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 8 caracteres avec une majuscule, une minuscule et un chiffre.",
+          "passwordConfirmationRequired": "La confirmation du mot de passe est obligatoire.",
+          "passwordsMismatch": "Les mots de passe ne correspondent pas."
+        },
+        "messages": {
+          "passwordHint": "Utilisez 8 caracteres minimum avec majuscule, minuscule et chiffre.",
+          "passwordStrong": "Mot de passe robuste detecte.",
+          "tokenExpired": "Le lien de reinitialisation a expire.",
+          "tokenInvalid": "Le lien de reinitialisation est invalide.",
+          "requestNewLink": "Demandez un nouveau lien de reinitialisation pour continuer.",
+          "sessionExpired": "Votre session de reinitialisation a expire. Demandez un nouveau lien.",
+          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de securite.",
+          "resetFailed": "Impossible de reinitialiser le mot de passe pour le moment.",
+          "serverError": "Une erreur serveur temporaire est survenue. Reessayez plus tard.",
+          "errorHint": "Corrigez les champs signales puis reessayez.",
+          "passwordResetSuccess": "Mot de passe mis a jour avec succes."
         }
       }
     },

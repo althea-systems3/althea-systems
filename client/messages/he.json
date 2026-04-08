@@ -105,8 +105,13 @@
         },
         "actions": {
           "submit": "התחבר",
+          "submitting": "מתחבר...",
           "noAccount": "אין לך חשבון עדיין?",
-          "goToSignUp": "צור חשבון"
+          "goToSignUp": "צור חשבון",
+          "goToForgotPassword": "שכחת סיסמה?",
+          "showPassword": "הצג סיסמה",
+          "hidePassword": "הסתר סיסמה",
+          "goToCheckout": "חזרה לתשלום"
         },
         "validation": {
           "emailRequired": "נדרש להזין דואר אלקטרוני.",
@@ -114,8 +119,96 @@
           "passwordRequired": "נדרשת סיסמה."
         },
         "messages": {
-          "success": "הממשק מוכן: יש לחבר את API האימות בהמשך.",
-          "errorHint": "תקן את השדות המסומנים ונסה שוב."
+          "errorHint": "תקן את השדות המסומנים ונסה שוב.",
+          "invalidCredentials": "החשבון לא נמצא או שהסיסמה שגויה.",
+          "accountNotFound": "לא נמצא חשבון עם כתובת האימייל הזו.",
+          "incorrectPassword": "הסיסמה שגויה.",
+          "accountNotVerified": "החשבון עדיין לא אומת. בדוק את האימייל שלך.",
+          "sessionExpired": "פג תוקף ההפעלה שלך. יש להתחבר מחדש.",
+          "serverError": "אירעה שגיאת שרת זמנית. נסה שוב.",
+          "signInFailed": "לא ניתן להתחבר כרגע. נסה שוב.",
+          "passwordResetSuccess": "הסיסמה עודכנה בהצלחה. אפשר להתחבר כעת.",
+          "verificationSuccess": "האימייל אומת. כעת ניתן להתחבר."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "שכחתי סיסמה",
+      "description": "בקש קישור מאובטח לאיפוס הסיסמה.",
+      "form": {
+        "title": "איפוס סיסמה",
+        "description": "הזן את כתובת האימייל המשויכת לחשבון שלך.",
+        "fields": {
+          "email": {
+            "label": "דואר אלקטרוני",
+            "placeholder": "you@company.com"
+          }
+        },
+        "actions": {
+          "submit": "שלח קישור איפוס",
+          "submitting": "שולח...",
+          "hasAccount": "נזכרת בסיסמה?",
+          "goToSignIn": "התחבר",
+          "noAccount": "אין לך חשבון עדיין?",
+          "goToSignUp": "צור חשבון",
+          "goToCheckout": "חזרה לתשלום"
+        },
+        "validation": {
+          "emailRequired": "נדרש להזין דואר אלקטרוני.",
+          "emailInvalid": "יש להזין כתובת דואר אלקטרוני תקינה."
+        },
+        "messages": {
+          "errorHint": "תקן את השדות המסומנים ונסה שוב.",
+          "requestFailed": "לא ניתן לשלוח קישור איפוס כרגע.",
+          "rateLimited": "בוצעו יותר מדי בקשות. יש להמתין ולנסות שוב.",
+          "serverError": "אירעה שגיאת שרת זמנית. נסה שוב מאוחר יותר.",
+          "emailSentNeutral": "אם הכתובת קיימת, נשלח אליה קישור לאיפוס סיסמה.",
+          "nextStepHint": "אם צריך, בדוק גם את תיקיית הספאם או הקידומים."
+        }
+      }
+    },
+    "resetPassword": {
+      "title": "הגדרת סיסמה חדשה",
+      "description": "בחר סיסמה חדשה וחזקה כדי לאבטח את החשבון שלך.",
+      "form": {
+        "title": "יצירת סיסמה חדשה",
+        "description": "הזן את הסיסמה החדשה ואשר אותה.",
+        "fields": {
+          "password": {
+            "label": "סיסמה חדשה",
+            "placeholder": "הזן סיסמה חדשה"
+          },
+          "passwordConfirmation": {
+            "label": "אימות סיסמה חדשה",
+            "placeholder": "הקלד שוב את הסיסמה החדשה"
+          }
+        },
+        "actions": {
+          "submit": "עדכן סיסמה",
+          "submitting": "מעדכן...",
+          "showPassword": "הצג סיסמה",
+          "hidePassword": "הסתר סיסמה",
+          "requestNewLink": "בקש קישור חדש",
+          "goToSignIn": "חזרה להתחברות"
+        },
+        "validation": {
+          "passwordRequired": "נדרשת סיסמה.",
+          "passwordWeak": "הסיסמה חייבת להכיל לפחות 8 תווים, אות גדולה, אות קטנה ומספר.",
+          "passwordConfirmationRequired": "נדרש אימות סיסמה.",
+          "passwordsMismatch": "הסיסמאות אינן תואמות."
+        },
+        "messages": {
+          "passwordHint": "השתמש לפחות ב-8 תווים עם אות גדולה, אות קטנה ומספר.",
+          "passwordStrong": "זוהתה סיסמה חזקה.",
+          "tokenExpired": "פג תוקף קישור האיפוס.",
+          "tokenInvalid": "קישור האיפוס אינו תקין.",
+          "requestNewLink": "יש לבקש קישור איפוס חדש כדי להמשיך.",
+          "sessionExpired": "פג תוקף הפעלת האיפוס. בקש קישור חדש.",
+          "passwordTooWeak": "הסיסמה אינה עומדת בדרישות האבטחה.",
+          "resetFailed": "לא ניתן לאפס סיסמה כרגע.",
+          "serverError": "אירעה שגיאת שרת זמנית. נסה שוב מאוחר יותר.",
+          "errorHint": "תקן את השדות המסומנים ונסה שוב.",
+          "passwordResetSuccess": "הסיסמה עודכנה בהצלחה."
         }
       }
     },

@@ -105,8 +105,13 @@
         },
         "actions": {
           "submit": "Sign in",
+          "submitting": "Signing in...",
           "noAccount": "Do not have an account yet?",
-          "goToSignUp": "Create an account"
+          "goToSignUp": "Create an account",
+          "goToForgotPassword": "Forgot password?",
+          "showPassword": "Show password",
+          "hidePassword": "Hide password",
+          "goToCheckout": "Back to checkout"
         },
         "validation": {
           "emailRequired": "Email address is required.",
@@ -114,8 +119,96 @@
           "passwordRequired": "Password is required."
         },
         "messages": {
-          "success": "UI ready: connect authentication API integration next.",
-          "errorHint": "Fix the highlighted fields and try again."
+          "errorHint": "Fix the highlighted fields and try again.",
+          "invalidCredentials": "Account not found or password is incorrect.",
+          "accountNotFound": "No account matches this email address.",
+          "incorrectPassword": "Incorrect password.",
+          "accountNotVerified": "This account is not verified yet. Please check your email.",
+          "sessionExpired": "Your session has expired. Please sign in again.",
+          "serverError": "A temporary server error occurred. Please try again.",
+          "signInFailed": "Unable to sign in right now. Please try again.",
+          "passwordResetSuccess": "Password updated successfully. You can sign in now.",
+          "verificationSuccess": "Email verified. You can now sign in."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "description": "Request a secure reset link to define a new password.",
+      "form": {
+        "title": "Reset your password",
+        "description": "Enter the email address associated with your account.",
+        "fields": {
+          "email": {
+            "label": "Email address",
+            "placeholder": "you@company.com"
+          }
+        },
+        "actions": {
+          "submit": "Send reset link",
+          "submitting": "Sending...",
+          "hasAccount": "Remembered your password?",
+          "goToSignIn": "Sign in",
+          "noAccount": "Do not have an account yet?",
+          "goToSignUp": "Create an account",
+          "goToCheckout": "Back to checkout"
+        },
+        "validation": {
+          "emailRequired": "Email address is required.",
+          "emailInvalid": "Please enter a valid email address."
+        },
+        "messages": {
+          "errorHint": "Fix the highlighted fields and try again.",
+          "requestFailed": "Unable to send the reset link right now.",
+          "rateLimited": "Too many requests. Please wait before trying again.",
+          "serverError": "A temporary server error occurred. Please try again later.",
+          "emailSentNeutral": "If this email exists, a reset link has been sent.",
+          "nextStepHint": "If needed, check your spam or promotions folder."
+        }
+      }
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "description": "Choose a strong new password to secure your account.",
+      "form": {
+        "title": "Create your new password",
+        "description": "Enter and confirm your new password.",
+        "fields": {
+          "password": {
+            "label": "New password",
+            "placeholder": "Enter your new password"
+          },
+          "passwordConfirmation": {
+            "label": "Confirm new password",
+            "placeholder": "Type your new password again"
+          }
+        },
+        "actions": {
+          "submit": "Update password",
+          "submitting": "Updating...",
+          "showPassword": "Show password",
+          "hidePassword": "Hide password",
+          "requestNewLink": "Request a new reset link",
+          "goToSignIn": "Back to sign in"
+        },
+        "validation": {
+          "passwordRequired": "Password is required.",
+          "passwordWeak": "Password must contain at least 8 characters, including uppercase, lowercase, and a number.",
+          "passwordConfirmationRequired": "Password confirmation is required.",
+          "passwordsMismatch": "Passwords do not match."
+        },
+        "messages": {
+          "passwordHint": "Use at least 8 characters with uppercase, lowercase, and a number.",
+          "passwordStrong": "Strong password detected.",
+          "tokenExpired": "The reset link has expired.",
+          "tokenInvalid": "The reset link is invalid.",
+          "requestNewLink": "Please request a new reset link to continue.",
+          "sessionExpired": "Your reset session has expired. Request a new link.",
+          "passwordTooWeak": "This password does not meet security requirements.",
+          "resetFailed": "Unable to reset password right now.",
+          "serverError": "A temporary server error occurred. Please try again later.",
+          "errorHint": "Fix the highlighted fields and try again.",
+          "passwordResetSuccess": "Password updated successfully."
         }
       }
     },
