@@ -15,6 +15,10 @@ export interface Utilisateur {
   est_admin: boolean;
   email_verifie: boolean;
   date_inscription: string;
+  validation_token_hash: string | null;
+  validation_token_expires_at: string | null;
+  date_validation_email: string | null;
+  cgu_acceptee_le: string | null;
 }
 
 export interface Categorie {
