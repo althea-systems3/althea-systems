@@ -1251,6 +1251,154 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/search": {
+      get: {
+        tags: ["Recherche"],
+        summary: "Recherche avancée de produits",
+        description: "Recherche avec facettes (texte, prix, catégories, disponibilité), scoring de pertinence (exact > 1 diff > starts with > contains), tris dynamiques et pagination. Résultats enrichis avec images Firestore.",
+        parameters: [
+          {
+            name: "q",
+            in: "query",
+            description: "Terme de recherche (titre, description, caractéristiques techniques JSONB)",
+            schema: { type: "string" },
+            example: "audio",
+          },
+          {
+            name: "price_min",
+            in: "query",
+            description: "Prix minimum TTC",
+            schema: { type: "number" },
+            example: 100,
+          },
+          {
+            name: "price_max",
+            in: "query",
+            description: "Prix maximum TTC",
+            schema: { type: "number" },
+            example: 1000,
+          },
+          {
+            name: "categories",
+            in: "query",
+            description: "IDs catégories séparés par virgule",
+            schema: { type: "string" },
+            example: "cat-001,cat-002",
+          },
+          {
+            name: "available_only",
+            in: "query",
+            description: "Filtrer uniquement les produits en stock",
+            schema: { type: "string", enum: ["true", "false"] },
+          },
+          {
+            name: "sort",
+            in: "query",
+            description: "Tri des résultats",
+            schema: { type: "string", enum: ["relevance", "price_asc", "price_desc", "availability"] },
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+          },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 12, maximum: 48 },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Résultats de recherche",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          description: { type: "string", nullable: true },
+                          priceTtc: { type: "number", nullable: true },
+                          isAvailable: { type: "boolean" },
+                          imageUrl: { type: "string", nullable: true },
+                          relevanceScore: { type: "integer" },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        limit: { type: "integer" },
+                        total: { type: "integer" },
+                        totalPages: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/search/facets": {
+      get: {
+        tags: ["Recherche"],
+        summary: "Facettes disponibles pour la recherche",
+        description: "Retourne les catégories actives, les bornes de prix min/max des produits publiés, et les options de tri disponibles.",
+        responses: {
+          "200": {
+            description: "Facettes de recherche",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    categories: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                        },
+                      },
+                    },
+                    priceRange: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        min: { type: "number" },
+                        max: { type: "number" },
+                      },
+                    },
+                    sortOptions: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          value: { type: "string" },
+                          label: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: {
