@@ -126,13 +126,21 @@
         "title": "Create account",
         "description": "Create your professional space in just a few steps.",
         "fields": {
-          "fullName": {
-            "label": "Full name",
-            "placeholder": "First name Last name"
+          "firstName": {
+            "label": "First name",
+            "placeholder": "Your first name"
+          },
+          "lastName": {
+            "label": "Last name",
+            "placeholder": "Your last name"
           },
           "email": {
             "label": "Email address",
             "placeholder": "you@company.com"
+          },
+          "phone": {
+            "label": "Phone number (optional)",
+            "placeholder": "+1 555 123 4567"
           },
           "password": {
             "label": "Password",
@@ -146,24 +154,39 @@
         },
         "actions": {
           "submit": "Create my account",
+          "submitting": "Creating...",
           "hasAccount": "Already have an account?",
-          "goToSignIn": "Sign in"
+          "goToSignIn": "Sign in",
+          "showPassword": "Show password",
+          "hidePassword": "Hide password",
+          "goToCheckout": "Back to checkout"
         },
         "validation": {
-          "fullNameRequired": "Full name is required.",
+          "firstNameRequired": "First name is required.",
+          "lastNameRequired": "Last name is required.",
           "emailRequired": "Email address is required.",
           "emailInvalid": "Please enter a valid email address.",
+          "phoneInvalid": "Please enter a valid phone number.",
           "passwordRequired": "Password is required.",
-          "passwordMinLength": "Password must contain at least 8 characters.",
+          "passwordWeak": "Password must contain at least 8 characters, including uppercase, lowercase, and a number.",
           "passwordConfirmationRequired": "Password confirmation is required.",
           "passwordsMismatch": "Passwords do not match.",
           "termsRequired": "You must accept the terms to continue."
         },
         "messages": {
-          "success": "UI ready: connect sign-up API integration next.",
           "passwordHint": "Use at least 8 characters with uppercase, lowercase, and a number.",
           "passwordStrong": "Strong password detected.",
-          "errorHint": "Fix the highlighted fields and try again."
+          "errorHint": "Fix the highlighted fields and try again.",
+          "verificationEmailSent": "Account created. Check your email to activate your account.",
+          "verificationEmailSentCheckout": "Account created. Check your email, then come back to complete checkout.",
+          "verificationSuccess": "Email verified. You can now sign in.",
+          "verificationExpired": "Verification link expired. Request a new confirmation email.",
+          "verificationInvalid": "Verification link is invalid. Request a new confirmation email.",
+          "emailAlreadyUsed": "This email address is already in use.",
+          "passwordTooWeak": "This password does not meet security requirements.",
+          "signupFailed": "Unable to create the account right now. Please try again.",
+          "serverError": "A server error occurred. Please try again later.",
+          "nextStepHint": "If you do not see the email, check your spam or promotions folder."
         }
       }
     },

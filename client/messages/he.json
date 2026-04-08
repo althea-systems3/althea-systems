@@ -126,13 +126,21 @@
         "title": "יצירת חשבון",
         "description": "צור מרחב מקצועי בכמה שלבים פשוטים.",
         "fields": {
-          "fullName": {
-            "label": "שם מלא",
-            "placeholder": "שם פרטי ושם משפחה"
+          "firstName": {
+            "label": "שם פרטי",
+            "placeholder": "הזן שם פרטי"
+          },
+          "lastName": {
+            "label": "שם משפחה",
+            "placeholder": "הזן שם משפחה"
           },
           "email": {
             "label": "דואר אלקטרוני",
             "placeholder": "you@company.com"
+          },
+          "phone": {
+            "label": "טלפון (אופציונלי)",
+            "placeholder": "+972 5X-XXX-XXXX"
           },
           "password": {
             "label": "סיסמה",
@@ -146,24 +154,39 @@
         },
         "actions": {
           "submit": "צור את החשבון שלי",
+          "submitting": "יוצר חשבון...",
           "hasAccount": "כבר יש לך חשבון?",
-          "goToSignIn": "התחבר"
+          "goToSignIn": "התחבר",
+          "showPassword": "הצג סיסמה",
+          "hidePassword": "הסתר סיסמה",
+          "goToCheckout": "חזרה לתשלום"
         },
         "validation": {
-          "fullNameRequired": "נדרש שם מלא.",
+          "firstNameRequired": "נדרש שם פרטי.",
+          "lastNameRequired": "נדרש שם משפחה.",
           "emailRequired": "נדרש דואר אלקטרוני.",
           "emailInvalid": "יש להזין כתובת דואר אלקטרוני תקינה.",
+          "phoneInvalid": "יש להזין מספר טלפון תקין.",
           "passwordRequired": "נדרשת סיסמה.",
-          "passwordMinLength": "הסיסמה חייבת להכיל לפחות 8 תווים.",
+          "passwordWeak": "הסיסמה חייבת להכיל לפחות 8 תווים, אות גדולה, אות קטנה ומספר.",
           "passwordConfirmationRequired": "נדרש אימות סיסמה.",
           "passwordsMismatch": "הסיסמאות אינן תואמות.",
           "termsRequired": "יש לאשר את התנאים כדי להמשיך."
         },
         "messages": {
-          "success": "הממשק מוכן: יש לחבר את API ההרשמה בהמשך.",
           "passwordHint": "השתמש לפחות ב-8 תווים עם אות גדולה, אות קטנה ומספר.",
           "passwordStrong": "זוהתה סיסמה חזקה.",
-          "errorHint": "תקן את השדות המסומנים ונסה שוב."
+          "errorHint": "תקן את השדות המסומנים ונסה שוב.",
+          "verificationEmailSent": "החשבון נוצר. בדוק את האימייל כדי להפעיל את החשבון.",
+          "verificationEmailSentCheckout": "החשבון נוצר. בדוק את האימייל ואז חזור להשלמת התשלום.",
+          "verificationSuccess": "האימייל אומת. כעת אפשר להתחבר.",
+          "verificationExpired": "קישור האימות פג תוקף. בקש אימייל אישור חדש.",
+          "verificationInvalid": "קישור האימות אינו תקין. בקש אימייל אישור חדש.",
+          "emailAlreadyUsed": "כתובת האימייל הזו כבר בשימוש.",
+          "passwordTooWeak": "הסיסמה אינה עומדת בדרישות האבטחה.",
+          "signupFailed": "לא ניתן ליצור חשבון כרגע. נסה שוב.",
+          "serverError": "אירעה שגיאת שרת. נסה שוב מאוחר יותר.",
+          "nextStepHint": "אם לא קיבלת את האימייל, בדוק את תיקיית הספאם."
         }
       }
     },
