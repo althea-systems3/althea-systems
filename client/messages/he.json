@@ -262,6 +262,88 @@
       "availabilityOutOfStock": "אזל מהמלאי"
     }
   },
+  "SearchPage": {
+    "title": "חיפוש מתקדם",
+    "description": "שלבו מספר מסננים כדי למצוא במהירות מוצרים רלוונטיים.",
+    "filters": {
+      "title": "מסננים",
+      "openMobile": "הצג מסננים",
+      "closeMobile": "הסתר מסננים",
+      "quickTextLabel": "טקסט חופשי",
+      "quickTextPlaceholder": "לדוגמה: switch, controller, audio...",
+      "titleLabel": "טקסט בכותרת",
+      "titlePlaceholder": "סינון לפי כותרת",
+      "descriptionLabel": "טקסט בתיאור",
+      "descriptionPlaceholder": "סינון לפי תיאור",
+      "characteristicsLabel": "מאפיינים טכניים",
+      "characteristicsPlaceholder": "לדוגמה: Modbus, 24 channels, IP67...",
+      "priceTitle": "מחיר כולל מעמ",
+      "priceMinLabel": "מחיר מינימלי",
+      "priceMinPlaceholder": "מינימום",
+      "priceMaxLabel": "מחיר מקסימלי",
+      "priceMaxPlaceholder": "מקסימום",
+      "priceRangeHint": "טווח קטלוג: {min} עד {max}",
+      "categoriesTitle": "קטגוריות",
+      "categoriesLoadingLabel": "טוען מסנני קטגוריות",
+      "categoriesError": "לא ניתן לטעון קטגוריות.",
+      "categoriesEmpty": "אין קטגוריות זמינות.",
+      "availableOnlyLabel": "זמין בלבד",
+      "resetAll": "איפוס מסננים"
+    },
+    "sort": {
+      "criteriaLabel": "מיין לפי",
+      "orderLabel": "סדר",
+      "criteriaOptions": {
+        "price": "מחיר",
+        "newness": "חדשות",
+        "availability": "זמינות"
+      },
+      "orderOptions": {
+        "asc": "עולה",
+        "desc": "יורד"
+      }
+    },
+    "results": {
+      "title": "תוצאות",
+      "count": "{count} מוצרים",
+      "refreshing": "מרענן תוצאות...",
+      "paginationLabel": "ניווט בתוצאות החיפוש",
+      "previousPage": "הקודם",
+      "nextPage": "הבא",
+      "pageCounter": "עמוד {page} מתוך {totalPages}"
+    },
+    "activeFilters": {
+      "title": "מסננים פעילים",
+      "quickText": "טקסט: {value}",
+      "title": "כותרת: {value}",
+      "description": "תיאור: {value}",
+      "characteristics": "מאפיינים: {value}",
+      "priceMin": "מחיר מינימלי: {value}",
+      "priceMax": "מחיר מקסימלי: {value}",
+      "category": "קטגוריה: {categoryName}",
+      "availableOnly": "זמין בלבד",
+      "removeLabel": "הסר מסנן {filterLabel}",
+      "resetAll": "נקה הכל"
+    },
+    "states": {
+      "noCriteriaTitle": "התחילו בחיפוש",
+      "noCriteriaDescription": "טרם הוזנו קריטריונים.",
+      "noCriteriaHint": "מלאו מסנן אחד או יותר כדי להציג תוצאות.",
+      "loadingLabel": "טוען תוצאות חיפוש",
+      "emptyTitle": "אין תוצאות",
+      "emptyDescription": "לא נמצא מוצר שתואם למסננים שבחרתם.",
+      "errorTitle": "שגיאת חיפוש",
+      "errorDescription": "לא ניתן לטעון את התוצאות כרגע. נסו שוב.",
+      "partialDataNotice": "חלק מהתוצאות מוצגות עם נתונים משניים חסרים."
+    },
+    "announcements": {
+      "noCriteria": "לא הוזנו קריטריוני חיפוש.",
+      "loading": "תוצאות החיפוש נטענות.",
+      "error": "אירעה שגיאה במהלך החיפוש.",
+      "empty": "לא נמצאו תוצאות.",
+      "results": "נמצאו {count} תוצאות."
+    }
+  },
   "A11y": {
     "skip": "דלג לתוכן הראשי"
   }

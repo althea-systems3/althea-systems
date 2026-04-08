@@ -262,6 +262,88 @@
       "availabilityOutOfStock": "En rupture de stock"
     }
   },
+  "SearchPage": {
+    "title": "Recherche avancee",
+    "description": "Affinez votre recherche avec des facettes combinees pour trouver rapidement les produits les plus pertinents.",
+    "filters": {
+      "title": "Filtres",
+      "openMobile": "Afficher les filtres",
+      "closeMobile": "Masquer les filtres",
+      "quickTextLabel": "Texte global",
+      "quickTextPlaceholder": "Ex: automate, switch, audio...",
+      "titleLabel": "Texte du titre",
+      "titlePlaceholder": "Filtrer sur le titre",
+      "descriptionLabel": "Texte de la description",
+      "descriptionPlaceholder": "Filtrer sur la description",
+      "characteristicsLabel": "Caracteristiques techniques",
+      "characteristicsPlaceholder": "Ex: Modbus, 24 canaux, IP67...",
+      "priceTitle": "Prix TTC",
+      "priceMinLabel": "Prix minimum",
+      "priceMinPlaceholder": "Min",
+      "priceMaxLabel": "Prix maximum",
+      "priceMaxPlaceholder": "Max",
+      "priceRangeHint": "Plage catalogue: {min} a {max}",
+      "categoriesTitle": "Categories",
+      "categoriesLoadingLabel": "Chargement des categories de filtre",
+      "categoriesError": "Impossible de charger les categories.",
+      "categoriesEmpty": "Aucune categorie disponible.",
+      "availableOnlyLabel": "Disponible uniquement",
+      "resetAll": "Reinitialiser les filtres"
+    },
+    "sort": {
+      "criteriaLabel": "Trier par",
+      "orderLabel": "Ordre",
+      "criteriaOptions": {
+        "price": "Prix",
+        "newness": "Nouveaute",
+        "availability": "Disponibilite"
+      },
+      "orderOptions": {
+        "asc": "Ascendant",
+        "desc": "Descendant"
+      }
+    },
+    "results": {
+      "title": "Resultats",
+      "count": "{count} produit(s)",
+      "refreshing": "Mise a jour des resultats...",
+      "paginationLabel": "Navigation des resultats de recherche",
+      "previousPage": "Precedent",
+      "nextPage": "Suivant",
+      "pageCounter": "Page {page} sur {totalPages}"
+    },
+    "activeFilters": {
+      "title": "Filtres actifs",
+      "quickText": "Texte: {value}",
+      "title": "Titre: {value}",
+      "description": "Description: {value}",
+      "characteristics": "Caracteristiques: {value}",
+      "priceMin": "Prix min: {value}",
+      "priceMax": "Prix max: {value}",
+      "category": "Categorie: {categoryName}",
+      "availableOnly": "Disponible uniquement",
+      "removeLabel": "Retirer le filtre {filterLabel}",
+      "resetAll": "Tout effacer"
+    },
+    "states": {
+      "noCriteriaTitle": "Commencez votre recherche",
+      "noCriteriaDescription": "Aucun critere n'est encore saisi.",
+      "noCriteriaHint": "Renseignez un ou plusieurs filtres pour afficher des resultats.",
+      "loadingLabel": "Chargement des resultats de recherche",
+      "emptyTitle": "Aucun resultat",
+      "emptyDescription": "Aucun produit ne correspond aux filtres selectionnes.",
+      "errorTitle": "Erreur de recherche",
+      "errorDescription": "Impossible de charger les resultats pour le moment. Veuillez reessayer.",
+      "partialDataNotice": "Certains resultats sont affiches avec des donnees secondaires manquantes."
+    },
+    "announcements": {
+      "noCriteria": "Aucun critere de recherche saisi.",
+      "loading": "Chargement des resultats en cours.",
+      "error": "Une erreur est survenue pendant la recherche.",
+      "empty": "Aucun resultat trouve.",
+      "results": "{count} resultats trouves."
+    }
+  },
   "A11y": {
     "skip": "Aller au contenu principal"
   }

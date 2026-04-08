@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, type FormEvent } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import {
   Info,
@@ -30,8 +31,9 @@ import {
   type LayoutMenuItemKey,
   X_SOCIAL_URL,
 } from "@/features/layout/layoutConstants"
+import { SEARCH_PAGE_PATH } from "@/features/search/searchConstants"
 import { useMainLayoutState } from "@/features/layout/useMainLayoutState"
-import { Link, usePathname } from "@/i18n/navigation"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { locales } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
@@ -73,6 +75,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   const translateAccessibility = useTranslations("A11y")
   const currentPathname = usePathname()
   const currentLocale = useLocale()
+  const router = useRouter()
+
+  const [globalSearchValue, setGlobalSearchValue] = useState("")
 
   const {
     cartItemCount,
@@ -96,6 +101,25 @@ export function MainLayout({ children }: MainLayoutProps) {
   const menuVisibilityClassName = isMobileMenuOpen
     ? "translate-x-0"
     : "translate-x-full"
+
+  const handleGlobalSearchSubmit = (
+    submitEvent: FormEvent<HTMLFormElement>,
+  ) => {
+    submitEvent.preventDefault()
+
+    const normalizedSearchValue = globalSearchValue.trim()
+    const nextSearchParams = new URLSearchParams()
+
+    if (normalizedSearchValue) {
+      nextSearchParams.set("q", normalizedSearchValue)
+    }
+
+    const queryString = nextSearchParams.toString()
+
+    router.push(
+      queryString ? `${SEARCH_PAGE_PATH}?${queryString}` : SEARCH_PAGE_PATH,
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -173,9 +197,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             <form
               role="search"
               className="col-span-2 md:col-span-1 md:order-2"
-              onSubmit={(submitEvent) => {
-                submitEvent.preventDefault()
-              }}
+              onSubmit={handleGlobalSearchSubmit}
             >
               <label htmlFor="global-search" className="sr-only">
                 {translateLayout("search")}
@@ -184,6 +206,10 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <InputGroupInput
                   id="global-search"
                   type="search"
+                  value={globalSearchValue}
+                  onChange={(changeEvent) =>
+                    setGlobalSearchValue(changeEvent.target.value)
+                  }
                   placeholder={translateLayout("searchPlaceholder")}
                   className="ps-9"
                 />

@@ -262,6 +262,88 @@
       "availabilityOutOfStock": "نفد المخزون"
     }
   },
+  "SearchPage": {
+    "title": "بحث متقدم",
+    "description": "حسن نتائجك باستخدام عدة فلاتر مجتمعة للوصول بسرعة إلى المنتجات المناسبة.",
+    "filters": {
+      "title": "الفلاتر",
+      "openMobile": "عرض الفلاتر",
+      "closeMobile": "اخفاء الفلاتر",
+      "quickTextLabel": "نص عام",
+      "quickTextPlaceholder": "مثال: سويتش، متحكم، صوت...",
+      "titleLabel": "نص العنوان",
+      "titlePlaceholder": "تصفية حسب العنوان",
+      "descriptionLabel": "نص الوصف",
+      "descriptionPlaceholder": "تصفية حسب الوصف",
+      "characteristicsLabel": "الخصائص التقنية",
+      "characteristicsPlaceholder": "مثال: Modbus، 24 قناة، IP67...",
+      "priceTitle": "السعر شامل الضريبة",
+      "priceMinLabel": "الحد الادنى للسعر",
+      "priceMinPlaceholder": "الادنى",
+      "priceMaxLabel": "الحد الاقصى للسعر",
+      "priceMaxPlaceholder": "الاقصى",
+      "priceRangeHint": "نطاق الكتالوج: من {min} الى {max}",
+      "categoriesTitle": "الفئات",
+      "categoriesLoadingLabel": "جار تحميل فلاتر الفئات",
+      "categoriesError": "تعذر تحميل الفئات.",
+      "categoriesEmpty": "لا توجد فئات متاحة.",
+      "availableOnlyLabel": "المتوفر فقط",
+      "resetAll": "اعادة تعيين الفلاتر"
+    },
+    "sort": {
+      "criteriaLabel": "الترتيب حسب",
+      "orderLabel": "الاتجاه",
+      "criteriaOptions": {
+        "price": "السعر",
+        "newness": "الاحدث",
+        "availability": "التوفر"
+      },
+      "orderOptions": {
+        "asc": "تصاعدي",
+        "desc": "تنازلي"
+      }
+    },
+    "results": {
+      "title": "النتائج",
+      "count": "{count} منتج",
+      "refreshing": "جار تحديث النتائج...",
+      "paginationLabel": "التنقل في نتائج البحث",
+      "previousPage": "السابق",
+      "nextPage": "التالي",
+      "pageCounter": "الصفحة {page} من {totalPages}"
+    },
+    "activeFilters": {
+      "title": "الفلاتر النشطة",
+      "quickText": "النص: {value}",
+      "title": "العنوان: {value}",
+      "description": "الوصف: {value}",
+      "characteristics": "الخصائص: {value}",
+      "priceMin": "اقل سعر: {value}",
+      "priceMax": "اعلى سعر: {value}",
+      "category": "الفئة: {categoryName}",
+      "availableOnly": "المتوفر فقط",
+      "removeLabel": "ازالة الفلتر {filterLabel}",
+      "resetAll": "مسح الكل"
+    },
+    "states": {
+      "noCriteriaTitle": "ابدأ البحث",
+      "noCriteriaDescription": "لم يتم ادخال اي معيار بعد.",
+      "noCriteriaHint": "املأ معيارا واحدا او اكثر لعرض النتائج.",
+      "loadingLabel": "جار تحميل نتائج البحث",
+      "emptyTitle": "لا توجد نتائج",
+      "emptyDescription": "لا يوجد منتج يطابق الفلاتر المحددة.",
+      "errorTitle": "خطا في البحث",
+      "errorDescription": "تعذر تحميل النتائج حاليا. حاول مرة اخرى.",
+      "partialDataNotice": "بعض النتائج معروضة مع بيانات ثانوية ناقصة."
+    },
+    "announcements": {
+      "noCriteria": "لم يتم ادخال معايير بحث.",
+      "loading": "جار تحميل نتائج البحث.",
+      "error": "حدث خطا اثناء البحث.",
+      "empty": "لم يتم العثور على نتائج.",
+      "results": "تم العثور على {count} نتائج."
+    }
+  },
   "A11y": {
     "skip": "تخطي إلى المحتوى الرئيسي"
   }

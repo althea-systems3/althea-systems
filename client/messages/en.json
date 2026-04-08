@@ -262,6 +262,88 @@
       "availabilityOutOfStock": "Out of stock"
     }
   },
+  "SearchPage": {
+    "title": "Advanced search",
+    "description": "Refine your query with combined facets to surface relevant products faster.",
+    "filters": {
+      "title": "Filters",
+      "openMobile": "Show filters",
+      "closeMobile": "Hide filters",
+      "quickTextLabel": "Global text",
+      "quickTextPlaceholder": "Ex: switch, controller, audio...",
+      "titleLabel": "Title text",
+      "titlePlaceholder": "Filter by title",
+      "descriptionLabel": "Description text",
+      "descriptionPlaceholder": "Filter by description",
+      "characteristicsLabel": "Technical characteristics",
+      "characteristicsPlaceholder": "Ex: Modbus, 24 channels, IP67...",
+      "priceTitle": "Price (incl. tax)",
+      "priceMinLabel": "Minimum price",
+      "priceMinPlaceholder": "Min",
+      "priceMaxLabel": "Maximum price",
+      "priceMaxPlaceholder": "Max",
+      "priceRangeHint": "Catalog range: {min} to {max}",
+      "categoriesTitle": "Categories",
+      "categoriesLoadingLabel": "Loading category filters",
+      "categoriesError": "Unable to load categories.",
+      "categoriesEmpty": "No category available.",
+      "availableOnlyLabel": "Available only",
+      "resetAll": "Reset filters"
+    },
+    "sort": {
+      "criteriaLabel": "Sort by",
+      "orderLabel": "Order",
+      "criteriaOptions": {
+        "price": "Price",
+        "newness": "Newness",
+        "availability": "Availability"
+      },
+      "orderOptions": {
+        "asc": "Ascending",
+        "desc": "Descending"
+      }
+    },
+    "results": {
+      "title": "Results",
+      "count": "{count} product(s)",
+      "refreshing": "Refreshing results...",
+      "paginationLabel": "Search results navigation",
+      "previousPage": "Previous",
+      "nextPage": "Next",
+      "pageCounter": "Page {page} of {totalPages}"
+    },
+    "activeFilters": {
+      "title": "Active filters",
+      "quickText": "Text: {value}",
+      "title": "Title: {value}",
+      "description": "Description: {value}",
+      "characteristics": "Characteristics: {value}",
+      "priceMin": "Min price: {value}",
+      "priceMax": "Max price: {value}",
+      "category": "Category: {categoryName}",
+      "availableOnly": "Available only",
+      "removeLabel": "Remove filter {filterLabel}",
+      "resetAll": "Clear all"
+    },
+    "states": {
+      "noCriteriaTitle": "Start your search",
+      "noCriteriaDescription": "No criteria have been entered yet.",
+      "noCriteriaHint": "Fill one or more filters to display products.",
+      "loadingLabel": "Loading search results",
+      "emptyTitle": "No result",
+      "emptyDescription": "No product matches your selected filters.",
+      "errorTitle": "Search error",
+      "errorDescription": "Unable to load results right now. Please try again.",
+      "partialDataNotice": "Some results are shown with missing secondary data."
+    },
+    "announcements": {
+      "noCriteria": "No search criteria entered.",
+      "loading": "Search results are loading.",
+      "error": "A search error occurred.",
+      "empty": "No result found.",
+      "results": "{count} results found."
+    }
+  },
   "A11y": {
     "skip": "Skip to main content"
   }
