@@ -1,0 +1,192 @@
+import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
+
+import { createServerClient } from "@/lib/supabase/server"
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const REMEMBER_SESSION_COOKIE = "althea_remember_session"
+const REMEMBER_SESSION_MAX_AGE = 60 * 60 * 24 * 30
+
+type SignInRequestBody = {
+  email?: string
+  password?: string
+  rememberSession?: boolean
+}
+
+function normalizeString(value: unknown): string {
+  if (typeof value !== "string") {
+    return ""
+  }
+
+  return value.trim()
+}
+
+function getInvalidReason(body: SignInRequestBody | null): string | null {
+  if (!body || typeof body !== "object") {
+    return "invalid_payload"
+  }
+
+  const email = normalizeString(body.email)
+  const password = normalizeString(body.password)
+
+  if (!email) {
+    return "email_required"
+  }
+
+  if (!EMAIL_PATTERN.test(email)) {
+    return "email_invalid"
+  }
+
+  if (!password) {
+    return "password_required"
+  }
+
+  return null
+}
+
+function mapSignInErrorCode(errorMessage: string): {
+  code: string
+  status: number
+} {
+  const normalizedMessage = errorMessage.toLowerCase()
+
+  if (normalizedMessage.includes("email not confirmed")) {
+    return {
+      code: "email_not_verified",
+      status: 403,
+    }
+  }
+
+  if (normalizedMessage.includes("invalid login credentials")) {
+    return {
+      code: "invalid_credentials",
+      status: 401,
+    }
+  }
+
+  if (
+    normalizedMessage.includes("token") &&
+    normalizedMessage.includes("expired")
+  ) {
+    return {
+      code: "session_expired",
+      status: 401,
+    }
+  }
+
+  return {
+    code: "signin_failed",
+    status: 400,
+  }
+}
+
+function persistRememberSessionPreference(
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+  rememberSession: boolean,
+): void {
+  const isProductionEnvironment = process.env.NODE_ENV === "production"
+
+  cookieStore.set(REMEMBER_SESSION_COOKIE, rememberSession ? "true" : "false", {
+    path: "/",
+    sameSite: "lax",
+    secure: isProductionEnvironment,
+    httpOnly: true,
+    ...(rememberSession ? { maxAge: REMEMBER_SESSION_MAX_AGE } : {}),
+  })
+
+  if (rememberSession) {
+    return
+  }
+
+  // Force Supabase auth cookies to session scope when "remember me" is disabled.
+  cookieStore
+    .getAll()
+    .filter(({ name }) => name.startsWith("sb-") && name.includes("auth-token"))
+    .forEach(({ name, value }) => {
+      cookieStore.set(name, value, {
+        path: "/",
+        sameSite: "lax",
+        secure: isProductionEnvironment,
+        httpOnly: true,
+      })
+    })
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = (await request
+      .json()
+      .catch(() => null)) as SignInRequestBody | null
+
+    const invalidReason = getInvalidReason(body)
+
+    if (invalidReason) {
+      return NextResponse.json(
+        {
+          error: "Payload connexion invalide",
+          code: invalidReason,
+        },
+        { status: 400 },
+      )
+    }
+
+    const email = normalizeString(body?.email).toLowerCase()
+    const password = normalizeString(body?.password)
+    const rememberSession = body?.rememberSession === true
+
+    const cookieStore = await cookies()
+    const supabaseClient = createServerClient(cookieStore)
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      const mappedError = mapSignInErrorCode(error.message)
+
+      return NextResponse.json(
+        {
+          error: error.message,
+          code: mappedError.code,
+        },
+        { status: mappedError.status },
+      )
+    }
+
+    if (!data.user) {
+      return NextResponse.json(
+        {
+          error: "Session utilisateur introuvable",
+          code: "invalid_credentials",
+        },
+        { status: 401 },
+      )
+    }
+
+    persistRememberSessionPreference(cookieStore, rememberSession)
+
+    return NextResponse.json(
+      {
+        message: "signin_success",
+        isAuthenticated: true,
+        rememberSession,
+        user: {
+          id: data.user.id,
+          email: data.user.email ?? email,
+        },
+      },
+      { status: 200 },
+    )
+  } catch (error) {
+    console.error("Erreur inattendue connexion", { error })
+
+    return NextResponse.json(
+      {
+        error: "Erreur serveur",
+        code: "server_error",
+      },
+      { status: 500 },
+    )
+  }
+}

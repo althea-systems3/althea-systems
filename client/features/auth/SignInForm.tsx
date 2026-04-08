@@ -1,9 +1,10 @@
 "use client"
 
-import { Lock, Mail } from "lucide-react"
-import { type FormEvent, useState } from "react"
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
+import { type FormEvent, useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
-import { Link } from "@/i18n/navigation"
+import { useSearchParams } from "next/navigation"
+import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
 import {
   InputGroup,
@@ -11,78 +12,328 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import {
+  AUTHENTICATION_STORAGE_KEY,
+  AUTHENTICATION_UPDATED_EVENT_NAME,
+} from "@/features/layout/layoutConstants"
+import {
   AuthFormCard,
   AuthPageSection,
   AuthStatusMessage,
 } from "./authFormShared"
+import {
+  getInitialSignInFormValues,
+  hasSignInFormErrors,
+  type SignInFieldErrorCode,
+  type SignInFieldName,
+  validateSignInForm,
+} from "./signInValidation"
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-type SignInValidationMessages = {
-  emailRequired: string
-  emailInvalid: string
-  passwordRequired: string
+type SignInStatus = {
+  message: string
+  isError: boolean
 }
 
-function getSignInFormErrorMessage(
-  userEmail: string,
-  userPassword: string,
-  validationMessages: SignInValidationMessages,
-): string | null {
-  if (!userEmail.trim()) {
-    return validationMessages.emailRequired
+function getSafeNextPath(nextPath: string | null): string | null {
+  if (!nextPath) {
+    return null
   }
 
-  if (!EMAIL_PATTERN.test(userEmail.trim())) {
-    return validationMessages.emailInvalid
+  const normalizedPath = nextPath.trim()
+
+  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
+    return null
   }
 
-  if (!userPassword.trim()) {
-    return validationMessages.passwordRequired
+  return normalizedPath
+}
+
+function buildPathWithContext(
+  basePath: string,
+  nextPath: string | null,
+  source: string | null,
+): string {
+  const searchParams = new URLSearchParams()
+
+  if (nextPath) {
+    searchParams.set("next", nextPath)
   }
 
-  return null
+  if (source) {
+    searchParams.set("source", source)
+  }
+
+  const queryString = searchParams.toString()
+
+  if (!queryString) {
+    return basePath
+  }
+
+  return `${basePath}?${queryString}`
+}
+
+function getValidationMessageKey(
+  fieldName: SignInFieldName,
+  errorCode: SignInFieldErrorCode,
+): string {
+  if (fieldName === "email" && errorCode === "required") {
+    return "emailRequired"
+  }
+
+  if (fieldName === "email" && errorCode === "invalid") {
+    return "emailInvalid"
+  }
+
+  return "passwordRequired"
+}
+
+function getApiErrorMessageKey(errorCode: string): string {
+  if (errorCode === "invalid_credentials") {
+    return "invalidCredentials"
+  }
+
+  if (errorCode === "account_not_found") {
+    return "accountNotFound"
+  }
+
+  if (errorCode === "incorrect_password") {
+    return "incorrectPassword"
+  }
+
+  if (errorCode === "email_not_verified") {
+    return "accountNotVerified"
+  }
+
+  if (errorCode === "session_expired") {
+    return "sessionExpired"
+  }
+
+  if (errorCode === "server_error") {
+    return "serverError"
+  }
+
+  return "signInFailed"
+}
+
+function setAuthenticatedLayoutState(): void {
+  if (typeof window === "undefined") {
+    return
+  }
+
+  window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "true")
+  window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
 }
 
 export function SignInForm() {
   const translateSignIn = useTranslations("Pages.signIn")
-  const [emailValue, setEmailValue] = useState("")
-  const [passwordValue, setPasswordValue] = useState("")
-  const [isRememberSessionEnabled, setIsRememberSessionEnabled] =
-    useState(false)
-  const [isSignInErrorVisible, setIsSignInErrorVisible] = useState(false)
-  const [isSignInSuccessful, setIsSignInSuccessful] = useState(false)
-  const [signInStatusMessage, setSignInStatusMessage] = useState<string | null>(
-    null,
-  )
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const validationMessages: SignInValidationMessages = {
-    emailRequired: translateSignIn("form.validation.emailRequired"),
-    emailInvalid: translateSignIn("form.validation.emailInvalid"),
-    passwordRequired: translateSignIn("form.validation.passwordRequired"),
+  const source = searchParams.get("source")
+  const reason = searchParams.get("reason")
+  const resetStatus = searchParams.get("reset")
+  const verificationStatus = searchParams.get("verification")
+  const safeNextPath = getSafeNextPath(searchParams.get("next"))
+  const isCheckoutEntry =
+    source === "checkout" ||
+    safeNextPath === "/checkout" ||
+    Boolean(safeNextPath?.startsWith("/checkout?"))
+
+  const sourceContext = isCheckoutEntry ? "checkout" : null
+  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mes-parametres"
+  const nextPath = safeNextPath ?? fallbackNextPath
+
+  const [signInFormValues, setSignInFormValues] = useState(
+    getInitialSignInFormValues(),
+  )
+  const [touchedFields, setTouchedFields] = useState<
+    Partial<Record<SignInFieldName, boolean>>
+  >({})
+  const [hasSubmitBeenAttempted, setHasSubmitBeenAttempted] = useState(false)
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [isSignInSubmitting, setIsSignInSubmitting] = useState(false)
+  const [signInStatus, setSignInStatus] = useState<SignInStatus | null>(null)
+
+  const signInFormErrors = useMemo(() => {
+    return validateSignInForm(signInFormValues)
+  }, [signInFormValues])
+
+  const hasSignInErrors = hasSignInFormErrors(signInFormErrors)
+
+  const queryFeedback = useMemo<SignInStatus | null>(() => {
+    if (resetStatus === "success") {
+      return {
+        isError: false,
+        message: translateSignIn("form.messages.passwordResetSuccess"),
+      }
+    }
+
+    if (verificationStatus === "success") {
+      return {
+        isError: false,
+        message: translateSignIn("form.messages.verificationSuccess"),
+      }
+    }
+
+    if (reason === "session_expired") {
+      return {
+        isError: true,
+        message: translateSignIn("form.messages.sessionExpired"),
+      }
+    }
+
+    return null
+  }, [reason, resetStatus, translateSignIn, verificationStatus])
+
+  function getFieldErrorMessage(fieldName: SignInFieldName): string | null {
+    const shouldShowError =
+      hasSubmitBeenAttempted || Boolean(touchedFields[fieldName])
+
+    if (!shouldShowError) {
+      return null
+    }
+
+    const fieldErrorCode = signInFormErrors[fieldName]
+
+    if (!fieldErrorCode) {
+      return null
+    }
+
+    return translateSignIn(
+      `form.validation.${getValidationMessageKey(fieldName, fieldErrorCode)}`,
+    )
   }
 
-  const signInErrorMessage = getSignInFormErrorMessage(
-    emailValue,
-    passwordValue,
-    validationMessages,
-  )
+  function getFieldErrorId(fieldName: SignInFieldName): string {
+    return `sign-in-${fieldName}-error`
+  }
 
-  const canSubmitSignInForm = !signInErrorMessage
+  function handleFieldChange(
+    fieldName: Exclude<SignInFieldName, never>,
+    fieldValue: string,
+  ) {
+    setSignInFormValues((currentValue) => ({
+      ...currentValue,
+      [fieldName]: fieldValue,
+    }))
+    setTouchedFields((currentValue) => ({
+      ...currentValue,
+      [fieldName]: true,
+    }))
 
-  function handleSignInFormSubmit(formSubmitEvent: FormEvent<HTMLFormElement>) {
+    if (signInStatus?.isError) {
+      setSignInStatus(null)
+    }
+  }
+
+  function handleRememberSessionChange(rememberSession: boolean) {
+    setSignInFormValues((currentValue) => ({
+      ...currentValue,
+      rememberSession,
+    }))
+  }
+
+  function markAllFieldsAsTouched() {
+    setTouchedFields({
+      email: true,
+      password: true,
+    })
+  }
+
+  async function handleSignInFormSubmit(
+    formSubmitEvent: FormEvent<HTMLFormElement>,
+  ) {
     formSubmitEvent.preventDefault()
+    setHasSubmitBeenAttempted(true)
+    markAllFieldsAsTouched()
 
-    if (!canSubmitSignInForm) {
-      setIsSignInErrorVisible(true)
-      setIsSignInSuccessful(false)
-      setSignInStatusMessage(signInErrorMessage)
+    if (hasSignInErrors) {
+      setSignInStatus({
+        isError: true,
+        message: translateSignIn("form.messages.errorHint"),
+      })
       return
     }
 
-    setIsSignInErrorVisible(false)
-    setIsSignInSuccessful(true)
-    setSignInStatusMessage(translateSignIn("form.messages.success"))
+    setIsSignInSubmitting(true)
+    setSignInStatus(null)
+
+    try {
+      const response = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: signInFormValues.email,
+          password: signInFormValues.password,
+          rememberSession: signInFormValues.rememberSession,
+        }),
+      })
+
+      const responsePayload = await response.json().catch(() => null)
+
+      if (!response.ok || !responsePayload) {
+        const responseCode =
+          typeof responsePayload?.code === "string"
+            ? responsePayload.code
+            : "signin_failed"
+
+        setSignInStatus({
+          isError: true,
+          message: translateSignIn(
+            `form.messages.${getApiErrorMessageKey(responseCode)}`,
+          ),
+        })
+        return
+      }
+
+      setAuthenticatedLayoutState()
+      router.replace(nextPath)
+    } catch (error) {
+      console.error("Erreur connexion utilisateur", { error })
+      setSignInStatus({
+        isError: true,
+        message: translateSignIn("form.messages.serverError"),
+      })
+    } finally {
+      setIsSignInSubmitting(false)
+    }
+  }
+
+  const signUpPath = buildPathWithContext(
+    "/inscription",
+    safeNextPath,
+    sourceContext,
+  )
+  const forgotPasswordPath = buildPathWithContext(
+    "/mot-de-passe-oublie",
+    safeNextPath,
+    sourceContext,
+  )
+  const checkoutPath = "/checkout?source=signin"
+
+  const effectiveStatus = signInStatus ?? queryFeedback
+
+  const submitLabel = isSignInSubmitting
+    ? translateSignIn("form.actions.submitting")
+    : translateSignIn("form.actions.submit")
+
+  const emailErrorMessage = getFieldErrorMessage("email")
+  const passwordErrorMessage = getFieldErrorMessage("password")
+
+  const showGlobalErrorHint =
+    hasSubmitBeenAttempted && hasSignInErrors && !signInStatus
+
+  const canSubmit = !isSignInSubmitting
+
+  function getFieldDescribedBy(fieldName: SignInFieldName): string | undefined {
+    const fieldErrorMessage = getFieldErrorMessage(fieldName)
+
+    if (!fieldErrorMessage) {
+      return undefined
+    }
+
+    return getFieldErrorId(fieldName)
   }
 
   return (
@@ -95,8 +346,8 @@ export function SignInForm() {
         description={translateSignIn("form.description")}
         footer={
           <AuthStatusMessage
-            message={signInStatusMessage}
-            isError={isSignInErrorVisible}
+            message={effectiveStatus?.message ?? null}
+            isError={effectiveStatus?.isError ?? false}
           />
         }
       >
@@ -118,18 +369,28 @@ export function SignInForm() {
                 name="email"
                 type="email"
                 autoComplete="email"
-                value={emailValue}
+                value={signInFormValues.email}
                 onChange={(changeEvent) => {
-                  setEmailValue(changeEvent.target.value)
+                  handleFieldChange("email", changeEvent.target.value)
                 }}
                 className="ps-9"
                 placeholder={translateSignIn("form.fields.email.placeholder")}
-                aria-invalid={isSignInErrorVisible && !emailValue.trim()}
+                aria-invalid={Boolean(emailErrorMessage)}
+                aria-describedby={getFieldDescribedBy("email")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Mail className="size-4" aria-hidden="true" />
               </InputGroupAddon>
             </InputGroup>
+            {emailErrorMessage ? (
+              <p
+                id={getFieldErrorId("email")}
+                className="text-xs text-brand-error"
+                role="alert"
+              >
+                {emailErrorMessage}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -143,22 +404,58 @@ export function SignInForm() {
               <InputGroupInput
                 id="sign-in-password"
                 name="password"
-                type="password"
+                type={isPasswordVisible ? "text" : "password"}
                 autoComplete="current-password"
-                value={passwordValue}
+                value={signInFormValues.password}
                 onChange={(changeEvent) => {
-                  setPasswordValue(changeEvent.target.value)
+                  handleFieldChange("password", changeEvent.target.value)
                 }}
-                className="ps-9"
+                className="ps-9 pe-11"
                 placeholder={translateSignIn(
                   "form.fields.password.placeholder",
                 )}
-                aria-invalid={isSignInErrorVisible && !passwordValue.trim()}
+                aria-invalid={Boolean(passwordErrorMessage)}
+                aria-describedby={getFieldDescribedBy("password")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
               </InputGroupAddon>
+              <button
+                type="button"
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500"
+                aria-label={
+                  isPasswordVisible
+                    ? translateSignIn("form.actions.hidePassword")
+                    : translateSignIn("form.actions.showPassword")
+                }
+                onClick={() =>
+                  setIsPasswordVisible((currentValue) => !currentValue)
+                }
+              >
+                {isPasswordVisible ? (
+                  <EyeOff className="size-4" aria-hidden="true" />
+                ) : (
+                  <Eye className="size-4" aria-hidden="true" />
+                )}
+              </button>
             </InputGroup>
+            {passwordErrorMessage ? (
+              <p
+                id={getFieldErrorId("password")}
+                className="text-xs text-brand-error"
+                role="alert"
+              >
+                {passwordErrorMessage}
+              </p>
+            ) : null}
+            <p className="text-end text-sm">
+              <Link
+                href={forgotPasswordPath}
+                className="font-medium text-brand-cta hover:underline"
+              >
+                {translateSignIn("form.actions.goToForgotPassword")}
+              </Link>
+            </p>
           </div>
 
           <label
@@ -169,30 +466,52 @@ export function SignInForm() {
               id="remember-session"
               name="remember-session"
               type="checkbox"
-              checked={isRememberSessionEnabled}
+              checked={signInFormValues.rememberSession}
               onChange={(changeEvent) => {
-                setIsRememberSessionEnabled(changeEvent.target.checked)
+                handleRememberSessionChange(changeEvent.target.checked)
               }}
               className="mt-0.5 h-4 w-4 rounded border-border text-brand-cta"
             />
             <span>{translateSignIn("form.fields.rememberSession")}</span>
           </label>
 
-          <Button type="submit" className="w-full">
-            {translateSignIn("form.actions.submit")}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={!canSubmit || isSignInSubmitting}
+          >
+            {isSignInSubmitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                {submitLabel}
+              </>
+            ) : (
+              submitLabel
+            )}
           </Button>
 
           <p className="text-center text-sm text-slate-600">
             {translateSignIn("form.actions.noAccount")}{" "}
             <Link
-              href="/inscription"
+              href={signUpPath}
               className="font-medium text-brand-cta hover:underline"
             >
               {translateSignIn("form.actions.goToSignUp")}
             </Link>
           </p>
 
-          {!isSignInSuccessful && isSignInErrorVisible ? (
+          {isCheckoutEntry ? (
+            <p className="text-center text-sm text-slate-600">
+              <Link
+                href={checkoutPath}
+                className="font-medium text-brand-cta hover:underline"
+              >
+                {translateSignIn("form.actions.goToCheckout")}
+              </Link>
+            </p>
+          ) : null}
+
+          {showGlobalErrorHint ? (
             <p className="text-xs text-brand-error">
               {translateSignIn("form.messages.errorHint")}
             </p>
