@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
-import { createServerClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { getCartSessionId, clearCartSession } from '@/lib/auth/cartSession';
-import { getStripeClient } from '@/lib/stripe/client';
-import { roundCurrency } from '@/lib/checkout/currency';
+import { createServerClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { getCartSessionId, clearCartSession } from "@/lib/auth/cartSession"
+import { getStripeClient } from "@/lib/stripe/client"
+import { roundCurrency } from "@/lib/checkout/currency"
 import {
   buildOrderNumber,
   buildInvoiceNumber,
-} from '@/lib/checkout/numberGenerator';
+} from "@/lib/checkout/numberGenerator"
 import {
   ORDER_STATUS_PENDING,
   ORDER_STATUS_IN_PROGRESS,
@@ -20,68 +20,159 @@ import {
   INVOICES_STORAGE_PATH,
   GUEST_USER_DEFAULT_STATUS,
   GUEST_USER_DEFAULT_NAME,
-} from '@/lib/checkout/constants';
-import { generateInvoicePdf } from '@/lib/checkout/pdf';
-import type { InvoicePdfData } from '@/lib/checkout/pdf';
-import { sendOrderConfirmationEmail } from '@/lib/checkout/email';
-import { logCheckoutActivity } from '@/lib/checkout/logCheckoutActivity';
-
+} from "@/lib/checkout/constants"
+import { generateInvoicePdf } from "@/lib/checkout/pdf"
+import type { InvoicePdfData } from "@/lib/checkout/pdf"
+import { sendOrderConfirmationEmail } from "@/lib/checkout/email"
+import { logCheckoutActivity } from "@/lib/checkout/logCheckoutActivity"
 
 // --- Types ---
 
 type ProductSnapshot = {
-  nom: string;
-  slug: string;
-  prix_ht: number;
-  prix_ttc: number;
-  quantite_stock: number;
-  statut: string;
-};
+  nom: string
+  slug: string
+  prix_ht: number
+  prix_ttc: number
+  quantite_stock: number
+  statut: string
+}
 
 type CartLineRow = {
-  id_ligne_panier: string;
-  id_produit: string;
-  quantite: number;
-  produit: ProductSnapshot | null;
-};
+  id_ligne_panier: string
+  id_produit: string
+  quantite: number
+  produit: ProductSnapshot | null
+}
 
 type EnrichedLine = {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPriceHt: number;
-  unitPriceTtc: number;
-  subtotalHt: number;
-  subtotalTtc: number;
-};
+  productId: string
+  productName: string
+  quantity: number
+  unitPriceHt: number
+  unitPriceTtc: number
+  subtotalHt: number
+  subtotalTtc: number
+}
 
 type AddressInput = {
-  savedAddressId?: string;
-  firstName?: string;
-  lastName?: string;
-  address1?: string;
-  address2?: string;
-  city?: string;
-  region?: string;
-  postalCode?: string;
-  country?: string;
-  phone?: string;
-};
+  savedAddressId?: string
+  firstName?: string
+  lastName?: string
+  address1?: string
+  address2?: string
+  city?: string
+  region?: string
+  postalCode?: string
+  country?: string
+  phone?: string
+}
+
+type PaymentInput = {
+  savedPaymentId?: string
+  cardNumber?: string
+  last4?: string
+}
+
+type PaymentSnapshot = {
+  mode: "carte"
+  last4: string
+}
 
 type ConfirmCheckoutBody = {
-  paymentIntentId: string;
-  guestEmail?: string;
-  address?: AddressInput;
-};
+  paymentIntentId: string
+  guestEmail?: string
+  address?: AddressInput
+  payment?: PaymentInput
+}
+
+const LAST4_PATTERN = /^\d{4}$/
 
 // --- Helpers ---
 
 function normalizeString(value: unknown): string {
-  if (typeof value !== 'string') {
-    return '';
+  if (typeof value !== "string") {
+    return ""
   }
 
-  return value.trim();
+  return value.trim()
+}
+
+function extractLast4Digits(value: unknown): string | null {
+  const normalizedValue = normalizeString(value)
+
+  if (!normalizedValue) {
+    return null
+  }
+
+  const digits = normalizedValue.replace(/\D/g, "")
+  const last4 = digits.slice(-4)
+
+  if (!LAST4_PATTERN.test(last4)) {
+    return null
+  }
+
+  return last4
+}
+
+async function fetchSavedPaymentLast4(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  savedPaymentId: string,
+): Promise<string | null> {
+  const { data, error } = await supabaseAdmin
+    .from("methode_paiement")
+    .select("derniers_4_chiffres")
+    .eq("id_utilisateur", userId)
+    .eq("id_paiement", savedPaymentId)
+    .limit(1)
+    .single()
+
+  if (error || !data) {
+    return null
+  }
+
+  const last4 = normalizeString(
+    (data as { derniers_4_chiffres?: string }).derniers_4_chiffres,
+  )
+
+  return LAST4_PATTERN.test(last4) ? last4 : null
+}
+
+async function resolvePaymentSnapshotFromPayload(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  userId: string,
+  paymentInput: PaymentInput | undefined,
+): Promise<PaymentSnapshot | null> {
+  if (!paymentInput) {
+    return null
+  }
+
+  const savedPaymentId = normalizeString(paymentInput.savedPaymentId)
+
+  if (savedPaymentId) {
+    const savedLast4 = await fetchSavedPaymentLast4(
+      supabaseAdmin,
+      userId,
+      savedPaymentId,
+    )
+
+    if (savedLast4) {
+      return { mode: "carte", last4: savedLast4 }
+    }
+  }
+
+  const directLast4 =
+    extractLast4Digits(paymentInput.last4) ??
+    extractLast4Digits(paymentInput.cardNumber)
+
+  if (!directLast4) {
+    return null
+  }
+
+  return {
+    mode: "carte",
+    last4: directLast4,
+  }
 }
 
 // --- Panier ---
@@ -92,29 +183,29 @@ async function resolveCartId(
 ): Promise<string | null> {
   if (userId) {
     const { data } = await supabaseAdmin
-      .from('panier')
-      .select('id_panier')
-      .eq('id_utilisateur', userId)
+      .from("panier")
+      .select("id_panier")
+      .eq("id_utilisateur", userId)
       .limit(1)
-      .single();
+      .single()
 
-    return (data as { id_panier: string } | null)?.id_panier ?? null;
+    return (data as { id_panier: string } | null)?.id_panier ?? null
   }
 
-  const sessionId = await getCartSessionId();
+  const sessionId = await getCartSessionId()
 
   if (!sessionId) {
-    return null;
+    return null
   }
 
   const { data } = await supabaseAdmin
-    .from('panier')
-    .select('id_panier')
-    .eq('session_id', sessionId)
+    .from("panier")
+    .select("id_panier")
+    .eq("session_id", sessionId)
     .limit(1)
-    .single();
+    .single()
 
-  return (data as { id_panier: string } | null)?.id_panier ?? null;
+  return (data as { id_panier: string } | null)?.id_panier ?? null
 }
 
 async function fetchCartLines(
@@ -122,17 +213,17 @@ async function fetchCartLines(
   cartId: string,
 ): Promise<CartLineRow[]> {
   const { data, error } = await supabaseAdmin
-    .from('ligne_panier')
+    .from("ligne_panier")
     .select(
-      'id_ligne_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ht, prix_ttc, quantite_stock, statut)',
+      "id_ligne_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ht, prix_ttc, quantite_stock, statut)",
     )
-    .eq('id_panier', cartId);
+    .eq("id_panier", cartId)
 
   if (error || !data) {
-    return [];
+    return []
   }
 
-  return data as unknown as CartLineRow[];
+  return data as unknown as CartLineRow[]
 }
 
 // --- Stock ---
@@ -140,26 +231,26 @@ async function fetchCartLines(
 function findStockIssues(lines: CartLineRow[]) {
   return lines
     .map((line) => {
-      if (!line.produit || line.produit.statut !== 'publie') {
-        return { productId: line.id_produit, reason: 'unavailable' };
+      if (!line.produit || line.produit.statut !== "publie") {
+        return { productId: line.id_produit, reason: "unavailable" }
       }
 
       if (line.quantite > line.produit.quantite_stock) {
         return {
           productId: line.id_produit,
-          reason: 'insufficient_stock',
+          reason: "insufficient_stock",
           availableStock: line.produit.quantite_stock,
-        };
+        }
       }
 
-      return null;
+      return null
     })
-    .filter((issue) => issue !== null);
+    .filter((issue) => issue !== null)
 }
 
 function enrichCartLines(lines: CartLineRow[]): EnrichedLine[] {
   return lines.map((line) => {
-    const product = line.produit!;
+    const product = line.produit!
 
     return {
       productId: line.id_produit,
@@ -169,24 +260,24 @@ function enrichCartLines(lines: CartLineRow[]): EnrichedLine[] {
       unitPriceTtc: product.prix_ttc,
       subtotalHt: roundCurrency(product.prix_ht * line.quantite),
       subtotalTtc: roundCurrency(product.prix_ttc * line.quantite),
-    };
-  });
+    }
+  })
 }
 
 function computeTotals(lines: EnrichedLine[]) {
   const totalHt = roundCurrency(
     lines.reduce((sum, line) => sum + line.subtotalHt, 0),
-  );
+  )
   const totalTtc = roundCurrency(
     lines.reduce((sum, line) => sum + line.subtotalTtc, 0),
-  );
+  )
 
   return {
     totalItems: lines.reduce((sum, line) => sum + line.quantity, 0),
     totalHt,
     totalTva: roundCurrency(totalTtc - totalHt),
     totalTtc,
-  };
+  }
 }
 
 // --- Guest user ---
@@ -196,40 +287,40 @@ async function findOrCreateGuestUser(
   guestEmail: string,
 ): Promise<string | null> {
   const { data: existingUser } = await supabaseAdmin
-    .from('utilisateur')
-    .select('id_utilisateur')
-    .eq('email', guestEmail)
+    .from("utilisateur")
+    .select("id_utilisateur")
+    .eq("email", guestEmail)
     .limit(1)
-    .single();
+    .single()
 
   if (existingUser) {
-    return (existingUser as { id_utilisateur: string }).id_utilisateur;
+    return (existingUser as { id_utilisateur: string }).id_utilisateur
   }
 
   // NOTE: Créer un utilisateur Supabase Auth via admin API
-  const { data: authData, error: authError } = await supabaseAdmin
-    .auth.admin.createUser({
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
       email: guestEmail,
       email_confirm: true,
       user_metadata: { nom_complet: GUEST_USER_DEFAULT_NAME },
-    });
+    })
 
   if (authError || !authData.user) {
-    console.error('Erreur création user guest', { authError });
-    return null;
+    console.error("Erreur création user guest", { authError })
+    return null
   }
 
   // NOTE: Le trigger handle_new_user crée l'entrée utilisateur
   // Mettre à jour le statut
   await supabaseAdmin
-    .from('utilisateur')
+    .from("utilisateur")
     .update({
       statut: GUEST_USER_DEFAULT_STATUS,
       nom_complet: GUEST_USER_DEFAULT_NAME,
     } as never)
-    .eq('id_utilisateur', authData.user.id);
+    .eq("id_utilisateur", authData.user.id)
 
-  return authData.user.id;
+  return authData.user.id
 }
 
 // --- Adresse ---
@@ -240,36 +331,44 @@ async function resolveAddress(
   addressInput: AddressInput | undefined,
 ): Promise<string | null> {
   if (!addressInput) {
-    return null;
+    return null
   }
 
-  const savedAddressId = normalizeString(addressInput.savedAddressId);
+  const savedAddressId = normalizeString(addressInput.savedAddressId)
 
   if (savedAddressId) {
     const { data } = await supabaseAdmin
-      .from('adresse')
-      .select('id_adresse')
-      .eq('id_utilisateur', userId)
-      .eq('id_adresse', savedAddressId)
-      .single();
+      .from("adresse")
+      .select("id_adresse")
+      .eq("id_utilisateur", userId)
+      .eq("id_adresse", savedAddressId)
+      .single()
 
-    return (data as { id_adresse: string } | null)?.id_adresse ?? null;
+    return (data as { id_adresse: string } | null)?.id_adresse ?? null
   }
 
-  const firstName = normalizeString(addressInput.firstName);
-  const lastName = normalizeString(addressInput.lastName);
-  const address1 = normalizeString(addressInput.address1);
-  const city = normalizeString(addressInput.city);
-  const postalCode = normalizeString(addressInput.postalCode);
-  const country = normalizeString(addressInput.country);
-  const phone = normalizeString(addressInput.phone);
+  const firstName = normalizeString(addressInput.firstName)
+  const lastName = normalizeString(addressInput.lastName)
+  const address1 = normalizeString(addressInput.address1)
+  const city = normalizeString(addressInput.city)
+  const postalCode = normalizeString(addressInput.postalCode)
+  const country = normalizeString(addressInput.country)
+  const phone = normalizeString(addressInput.phone)
 
-  if (!firstName || !lastName || !address1 || !city || !postalCode || !country || !phone) {
-    return null;
+  if (
+    !firstName ||
+    !lastName ||
+    !address1 ||
+    !city ||
+    !postalCode ||
+    !country ||
+    !phone
+  ) {
+    return null
   }
 
   const { data, error } = await supabaseAdmin
-    .from('adresse')
+    .from("adresse")
     .insert({
       id_utilisateur: userId,
       prenom: firstName,
@@ -282,33 +381,74 @@ async function resolveAddress(
       pays: country,
       telephone: phone,
     } as never)
-    .select('id_adresse')
-    .single();
+    .select("id_adresse")
+    .single()
 
   if (error || !data) {
-    return null;
+    return null
   }
 
-  return (data as { id_adresse: string }).id_adresse;
+  return (data as { id_adresse: string }).id_adresse
 }
 
 // --- Stripe ---
 
 async function confirmStripePayment(
   paymentIntentId: string,
-): Promise<{ isSuccessful: boolean }> {
+): Promise<{ isSuccessful: boolean; paymentSnapshot: PaymentSnapshot | null }> {
   try {
-    const stripe = getStripeClient();
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-      paymentIntentId,
-    );
+    const stripe = getStripeClient()
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+
+    if (paymentIntent.status !== "succeeded") {
+      return {
+        isSuccessful: false,
+        paymentSnapshot: null,
+      }
+    }
+
+    let paymentSnapshot: PaymentSnapshot | null = null
+
+    try {
+      let paymentMethodId = ""
+
+      if (typeof paymentIntent.payment_method === "string") {
+        paymentMethodId = paymentIntent.payment_method
+      } else if (
+        paymentIntent.payment_method &&
+        typeof paymentIntent.payment_method === "object" &&
+        "id" in paymentIntent.payment_method
+      ) {
+        paymentMethodId = normalizeString(
+          (paymentIntent.payment_method as { id?: string }).id,
+        )
+      }
+
+      if (paymentMethodId) {
+        const paymentMethod =
+          await stripe.paymentMethods.retrieve(paymentMethodId)
+        const stripeLast4 = normalizeString(
+          (paymentMethod as { card?: { last4?: string } }).card?.last4,
+        )
+
+        if (LAST4_PATTERN.test(stripeLast4)) {
+          paymentSnapshot = {
+            mode: "carte",
+            last4: stripeLast4,
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Erreur extraction snapshot paiement Stripe", { error })
+    }
 
     return {
-      isSuccessful: paymentIntent.status === 'succeeded',
-    };
+      isSuccessful: true,
+      paymentSnapshot,
+    }
   } catch (error) {
-    console.error('Erreur vérification Stripe PaymentIntent', { error });
-    return { isSuccessful: false };
+    console.error("Erreur vérification Stripe PaymentIntent", { error })
+    return { isSuccessful: false, paymentSnapshot: null }
   }
 }
 
@@ -323,13 +463,15 @@ async function insertOrder(
   totalTva: number,
   totalTtc: number,
   paymentStatus: string,
+  paymentSnapshot: PaymentSnapshot | null,
 ): Promise<string | null> {
-  const orderStatus = paymentStatus === PAYMENT_STATUS_VALID
-    ? ORDER_STATUS_IN_PROGRESS
-    : ORDER_STATUS_PENDING;
+  const orderStatus =
+    paymentStatus === PAYMENT_STATUS_VALID
+      ? ORDER_STATUS_IN_PROGRESS
+      : ORDER_STATUS_PENDING
 
   const { data, error } = await supabaseAdmin
-    .from('commande')
+    .from("commande")
     .insert({
       numero_commande: orderNumber,
       id_utilisateur: userId,
@@ -339,16 +481,18 @@ async function insertOrder(
       montant_ttc: totalTtc,
       statut: orderStatus,
       statut_paiement: paymentStatus,
+      mode_paiement: paymentSnapshot?.mode ?? null,
+      paiement_dernier_4: paymentSnapshot?.last4 ?? null,
     } as never)
-    .select('id_commande')
-    .single();
+    .select("id_commande")
+    .single()
 
   if (error || !data) {
-    console.error('Erreur insertion commande', { error });
-    return null;
+    console.error("Erreur insertion commande", { error })
+    return null
   }
 
-  return (data as { id_commande: string }).id_commande;
+  return (data as { id_commande: string }).id_commande
 }
 
 async function insertOrderLines(
@@ -362,14 +506,14 @@ async function insertOrderLines(
     quantite: line.quantity,
     prix_unitaire_ht: line.unitPriceHt,
     prix_total_ttc: line.subtotalTtc,
-  }));
+  }))
 
   const { error } = await supabaseAdmin
-    .from('ligne_commande')
-    .insert(orderLines as never);
+    .from("ligne_commande")
+    .insert(orderLines as never)
 
   if (error) {
-    console.error('Erreur insertion lignes commande', { error });
+    console.error("Erreur insertion lignes commande", { error })
   }
 }
 
@@ -379,16 +523,14 @@ async function insertStatusHistory(
   previousStatus: string,
   newStatus: string,
 ): Promise<void> {
-  const { error } = await supabaseAdmin
-    .from('historique_statut')
-    .insert({
-      id_commande: orderId,
-      statut_precedent: previousStatus,
-      nouveau_statut: newStatus,
-    } as never);
+  const { error } = await supabaseAdmin.from("historique_statut").insert({
+    id_commande: orderId,
+    statut_precedent: previousStatus,
+    nouveau_statut: newStatus,
+  } as never)
 
   if (error) {
-    console.error('Erreur insertion historique statut', { error });
+    console.error("Erreur insertion historique statut", { error })
   }
 }
 
@@ -400,22 +542,22 @@ async function decrementProductStock(
 ): Promise<void> {
   for (const line of lines) {
     const { data: product } = await supabaseAdmin
-      .from('produit')
-      .select('quantite_stock')
-      .eq('id_produit', line.productId)
-      .single();
+      .from("produit")
+      .select("quantite_stock")
+      .eq("id_produit", line.productId)
+      .single()
 
     if (!product) {
-      continue;
+      continue
     }
 
-    const currentStock = (product as { quantite_stock: number }).quantite_stock;
-    const newStock = Math.max(0, currentStock - line.quantity);
+    const currentStock = (product as { quantite_stock: number }).quantite_stock
+    const newStock = Math.max(0, currentStock - line.quantity)
 
     await supabaseAdmin
-      .from('produit')
+      .from("produit")
       .update({ quantite_stock: newStock } as never)
-      .eq('id_produit', line.productId);
+      .eq("id_produit", line.productId)
   }
 }
 
@@ -433,7 +575,7 @@ async function createInvoiceAndUploadPdf(
   totalHt: number,
   totalTva: number,
 ): Promise<string | null> {
-  const invoiceNumber = buildInvoiceNumber();
+  const invoiceNumber = buildInvoiceNumber()
 
   const invoiceData: InvoicePdfData = {
     invoiceNumber,
@@ -455,33 +597,31 @@ async function createInvoiceAndUploadPdf(
     totalHt,
     totalTva,
     totalTtc,
-  };
+  }
 
-  let pdfUrl: string | null = null;
+  let pdfUrl: string | null = null
 
   try {
-    const pdfBuffer = await generateInvoicePdf(invoiceData);
-    pdfUrl = await uploadPdfToStorage(invoiceNumber, pdfBuffer);
+    const pdfBuffer = await generateInvoicePdf(invoiceData)
+    pdfUrl = await uploadPdfToStorage(invoiceNumber, pdfBuffer)
   } catch (error) {
-    console.error('Erreur génération/upload PDF facture', { error });
+    console.error("Erreur génération/upload PDF facture", { error })
   }
 
-  const { error } = await supabaseAdmin
-    .from('facture')
-    .insert({
-      numero_facture: invoiceNumber,
-      id_commande: orderId,
-      montant_ttc: totalTtc,
-      statut: INVOICE_STATUS_PAID,
-      pdf_url: pdfUrl,
-    } as never);
+  const { error } = await supabaseAdmin.from("facture").insert({
+    numero_facture: invoiceNumber,
+    id_commande: orderId,
+    montant_ttc: totalTtc,
+    statut: INVOICE_STATUS_PAID,
+    pdf_url: pdfUrl,
+  } as never)
 
   if (error) {
-    console.error('Erreur insertion facture', { error });
-    return null;
+    console.error("Erreur insertion facture", { error })
+    return null
   }
 
-  return pdfUrl;
+  return pdfUrl
 }
 
 async function uploadPdfToStorage(
@@ -489,19 +629,19 @@ async function uploadPdfToStorage(
   pdfBuffer: Buffer,
 ): Promise<string> {
   // NOTE: Utilise Firebase Admin Storage via le bucket par défaut
-  const admin = await import('firebase-admin');
-  const bucket = admin.storage().bucket();
-  const filePath = `${INVOICES_STORAGE_PATH}/${documentNumber}.pdf`;
-  const file = bucket.file(filePath);
+  const admin = await import("firebase-admin")
+  const bucket = admin.storage().bucket()
+  const filePath = `${INVOICES_STORAGE_PATH}/${documentNumber}.pdf`
+  const file = bucket.file(filePath)
 
   await file.save(pdfBuffer, {
-    contentType: 'application/pdf',
+    contentType: "application/pdf",
     metadata: { documentNumber },
-  });
+  })
 
-  await file.makePublic();
+  await file.makePublic()
 
-  return file.publicUrl();
+  return file.publicUrl()
 }
 
 // --- Vidage panier ---
@@ -510,10 +650,7 @@ async function clearCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   cartId: string,
 ): Promise<void> {
-  await supabaseAdmin
-    .from('ligne_panier')
-    .delete()
-    .eq('id_panier', cartId);
+  await supabaseAdmin.from("ligne_panier").delete().eq("id_panier", cartId)
 }
 
 // --- Idempotence ---
@@ -524,43 +661,41 @@ async function findExistingOrder(
 ): Promise<{ id_commande: string; numero_commande: string } | null> {
   // NOTE: Chercher via metadata Stripe si double soumission
   try {
-    const stripe = getStripeClient();
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-      paymentIntentId,
-    );
-    const cartId = paymentIntent.metadata?.cartId;
+    const stripe = getStripeClient()
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const cartId = paymentIntent.metadata?.cartId
 
     if (!cartId) {
-      return null;
+      return null
     }
 
     // NOTE: Vérifier si une commande existe déjà pour ce panier
     // via le fait que le panier est vide
     const { data } = await supabaseAdmin
-      .from('ligne_panier')
-      .select('id_ligne_panier')
-      .eq('id_panier', cartId)
-      .limit(1);
+      .from("ligne_panier")
+      .select("id_ligne_panier")
+      .eq("id_panier", cartId)
+      .limit(1)
 
     if (!data || data.length === 0) {
       // NOTE: Panier déjà vide → commande probablement déjà créée
       // Chercher la commande la plus récente pour cet utilisateur
-      const userId = paymentIntent.metadata?.userId;
+      const userId = paymentIntent.metadata?.userId
 
-      if (userId && userId !== 'guest') {
+      if (userId && userId !== "guest") {
         const { data: orderData } = await supabaseAdmin
-          .from('commande')
-          .select('id_commande, numero_commande')
-          .eq('id_utilisateur', userId)
-          .order('date_commande', { ascending: false })
+          .from("commande")
+          .select("id_commande, numero_commande")
+          .eq("id_utilisateur", userId)
+          .order("date_commande", { ascending: false })
           .limit(1)
-          .single();
+          .single()
 
         if (orderData) {
           return orderData as {
-            id_commande: string;
-            numero_commande: string;
-          };
+            id_commande: string
+            numero_commande: string
+          }
         }
       }
     }
@@ -568,132 +703,143 @@ async function findExistingOrder(
     // NOTE: En cas d'erreur, on continue normalement
   }
 
-  return null;
+  return null
 }
 
 // --- Handler principal ---
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const supabaseClient = createServerClient(cookieStore);
-    const supabaseAdmin = createAdminClient();
+    const cookieStore = await cookies()
+    const supabaseClient = createServerClient(cookieStore)
+    const supabaseAdmin = createAdminClient()
 
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    const body = (await request.json().catch(() => null)) as ConfirmCheckoutBody | null;
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser()
+    const body = (await request
+      .json()
+      .catch(() => null)) as ConfirmCheckoutBody | null
 
-    const paymentIntentId = normalizeString(body?.paymentIntentId);
+    const paymentIntentId = normalizeString(body?.paymentIntentId)
 
     if (!paymentIntentId) {
       return NextResponse.json(
-        { error: 'paymentIntentId requis' },
+        { error: "paymentIntentId requis" },
         { status: 400 },
-      );
+      )
     }
 
-    const guestEmail = normalizeString(body?.guestEmail);
+    const guestEmail = normalizeString(body?.guestEmail)
 
     if (!user && !guestEmail) {
       return NextResponse.json(
-        { error: 'Email invité requis pour finaliser la commande' },
+        { error: "Email invité requis pour finaliser la commande" },
         { status: 400 },
-      );
+      )
     }
 
     // NOTE: Protection double soumission
     const existingOrder = await findExistingOrder(
       supabaseAdmin,
       paymentIntentId,
-    );
+    )
 
     if (existingOrder) {
       return NextResponse.json({
         orderId: existingOrder.id_commande,
         orderNumber: existingOrder.numero_commande,
-        status: 'already_confirmed',
-      });
+        status: "already_confirmed",
+      })
     }
 
     // NOTE: Vérifier le paiement Stripe
-    const { isSuccessful } = await confirmStripePayment(paymentIntentId);
+    const { isSuccessful, paymentSnapshot: stripePaymentSnapshot } =
+      await confirmStripePayment(paymentIntentId)
     const paymentStatus = isSuccessful
       ? PAYMENT_STATUS_VALID
-      : PAYMENT_STATUS_FAILED;
+      : PAYMENT_STATUS_FAILED
 
     if (!isSuccessful) {
-      await logCheckoutActivity('paiement_echoue', {
+      await logCheckoutActivity("paiement_echoue", {
         paymentIntentId,
         userId: user?.id ?? guestEmail,
-      });
+      })
 
       return NextResponse.json(
-        { error: 'Paiement échoué', code: 'payment_failed' },
+        { error: "Paiement échoué", code: "payment_failed" },
         { status: 402 },
-      );
+      )
     }
 
     // NOTE: Résoudre l'utilisateur (connecté ou guest)
-    let userId = user?.id ?? null;
-    let contactEmail = user?.email ?? guestEmail;
+    let userId = user?.id ?? null
+    let contactEmail = user?.email ?? guestEmail
 
     if (!userId && guestEmail) {
-      userId = await findOrCreateGuestUser(supabaseAdmin, guestEmail);
+      userId = await findOrCreateGuestUser(supabaseAdmin, guestEmail)
 
       if (!userId) {
         return NextResponse.json(
-          { error: 'Impossible de créer le compte invité' },
+          { error: "Impossible de créer le compte invité" },
           { status: 500 },
-        );
+        )
       }
 
-      contactEmail = guestEmail;
+      contactEmail = guestEmail
     }
+
+    const payloadPaymentSnapshot = await resolvePaymentSnapshotFromPayload(
+      supabaseAdmin,
+      userId!,
+      body?.payment,
+    )
+
+    const paymentSnapshot = stripePaymentSnapshot ?? payloadPaymentSnapshot
 
     // NOTE: Panier et stock
-    const cartId = await resolveCartId(supabaseAdmin, user?.id ?? null);
+    const cartId = await resolveCartId(supabaseAdmin, user?.id ?? null)
 
     if (!cartId) {
-      return NextResponse.json(
-        { error: 'Panier introuvable' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Panier introuvable" }, { status: 400 })
     }
 
-    const rawLines = await fetchCartLines(supabaseAdmin, cartId);
+    const rawLines = await fetchCartLines(supabaseAdmin, cartId)
 
     if (rawLines.length === 0) {
-      return NextResponse.json(
-        { error: 'Panier vide' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Panier vide" }, { status: 400 })
     }
 
-    const stockIssues = findStockIssues(rawLines);
+    const stockIssues = findStockIssues(rawLines)
 
     if (stockIssues.length > 0) {
       return NextResponse.json(
-        { error: 'Conflit de stock', code: 'stock_conflict', issues: stockIssues },
+        {
+          error: "Conflit de stock",
+          code: "stock_conflict",
+          issues: stockIssues,
+        },
         { status: 409 },
-      );
+      )
     }
 
     // NOTE: Calculs
-    const enrichedLines = enrichCartLines(rawLines);
-    const totals = computeTotals(enrichedLines);
-    const orderNumber = buildOrderNumber();
+    const enrichedLines = enrichCartLines(rawLines)
+    const totals = computeTotals(enrichedLines)
+    const orderNumber = buildOrderNumber()
 
     // NOTE: Résoudre l'adresse
     const addressId = await resolveAddress(
       supabaseAdmin,
       userId!,
       body?.address,
-    );
+    )
 
     if (!addressId) {
       return NextResponse.json(
-        { error: 'Adresse manquante ou invalide' },
+        { error: "Adresse manquante ou invalide" },
         { status: 400 },
-      );
+      )
     }
 
     // NOTE: Créer la commande
@@ -706,29 +852,31 @@ export async function POST(request: Request) {
       totals.totalTva,
       totals.totalTtc,
       paymentStatus,
-    );
+      paymentSnapshot,
+    )
 
     if (!orderId) {
       return NextResponse.json(
-        { error: 'Impossible de créer la commande' },
+        { error: "Impossible de créer la commande" },
         { status: 500 },
-      );
+      )
     }
 
     // NOTE: Lignes commande + historique + décrémentation stock
-    await insertOrderLines(supabaseAdmin, orderId, enrichedLines);
+    await insertOrderLines(supabaseAdmin, orderId, enrichedLines)
     await insertStatusHistory(
       supabaseAdmin,
       orderId,
       PAYMENT_STATUS_PENDING,
       ORDER_STATUS_IN_PROGRESS,
-    );
-    await decrementProductStock(supabaseAdmin, enrichedLines);
+    )
+    await decrementProductStock(supabaseAdmin, enrichedLines)
 
     // NOTE: Facture + PDF
-    const customerName = normalizeString(body?.address?.firstName)
-      + ' '
-      + normalizeString(body?.address?.lastName);
+    const customerName =
+      normalizeString(body?.address?.firstName) +
+      " " +
+      normalizeString(body?.address?.lastName)
 
     const invoicePdfUrl = await createInvoiceAndUploadPdf(
       supabaseAdmin,
@@ -741,11 +889,11 @@ export async function POST(request: Request) {
       enrichedLines,
       totals.totalHt,
       totals.totalTva,
-    );
+    )
 
     // NOTE: Vider le panier
-    await clearCart(supabaseAdmin, cartId);
-    await clearCartSession();
+    await clearCart(supabaseAdmin, cartId)
+    await clearCartSession()
 
     // NOTE: Email de confirmation (non bloquant)
     sendOrderConfirmationEmail({
@@ -760,23 +908,23 @@ export async function POST(request: Request) {
       })),
       invoicePdfUrl,
     }).catch((emailError) => {
-      console.error('Erreur envoi email confirmation', { emailError });
-    });
+      console.error("Erreur envoi email confirmation", { emailError })
+    })
 
     // NOTE: Logging (non bloquant)
-    logCheckoutActivity('commande_creee', {
+    logCheckoutActivity("commande_creee", {
       orderId,
       orderNumber,
       userId,
       totalTtc: totals.totalTtc,
       paymentIntentId,
-    }).catch(() => {});
+    }).catch(() => {})
 
     return NextResponse.json(
       {
         orderId,
         orderNumber,
-        status: 'confirmed',
+        status: "confirmed",
         summary: {
           totalItems: totals.totalItems,
           totalHt: totals.totalHt,
@@ -786,12 +934,9 @@ export async function POST(request: Request) {
         },
       },
       { status: 201 },
-    );
+    )
   } catch (error) {
-    console.error('Erreur inattendue confirmation checkout', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 },
-    );
+    console.error("Erreur inattendue confirmation checkout", { error })
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
   }
 }

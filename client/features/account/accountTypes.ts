@@ -5,6 +5,8 @@ export type AccountProfile = {
   phone: string
 }
 
+export type AccountOrderType = "mono_produit" | "multi_produits"
+
 export type AccountOrderSummary = {
   id: string
   orderNumber: string
@@ -12,6 +14,9 @@ export type AccountOrderSummary = {
   totalTtc: number
   status: string
   paymentStatus: string
+  orderType: AccountOrderType
+  productCount: number
+  productNames: string[]
   invoice: {
     invoiceNumber: string
     status: string

@@ -187,3 +187,21 @@ export function getPaymentStatusLabel(status: string): string {
 
   return "Paiement en attente"
 }
+
+export function getOrderTypeLabel(orderType: string): string {
+  if (orderType === "multi_produits") {
+    return "Multi-produits"
+  }
+
+  return "Mono-produit"
+}
+
+export function getOrderYear(dateValue: string): number {
+  const parsedDate = new Date(dateValue)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 0
+  }
+
+  return parsedDate.getFullYear()
+}

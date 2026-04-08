@@ -9,6 +9,7 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import {
   formatAccountDate,
   formatAccountPrice,
+  maskCardLast4,
   getOrderStatusLabel,
   getPaymentStatusLabel,
 } from "./accountUtils"
@@ -32,6 +33,21 @@ type OrderDetailPayload = {
     unitPriceHt: number
     totalTtc: number
   }>
+  paymentMethod: {
+    mode: string
+    last4: string
+  } | null
+  billingAddress: {
+    firstName: string
+    lastName: string
+    address1: string
+    address2: string | null
+    city: string
+    region: string | null
+    postalCode: string
+    country: string
+    phone: string | null
+  } | null
   invoice: {
     invoiceNumber: string
     status: string
@@ -161,6 +177,11 @@ export function AccountOrderDetailSection({
     )
   }
 
+  const paymentModeLabel =
+    orderDetail.paymentMethod?.mode === "carte"
+      ? "Carte bancaire"
+      : "Moyen de paiement"
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -200,6 +221,56 @@ export function AccountOrderDetailSection({
           Total TTC: {formatAccountPrice(orderDetail.order.totalTtc, locale)}
         </p>
       </section>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        <section className="rounded-xl border border-border p-4 text-sm">
+          <h3 className="text-sm font-semibold text-brand-nav">Paiement</h3>
+          {orderDetail.paymentMethod ? (
+            <p className="mt-2 text-slate-700">
+              {paymentModeLabel}:{" "}
+              {maskCardLast4(orderDetail.paymentMethod.last4)}
+            </p>
+          ) : (
+            <p className="mt-2 text-slate-600">
+              Moyen de paiement indisponible.
+            </p>
+          )}
+        </section>
+
+        <section className="rounded-xl border border-border p-4 text-sm">
+          <h3 className="text-sm font-semibold text-brand-nav">
+            Adresse de facturation
+          </h3>
+
+          {orderDetail.billingAddress ? (
+            <address className="mt-2 not-italic text-slate-700">
+              <p>
+                {orderDetail.billingAddress.firstName}{" "}
+                {orderDetail.billingAddress.lastName}
+              </p>
+              <p>{orderDetail.billingAddress.address1}</p>
+              {orderDetail.billingAddress.address2 ? (
+                <p>{orderDetail.billingAddress.address2}</p>
+              ) : null}
+              <p>
+                {orderDetail.billingAddress.postalCode}{" "}
+                {orderDetail.billingAddress.city}
+              </p>
+              {orderDetail.billingAddress.region ? (
+                <p>{orderDetail.billingAddress.region}</p>
+              ) : null}
+              <p>{orderDetail.billingAddress.country}</p>
+              {orderDetail.billingAddress.phone ? (
+                <p>{orderDetail.billingAddress.phone}</p>
+              ) : null}
+            </address>
+          ) : (
+            <p className="mt-2 text-slate-600">
+              Adresse de facturation indisponible.
+            </p>
+          )}
+        </section>
+      </div>
 
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-brand-nav">Produits</h3>
