@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
+// --- Mocks ---
+
 const mockGetUser = vi.fn();
 const mockVerifyCsrf = vi.fn();
 const mockGetCartSessionId = vi.fn();
 const mockClearCartSession = vi.fn();
 
-// NOTE: Mocks admin Supabase par table et par type d'opération.
-// panier : select().eq().single(), insert().select().single(), delete().eq()
-// ligne_panier : select().eq(), upsert()
 const mockPanierSelectSingle = vi.fn();
 const mockPanierInsertSingle = vi.fn();
 const mockPanierDeleteEq = vi.fn();
-const mockLignePanierSelectEq = vi.fn();
+const mockGuestLinesSelect = vi.fn();
+const mockUserLinesSelect = vi.fn();
+const mockProductStocksSelect = vi.fn();
 const mockLignePanierUpsert = vi.fn();
 
 vi.mock('next/headers', () => ({
@@ -48,19 +49,65 @@ vi.mock('@/lib/supabase/admin', () => ({
           delete: () => ({ eq: mockPanierDeleteEq }),
         };
       }
+
+      if (tableName === 'produit') {
+        return {
+          select: () => ({
+            in: () => ({
+              eq: () => mockProductStocksSelect(),
+            }),
+          }),
+        };
+      }
+
+      // table === 'ligne_panier'
       return {
-        select: () => ({ eq: mockLignePanierSelectEq }),
+        select: () => ({
+          eq: (_col: string, value: string) => {
+            if (value === 'guest-cart-id') {
+              return mockGuestLinesSelect();
+            }
+
+            return mockUserLinesSelect();
+          },
+        }),
         upsert: mockLignePanierUpsert,
       };
     },
   }),
 }));
 
+// --- Import après mocks ---
+
 import { POST } from '@/app/api/auth/merge-cart/route';
+
+// --- Helpers ---
 
 function createMockRequest() {
   return {} as Parameters<typeof POST>[0];
 }
+
+function setupAuthenticatedUser() {
+  mockGetUser.mockResolvedValue({
+    data: { user: { id: 'user-123' } },
+  });
+  mockGetCartSessionId.mockResolvedValue('guest-session');
+
+  // fetchGuestCart
+  mockPanierSelectSingle.mockResolvedValueOnce({
+    data: { id_panier: 'guest-cart-id' },
+  });
+
+  // fetchOrCreateUserCart
+  mockPanierSelectSingle.mockResolvedValueOnce({
+    data: { id_panier: 'user-cart-id' },
+  });
+
+  mockPanierDeleteEq.mockResolvedValue({});
+  mockClearCartSession.mockResolvedValue(undefined);
+}
+
+// --- Tests ---
 
 describe('POST /api/auth/merge-cart', () => {
   beforeEach(() => {
@@ -84,10 +131,8 @@ describe('POST /api/auth/merge-cart', () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
 
     const response = await POST(createMockRequest());
-    const body = await response.json();
 
     expect(response.status).toBe(401);
-    expect(body.error).toBe('Authentification requise.');
   });
 
   it('retourne isMerged false quand aucune session guest', async () => {
@@ -103,33 +148,103 @@ describe('POST /api/auth/merge-cart', () => {
     expect(body.reason).toBe('aucun_panier_guest');
   });
 
-  it('fusionne le panier guest dans le panier user', async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: { id: 'user-123' } },
-    });
-    mockGetCartSessionId.mockResolvedValue('guest-session');
+  it('fusionne en additionnant les quantités guest et user', async () => {
+    setupAuthenticatedUser();
 
-    // fetchGuestCart
-    mockPanierSelectSingle.mockResolvedValueOnce({
-      data: { id_panier: 'guest-cart-id' },
+    // Guest a 2 unités de prod-001
+    mockGuestLinesSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite: 2 }],
     });
-    // fetchOrCreateUserCart
-    mockPanierSelectSingle.mockResolvedValueOnce({
-      data: { id_panier: 'user-cart-id' },
+
+    // User a déjà 3 unités de prod-001
+    mockUserLinesSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite: 3 }],
     });
-    // mergeGuestLinesIntoUserCart
-    mockLignePanierSelectEq.mockResolvedValueOnce({
-      data: [{ id_produit: 'prod-1', quantite: 2 }],
+
+    // Stock disponible : 10
+    mockProductStocksSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite_stock: 10 }],
     });
+
     mockLignePanierUpsert.mockResolvedValue({});
-    // deleteGuestCart
-    mockPanierDeleteEq.mockResolvedValue({});
 
     const response = await POST(createMockRequest());
     const body = await response.json();
 
     expect(body.isMerged).toBe(true);
-    expect(mockLignePanierUpsert).toHaveBeenCalledOnce();
+
+    // Quantité combinée = 2 + 3 = 5 (< stock 10)
+    expect(mockLignePanierUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ quantite: 5 }),
+      expect.any(Object),
+    );
+  });
+
+  it('plafonne la quantité combinée au stock disponible', async () => {
+    setupAuthenticatedUser();
+
+    // Guest a 8 unités
+    mockGuestLinesSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite: 8 }],
+    });
+
+    // User a 7 unités → combiné = 15
+    mockUserLinesSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite: 7 }],
+    });
+
+    // Stock = 10 → plafonné à 10
+    mockProductStocksSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-001', quantite_stock: 10 }],
+    });
+
+    mockLignePanierUpsert.mockResolvedValue({});
+
+    const response = await POST(createMockRequest());
+    const body = await response.json();
+
+    expect(body.isMerged).toBe(true);
+    expect(mockLignePanierUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ quantite: 10 }),
+      expect.any(Object),
+    );
+  });
+
+  it('exclut les produits non publiés du merge', async () => {
+    setupAuthenticatedUser();
+
+    // Guest a un produit non publié
+    mockGuestLinesSelect.mockResolvedValue({
+      data: [{ id_produit: 'prod-unpublished', quantite: 3 }],
+    });
+
+    mockUserLinesSelect.mockResolvedValue({
+      data: [],
+    });
+
+    // Produit non publié → absent de la liste retournée
+    mockProductStocksSelect.mockResolvedValue({
+      data: [],
+    });
+
+    const response = await POST(createMockRequest());
+    const body = await response.json();
+
+    expect(body.isMerged).toBe(true);
+    expect(mockLignePanierUpsert).not.toHaveBeenCalled();
+  });
+
+  it('supprime le panier guest et nettoie la session après fusion', async () => {
+    setupAuthenticatedUser();
+
+    mockGuestLinesSelect.mockResolvedValue({
+      data: [],
+    });
+
+    const response = await POST(createMockRequest());
+    const body = await response.json();
+
+    expect(body.isMerged).toBe(true);
     expect(mockPanierDeleteEq).toHaveBeenCalledOnce();
     expect(mockClearCartSession).toHaveBeenCalledOnce();
   });

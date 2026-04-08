@@ -11,6 +11,7 @@ export const dynamic = 'force-dynamic';
 // NOTE: Types temporaires en attendant les types auto-générés Supabase
 interface PanierRow { id_panier: string }
 interface LignePanierRow { id_produit: string; quantite: number }
+interface ProductStockRow { id_produit: string; quantite_stock: number }
 
 export async function POST(request: NextRequest) {
   const csrfError = verifyCsrf(request);
@@ -99,6 +100,49 @@ async function fetchOrCreateUserCart(
   return newCart as PanierRow | null;
 }
 
+async function fetchProductStocks(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  productIds: string[],
+): Promise<Map<string, number>> {
+  const stockMap = new Map<string, number>();
+
+  const { data } = await supabaseAdmin
+    .from('produit')
+    .select('id_produit, quantite_stock')
+    .in('id_produit', productIds)
+    .eq('statut', 'publie');
+
+  if (data) {
+    const products = data as ProductStockRow[];
+    products.forEach((product) => {
+      stockMap.set(product.id_produit, product.quantite_stock);
+    });
+  }
+
+  return stockMap;
+}
+
+async function fetchUserLines(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  userCartId: string,
+): Promise<Map<string, number>> {
+  const lineMap = new Map<string, number>();
+
+  const { data } = await supabaseAdmin
+    .from('ligne_panier')
+    .select('id_produit, quantite')
+    .eq('id_panier', userCartId);
+
+  if (data) {
+    const lines = data as LignePanierRow[];
+    lines.forEach((line) => {
+      lineMap.set(line.id_produit, line.quantite);
+    });
+  }
+
+  return lineMap;
+}
+
 async function mergeGuestLinesIntoUserCart(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   guestCartId: string,
@@ -115,16 +159,35 @@ async function mergeGuestLinesIntoUserCart(
     return;
   }
 
-  // NOTE: UPSERT — si le produit existe déjà dans le panier user,
-  // la quantité du guest écrase (dernier ajout = intention la plus récente)
+  const productIds = guestLines.map((line) => line.id_produit);
+  const stockMap = await fetchProductStocks(supabaseAdmin, productIds);
+  const userLineMap = await fetchUserLines(supabaseAdmin, userCartId);
+
   for (const guestLine of guestLines) {
+    const availableStock = stockMap.get(guestLine.id_produit);
+
+    // NOTE: Exclure les produits non publiés ou sans stock
+    if (availableStock === undefined) {
+      continue;
+    }
+
+    const existingUserQuantity = userLineMap.get(guestLine.id_produit) ?? 0;
+    const combinedQuantity = existingUserQuantity + guestLine.quantite;
+
+    // NOTE: Plafonner au stock disponible
+    const finalQuantity = Math.min(combinedQuantity, availableStock);
+
+    if (finalQuantity <= 0) {
+      continue;
+    }
+
     await supabaseAdmin
       .from('ligne_panier')
       .upsert(
         {
           id_panier: userCartId,
           id_produit: guestLine.id_produit,
-          quantite: guestLine.quantite,
+          quantite: finalQuantity,
         } as never,
         { onConflict: 'id_panier,id_produit' },
       );
