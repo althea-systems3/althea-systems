@@ -6,7 +6,11 @@ const mockProfileEq = vi.fn();
 const mockProfileSingle = vi.fn();
 
 vi.mock('next/headers', () => ({
-  cookies: vi.fn(() => Promise.resolve({})),
+  cookies: vi.fn(() =>
+    Promise.resolve({
+      get: () => ({ name: 'remember_me', value: '1' }),
+    }),
+  ),
 }));
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -57,6 +61,7 @@ describe('GET /api/auth/me', () => {
         nom_complet: 'Jean Dupont',
         est_admin: false,
         statut: 'actif',
+        email_verifie: true,
       },
     });
 

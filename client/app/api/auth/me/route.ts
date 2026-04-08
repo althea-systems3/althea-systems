@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { createServerClient } from '@/lib/supabase/server';
+import {
+  REMEMBER_ME_COOKIE_NAME,
+  SHORT_SESSION_DURATION_MS,
+} from '@/lib/auth/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +20,25 @@ export async function GET() {
       isAuthenticated: false,
       user: null,
     });
+  }
+
+  // NOTE: Si pas de cookie remember_me et session > 2h → signOut
+  const rememberMeCookie = cookieStore.get(REMEMBER_ME_COOKIE_NAME);
+
+  if (!rememberMeCookie) {
+    const lastSignIn = user.last_sign_in_at
+      ? new Date(user.last_sign_in_at).getTime()
+      : 0;
+    const sessionAge = Date.now() - lastSignIn;
+
+    if (sessionAge > SHORT_SESSION_DURATION_MS) {
+      await supabaseClient.auth.signOut();
+
+      return NextResponse.json({
+        isAuthenticated: false,
+        user: null,
+      });
+    }
   }
 
   const { data: userProfile } = await supabaseClient
