@@ -1680,6 +1680,195 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/auth/login": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Connexion utilisateur",
+        description: "Authentifie l utilisateur via email et mot de passe. Vérifie que l email est vérifié et le compte actif. Supporte l option remember me (cookie 30 jours).",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email", "mot_de_passe"],
+                properties: {
+                  email: { type: "string", example: "user@example.com" },
+                  mot_de_passe: { type: "string", example: "Secure1pwd" },
+                  se_souvenir: { type: "boolean", example: false, description: "Active le cookie remember me (30 jours)" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Connexion réussie",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Connexion réussie." },
+                    user: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        email: { type: "string" },
+                        nomComplet: { type: "string" },
+                        isAdmin: { type: "boolean" },
+                        statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Email ou mot de passe manquant" },
+          "401": { description: "Identifiants incorrects" },
+          "403": { description: "Email non vérifié (code EMAIL_NOT_VERIFIED) ou compte inactif" },
+          "429": { description: "Rate limit dépassé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/logout": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Déconnexion utilisateur",
+        description: "Déconnecte l utilisateur, supprime le cookie remember me et journalise l événement.",
+        responses: {
+          "200": {
+            description: "Déconnexion réussie",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Déconnexion réussie." },
+                  },
+                },
+              },
+            },
+          },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/forgot-password": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Demander la réinitialisation du mot de passe",
+        description: "Génère un token de réinitialisation (SHA-256, expiry 1h) et envoie un email. Anti-énumération : même réponse 200 que l email existe ou non.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email"],
+                properties: {
+                  email: { type: "string", example: "user@example.com" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Message générique (anti-énumération)",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé." },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Email invalide" },
+          "429": { description: "Rate limit dépassé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/reset-password/validate": {
+      get: {
+        tags: ["Authentification"],
+        summary: "Valider un token de réinitialisation",
+        description: "Vérifie que le token de réinitialisation est valide et non expiré. Utilisé par le frontend avant d afficher le formulaire.",
+        parameters: [
+          {
+            name: "token",
+            in: "query",
+            required: true,
+            schema: { type: "string" },
+            description: "Token brut reçu par email",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Token valide",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    valid: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Token absent, introuvable ou expiré" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/reset-password": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Réinitialiser le mot de passe",
+        description: "Vérifie le token, valide le nouveau mot de passe et met à jour via Supabase Auth admin. Le token est consommé après usage.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["token", "mot_de_passe", "mot_de_passe_confirmation"],
+                properties: {
+                  token: { type: "string", description: "Token brut reçu par email" },
+                  mot_de_passe: { type: "string", example: "NewSecure1pwd" },
+                  mot_de_passe_confirmation: { type: "string", example: "NewSecure1pwd" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Mot de passe réinitialisé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Mot de passe réinitialisé avec succès." },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Token invalide/expiré, mot de passe faible ou confirmation incorrecte" },
+          "429": { description: "Rate limit dépassé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/checkout/payment-intent": {
       post: {
         tags: ["Checkout"],
