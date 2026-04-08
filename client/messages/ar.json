@@ -214,6 +214,54 @@
       "pageCounter": "الصفحة {page} من {totalPages} — {total} منتج"
     }
   },
+  "ProductPage": {
+    "loadingLabel": "جار تحميل صفحة المنتج",
+    "errorTitle": "المنتج غير متاح مؤقتا",
+    "errorDescription": "تعذر تحميل صفحة هذا المنتج حاليا. يرجى المحاولة لاحقا.",
+    "notFoundTitle": "المنتج غير موجود",
+    "notFoundDescription": "المنتج المطلوب غير موجود او لم يعد متاحا.",
+    "priceUnavailable": "السعر غير متاح",
+    "descriptionFallback": "لا يوجد وصف متاح لهذا المنتج.",
+    "availabilityAvailable": "متوفر",
+    "availabilityOutOfStock": "نفد المخزون",
+    "stockLabel": "المخزون: {stock}",
+    "gallery": {
+      "sectionLabel": "معرض صور المنتج",
+      "imageAlt": "الصورة {index} للمنتج {productName}",
+      "fallbackLabel": "صورة المنتج قريبا",
+      "previousImage": "الصورة السابقة",
+      "nextImage": "الصورة التالية",
+      "goToImage": "الانتقال إلى الصورة {index}",
+      "imageCounter": "الصورة {current} من {total}"
+    },
+    "characteristics": {
+      "title": "الخصائص التقنية",
+      "empty": "لا توجد خصائص تقنية متاحة لهذا المنتج."
+    },
+    "cta": {
+      "addToCart": "اضف إلى السلة",
+      "adding": "جار الاضافة...",
+      "outOfStock": "غير متوفر",
+      "success": "تمت اضافة المنتج إلى السلة.",
+      "error": "تعذر اضافة هذا المنتج إلى السلة.",
+      "errorWithReason": "تعذر اضافة هذا المنتج: {reason}"
+    },
+    "similar": {
+      "title": "منتجات مشابهة",
+      "description": "واصل التصفح مع منتجات قريبة من هذا المنتج.",
+      "loadingLabel": "جار تحميل المنتجات المشابهة",
+      "errorTitle": "المنتجات المشابهة غير متاحة مؤقتا",
+      "errorDescription": "تعذر تحميل المنتجات المشابهة حاليا.",
+      "emptyTitle": "لا توجد منتجات مشابهة",
+      "emptyDescription": "لا توجد اقتراحات متاحة لهذا المنتج.",
+      "productImageAlt": "الصورة الرئيسية للمنتج {productName}",
+      "missingImageLabel": "صورة المنتج قريبا",
+      "productLinkLabel": "عرض صفحة المنتج {productName}",
+      "priceUnavailable": "السعر غير متاح",
+      "availabilityAvailable": "متوفر",
+      "availabilityOutOfStock": "نفد المخزون"
+    }
+  },
   "A11y": {
     "skip": "تخطي إلى المحتوى الرئيسي"
   }

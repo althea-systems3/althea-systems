@@ -214,6 +214,54 @@
       "pageCounter": "Page {page} of {totalPages} — {total} products"
     }
   },
+  "ProductPage": {
+    "loadingLabel": "Loading product page",
+    "errorTitle": "Product temporarily unavailable",
+    "errorDescription": "We cannot load this product page right now. Please try again later.",
+    "notFoundTitle": "Product not found",
+    "notFoundDescription": "The requested product does not exist or is no longer available.",
+    "priceUnavailable": "Price unavailable",
+    "descriptionFallback": "No description is available for this product.",
+    "availabilityAvailable": "Available",
+    "availabilityOutOfStock": "Out of stock",
+    "stockLabel": "Stock: {stock}",
+    "gallery": {
+      "sectionLabel": "Product image gallery",
+      "imageAlt": "Image {index} of product {productName}",
+      "fallbackLabel": "Product image coming soon",
+      "previousImage": "Previous image",
+      "nextImage": "Next image",
+      "goToImage": "Go to image {index}",
+      "imageCounter": "Image {current} of {total}"
+    },
+    "characteristics": {
+      "title": "Technical specifications",
+      "empty": "No technical specification is available for this product."
+    },
+    "cta": {
+      "addToCart": "Add to cart",
+      "adding": "Adding...",
+      "outOfStock": "Unavailable",
+      "success": "Product added to cart.",
+      "error": "Unable to add this product to cart.",
+      "errorWithReason": "Unable to add this product: {reason}"
+    },
+    "similar": {
+      "title": "Similar products",
+      "description": "Continue browsing with products related to this item.",
+      "loadingLabel": "Loading similar products",
+      "errorTitle": "Similar products temporarily unavailable",
+      "errorDescription": "We cannot load similar products right now.",
+      "emptyTitle": "No similar product",
+      "emptyDescription": "No recommendation is available for this product.",
+      "productImageAlt": "Main image for product {productName}",
+      "missingImageLabel": "Product image coming soon",
+      "productLinkLabel": "Open product page for {productName}",
+      "priceUnavailable": "Price unavailable",
+      "availabilityAvailable": "Available",
+      "availabilityOutOfStock": "Out of stock"
+    }
+  },
   "A11y": {
     "skip": "Skip to main content"
   }

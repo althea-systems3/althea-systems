@@ -214,6 +214,54 @@
       "pageCounter": "Page {page} sur {totalPages} — {total} produits"
     }
   },
+  "ProductPage": {
+    "loadingLabel": "Chargement de la fiche produit",
+    "errorTitle": "Produit temporairement indisponible",
+    "errorDescription": "Impossible de charger cette fiche produit pour le moment. Veuillez reessayer plus tard.",
+    "notFoundTitle": "Produit introuvable",
+    "notFoundDescription": "Le produit demande n'existe pas ou n'est plus disponible.",
+    "priceUnavailable": "Prix non disponible",
+    "descriptionFallback": "Aucune description n'est disponible pour ce produit.",
+    "availabilityAvailable": "Disponible",
+    "availabilityOutOfStock": "En rupture de stock",
+    "stockLabel": "Stock : {stock}",
+    "gallery": {
+      "sectionLabel": "Galerie d'images du produit",
+      "imageAlt": "Image {index} du produit {productName}",
+      "fallbackLabel": "Image produit bientot disponible",
+      "previousImage": "Image precedente",
+      "nextImage": "Image suivante",
+      "goToImage": "Aller a l'image {index}",
+      "imageCounter": "Image {current} sur {total}"
+    },
+    "characteristics": {
+      "title": "Caracteristiques techniques",
+      "empty": "Aucune caracteristique technique n'est renseignee pour ce produit."
+    },
+    "cta": {
+      "addToCart": "Ajouter au panier",
+      "adding": "Ajout en cours...",
+      "outOfStock": "Indisponible",
+      "success": "Produit ajoute au panier.",
+      "error": "Impossible d'ajouter ce produit au panier.",
+      "errorWithReason": "Impossible d'ajouter ce produit : {reason}"
+    },
+    "similar": {
+      "title": "Produits similaires",
+      "description": "Poursuivez votre navigation avec des references proches de ce produit.",
+      "loadingLabel": "Chargement des produits similaires",
+      "errorTitle": "Produits similaires temporairement indisponibles",
+      "errorDescription": "Impossible de charger les produits similaires pour le moment.",
+      "emptyTitle": "Aucun produit similaire",
+      "emptyDescription": "Aucune suggestion n'est disponible pour ce produit.",
+      "productImageAlt": "Image principale du produit {productName}",
+      "missingImageLabel": "Image produit bientot disponible",
+      "productLinkLabel": "Voir la fiche produit {productName}",
+      "priceUnavailable": "Prix non disponible",
+      "availabilityAvailable": "Disponible",
+      "availabilityOutOfStock": "En rupture de stock"
+    }
+  },
   "A11y": {
     "skip": "Aller au contenu principal"
   }

@@ -214,6 +214,54 @@
       "pageCounter": "עמוד {page} מתוך {totalPages} — {total} מוצרים"
     }
   },
+  "ProductPage": {
+    "loadingLabel": "טוען דף מוצר",
+    "errorTitle": "המוצר אינו זמין זמנית",
+    "errorDescription": "לא ניתן לטעון את דף המוצר כרגע. נסו שוב מאוחר יותר.",
+    "notFoundTitle": "המוצר לא נמצא",
+    "notFoundDescription": "המוצר המבוקש אינו קיים או שאינו זמין עוד.",
+    "priceUnavailable": "המחיר לא זמין",
+    "descriptionFallback": "אין תיאור זמין למוצר זה.",
+    "availabilityAvailable": "זמין",
+    "availabilityOutOfStock": "אזל מהמלאי",
+    "stockLabel": "מלאי: {stock}",
+    "gallery": {
+      "sectionLabel": "גלריית תמונות מוצר",
+      "imageAlt": "תמונה {index} של המוצר {productName}",
+      "fallbackLabel": "תמונת מוצר תופיע בקרוב",
+      "previousImage": "תמונה קודמת",
+      "nextImage": "תמונה הבאה",
+      "goToImage": "עבור לתמונה {index}",
+      "imageCounter": "תמונה {current} מתוך {total}"
+    },
+    "characteristics": {
+      "title": "מפרט טכני",
+      "empty": "אין מפרט טכני זמין עבור מוצר זה."
+    },
+    "cta": {
+      "addToCart": "הוסף לסל",
+      "adding": "מוסיף...",
+      "outOfStock": "לא זמין",
+      "success": "המוצר נוסף לסל.",
+      "error": "לא ניתן להוסיף את המוצר לסל.",
+      "errorWithReason": "לא ניתן להוסיף את המוצר: {reason}"
+    },
+    "similar": {
+      "title": "מוצרים דומים",
+      "description": "המשך לגלוש עם מוצרים קשורים למוצר זה.",
+      "loadingLabel": "טוען מוצרים דומים",
+      "errorTitle": "מוצרים דומים אינם זמינים זמנית",
+      "errorDescription": "לא ניתן לטעון מוצרים דומים כרגע.",
+      "emptyTitle": "אין מוצרים דומים",
+      "emptyDescription": "אין המלצות זמינות למוצר זה.",
+      "productImageAlt": "תמונה ראשית עבור המוצר {productName}",
+      "missingImageLabel": "תמונת מוצר תופיע בקרוב",
+      "productLinkLabel": "פתח את דף המוצר של {productName}",
+      "priceUnavailable": "המחיר לא זמין",
+      "availabilityAvailable": "זמין",
+      "availabilityOutOfStock": "אזל מהמלאי"
+    }
+  },
   "A11y": {
     "skip": "דלג לתוכן הראשי"
   }
