@@ -1,0 +1,207 @@
+export type ContactToolsLocaleContent = {
+  badge: string
+  responseTime: string
+  sectionTitle: string
+  sectionDescription: string
+  contactMeLabel: string
+  supportTopicsTitle: string
+  supportTopics: string[]
+  formTitle: string
+  formDescription: string
+  formEmailLabel: string
+  formEmailPlaceholder: string
+  formSubjectLabel: string
+  formSubjectPlaceholder: string
+  formMessageLabel: string
+  formMessagePlaceholder: string
+  formSubmitLabel: string
+  formSubmittingLabel: string
+  formSuccessMessage: string
+  formErrorMessage: string
+  formErrorHint: string
+  validation: {
+    emailRequired: string
+    emailInvalid: string
+    subjectRequired: string
+    subjectTooLong: string
+    messageRequired: string
+    messageTooLong: string
+  }
+  chat: {
+    title: string
+    description: string
+    openLabel: string
+    closeLabel: string
+    inputLabel: string
+    inputPlaceholder: string
+    sendLabel: string
+    sendingLabel: string
+    welcome: string
+    askEmail: string
+    askSubject: string
+    networkError: string
+    escalateLabel: string
+    escalatingLabel: string
+    escalationSuccess: string
+    escalationError: string
+    contactFormCta: string
+    botTyping: string
+    sessionLoading: string
+    sessionAuthenticated: string
+    sessionGuest: string
+    transcriptTitle: string
+  }
+}
+
+const FR_CONTACT_CONTENT: ContactToolsLocaleContent = {
+  badge: "Support Althea Systems",
+  responseTime: "Delai moyen de reponse : sous 24h ouvrables",
+  sectionTitle: "Parlons de votre besoin",
+  sectionDescription:
+    "Utilisez le formulaire pour une demande detaillee, ou demarrez une conversation en temps reel avec notre assistant.",
+  contactMeLabel: "Contact Me",
+  supportTopicsTitle: "Sujets frequents",
+  supportTopics: [
+    "Suivi de commande et statut de livraison",
+    "Assistance connexion et compte client",
+    "Questions produits, disponibilites et devis",
+    "Facturation et support commercial",
+  ],
+  formTitle: "Formulaire de contact",
+  formDescription:
+    "Tous les champs sont obligatoires. Votre demande sera transmise au backoffice support.",
+  formEmailLabel: "Adresse e-mail",
+  formEmailPlaceholder: "vous@entreprise.com",
+  formSubjectLabel: "Sujet du message",
+  formSubjectPlaceholder: "Ex: Probleme de livraison commande #AS-4821",
+  formMessageLabel: "Message",
+  formMessagePlaceholder:
+    "Detaillez votre demande pour permettre a l equipe de vous repondre rapidement.",
+  formSubmitLabel: "Envoyer",
+  formSubmittingLabel: "Envoi en cours...",
+  formSuccessMessage:
+    "Votre message a bien ete envoye, nous vous contacterons sous peu.",
+  formErrorMessage:
+    "Une erreur est survenue pendant l envoi. Merci de reessayer.",
+  formErrorHint: "Corrigez les champs signales puis reessayez.",
+  validation: {
+    emailRequired: "L adresse e-mail est obligatoire.",
+    emailInvalid: "Veuillez saisir une adresse e-mail valide.",
+    subjectRequired: "Le sujet est obligatoire.",
+    subjectTooLong: "Le sujet est trop long (140 caracteres max).",
+    messageRequired: "Le message est obligatoire.",
+    messageTooLong: "Le message est trop long (4000 caracteres max).",
+  },
+  chat: {
+    title: "Chatbot support",
+    description:
+      "Posez votre question en temps reel. Vous pouvez demander un transfert vers un agent humain.",
+    openLabel: "Ouvrir le chatbot",
+    closeLabel: "Fermer le chatbot",
+    inputLabel: "Votre message",
+    inputPlaceholder: "Ecrivez votre message...",
+    sendLabel: "Envoyer",
+    sendingLabel: "Envoi...",
+    welcome:
+      "Bonjour, je suis l assistant Althea. Je peux vous aider sur les questions frequentes.",
+    askEmail:
+      "Pour mieux vous aider, indiquez votre adresse e-mail (ex: nom@domaine.com).",
+    askSubject: "Merci. Quel est le sujet principal de votre demande ?",
+    networkError:
+      "Impossible de joindre le service chatbot pour le moment. Vous pouvez utiliser le formulaire de contact.",
+    escalateLabel: "Parler a un agent",
+    escalatingLabel: "Transmission en cours...",
+    escalationSuccess:
+      "Votre demande a ete transmise a un agent humain. Nous revenons vers vous rapidement.",
+    escalationError:
+      "Le transfert vers un agent a echoue. Merci de reessayer ou d utiliser le formulaire.",
+    contactFormCta: "Detaillez votre demande dans le formulaire",
+    botTyping: "Le bot est en train de repondre...",
+    sessionLoading: "Verification session...",
+    sessionAuthenticated: "Session connectee",
+    sessionGuest: "Session invite",
+    transcriptTitle: "Conversation",
+  },
+}
+
+const EN_CONTACT_CONTENT: ContactToolsLocaleContent = {
+  badge: "Althea Systems Support",
+  responseTime: "Average response time: within 24 business hours",
+  sectionTitle: "Let us help you",
+  sectionDescription:
+    "Use the form for detailed requests, or start a real-time chat with our assistant.",
+  contactMeLabel: "Contact Me",
+  supportTopicsTitle: "Frequent topics",
+  supportTopics: [
+    "Order tracking and delivery status",
+    "Sign-in and customer account assistance",
+    "Product, availability, and quote questions",
+    "Billing and sales support",
+  ],
+  formTitle: "Contact form",
+  formDescription:
+    "All fields are required. Your request is sent to the support backoffice.",
+  formEmailLabel: "Email address",
+  formEmailPlaceholder: "you@company.com",
+  formSubjectLabel: "Message subject",
+  formSubjectPlaceholder: "Example: Delivery issue order #AS-4821",
+  formMessageLabel: "Message",
+  formMessagePlaceholder:
+    "Describe your request so our team can provide a faster answer.",
+  formSubmitLabel: "Send",
+  formSubmittingLabel: "Sending...",
+  formSuccessMessage:
+    "Your message has been sent successfully. We will contact you shortly.",
+  formErrorMessage: "An error occurred while sending your message.",
+  formErrorHint: "Please fix the highlighted fields and try again.",
+  validation: {
+    emailRequired: "Email is required.",
+    emailInvalid: "Please enter a valid email address.",
+    subjectRequired: "Subject is required.",
+    subjectTooLong: "Subject is too long (max 140 chars).",
+    messageRequired: "Message is required.",
+    messageTooLong: "Message is too long (max 4000 chars).",
+  },
+  chat: {
+    title: "Support chatbot",
+    description:
+      "Ask your question in real time. You can request transfer to a human agent.",
+    openLabel: "Open chatbot",
+    closeLabel: "Close chatbot",
+    inputLabel: "Your message",
+    inputPlaceholder: "Type your message...",
+    sendLabel: "Send",
+    sendingLabel: "Sending...",
+    welcome:
+      "Hello, I am Althea assistant. I can help with frequent support questions.",
+    askEmail: "To help you better, please share your email address.",
+    askSubject: "Thank you. What is the main topic of your request?",
+    networkError:
+      "Chatbot service is currently unavailable. You can still use the contact form.",
+    escalateLabel: "Talk to an agent",
+    escalatingLabel: "Transferring...",
+    escalationSuccess:
+      "Your request has been forwarded to a human agent. We will get back to you quickly.",
+    escalationError:
+      "Human transfer failed. Please retry or use the contact form.",
+    contactFormCta: "Use the contact form for a detailed request",
+    botTyping: "Bot is replying...",
+    sessionLoading: "Checking session...",
+    sessionAuthenticated: "Signed-in session",
+    sessionGuest: "Guest session",
+    transcriptTitle: "Conversation",
+  },
+}
+
+const CONTACT_CONTENT_BY_LOCALE: Record<string, ContactToolsLocaleContent> = {
+  fr: FR_CONTACT_CONTENT,
+  en: EN_CONTACT_CONTENT,
+  ar: EN_CONTACT_CONTENT,
+  he: EN_CONTACT_CONTENT,
+}
+
+export function getContactToolsLocaleContent(
+  locale: string,
+): ContactToolsLocaleContent {
+  return CONTACT_CONTENT_BY_LOCALE[locale] ?? FR_CONTACT_CONTENT
+}

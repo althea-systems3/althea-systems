@@ -1,0 +1,4 @@
+export const FIRESTORE_CHATBOT_CONVERSATIONS = "ConversationsChatBot"
+
+export const CONTACT_MAX_SUBJECT_LENGTH = 140
+export const CONTACT_MAX_MESSAGE_LENGTH = 4000
