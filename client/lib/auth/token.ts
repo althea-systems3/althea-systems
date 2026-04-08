@@ -1,6 +1,9 @@
 import { createHash, randomUUID } from 'crypto';
 
-import { VERIFICATION_TOKEN_EXPIRY_HOURS } from '@/lib/auth/constants';
+import {
+  VERIFICATION_TOKEN_EXPIRY_HOURS,
+  RESET_TOKEN_EXPIRY_HOURS,
+} from '@/lib/auth/constants';
 
 // --- Constantes ---
 
@@ -26,6 +29,11 @@ export function generateVerificationToken(): {
 
 export function computeTokenExpiry(): Date {
   const expiryMs = VERIFICATION_TOKEN_EXPIRY_HOURS * MS_PER_HOUR;
+  return new Date(Date.now() + expiryMs);
+}
+
+export function computeResetTokenExpiry(): Date {
+  const expiryMs = RESET_TOKEN_EXPIRY_HOURS * MS_PER_HOUR;
   return new Date(Date.now() + expiryMs);
 }
 

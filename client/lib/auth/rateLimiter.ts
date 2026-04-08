@@ -5,6 +5,12 @@ import {
   RATE_LIMIT_REGISTER_WINDOW_MS,
   RATE_LIMIT_RESEND_MAX,
   RATE_LIMIT_RESEND_WINDOW_MS,
+  RATE_LIMIT_LOGIN_MAX,
+  RATE_LIMIT_LOGIN_WINDOW_MS,
+  RATE_LIMIT_FORGOT_PASSWORD_MAX,
+  RATE_LIMIT_FORGOT_PASSWORD_WINDOW_MS,
+  RATE_LIMIT_RESET_PASSWORD_MAX,
+  RATE_LIMIT_RESET_PASSWORD_WINDOW_MS,
 } from '@/lib/auth/constants';
 
 // --- Types ---
@@ -67,4 +73,19 @@ export const registerRateLimiter = createRateLimiter({
 export const resendRateLimiter = createRateLimiter({
   maxRequests: RATE_LIMIT_RESEND_MAX,
   windowMs: RATE_LIMIT_RESEND_WINDOW_MS,
+});
+
+export const loginRateLimiter = createRateLimiter({
+  maxRequests: RATE_LIMIT_LOGIN_MAX,
+  windowMs: RATE_LIMIT_LOGIN_WINDOW_MS,
+});
+
+export const forgotPasswordRateLimiter = createRateLimiter({
+  maxRequests: RATE_LIMIT_FORGOT_PASSWORD_MAX,
+  windowMs: RATE_LIMIT_FORGOT_PASSWORD_WINDOW_MS,
+});
+
+export const resetPasswordRateLimiter = createRateLimiter({
+  maxRequests: RATE_LIMIT_RESET_PASSWORD_MAX,
+  windowMs: RATE_LIMIT_RESET_PASSWORD_WINDOW_MS,
 });
