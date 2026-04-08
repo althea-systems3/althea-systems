@@ -74,7 +74,7 @@ describe("GET /auth/confirm", () => {
     )
   })
 
-  it("redirige vers mes-parametres par defaut apres verification reussie", async () => {
+  it("redirige vers mon-compte par defaut apres verification reussie", async () => {
     mockVerifyOtp.mockResolvedValue({
       error: null,
     })
@@ -85,7 +85,7 @@ describe("GET /auth/confirm", () => {
 
     expect(response.status).toBe(307)
     expect(response.headers.get("location")).toBe(
-      "http://localhost:3000/fr/mes-parametres?verification=success",
+      "http://localhost:3000/fr/mon-compte?verification=success",
     )
   })
 })

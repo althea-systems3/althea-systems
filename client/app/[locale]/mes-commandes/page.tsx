@@ -1,8 +1,13 @@
-import { getTranslations } from "next-intl/server"
-import { StaticPage } from "@/components/layout/static-page"
+import { redirect } from "next/navigation"
 
-export default async function OrdersPage() {
-  const t = await getTranslations("Pages.orders")
+type LegacyOrdersPageProps = {
+  params: Promise<{ locale: string }>
+}
 
-  return <StaticPage title={t("title")} description={t("description")} />
+export default async function LegacyOrdersPage({
+  params,
+}: LegacyOrdersPageProps) {
+  const { locale } = await params
+
+  redirect(`/${locale}/mon-compte/commandes`)
 }

@@ -141,7 +141,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL(errorRedirectPath, request.url))
     }
 
-    const fallbackPath = source === "checkout" ? "/checkout" : "/mes-parametres"
+    const fallbackPath = source === "checkout" ? "/checkout" : "/mon-compte"
 
     const localizedSuccessPath = withLocalePrefix(
       nextPath ?? fallbackPath,

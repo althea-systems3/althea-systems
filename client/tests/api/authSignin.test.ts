@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 const mockSignInWithPassword = vi.fn()
 
 const mockCookieStore = {
-  getAll: vi.fn(() => []),
+  getAll: vi.fn<() => Array<{ name: string; value: string }>>(() => []),
   set: vi.fn(),
 }
 

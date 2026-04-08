@@ -7,7 +7,7 @@ import { locales, defaultLocale } from "@/lib/i18n"
 
 const intlMiddleware = createIntlMiddleware(routing)
 
-const PROTECTED_PATHS = ["/mes-parametres", "/mes-commandes"]
+const PROTECTED_PATHS = ["/mon-compte", "/mes-parametres", "/mes-commandes"]
 const AUTH_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie"]
 const ADMIN_API_PREFIX = "/api/admin"
 
