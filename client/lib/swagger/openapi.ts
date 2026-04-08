@@ -1553,6 +1553,133 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/auth/register": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Créer un nouveau compte utilisateur",
+        description: "Inscription avec validation serveur, hash mot de passe via Supabase Auth, envoi email de vérification. Anti-énumération : même réponse si email déjà pris.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email", "mot_de_passe", "mot_de_passe_confirmation", "nom_complet", "cgu_acceptee"],
+                properties: {
+                  email: { type: "string", example: "marc@example.com" },
+                  mot_de_passe: { type: "string", example: "Secure1pwd" },
+                  mot_de_passe_confirmation: { type: "string", example: "Secure1pwd" },
+                  nom_complet: { type: "string", example: "Marc Dupont" },
+                  cgu_acceptee: { type: "boolean", example: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Compte créé (ou email déjà pris — même message pour anti-énumération)",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Compte créé. Vérifiez votre email pour activer votre compte." },
+                  },
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Payload invalide (email, mot de passe, CGU, confirmation)",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    errors: { type: "array", items: { type: "string" } },
+                  },
+                },
+              },
+            },
+          },
+          "429": { description: "Rate limit dépassé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/verify-email": {
+      get: {
+        tags: ["Authentification"],
+        summary: "Vérifier l adresse email via token",
+        description: "Valide le token de vérification, active le compte (statut actif, email_verifie true) et redirige vers /connexion?verified=true. Token expiré ou invalide retourne 400.",
+        parameters: [
+          {
+            name: "token",
+            in: "query",
+            required: true,
+            schema: { type: "string" },
+            description: "Token de vérification reçu par email",
+          },
+        ],
+        responses: {
+          "307": { description: "Redirection vers /connexion?verified=true en cas de succès" },
+          "400": {
+            description: "Token invalide, expiré ou absent",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: { type: "string", example: "Lien invalide ou expiré." },
+                  },
+                },
+              },
+            },
+          },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/auth/resend-verification": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Renvoyer l email de vérification",
+        description: "Génère un nouveau token et renvoie l email de vérification. Anti-énumération : même réponse 200 que l email existe ou non.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["email"],
+                properties: {
+                  email: { type: "string", example: "marc@example.com" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Message générique (anti-énumération)",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Si un compte existe avec cet email, un lien de vérification a été envoyé." },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Email invalide" },
+          "429": { description: "Rate limit dépassé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/checkout/payment-intent": {
       post: {
         tags: ["Checkout"],
