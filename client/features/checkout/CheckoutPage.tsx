@@ -1120,7 +1120,7 @@ export function CheckoutPage() {
                             )}
                           </Button>
                           <Button type="button" variant="outline" asChild>
-                            <Link href="/inscription">
+                            <Link href="/inscription?source=checkout&next=/checkout">
                               Ouvrir la page inscription
                             </Link>
                           </Button>

@@ -126,13 +126,21 @@
         "title": "Creation de compte",
         "description": "Creez votre espace professionnel en quelques etapes.",
         "fields": {
-          "fullName": {
-            "label": "Nom complet",
-            "placeholder": "Prenom Nom"
+          "firstName": {
+            "label": "Prenom",
+            "placeholder": "Votre prenom"
+          },
+          "lastName": {
+            "label": "Nom",
+            "placeholder": "Votre nom"
           },
           "email": {
             "label": "Adresse e-mail",
             "placeholder": "vous@entreprise.com"
+          },
+          "phone": {
+            "label": "Telephone (optionnel)",
+            "placeholder": "+33 6 12 34 56 78"
           },
           "password": {
             "label": "Mot de passe",
@@ -146,24 +154,39 @@
         },
         "actions": {
           "submit": "Creer mon compte",
+          "submitting": "Creation...",
           "hasAccount": "Vous avez deja un compte ?",
-          "goToSignIn": "Se connecter"
+          "goToSignIn": "Se connecter",
+          "showPassword": "Afficher le mot de passe",
+          "hidePassword": "Masquer le mot de passe",
+          "goToCheckout": "Revenir au checkout"
         },
         "validation": {
-          "fullNameRequired": "Le nom complet est obligatoire.",
+          "firstNameRequired": "Le prenom est obligatoire.",
+          "lastNameRequired": "Le nom est obligatoire.",
           "emailRequired": "L'adresse e-mail est obligatoire.",
           "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+          "phoneInvalid": "Veuillez saisir un numero de telephone valide.",
           "passwordRequired": "Le mot de passe est obligatoire.",
-          "passwordMinLength": "Le mot de passe doit contenir au moins 8 caracteres.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 8 caracteres avec une majuscule, une minuscule et un chiffre.",
           "passwordConfirmationRequired": "La confirmation du mot de passe est obligatoire.",
           "passwordsMismatch": "Les mots de passe ne correspondent pas.",
           "termsRequired": "Vous devez accepter les conditions pour continuer."
         },
         "messages": {
-          "success": "Interface prete : integration API d'inscription a connecter.",
           "passwordHint": "Utilisez 8 caracteres minimum avec majuscule, minuscule et chiffre.",
           "passwordStrong": "Mot de passe robuste detecte.",
-          "errorHint": "Corrigez les champs signales puis reessayez."
+          "errorHint": "Corrigez les champs signales puis reessayez.",
+          "verificationEmailSent": "Compte cree. Verifiez votre e-mail pour activer votre compte.",
+          "verificationEmailSentCheckout": "Compte cree. Verifiez votre e-mail, puis revenez finaliser votre commande.",
+          "verificationSuccess": "Adresse e-mail verifiee. Vous pouvez maintenant vous connecter.",
+          "verificationExpired": "Lien de verification expire. Demandez un nouvel e-mail de confirmation.",
+          "verificationInvalid": "Lien de verification invalide. Demandez un nouvel e-mail de confirmation.",
+          "emailAlreadyUsed": "Cette adresse e-mail est deja utilisee.",
+          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de securite.",
+          "signupFailed": "Impossible de creer le compte pour le moment. Reessayez.",
+          "serverError": "Une erreur serveur est survenue. Reessayez plus tard.",
+          "nextStepHint": "Si vous ne voyez pas l'e-mail, verifiez vos spams ou promotions."
         }
       }
     },

@@ -126,13 +126,21 @@
         "title": "إنشاء حساب",
         "description": "أنشئ مساحة عملك المهنية في خطوات بسيطة.",
         "fields": {
-          "fullName": {
-            "label": "الاسم الكامل",
-            "placeholder": "الاسم الأول واسم العائلة"
+          "firstName": {
+            "label": "الاسم الاول",
+            "placeholder": "ادخل الاسم الاول"
+          },
+          "lastName": {
+            "label": "اسم العائلة",
+            "placeholder": "ادخل اسم العائلة"
           },
           "email": {
             "label": "البريد الإلكتروني",
             "placeholder": "you@company.com"
+          },
+          "phone": {
+            "label": "رقم الهاتف (اختياري)",
+            "placeholder": "+966 5X XXX XXXX"
           },
           "password": {
             "label": "كلمة المرور",
@@ -146,24 +154,39 @@
         },
         "actions": {
           "submit": "إنشاء حسابي",
+          "submitting": "جار إنشاء الحساب...",
           "hasAccount": "لديك حساب بالفعل؟",
-          "goToSignIn": "تسجيل الدخول"
+          "goToSignIn": "تسجيل الدخول",
+          "showPassword": "إظهار كلمة المرور",
+          "hidePassword": "إخفاء كلمة المرور",
+          "goToCheckout": "العودة إلى اتمام الطلب"
         },
         "validation": {
-          "fullNameRequired": "الاسم الكامل مطلوب.",
+          "firstNameRequired": "الاسم الاول مطلوب.",
+          "lastNameRequired": "اسم العائلة مطلوب.",
           "emailRequired": "البريد الإلكتروني مطلوب.",
           "emailInvalid": "يرجى إدخال بريد إلكتروني صالح.",
+          "phoneInvalid": "يرجى إدخال رقم هاتف صالح.",
           "passwordRequired": "كلمة المرور مطلوبة.",
-          "passwordMinLength": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+          "passwordWeak": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل مع حرف كبير وصغير ورقم.",
           "passwordConfirmationRequired": "تأكيد كلمة المرور مطلوب.",
           "passwordsMismatch": "كلمتا المرور غير متطابقتين.",
           "termsRequired": "يجب الموافقة على الشروط للمتابعة."
         },
         "messages": {
-          "success": "الواجهة جاهزة: يلزم ربط API التسجيل لاحقا.",
           "passwordHint": "استخدم 8 أحرف على الأقل مع حرف كبير وصغير ورقم.",
           "passwordStrong": "تم اكتشاف كلمة مرور قوية.",
-          "errorHint": "يرجى تصحيح الحقول المحددة ثم المحاولة مرة أخرى."
+          "errorHint": "يرجى تصحيح الحقول المحددة ثم المحاولة مرة أخرى.",
+          "verificationEmailSent": "تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتفعيل الحساب.",
+          "verificationEmailSentCheckout": "تم إنشاء الحساب. تحقق من بريدك الإلكتروني ثم عد لإكمال الطلب.",
+          "verificationSuccess": "تم تأكيد البريد الإلكتروني. يمكنك الآن تسجيل الدخول.",
+          "verificationExpired": "انتهت صلاحية رابط التأكيد. اطلب رسالة تأكيد جديدة.",
+          "verificationInvalid": "رابط التأكيد غير صالح. اطلب رسالة تأكيد جديدة.",
+          "emailAlreadyUsed": "هذا البريد الإلكتروني مستخدم بالفعل.",
+          "passwordTooWeak": "كلمة المرور لا تستوفي متطلبات الأمان.",
+          "signupFailed": "تعذر إنشاء الحساب حاليا. يرجى المحاولة مرة أخرى.",
+          "serverError": "حدث خطأ في الخادم. يرجى المحاولة لاحقا.",
+          "nextStepHint": "إذا لم تصلك الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها."
         }
       }
     },
