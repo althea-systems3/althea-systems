@@ -182,7 +182,7 @@ export const openApiSpec = {
       post: {
         tags: ["Panier"],
         summary: "Fusionner le panier guest dans le panier utilisateur",
-        description: "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Transfère les lignes du panier guest vers le panier de l'utilisateur connecté, puis supprime le panier guest.",
+        description: "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Additionne les quantités guest et user pour chaque produit, plafonne au stock disponible, exclut les produits non publiés, puis supprime le panier guest.",
         parameters: [
           {
             name: "x-csrf-token",
@@ -243,6 +243,50 @@ export const openApiSpec = {
               },
             },
           },
+        },
+      },
+    },
+    "/api/cart": {
+      get: {
+        tags: ["Panier"],
+        summary: "Lecture complète du panier",
+        description: "Retourne le panier avec lignes détaillées (nom, slug, prix, stock, disponibilité), images Firestore, sous-totaux par ligne et totaux globaux. Supporte guest (cookie session) et utilisateur connecté. Exclut silencieusement les produits non publiés.",
+        responses: {
+          "200": {
+            description: "Contenu du panier",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    cartId: { type: "string", nullable: true },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          productId: { type: "string" },
+                          name: { type: "string" },
+                          slug: { type: "string" },
+                          priceTtc: { type: "number" },
+                          quantity: { type: "integer" },
+                          stockQuantity: { type: "integer" },
+                          isAvailable: { type: "boolean" },
+                          isStockSufficient: { type: "boolean" },
+                          subtotalTtc: { type: "number" },
+                          imageUrl: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                    totalItems: { type: "integer", example: 3 },
+                    totalTtc: { type: "number", example: 2198.98 },
+                  },
+                },
+              },
+            },
+          },
+          "500": { description: "Erreur serveur" },
         },
       },
     },
@@ -1251,6 +1295,116 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/cart/items/{id}": {
+      patch: {
+        tags: ["Panier"],
+        summary: "Modifier la quantité d'une ligne",
+        description: "Met à jour la quantité d'une ligne panier. Si quantité = 0, suppression implicite. Vérifie la propriété du panier et le stock disponible. Maximum 99 unités par ligne.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID de la ligne panier (id_ligne_panier)",
+            schema: { type: "string" },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["quantite"],
+                properties: {
+                  quantite: { type: "integer", minimum: 0, maximum: 99, example: 3 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Ligne mise à jour ou supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  oneOf: [
+                    {
+                      type: "object",
+                      properties: {
+                        cartLine: {
+                          type: "object",
+                          properties: {
+                            id_ligne_panier: { type: "string" },
+                            id_panier: { type: "string" },
+                            id_produit: { type: "string" },
+                            quantite: { type: "integer" },
+                          },
+                        },
+                      },
+                    },
+                    {
+                      type: "object",
+                      properties: {
+                        deleted: { type: "boolean", example: true },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": {
+            description: "Quantité invalide ou stock insuffisant",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: { type: "string" },
+                    availableStock: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Panier ou ligne introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Panier"],
+        summary: "Supprimer une ligne du panier",
+        description: "Supprime une ligne panier. Vérifie la propriété du panier avant suppression.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID de la ligne panier (id_ligne_panier)",
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Ligne supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    deleted: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Panier ou ligne introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/search": {
       get: {
         tags: ["Recherche"],
@@ -1399,6 +1553,280 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/checkout/payment-intent": {
+      post: {
+        tags: ["Checkout"],
+        summary: "Créer un PaymentIntent Stripe",
+        description: "Calcule le total du panier, vérifie le stock et crée un PaymentIntent Stripe. Fonctionne pour utilisateurs connectés et invités.",
+        responses: {
+          "200": {
+            description: "PaymentIntent créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    clientSecret: { type: "string", example: "pi_xxx_secret_xxx" },
+                    paymentIntentId: { type: "string", example: "pi_xxx" },
+                    amount: { type: "integer", description: "Montant en centimes", example: 5999 },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Panier introuvable, vide ou montant invalide" },
+          "409": { description: "Stock insuffisant pour un ou plusieurs produits" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/checkout/payment-methods": {
+      get: {
+        tags: ["Checkout"],
+        summary: "Lister les méthodes de paiement",
+        description: "Retourne les méthodes de paiement enregistrées pour l utilisateur connecté. Retourne une liste vide si non authentifié.",
+        responses: {
+          "200": {
+            description: "Liste des méthodes de paiement",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    paymentMethods: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/PaymentMethod" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Checkout"],
+        summary: "Ajouter une méthode de paiement",
+        description: "Enregistre une nouvelle méthode de paiement (token Stripe, jamais de données carte brutes). Authentification requise.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["stripePaymentId", "cardHolder", "last4", "expiry"],
+                properties: {
+                  stripePaymentId: { type: "string", example: "pm_xxx" },
+                  cardHolder: { type: "string", example: "Jean Dupont" },
+                  last4: { type: "string", example: "4242", pattern: "^\\d{4}$" },
+                  expiry: { type: "string", example: "12/27" },
+                  isDefault: { type: "boolean", example: false },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Méthode de paiement créée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    paymentMethod: { $ref: "#/components/schemas/PaymentMethod" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Payload invalide (champs manquants ou last4 incorrect)" },
+          "401": { description: "Authentification requise" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/checkout/confirm": {
+      post: {
+        tags: ["Checkout"],
+        summary: "Confirmer la commande",
+        description: "Vérifie le paiement Stripe, crée la commande avec lignes, décrémente le stock, génère la facture PDF, envoie l email de confirmation. Supporte les utilisateurs connectés et invités (via guestEmail).",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["paymentIntentId"],
+                properties: {
+                  paymentIntentId: { type: "string", example: "pi_xxx" },
+                  guestEmail: { type: "string", example: "guest@example.com", description: "Requis si non connecté" },
+                  address: { $ref: "#/components/schemas/AddressInput" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Commande créée avec succès",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orderId: { type: "string" },
+                    orderNumber: { type: "string", example: "ALT-202604-ABCDEFGH" },
+                    status: { type: "string", example: "confirmed" },
+                    summary: {
+                      type: "object",
+                      properties: {
+                        totalItems: { type: "integer" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        contactEmail: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "200": { description: "Commande déjà confirmée (idempotence)" },
+          "400": { description: "paymentIntentId manquant, email guest manquant, panier introuvable/vide ou adresse invalide" },
+          "402": { description: "Paiement Stripe échoué" },
+          "409": { description: "Conflit de stock" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/checkout/addresses": {
+      get: {
+        tags: ["Checkout"],
+        summary: "Lister les adresses de l utilisateur",
+        description: "Retourne les adresses enregistrées pour l utilisateur connecté.",
+        responses: {
+          "200": {
+            description: "Liste des adresses",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    addresses: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Address" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/orders/{numero}/confirmation": {
+      get: {
+        tags: ["Commandes"],
+        summary: "Page de confirmation commande",
+        description: "Retourne les détails complets d une commande pour la page de confirmation. L utilisateur doit être le propriétaire de la commande.",
+        parameters: [
+          {
+            name: "numero",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            example: "ALT-202604-ABCDEFGH",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Détails de la commande",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: {
+                      type: "object",
+                      properties: {
+                        orderNumber: { type: "string" },
+                        status: { type: "string", enum: ["en_attente", "en_cours", "expediee", "livree", "annulee"] },
+                        paymentStatus: { type: "string", enum: ["en_attente", "valide", "echoue", "rembourse"] },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        createdAt: { type: "string", format: "date-time" },
+                      },
+                    },
+                    lines: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/OrderLine" },
+                    },
+                    invoice: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        invoiceNumber: { type: "string" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "403": { description: "Accès refusé (non propriétaire ou non authentifié)" },
+          "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/invoices/{id}": {
+      delete: {
+        tags: ["Admin - Factures"],
+        summary: "Annuler une facture (créer un avoir)",
+        description: "Annule une facture et crée automatiquement un avoir avec génération du PDF. Accès admin requis. Retourne 409 si un avoir existe déjà.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Facture annulée, avoir créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string" },
+                    creditNote: {
+                      type: "object",
+                      properties: {
+                        number: { type: "string", example: "AVO-202604-ABCDEFGH" },
+                        amount: { type: "number" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "404": { description: "Facture introuvable" },
+          "409": { description: "Un avoir existe déjà pour cette facture" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
   },
   components: {
     schemas: {
@@ -1440,6 +1868,59 @@ export const openApiSpec = {
           statut: { type: "string", enum: ["publie", "brouillon"] },
           priorite: { type: "integer" },
           est_top_produit: { type: "boolean" },
+        },
+      },
+      PaymentMethod: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          cardHolder: { type: "string", example: "Jean Dupont" },
+          last4: { type: "string", example: "4242" },
+          expiry: { type: "string", example: "12/27" },
+          isDefault: { type: "boolean" },
+        },
+      },
+      AddressInput: {
+        type: "object",
+        properties: {
+          savedAddressId: { type: "string", description: "ID d une adresse existante (prioritaire)" },
+          firstName: { type: "string", example: "Jean" },
+          lastName: { type: "string", example: "Dupont" },
+          address1: { type: "string", example: "10 rue de la Paix" },
+          address2: { type: "string", nullable: true },
+          city: { type: "string", example: "Paris" },
+          region: { type: "string", nullable: true },
+          postalCode: { type: "string", example: "75001" },
+          country: { type: "string", example: "France" },
+          phone: { type: "string", example: "0612345678" },
+        },
+      },
+      Address: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          address1: { type: "string" },
+          address2: { type: "string", nullable: true },
+          city: { type: "string" },
+          region: { type: "string", nullable: true },
+          postalCode: { type: "string" },
+          country: { type: "string" },
+          phone: { type: "string" },
+          isDefault: { type: "boolean" },
+        },
+      },
+      OrderLine: {
+        type: "object",
+        properties: {
+          productId: { type: "string" },
+          productName: { type: "string" },
+          productSlug: { type: "string" },
+          imageUrl: { type: "string", nullable: true },
+          quantity: { type: "integer" },
+          unitPriceHt: { type: "number" },
+          totalTtc: { type: "number" },
         },
       },
     },
