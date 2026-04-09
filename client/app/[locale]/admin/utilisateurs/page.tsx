@@ -1,5 +1,5 @@
-import { AdminUsersSection } from "@/features/admin/AdminUsersSection"
+import { AdminUsersListPage } from "@/features/admin/users/AdminUsersListPage"
 
 export default function AdminUsersPage() {
-  return <AdminUsersSection />
+  return <AdminUsersListPage />
 }
