@@ -1,5 +1,5 @@
-import { AdminOrdersSection } from "@/features/admin/AdminOrdersSection"
+import { AdminOrdersListPage } from "@/features/admin/orders/AdminOrdersListPage"
 
 export default function AdminOrdersPage() {
-  return <AdminOrdersSection />
+  return <AdminOrdersListPage />
 }

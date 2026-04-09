@@ -131,6 +131,7 @@ export interface HistoriqueStatut {
   statut_precedent: string
   nouveau_statut: string
   date_changement: string
+  id_admin_modification: string | null
 }
 
 export interface Facture {
