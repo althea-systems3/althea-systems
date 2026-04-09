@@ -37,6 +37,16 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     icon: ClipboardList,
   },
   {
+    label: "Factures",
+    href: "/admin/factures",
+    icon: ClipboardList,
+  },
+  {
+    label: "Avoirs",
+    href: "/admin/avoirs",
+    icon: ClipboardList,
+  },
+  {
     label: "Utilisateurs",
     href: "/admin/utilisateurs",
     icon: Users,
