@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
+import { isRtlLocale } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import type { ProductImage } from "./productTypes"
 
@@ -18,6 +19,8 @@ export function ProductImageCarousel({
   images,
   productName,
 }: ProductImageCarouselProps) {
+  const locale = useLocale()
+  const isRtl = isRtlLocale(locale)
   const t = useTranslations("ProductPage")
   const [activeIndex, setActiveIndex] = useState(0)
   const [touchStartX, setTouchStartX] = useState<number | null>(null)
@@ -64,9 +67,17 @@ export function ProductImageCarousel({
     }
 
     if (deltaX > 0) {
-      goToPreviousImage()
+      if (isRtl) {
+        goToNextImage()
+      } else {
+        goToPreviousImage()
+      }
     } else {
-      goToNextImage()
+      if (isRtl) {
+        goToPreviousImage()
+      } else {
+        goToNextImage()
+      }
     }
 
     setTouchStartX(null)
@@ -107,20 +118,28 @@ export function ProductImageCarousel({
           <>
             <button
               type="button"
-              onClick={goToPreviousImage}
+              onClick={isRtl ? goToNextImage : goToPreviousImage}
               aria-label={t("gallery.previousImage")}
               className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-brand-nav shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cta focus-visible:ring-offset-2"
             >
-              <ChevronLeft className="size-5" aria-hidden="true" />
+              {isRtl ? (
+                <ChevronRight className="size-5" aria-hidden="true" />
+              ) : (
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              )}
             </button>
 
             <button
               type="button"
-              onClick={goToNextImage}
+              onClick={isRtl ? goToPreviousImage : goToNextImage}
               aria-label={t("gallery.nextImage")}
               className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-brand-nav shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cta focus-visible:ring-offset-2"
             >
-              <ChevronRight className="size-5" aria-hidden="true" />
+              {isRtl ? (
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              ) : (
+                <ChevronRight className="size-5" aria-hidden="true" />
+              )}
             </button>
           </>
         ) : null}

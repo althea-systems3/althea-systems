@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
+import { isRtlLocale } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { useHomeCarousel } from "./useHomeCarousel"
 
@@ -23,6 +24,8 @@ function getSlideTransform(activeSlideIndex: number): string {
 
 export function HomeCarousel() {
   const translateCarousel = useTranslations("HomeCarousel")
+  const locale = useLocale()
+  const isRtl = isRtlLocale(locale)
   const {
     activeSlideIndex,
     carouselSlides,
@@ -36,7 +39,10 @@ export function HomeCarousel() {
     handleResumeAutoSlide,
     handleStartSwipe,
     handleEndSwipe,
-  } = useHomeCarousel()
+  } = useHomeCarousel(isRtl)
+
+  const previousAction = isRtl ? handleGoToNextSlide : handleGoToPreviousSlide
+  const nextAction = isRtl ? handleGoToPreviousSlide : handleGoToNextSlide
 
   const hasNoSlides = !isCarouselLoading && carouselSlides.length === 0
 
@@ -123,10 +129,10 @@ export function HomeCarousel() {
                 <Badge className="w-fit bg-brand-cta text-white hover:bg-brand-cta/90">
                   {translateCarousel("badgeLabel")}
                 </Badge>
-                <h2 className="heading-font text-center text-2xl sm:text-3xl lg:text-left lg:text-4xl">
+                <h2 className="heading-font text-center text-2xl sm:text-3xl lg:text-start lg:text-4xl">
                   {carouselSlide.title}
                 </h2>
-                <p className="mt-3 text-center text-sm text-slate-100 sm:text-base lg:text-left">
+                <p className="mt-3 text-center text-sm text-slate-100 sm:text-base lg:text-start">
                   {carouselSlide.description}
                 </p>
                 <div className="mt-6 flex justify-center lg:justify-start">
@@ -153,10 +159,14 @@ export function HomeCarousel() {
               variant="secondary"
               size="icon"
               className="rounded-full"
-              onClick={handleGoToPreviousSlide}
+              onClick={previousAction}
               aria-label={translateCarousel("previous")}
             >
-              <ChevronLeft className="size-5" aria-hidden="true" />
+              {isRtl ? (
+                <ChevronRight className="size-5" aria-hidden="true" />
+              ) : (
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              )}
             </Button>
           </div>
 
@@ -166,14 +176,18 @@ export function HomeCarousel() {
               variant="secondary"
               size="icon"
               className="rounded-full"
-              onClick={handleGoToNextSlide}
+              onClick={nextAction}
               aria-label={translateCarousel("next")}
             >
-              <ChevronRight className="size-5" aria-hidden="true" />
+              {isRtl ? (
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              ) : (
+                <ChevronRight className="size-5" aria-hidden="true" />
+              )}
             </Button>
           </div>
 
-          <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-5">
+          <div className="absolute inset-x-0 bottom-4 z-20 flex items-center justify-center gap-2 sm:bottom-5">
             {carouselSlides.map((carouselSlide, slideIndex) => {
               const isActiveSlide = slideIndex === activeSlideIndex
 

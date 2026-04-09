@@ -156,44 +156,44 @@ export function hasFormErrors(
   return Object.values(errors).some(Boolean)
 }
 
-export function getOrderStatusLabel(status: string): string {
+export function getOrderStatusKey(status: string): string {
   if (status === "terminee") {
-    return "Terminee"
+    return "orders.status.terminee"
   }
 
   if (status === "en_cours") {
-    return "En cours"
+    return "orders.status.en_cours"
   }
 
   if (status === "annulee") {
-    return "Annulee"
+    return "orders.status.annulee"
   }
 
-  return "En attente"
+  return "orders.status.en_attente"
 }
 
-export function getPaymentStatusLabel(status: string): string {
+export function getPaymentStatusKey(status: string): string {
   if (status === "valide") {
-    return "Paiement valide"
+    return "orders.paymentStatus.valide"
   }
 
   if (status === "echoue") {
-    return "Paiement echoue"
+    return "orders.paymentStatus.echoue"
   }
 
   if (status === "rembourse") {
-    return "Rembourse"
+    return "orders.paymentStatus.rembourse"
   }
 
-  return "Paiement en attente"
+  return "orders.paymentStatus.en_attente"
 }
 
-export function getOrderTypeLabel(orderType: string): string {
+export function getOrderTypeKey(orderType: string): string {
   if (orderType === "multi_produits") {
-    return "Multi-produits"
+    return "orders.orderType.multi_produits"
   }
 
-  return "Mono-produit"
+  return "orders.orderType.mono_produit"
 }
 
 export function getOrderYear(dateValue: string): number {

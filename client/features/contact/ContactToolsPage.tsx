@@ -793,7 +793,9 @@ export function ContactToolsPage({
                                 aria-hidden="true"
                               />
                             )}
-                            {isUserMessage ? "You" : "Bot"}
+                            {isUserMessage
+                              ? content.chat.userLabel
+                              : content.chat.botLabel}
                           </p>
                           <p className="mt-1 whitespace-pre-wrap">
                             {message.content}

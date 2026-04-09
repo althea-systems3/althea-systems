@@ -1,6 +1,8 @@
 import { getRequestConfig } from "next-intl/server"
 import { hasLocale } from "next-intl"
 import { routing } from "@/i18n/routing"
+import type { AppLocale } from "@/lib/i18n"
+import { loadMessagesWithFallback } from "@/lib/i18nMessages"
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale
@@ -10,6 +12,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale: effectiveLocale,
-    messages: (await import(`../messages/${effectiveLocale}.json`)).default,
+    messages: await loadMessagesWithFallback(effectiveLocale as AppLocale),
   }
 })

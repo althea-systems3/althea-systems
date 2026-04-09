@@ -27,6 +27,10 @@ body {
   font-family: var(--font-body), sans-serif;
 }
 
+html[lang="ar"] body {
+  font-family: var(--font-rtl-ar), var(--font-body), sans-serif;
+}
+
 h1,
 h2,
 h3,
@@ -35,6 +39,10 @@ h5,
 h6,
 .heading-font {
   font-family: var(--font-heading), sans-serif;
+}
+
+html[lang="ar"] :is(h1, h2, h3, h4, h5, h6, .heading-font) {
+  font-family: var(--font-rtl-ar), var(--font-body), sans-serif;
 }
 
 a,

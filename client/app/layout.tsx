@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import { cookies } from "next/headers"
-import { Inter, Poppins } from "next/font/google"
+import { Inter, Noto_Sans_Arabic, Poppins } from "next/font/google"
 import "./globals.css"
-import { defaultLocale, isRtlLocale, locales, type AppLocale } from "@/lib/i18n"
+import { isRtlLocale, toAppLocale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Althea Systems",
@@ -22,12 +22,11 @@ const poppins = Poppins({
   display: "swap",
 })
 
-function toLocale(value?: string): AppLocale {
-  if (value && locales.includes(value as AppLocale)) {
-    return value as AppLocale
-  }
-  return defaultLocale
-}
+const notoSansArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-rtl-ar",
+  display: "swap",
+})
 
 export default async function RootLayout({
   children,
@@ -35,13 +34,13 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const cookieStore = await cookies()
-  const locale = toLocale(cookieStore.get("NEXT_LOCALE")?.value)
+  const locale = toAppLocale(cookieStore.get("NEXT_LOCALE")?.value)
 
   return (
     <html lang={locale} dir={isRtlLocale(locale) ? "rtl" : "ltr"}>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${poppins.variable}`}
+        className={`${inter.variable} ${poppins.variable} ${notoSansArabic.variable}`}
       >
         {children}
       </body>

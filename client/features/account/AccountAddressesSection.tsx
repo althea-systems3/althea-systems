@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { InputGroupInput } from "@/components/ui/input-group"
@@ -47,6 +48,7 @@ function toAddressForm(address: AccountAddress): AccountAddressForm {
 }
 
 export function AccountAddressesSection() {
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -80,7 +82,7 @@ export function AccountAddressesSection() {
       if (!response.ok) {
         setAddressStatus({
           isError: true,
-          message: "Impossible de charger les adresses.",
+          message: t("addresses.errors.loadFailed"),
         })
         return
       }
@@ -95,10 +97,10 @@ export function AccountAddressesSection() {
       console.error("Erreur chargement adresses compte", { error })
       setAddressStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("addresses.errors.serverError"),
       })
     }
-  }, [pathname, router])
+  }, [pathname, router, t])
 
   useEffect(() => {
     let isMounted = true
@@ -154,7 +156,7 @@ export function AccountAddressesSection() {
     if (hasFormErrors(addressErrors)) {
       setAddressStatus({
         isError: true,
-        message: "Corrige les champs du formulaire avant de continuer.",
+        message: t("addresses.errors.validationBeforeSave"),
       })
       return
     }
@@ -186,8 +188,8 @@ export function AccountAddressesSection() {
         setAddressStatus({
           isError: true,
           message: isEditingAddress
-            ? "Impossible de modifier l'adresse."
-            : "Impossible d'ajouter l'adresse.",
+            ? t("addresses.errors.updateFailed")
+            : t("addresses.errors.createFailed"),
         })
         return
       }
@@ -197,14 +199,14 @@ export function AccountAddressesSection() {
       setAddressStatus({
         isError: false,
         message: isEditingAddress
-          ? "Adresse mise a jour avec succes."
-          : "Adresse ajoutee avec succes.",
+          ? t("addresses.success.updated")
+          : t("addresses.success.created"),
       })
     } catch (error) {
       console.error("Erreur sauvegarde adresse compte", { error })
       setAddressStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("addresses.errors.serverError"),
       })
     } finally {
       setIsSubmitting(false)
@@ -219,9 +221,7 @@ export function AccountAddressesSection() {
   }
 
   async function handleDeleteAddress(addressId: string) {
-    const hasConfirmedDeletion = window.confirm(
-      "Confirmer la suppression de cette adresse ?",
-    )
+    const hasConfirmedDeletion = window.confirm(t("addresses.confirmDelete"))
 
     if (!hasConfirmedDeletion) {
       return
@@ -240,7 +240,7 @@ export function AccountAddressesSection() {
       if (!response.ok) {
         setAddressStatus({
           isError: true,
-          message: "Impossible de supprimer l'adresse.",
+          message: t("addresses.errors.deleteFailed"),
         })
         return
       }
@@ -253,13 +253,13 @@ export function AccountAddressesSection() {
 
       setAddressStatus({
         isError: false,
-        message: "Adresse supprimee avec succes.",
+        message: t("addresses.success.deleted"),
       })
     } catch (error) {
       console.error("Erreur suppression adresse compte", { error })
       setAddressStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("addresses.errors.serverError"),
       })
     }
   }
@@ -269,16 +269,16 @@ export function AccountAddressesSection() {
       return null
     }
 
-    return addressErrors[fieldName] ? "Ce champ est requis." : null
+    return addressErrors[fieldName] ? t("addresses.validation.required") : null
   }
 
   return (
     <div className="space-y-5">
       <header className="space-y-1">
-        <h2 className="heading-font text-xl text-brand-nav">Mes adresses</h2>
-        <p className="text-sm text-slate-600">
-          Ajoute, modifie ou supprime tes adresses de livraison et facturation.
-        </p>
+        <h2 className="heading-font text-xl text-brand-nav">
+          {t("addresses.title")}
+        </h2>
+        <p className="text-sm text-slate-600">{t("addresses.description")}</p>
       </header>
 
       {addressStatus ? (
@@ -296,7 +296,9 @@ export function AccountAddressesSection() {
 
       <section className="rounded-xl border border-border p-4">
         <h3 className="mb-3 text-sm font-semibold text-brand-nav">
-          {isEditingAddress ? "Modifier une adresse" : "Ajouter une adresse"}
+          {isEditingAddress
+            ? t("addresses.form.editTitle")
+            : t("addresses.form.createTitle")}
         </h3>
 
         <form
@@ -309,7 +311,7 @@ export function AccountAddressesSection() {
               htmlFor="address-first-name"
               className="text-sm font-medium text-brand-nav"
             >
-              Prenom
+              {t("addresses.fields.firstName")}
             </label>
             <InputGroupInput
               id="address-first-name"
@@ -340,7 +342,7 @@ export function AccountAddressesSection() {
               htmlFor="address-last-name"
               className="text-sm font-medium text-brand-nav"
             >
-              Nom
+              {t("addresses.fields.lastName")}
             </label>
             <InputGroupInput
               id="address-last-name"
@@ -371,7 +373,7 @@ export function AccountAddressesSection() {
               htmlFor="address-line-1"
               className="text-sm font-medium text-brand-nav"
             >
-              Adresse 1
+              {t("addresses.fields.address1")}
             </label>
             <InputGroupInput
               id="address-line-1"
@@ -400,7 +402,7 @@ export function AccountAddressesSection() {
               htmlFor="address-line-2"
               className="text-sm font-medium text-brand-nav"
             >
-              Adresse 2 (optionnel)
+              {t("addresses.fields.address2Optional")}
             </label>
             <InputGroupInput
               id="address-line-2"
@@ -416,7 +418,7 @@ export function AccountAddressesSection() {
               htmlFor="address-city"
               className="text-sm font-medium text-brand-nav"
             >
-              Ville
+              {t("addresses.fields.city")}
             </label>
             <InputGroupInput
               id="address-city"
@@ -445,7 +447,7 @@ export function AccountAddressesSection() {
               htmlFor="address-postal-code"
               className="text-sm font-medium text-brand-nav"
             >
-              Code postal
+              {t("addresses.fields.postalCode")}
             </label>
             <InputGroupInput
               id="address-postal-code"
@@ -476,7 +478,7 @@ export function AccountAddressesSection() {
               htmlFor="address-country"
               className="text-sm font-medium text-brand-nav"
             >
-              Pays
+              {t("addresses.fields.country")}
             </label>
             <InputGroupInput
               id="address-country"
@@ -505,7 +507,7 @@ export function AccountAddressesSection() {
               htmlFor="address-phone"
               className="text-sm font-medium text-brand-nav"
             >
-              Telephone
+              {t("addresses.fields.phone")}
             </label>
             <InputGroupInput
               id="address-phone"
@@ -538,17 +540,17 @@ export function AccountAddressesSection() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                  Enregistrement...
+                  {t("addresses.actions.saving")}
                 </>
               ) : isEditingAddress ? (
                 <>
                   <Save className="size-4" aria-hidden="true" />
-                  Mettre a jour
+                  {t("addresses.actions.update")}
                 </>
               ) : (
                 <>
                   <Plus className="size-4" aria-hidden="true" />
-                  Ajouter l&apos;adresse
+                  {t("addresses.actions.add")}
                 </>
               )}
             </Button>
@@ -560,7 +562,7 @@ export function AccountAddressesSection() {
                 onClick={resetAddressFormState}
               >
                 <X className="size-4" aria-hidden="true" />
-                Annuler
+                {t("addresses.actions.cancel")}
               </Button>
             ) : null}
           </div>
@@ -569,7 +571,7 @@ export function AccountAddressesSection() {
 
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-brand-nav">
-          Adresses enregistrees
+          {t("addresses.list.title")}
         </h3>
 
         {isLoading ? (
@@ -578,10 +580,10 @@ export function AccountAddressesSection() {
             aria-live="polite"
           >
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            Chargement des adresses...
+            {t("addresses.list.loading")}
           </div>
         ) : addresses.length === 0 ? (
-          <p className="text-sm text-slate-600">Aucune adresse enregistree.</p>
+          <p className="text-sm text-slate-600">{t("addresses.list.empty")}</p>
         ) : (
           <ul className="space-y-2">
             {addresses.map((address, index) => (
@@ -591,7 +593,7 @@ export function AccountAddressesSection() {
               >
                 <p className="flex items-center gap-2 text-sm font-medium text-brand-nav">
                   <MapPin className="size-4" aria-hidden="true" />
-                  Adresse {index + 1}
+                  {t("addresses.list.itemLabel", { index: index + 1 })}
                 </p>
                 <p className="mt-1 text-sm text-slate-700">
                   {address.firstName} {address.lastName}
@@ -613,7 +615,7 @@ export function AccountAddressesSection() {
                     onClick={() => handleEditAddress(address)}
                   >
                     <Pencil className="size-4" aria-hidden="true" />
-                    Modifier
+                    {t("addresses.actions.edit")}
                   </Button>
                   <Button
                     type="button"
@@ -623,7 +625,7 @@ export function AccountAddressesSection() {
                     onClick={() => handleDeleteAddress(address.id)}
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
-                    Supprimer
+                    {t("addresses.actions.delete")}
                   </Button>
                 </div>
               </li>

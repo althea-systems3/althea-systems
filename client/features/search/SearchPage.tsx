@@ -207,7 +207,7 @@ export function SearchPage() {
     if (filters.title) {
       chips.push({
         id: "chip-title",
-        label: t("activeFilters.title", { value: filters.title }),
+        label: t("activeFilters.titleFilter", { value: filters.title }),
         kind: "title",
       })
     }
@@ -783,13 +783,13 @@ export function SearchPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base text-brand-nav">
-                  {t("activeFilters.title")}
+                  {t("activeFilters.heading")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul
                   className="flex flex-wrap gap-2"
-                  aria-label={t("activeFilters.title")}
+                  aria-label={t("activeFilters.heading")}
                 >
                   {activeFilterChips.map((chip) => (
                     <li key={chip.id}>

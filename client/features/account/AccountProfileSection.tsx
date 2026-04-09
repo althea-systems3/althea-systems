@@ -1,6 +1,7 @@
 "use client"
 
 import { Loader2, Save } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { type FormEvent, useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,7 @@ function getSessionExpiredPath(pathname: string): string {
 }
 
 export function AccountProfileSection() {
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -68,7 +70,7 @@ export function AccountProfileSection() {
           if (isMounted) {
             setProfileStatus({
               isError: true,
-              message: "Impossible de charger le profil.",
+              message: t("profile.errors.loadFailed"),
             })
           }
           return
@@ -87,7 +89,7 @@ export function AccountProfileSection() {
         if (isMounted) {
           setProfileStatus({
             isError: true,
-            message: "Une erreur est survenue pendant le chargement.",
+            message: t("profile.errors.temporaryLoadError"),
           })
         }
       } finally {
@@ -102,7 +104,7 @@ export function AccountProfileSection() {
     return () => {
       isMounted = false
     }
-  }, [pathname, router])
+  }, [pathname, router, t])
 
   function handleFieldChange(fieldName: keyof AccountProfile, value: string) {
     setProfileForm((currentForm) => ({
@@ -124,7 +126,7 @@ export function AccountProfileSection() {
     if (hasFormErrors(profileErrors)) {
       setProfileStatus({
         isError: true,
-        message: "Corrige les champs en erreur avant d'enregistrer.",
+        message: t("profile.errors.validationBeforeSave"),
       })
       return
     }
@@ -154,21 +156,21 @@ export function AccountProfileSection() {
         setProfileStatus({
           isError: true,
           message: isEmailConflict
-            ? "Cette adresse e-mail est deja utilisee."
-            : "Impossible de sauvegarder le profil pour le moment.",
+            ? t("profile.errors.emailConflict")
+            : t("profile.errors.saveFailed"),
         })
         return
       }
 
       setProfileStatus({
         isError: false,
-        message: "Profil enregistre avec succes.",
+        message: t("profile.success.saved"),
       })
     } catch (error) {
       console.error("Erreur sauvegarde profil compte", { error })
       setProfileStatus({
         isError: true,
-        message: "Une erreur serveur est survenue. Reessaie plus tard.",
+        message: t("profile.errors.serverError"),
       })
     } finally {
       setIsSaving(false)
@@ -189,14 +191,14 @@ export function AccountProfileSection() {
     }
 
     if (fieldName === "email" && errorCode === "invalid") {
-      return "Adresse e-mail invalide."
+      return t("profile.validation.emailInvalid")
     }
 
     if (fieldName === "phone" && errorCode === "invalid") {
-      return "Numero de telephone invalide."
+      return t("profile.validation.phoneInvalid")
     }
 
-    return "Ce champ est requis."
+    return t("profile.validation.required")
   }
 
   if (isLoading) {
@@ -206,7 +208,7 @@ export function AccountProfileSection() {
         aria-live="polite"
       >
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Chargement du profil...
+        {t("profile.loading")}
       </div>
     )
   }
@@ -215,12 +217,9 @@ export function AccountProfileSection() {
     <div className="space-y-5">
       <header className="space-y-1">
         <h2 className="heading-font text-xl text-brand-nav">
-          Profil et parametres
+          {t("profile.title")}
         </h2>
-        <p className="text-sm text-slate-600">
-          Mets a jour tes informations personnelles. Les modifications sont
-          enregistrees de maniere securisee.
-        </p>
+        <p className="text-sm text-slate-600">{t("profile.description")}</p>
       </header>
 
       {profileStatus ? (
@@ -246,7 +245,7 @@ export function AccountProfileSection() {
             htmlFor="account-first-name"
             className="text-sm font-medium text-brand-nav"
           >
-            Prenom
+            {t("profile.fields.firstName")}
           </label>
           <InputGroup>
             <InputGroupInput
@@ -281,7 +280,7 @@ export function AccountProfileSection() {
             htmlFor="account-last-name"
             className="text-sm font-medium text-brand-nav"
           >
-            Nom
+            {t("profile.fields.lastName")}
           </label>
           <InputGroup>
             <InputGroupInput
@@ -316,7 +315,7 @@ export function AccountProfileSection() {
             htmlFor="account-email"
             className="text-sm font-medium text-brand-nav"
           >
-            Adresse e-mail
+            {t("profile.fields.email")}
           </label>
           <InputGroup>
             <InputGroupInput
@@ -352,7 +351,7 @@ export function AccountProfileSection() {
             htmlFor="account-phone"
             className="text-sm font-medium text-brand-nav"
           >
-            Telephone (optionnel)
+            {t("profile.fields.phoneOptional")}
           </label>
           <InputGroup>
             <InputGroupInput
@@ -391,12 +390,12 @@ export function AccountProfileSection() {
             {isSaving ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                Enregistrement...
+                {t("profile.actions.saving")}
               </>
             ) : (
               <>
                 <Save className="size-4" aria-hidden="true" />
-                Enregistrer les modifications
+                {t("profile.actions.save")}
               </>
             )}
           </Button>

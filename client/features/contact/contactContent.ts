@@ -50,6 +50,8 @@ export type ContactToolsLocaleContent = {
     sessionAuthenticated: string
     sessionGuest: string
     transcriptTitle: string
+    userLabel: string
+    botLabel: string
   }
 }
 
@@ -121,6 +123,8 @@ const FR_CONTACT_CONTENT: ContactToolsLocaleContent = {
     sessionAuthenticated: "Session connectee",
     sessionGuest: "Session invite",
     transcriptTitle: "Conversation",
+    userLabel: "Vous",
+    botLabel: "Bot",
   },
 }
 
@@ -190,14 +194,153 @@ const EN_CONTACT_CONTENT: ContactToolsLocaleContent = {
     sessionAuthenticated: "Signed-in session",
     sessionGuest: "Guest session",
     transcriptTitle: "Conversation",
+    userLabel: "You",
+    botLabel: "Bot",
+  },
+}
+
+const AR_CONTACT_CONTENT: ContactToolsLocaleContent = {
+  badge: "دعم Althea Systems",
+  responseTime: "متوسط وقت الاستجابة: خلال 24 ساعة عمل",
+  sectionTitle: "دعنا نساعدك",
+  sectionDescription:
+    "استخدم النموذج للطلبات التفصيلية، أو ابدأ محادثة فورية مع مساعدنا.",
+  contactMeLabel: "تواصل معي",
+  supportTopicsTitle: "المواضيع الشائعة",
+  supportTopics: [
+    "تتبع الطلب وحالة التسليم",
+    "المساعدة في تسجيل الدخول وحساب العميل",
+    "أسئلة المنتجات والتوفر وطلبات الأسعار",
+    "الفوترة والدعم التجاري",
+  ],
+  formTitle: "نموذج الاتصال",
+  formDescription: "جميع الحقول مطلوبة. سيتم إرسال طلبك إلى فريق الدعم.",
+  formEmailLabel: "البريد الإلكتروني",
+  formEmailPlaceholder: "you@company.com",
+  formSubjectLabel: "موضوع الرسالة",
+  formSubjectPlaceholder: "مثال: مشكلة تسليم الطلب #AS-4821",
+  formMessageLabel: "الرسالة",
+  formMessagePlaceholder: "اشرح طلبك حتى يتمكن فريقنا من الرد بسرعة أكبر.",
+  formSubmitLabel: "إرسال",
+  formSubmittingLabel: "جارٍ الإرسال...",
+  formSuccessMessage: "تم إرسال رسالتك بنجاح. سنتواصل معك قريبًا.",
+  formErrorMessage: "حدث خطأ أثناء إرسال رسالتك.",
+  formErrorHint: "يرجى تصحيح الحقول المميزة ثم إعادة المحاولة.",
+  validation: {
+    emailRequired: "البريد الإلكتروني مطلوب.",
+    emailInvalid: "يرجى إدخال بريد إلكتروني صالح.",
+    subjectRequired: "الموضوع مطلوب.",
+    subjectTooLong: "الموضوع طويل جدًا (الحد الأقصى 140 حرفًا).",
+    messageRequired: "الرسالة مطلوبة.",
+    messageTooLong: "الرسالة طويلة جدًا (الحد الأقصى 4000 حرف).",
+  },
+  chat: {
+    title: "روبوت الدعم",
+    description: "اطرح سؤالك مباشرة. يمكنك طلب التحويل إلى وكيل بشري.",
+    openLabel: "فتح روبوت الدردشة",
+    closeLabel: "إغلاق روبوت الدردشة",
+    inputLabel: "رسالتك",
+    inputPlaceholder: "اكتب رسالتك...",
+    sendLabel: "إرسال",
+    sendingLabel: "جارٍ الإرسال...",
+    welcome: "مرحبًا، أنا مساعد Althea. يمكنني مساعدتك في الأسئلة المتكررة.",
+    askEmail: "لمساعدتك بشكل أفضل، يرجى مشاركة بريدك الإلكتروني.",
+    askSubject: "شكرًا لك. ما الموضوع الرئيسي لطلبك؟",
+    networkError:
+      "خدمة الدردشة غير متاحة حاليًا. لا يزال بإمكانك استخدام نموذج الاتصال.",
+    escalateLabel: "التحدث إلى وكيل",
+    escalatingLabel: "جارٍ التحويل...",
+    escalationSuccess: "تم تحويل طلبك إلى وكيل بشري. سنعود إليك سريعًا.",
+    escalationError:
+      "فشل التحويل إلى وكيل بشري. يرجى إعادة المحاولة أو استخدام نموذج الاتصال.",
+    contactFormCta: "استخدم نموذج الاتصال لطلب مفصل",
+    botTyping: "الروبوت يكتب ردًا...",
+    sessionLoading: "جارٍ التحقق من الجلسة...",
+    sessionAuthenticated: "جلسة مسجّل دخول",
+    sessionGuest: "جلسة ضيف",
+    transcriptTitle: "المحادثة",
+    userLabel: "أنت",
+    botLabel: "الروبوت",
+  },
+}
+
+const ES_CONTACT_CONTENT: ContactToolsLocaleContent = {
+  badge: "Soporte Althea Systems",
+  responseTime: "Tiempo medio de respuesta: dentro de 24 horas laborables",
+  sectionTitle: "Permitanos ayudarle",
+  sectionDescription:
+    "Use el formulario para solicitudes detalladas o inicie un chat en tiempo real con nuestro asistente.",
+  contactMeLabel: "Contactarme",
+  supportTopicsTitle: "Temas frecuentes",
+  supportTopics: [
+    "Seguimiento de pedidos y estado de entrega",
+    "Ayuda de inicio de sesion y cuenta cliente",
+    "Preguntas sobre productos, disponibilidad y presupuestos",
+    "Facturacion y soporte comercial",
+  ],
+  formTitle: "Formulario de contacto",
+  formDescription:
+    "Todos los campos son obligatorios. Su solicitud se enviara al backoffice de soporte.",
+  formEmailLabel: "Correo electronico",
+  formEmailPlaceholder: "you@company.com",
+  formSubjectLabel: "Asunto del mensaje",
+  formSubjectPlaceholder: "Ejemplo: Problema de entrega pedido #AS-4821",
+  formMessageLabel: "Mensaje",
+  formMessagePlaceholder:
+    "Describa su solicitud para que nuestro equipo pueda responder mas rapido.",
+  formSubmitLabel: "Enviar",
+  formSubmittingLabel: "Enviando...",
+  formSuccessMessage:
+    "Su mensaje se ha enviado correctamente. Le contactaremos pronto.",
+  formErrorMessage: "Se produjo un error durante el envio de su mensaje.",
+  formErrorHint: "Corrija los campos marcados e intentelo de nuevo.",
+  validation: {
+    emailRequired: "El correo electronico es obligatorio.",
+    emailInvalid: "Introduzca un correo electronico valido.",
+    subjectRequired: "El asunto es obligatorio.",
+    subjectTooLong: "El asunto es demasiado largo (maximo 140 caracteres).",
+    messageRequired: "El mensaje es obligatorio.",
+    messageTooLong: "El mensaje es demasiado largo (maximo 4000 caracteres).",
+  },
+  chat: {
+    title: "Chatbot de soporte",
+    description:
+      "Haga su pregunta en tiempo real. Puede solicitar transferencia a un agente humano.",
+    openLabel: "Abrir chatbot",
+    closeLabel: "Cerrar chatbot",
+    inputLabel: "Su mensaje",
+    inputPlaceholder: "Escriba su mensaje...",
+    sendLabel: "Enviar",
+    sendingLabel: "Enviando...",
+    welcome:
+      "Hola, soy el asistente de Althea. Puedo ayudarle con preguntas frecuentes.",
+    askEmail: "Para ayudarle mejor, comparta su correo electronico.",
+    askSubject: "Gracias. Cual es el tema principal de su solicitud?",
+    networkError:
+      "El servicio de chatbot no esta disponible por ahora. Aun puede usar el formulario de contacto.",
+    escalateLabel: "Hablar con un agente",
+    escalatingLabel: "Transfiriendo...",
+    escalationSuccess:
+      "Su solicitud se ha transferido a un agente humano. Le responderemos rapidamente.",
+    escalationError:
+      "La transferencia a un agente humano fallo. Intente de nuevo o use el formulario de contacto.",
+    contactFormCta:
+      "Use el formulario de contacto para una solicitud detallada",
+    botTyping: "El bot esta respondiendo...",
+    sessionLoading: "Verificando sesion...",
+    sessionAuthenticated: "Sesion iniciada",
+    sessionGuest: "Sesion de invitado",
+    transcriptTitle: "Conversacion",
+    userLabel: "Usted",
+    botLabel: "Bot",
   },
 }
 
 const CONTACT_CONTENT_BY_LOCALE: Record<string, ContactToolsLocaleContent> = {
   fr: FR_CONTACT_CONTENT,
   en: EN_CONTACT_CONTENT,
-  ar: EN_CONTACT_CONTENT,
-  he: EN_CONTACT_CONTENT,
+  ar: AR_CONTACT_CONTENT,
+  es: ES_CONTACT_CONTENT,
 }
 
 export function getContactToolsLocaleContent(

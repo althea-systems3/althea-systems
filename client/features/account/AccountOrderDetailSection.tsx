@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowLeft, FileText, Loader2 } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -9,9 +9,9 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import {
   formatAccountDate,
   formatAccountPrice,
+  getOrderStatusKey,
+  getPaymentStatusKey,
   maskCardLast4,
-  getOrderStatusLabel,
-  getPaymentStatusLabel,
 } from "./accountUtils"
 
 type OrderDetailPayload = {
@@ -72,6 +72,7 @@ export function AccountOrderDetailSection({
   orderNumber,
 }: AccountOrderDetailSectionProps) {
   const locale = useLocale()
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -103,21 +104,21 @@ export function AccountOrderDetailSection({
 
         if (response.status === 403) {
           if (isMounted) {
-            setErrorMessage("Acces refuse a cette commande.")
+            setErrorMessage(t("orderDetail.errors.forbidden"))
           }
           return
         }
 
         if (response.status === 404) {
           if (isMounted) {
-            setErrorMessage("Commande introuvable.")
+            setErrorMessage(t("orderDetail.errors.notFound"))
           }
           return
         }
 
         if (!response.ok) {
           if (isMounted) {
-            setErrorMessage("Impossible de charger le detail de la commande.")
+            setErrorMessage(t("orderDetail.errors.loadFailed"))
           }
           return
         }
@@ -133,7 +134,7 @@ export function AccountOrderDetailSection({
         console.error("Erreur chargement detail commande compte", { error })
 
         if (isMounted) {
-          setErrorMessage("Une erreur serveur est survenue.")
+          setErrorMessage(t("orderDetail.errors.server"))
         }
       } finally {
         if (isMounted) {
@@ -147,7 +148,7 @@ export function AccountOrderDetailSection({
     return () => {
       isMounted = false
     }
-  }, [orderNumber, pathname, router])
+  }, [orderNumber, pathname, router, t])
 
   if (isLoading) {
     return (
@@ -156,7 +157,7 @@ export function AccountOrderDetailSection({
         aria-live="polite"
       >
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Chargement du detail commande...
+        {t("orderDetail.loading")}
       </div>
     )
   }
@@ -165,12 +166,12 @@ export function AccountOrderDetailSection({
     return (
       <div className="space-y-3">
         <p className="text-sm text-brand-error" role="alert">
-          {errorMessage ?? "Commande indisponible."}
+          {errorMessage ?? t("orderDetail.errors.unavailable")}
         </p>
         <Button asChild variant="outline">
           <Link href="/mon-compte/commandes">
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Retour aux commandes
+            {t("orderDetail.actions.backToOrders")}
           </Link>
         </Button>
       </div>
@@ -179,52 +180,67 @@ export function AccountOrderDetailSection({
 
   const paymentModeLabel =
     orderDetail.paymentMethod?.mode === "carte"
-      ? "Carte bancaire"
-      : "Moyen de paiement"
+      ? t("orderDetail.payment.cardLabel")
+      : t("orderDetail.payment.methodLabel")
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="heading-font text-xl text-brand-nav">
-          Commande {orderDetail.order.orderNumber}
+          {t("orderDetail.title", {
+            orderNumber: orderDetail.order.orderNumber,
+          })}
         </h2>
         <Button asChild variant="outline" size="sm">
           <Link href="/mon-compte/commandes">
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Retour
+            {t("orderDetail.actions.back")}
           </Link>
         </Button>
       </div>
 
       <section className="rounded-xl border border-border p-4 text-sm">
         <p>
-          <span className="font-medium text-brand-nav">Date:</span>{" "}
+          <span className="font-medium text-brand-nav">
+            {t("orderDetail.summary.dateLabel")}
+          </span>{" "}
           {formatAccountDate(orderDetail.order.createdAt, locale)}
         </p>
         <p>
-          <span className="font-medium text-brand-nav">Statut commande:</span>{" "}
-          {getOrderStatusLabel(orderDetail.order.status)}
+          <span className="font-medium text-brand-nav">
+            {t("orderDetail.summary.orderStatusLabel")}
+          </span>{" "}
+          {t(getOrderStatusKey(orderDetail.order.status))}
         </p>
         <p>
-          <span className="font-medium text-brand-nav">Statut paiement:</span>{" "}
-          {getPaymentStatusLabel(orderDetail.order.paymentStatus)}
+          <span className="font-medium text-brand-nav">
+            {t("orderDetail.summary.paymentStatusLabel")}
+          </span>{" "}
+          {t(getPaymentStatusKey(orderDetail.order.paymentStatus))}
         </p>
         <p>
-          <span className="font-medium text-brand-nav">Montant HT:</span>{" "}
+          <span className="font-medium text-brand-nav">
+            {t("orderDetail.summary.totalHtLabel")}
+          </span>{" "}
           {formatAccountPrice(orderDetail.order.totalHt, locale)}
         </p>
         <p>
-          <span className="font-medium text-brand-nav">TVA:</span>{" "}
+          <span className="font-medium text-brand-nav">
+            {t("orderDetail.summary.vatLabel")}
+          </span>{" "}
           {formatAccountPrice(orderDetail.order.totalTva, locale)}
         </p>
         <p className="font-semibold text-brand-nav">
-          Total TTC: {formatAccountPrice(orderDetail.order.totalTtc, locale)}
+          {t("orderDetail.summary.totalTtcLabel")}:{" "}
+          {formatAccountPrice(orderDetail.order.totalTtc, locale)}
         </p>
       </section>
 
       <div className="grid gap-3 md:grid-cols-2">
         <section className="rounded-xl border border-border p-4 text-sm">
-          <h3 className="text-sm font-semibold text-brand-nav">Paiement</h3>
+          <h3 className="text-sm font-semibold text-brand-nav">
+            {t("orderDetail.payment.title")}
+          </h3>
           {orderDetail.paymentMethod ? (
             <p className="mt-2 text-slate-700">
               {paymentModeLabel}:{" "}
@@ -232,14 +248,14 @@ export function AccountOrderDetailSection({
             </p>
           ) : (
             <p className="mt-2 text-slate-600">
-              Moyen de paiement indisponible.
+              {t("orderDetail.payment.unavailable")}
             </p>
           )}
         </section>
 
         <section className="rounded-xl border border-border p-4 text-sm">
           <h3 className="text-sm font-semibold text-brand-nav">
-            Adresse de facturation
+            {t("orderDetail.billing.title")}
           </h3>
 
           {orderDetail.billingAddress ? (
@@ -266,14 +282,16 @@ export function AccountOrderDetailSection({
             </address>
           ) : (
             <p className="mt-2 text-slate-600">
-              Adresse de facturation indisponible.
+              {t("orderDetail.billing.unavailable")}
             </p>
           )}
         </section>
       </div>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-brand-nav">Produits</h3>
+        <h3 className="text-sm font-semibold text-brand-nav">
+          {t("orderDetail.products.title")}
+        </h3>
         <ul className="space-y-2">
           {orderDetail.lines.map((line) => (
             <li
@@ -282,15 +300,18 @@ export function AccountOrderDetailSection({
             >
               <p className="font-medium text-brand-nav">{line.productName}</p>
               <p className="text-sm text-slate-700">
-                Quantite: {line.quantity}
+                {t("orderDetail.products.quantity", {
+                  quantity: line.quantity,
+                })}
               </p>
               <p className="text-sm text-slate-700">
-                Total ligne: {formatAccountPrice(line.totalTtc, locale)}
+                {t("orderDetail.products.lineTotal")}:{" "}
+                {formatAccountPrice(line.totalTtc, locale)}
               </p>
               {line.productSlug ? (
                 <Button asChild size="sm" variant="outline" className="mt-2">
                   <Link href={`/produits/${line.productSlug}`}>
-                    Voir le produit
+                    {t("orderDetail.products.viewProduct")}
                   </Link>
                 </Button>
               ) : null}
@@ -301,7 +322,7 @@ export function AccountOrderDetailSection({
 
       <section className="rounded-xl border border-border p-4">
         <h3 className="text-sm font-semibold text-brand-nav">
-          Document associe
+          {t("orderDetail.invoice.title")}
         </h3>
 
         {orderDetail.invoice?.pdfUrl ? (
@@ -315,12 +336,14 @@ export function AccountOrderDetailSection({
               rel="noreferrer"
             >
               <FileText className="size-4" aria-hidden="true" />
-              Telecharger la facture {orderDetail.invoice.invoiceNumber}
+              {t("orderDetail.invoice.download", {
+                invoiceNumber: orderDetail.invoice.invoiceNumber,
+              })}
             </a>
           </Button>
         ) : (
           <p className="mt-2 text-sm text-slate-600">
-            Aucune facture disponible.
+            {t("orderDetail.invoice.unavailable")}
           </p>
         )}
       </section>

@@ -299,6 +299,10 @@
       "title": "اتمام الطلب",
       "description": "اكمل طلبك عبر التحقق من بيانات الشحن والدفع."
     },
+    "chatbot": {
+      "title": "روبوت الدعم",
+      "description": "تحدث مباشرة مع مساعدنا. يمكنك طلب التحويل إلى وكيل بشري."
+    },
     "category": {
       "title": "الفئة: {categorySlug}",
       "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
@@ -433,9 +437,9 @@
       "pageCounter": "الصفحة {page} من {totalPages}"
     },
     "activeFilters": {
-      "title": "الفلاتر النشطة",
+      "heading": "الفلاتر النشطة",
       "quickText": "النص: {value}",
-      "title": "العنوان: {value}",
+      "titleFilter": "العنوان: {value}",
       "description": "الوصف: {value}",
       "characteristics": "الخصائص: {value}",
       "priceMin": "اقل سعر: {value}",

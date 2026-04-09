@@ -66,7 +66,7 @@ async function fetchCarouselSlides(
   return Array.isArray(payload.slides) ? payload.slides : []
 }
 
-export function useHomeCarousel(): UseHomeCarouselState {
+export function useHomeCarousel(isRtl = false): UseHomeCarouselState {
   const [carouselSlides, setCarouselSlides] = useState<CarouselSlide[]>([])
   const [activeSlideIndex, setActiveSlideIndex] = useState(0)
   const [isCarouselLoading, setIsCarouselLoading] = useState(true)
@@ -120,14 +120,22 @@ export function useHomeCarousel(): UseHomeCarouselState {
       }
 
       if (swipeDeltaInPixels > 0) {
-        handleGoToPreviousSlide()
+        if (isRtl) {
+          handleGoToNextSlide()
+        } else {
+          handleGoToPreviousSlide()
+        }
       } else {
-        handleGoToNextSlide()
+        if (isRtl) {
+          handleGoToPreviousSlide()
+        } else {
+          handleGoToNextSlide()
+        }
       }
 
       swipeStartPositionXRef.current = null
     },
-    [handleGoToNextSlide, handleGoToPreviousSlide, isSwipeEnabled],
+    [handleGoToNextSlide, handleGoToPreviousSlide, isRtl, isSwipeEnabled],
   )
 
   useEffect(() => {

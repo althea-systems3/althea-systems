@@ -17,6 +17,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { InputGroupInput } from "@/components/ui/input-group"
@@ -58,6 +59,7 @@ function getInitialPaymentEditForm(
 }
 
 export function AccountPaymentMethodsSection() {
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -98,7 +100,7 @@ export function AccountPaymentMethodsSection() {
       if (!response.ok) {
         setPaymentStatus({
           isError: true,
-          message: "Impossible de charger les moyens de paiement.",
+          message: t("payments.errors.loadFailed"),
         })
         return
       }
@@ -113,10 +115,10 @@ export function AccountPaymentMethodsSection() {
       console.error("Erreur chargement moyens paiement compte", { error })
       setPaymentStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("payments.errors.serverError"),
       })
     }
-  }, [pathname, router])
+  }, [pathname, router, t])
 
   useEffect(() => {
     let isMounted = true
@@ -171,7 +173,7 @@ export function AccountPaymentMethodsSection() {
     if (hasFormErrors(paymentCreateErrors)) {
       setPaymentStatus({
         isError: true,
-        message: "Corrige les champs avant d'ajouter le moyen de paiement.",
+        message: t("payments.errors.validationBeforeCreate"),
       })
       return
     }
@@ -196,7 +198,7 @@ export function AccountPaymentMethodsSection() {
       if (!response.ok) {
         setPaymentStatus({
           isError: true,
-          message: "Impossible d'ajouter ce moyen de paiement.",
+          message: t("payments.errors.createFailed"),
         })
         return
       }
@@ -205,13 +207,13 @@ export function AccountPaymentMethodsSection() {
       resetCreateForm()
       setPaymentStatus({
         isError: false,
-        message: "Moyen de paiement ajoute avec succes.",
+        message: t("payments.success.created"),
       })
     } catch (error) {
       console.error("Erreur ajout moyen paiement compte", { error })
       setPaymentStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("payments.errors.serverError"),
       })
     } finally {
       setIsSubmitting(false)
@@ -257,7 +259,7 @@ export function AccountPaymentMethodsSection() {
       if (!response.ok) {
         setPaymentStatus({
           isError: true,
-          message: "Impossible de modifier ce moyen de paiement.",
+          message: t("payments.errors.updateFailed"),
         })
         return
       }
@@ -266,13 +268,13 @@ export function AccountPaymentMethodsSection() {
       cancelEditPaymentMethod()
       setPaymentStatus({
         isError: false,
-        message: "Moyen de paiement mis a jour avec succes.",
+        message: t("payments.success.updated"),
       })
     } catch (error) {
       console.error("Erreur mise a jour moyen paiement compte", { error })
       setPaymentStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("payments.errors.serverError"),
       })
     } finally {
       setIsSubmitting(false)
@@ -280,9 +282,7 @@ export function AccountPaymentMethodsSection() {
   }
 
   async function handleDeletePaymentMethod(paymentMethodId: string) {
-    const hasConfirmedDeletion = window.confirm(
-      "Confirmer la suppression de ce moyen de paiement ?",
-    )
+    const hasConfirmedDeletion = window.confirm(t("payments.confirmDelete"))
 
     if (!hasConfirmedDeletion) {
       return
@@ -304,7 +304,7 @@ export function AccountPaymentMethodsSection() {
       if (!response.ok) {
         setPaymentStatus({
           isError: true,
-          message: "Impossible de supprimer ce moyen de paiement.",
+          message: t("payments.errors.deleteFailed"),
         })
         return
       }
@@ -317,13 +317,13 @@ export function AccountPaymentMethodsSection() {
 
       setPaymentStatus({
         isError: false,
-        message: "Moyen de paiement supprime avec succes.",
+        message: t("payments.success.deleted"),
       })
     } catch (error) {
       console.error("Erreur suppression moyen paiement compte", { error })
       setPaymentStatus({
         isError: true,
-        message: "Une erreur serveur est survenue.",
+        message: t("payments.errors.serverError"),
       })
     }
   }
@@ -342,26 +342,23 @@ export function AccountPaymentMethodsSection() {
     }
 
     if (errorCode === "invalid" && fieldName === "last4") {
-      return "Saisis exactement 4 chiffres."
+      return t("payments.validation.last4Invalid")
     }
 
     if (errorCode === "invalid" && fieldName === "expiry") {
-      return "Format attendu: MM/AA."
+      return t("payments.validation.expiryInvalid")
     }
 
-    return "Ce champ est requis."
+    return t("payments.validation.required")
   }
 
   return (
     <div className="space-y-5">
       <header className="space-y-1">
         <h2 className="heading-font text-xl text-brand-nav">
-          Mes moyens de paiement
+          {t("payments.title")}
         </h2>
-        <p className="text-sm text-slate-600">
-          Gere tes moyens de paiement en toute securite. Seuls les 4 derniers
-          chiffres sont visibles.
-        </p>
+        <p className="text-sm text-slate-600">{t("payments.description")}</p>
       </header>
 
       {paymentStatus ? (
@@ -379,7 +376,7 @@ export function AccountPaymentMethodsSection() {
 
       <section className="rounded-xl border border-border p-4">
         <h3 className="mb-3 text-sm font-semibold text-brand-nav">
-          Ajouter un moyen de paiement
+          {t("payments.form.createTitle")}
         </h3>
 
         <form
@@ -392,7 +389,7 @@ export function AccountPaymentMethodsSection() {
               htmlFor="payment-stripe-id"
               className="text-sm font-medium text-brand-nav"
             >
-              Identifiant tokenise (Stripe)
+              {t("payments.fields.stripePaymentId")}
             </label>
             <InputGroupInput
               id="payment-stripe-id"
@@ -426,7 +423,7 @@ export function AccountPaymentMethodsSection() {
               htmlFor="payment-card-holder"
               className="text-sm font-medium text-brand-nav"
             >
-              Libelle de la carte
+              {t("payments.fields.cardHolder")}
             </label>
             <InputGroupInput
               id="payment-card-holder"
@@ -457,7 +454,7 @@ export function AccountPaymentMethodsSection() {
               htmlFor="payment-last4"
               className="text-sm font-medium text-brand-nav"
             >
-              4 derniers chiffres
+              {t("payments.fields.last4")}
             </label>
             <InputGroupInput
               id="payment-last4"
@@ -488,7 +485,7 @@ export function AccountPaymentMethodsSection() {
               htmlFor="payment-expiry"
               className="text-sm font-medium text-brand-nav"
             >
-              Expiration (MM/AA)
+              {t("payments.fields.expiry")}
             </label>
             <InputGroupInput
               id="payment-expiry"
@@ -523,7 +520,7 @@ export function AccountPaymentMethodsSection() {
               }
               className="h-4 w-4 rounded border-border"
             />
-            Definir comme moyen de paiement par defaut
+            {t("payments.fields.isDefault")}
           </label>
 
           <div className="sm:col-span-2 flex flex-wrap gap-2">
@@ -535,17 +532,17 @@ export function AccountPaymentMethodsSection() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                  Enregistrement...
+                  {t("payments.actions.saving")}
                 </>
               ) : (
                 <>
                   <Plus className="size-4" aria-hidden="true" />
-                  Ajouter le moyen de paiement
+                  {t("payments.actions.add")}
                 </>
               )}
             </Button>
             <Button type="button" variant="outline" onClick={resetCreateForm}>
-              Reinitialiser
+              {t("payments.actions.reset")}
             </Button>
           </div>
         </form>
@@ -553,7 +550,7 @@ export function AccountPaymentMethodsSection() {
 
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-brand-nav">
-          Moyens de paiement enregistres
+          {t("payments.list.title")}
         </h3>
 
         {isLoading ? (
@@ -562,12 +559,10 @@ export function AccountPaymentMethodsSection() {
             aria-live="polite"
           >
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            Chargement des moyens de paiement...
+            {t("payments.list.loading")}
           </div>
         ) : paymentMethods.length === 0 ? (
-          <p className="text-sm text-slate-600">
-            Aucun moyen de paiement enregistre.
-          </p>
+          <p className="text-sm text-slate-600">{t("payments.list.empty")}</p>
         ) : (
           <ul className="space-y-2">
             {paymentMethods.map((paymentMethod) => {
@@ -586,13 +581,13 @@ export function AccountPaymentMethodsSection() {
                         {paymentMethod.cardHolder}
                       </p>
                       <p className="mt-1 text-sm text-slate-700">
-                        {maskCardLast4(paymentMethod.last4)} - Exp.{" "}
-                        {paymentMethod.expiry}
+                        {maskCardLast4(paymentMethod.last4)} -{" "}
+                        {t("payments.list.expLabel")} {paymentMethod.expiry}
                       </p>
                       {paymentMethod.isDefault ? (
                         <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#10b981]/10 px-2 py-0.5 text-xs text-[#0f766e]">
                           <ShieldCheck className="size-3" aria-hidden="true" />
-                          Par defaut
+                          {t("payments.list.defaultBadge")}
                         </p>
                       ) : null}
 
@@ -604,7 +599,7 @@ export function AccountPaymentMethodsSection() {
                           onClick={() => handleEditPaymentMethod(paymentMethod)}
                         >
                           <Pencil className="size-4" aria-hidden="true" />
-                          Modifier
+                          {t("payments.actions.edit")}
                         </Button>
                         <Button
                           type="button"
@@ -616,7 +611,7 @@ export function AccountPaymentMethodsSection() {
                           }
                         >
                           <Trash2 className="size-4" aria-hidden="true" />
-                          Supprimer
+                          {t("payments.actions.delete")}
                         </Button>
                       </div>
                     </>
@@ -627,7 +622,7 @@ export function AccountPaymentMethodsSection() {
                           htmlFor={`payment-edit-holder-${paymentMethod.id}`}
                           className="text-sm font-medium text-brand-nav"
                         >
-                          Libelle
+                          {t("payments.fields.label")}
                         </label>
                         <InputGroupInput
                           id={`payment-edit-holder-${paymentMethod.id}`}
@@ -646,7 +641,7 @@ export function AccountPaymentMethodsSection() {
                           htmlFor={`payment-edit-expiry-${paymentMethod.id}`}
                           className="text-sm font-medium text-brand-nav"
                         >
-                          Expiration (MM/AA)
+                          {t("payments.fields.expiry")}
                         </label>
                         <InputGroupInput
                           id={`payment-edit-expiry-${paymentMethod.id}`}
@@ -672,7 +667,7 @@ export function AccountPaymentMethodsSection() {
                           }
                           className="h-4 w-4 rounded border-border"
                         />
-                        Definir comme moyen de paiement par defaut
+                        {t("payments.fields.isDefault")}
                       </label>
 
                       <div className="flex flex-wrap gap-2">
@@ -691,12 +686,12 @@ export function AccountPaymentMethodsSection() {
                                 className="size-4 animate-spin"
                                 aria-hidden="true"
                               />
-                              Sauvegarde...
+                              {t("payments.actions.saving")}
                             </>
                           ) : (
                             <>
                               <Save className="size-4" aria-hidden="true" />
-                              Enregistrer
+                              {t("payments.actions.save")}
                             </>
                           )}
                         </Button>
@@ -707,7 +702,7 @@ export function AccountPaymentMethodsSection() {
                           onClick={cancelEditPaymentMethod}
                         >
                           <X className="size-4" aria-hidden="true" />
-                          Annuler
+                          {t("payments.actions.cancel")}
                         </Button>
                       </div>
                     </div>

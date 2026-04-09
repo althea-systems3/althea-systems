@@ -299,6 +299,10 @@
       "title": "Checkout",
       "description": "Finalisez votre commande en verifiant vos informations de livraison et de paiement."
     },
+    "chatbot": {
+      "title": "Chatbot support",
+      "description": "Discutez en temps reel avec notre assistant. Vous pouvez demander un transfert vers un agent humain."
+    },
     "category": {
       "title": "Categorie : {categorySlug}",
       "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
@@ -433,9 +437,9 @@
       "pageCounter": "Page {page} sur {totalPages}"
     },
     "activeFilters": {
-      "title": "Filtres actifs",
+      "heading": "Filtres actifs",
       "quickText": "Texte: {value}",
-      "title": "Titre: {value}",
+      "titleFilter": "Titre: {value}",
       "description": "Description: {value}",
       "characteristics": "Caracteristiques: {value}",
       "priceMin": "Prix min: {value}",
@@ -514,6 +518,443 @@
       "updateLineFallback": "Impossible de mettre a jour cette ligne.",
       "refreshFallback": "Le panier a ete modifie, mais la synchronisation complete a echoue."
     }
+  },
+  "Account": {
+    "dashboard": {
+      "title": "Mon compte",
+      "description": "Gerez votre profil, vos commandes, vos adresses et vos paiements.",
+      "navigationAriaLabel": "Navigation du compte",
+      "navigation": {
+        "overview": "Vue d'ensemble",
+        "profile": "Profil",
+        "orders": "Commandes",
+        "addresses": "Adresses",
+        "payments": "Paiements"
+      }
+    },
+    "overview": {
+      "loading": "Chargement de la vue d'ensemble...",
+      "retry": "Reessayer",
+      "greetingTitle": "Bonjour",
+      "anonymousUser": "Client",
+      "emailUnavailable": "Adresse e-mail indisponible",
+      "profileComplete": "Profil complete",
+      "profileIncomplete": "Profil a completer",
+      "latestOrder": {
+        "title": "Derniere commande",
+        "numberLabel": "Numero",
+        "dateLabel": "Date",
+        "amountLabel": "Montant",
+        "viewDetail": "Voir le detail",
+        "empty": "Aucune commande recente."
+      },
+      "errors": {
+        "summaryLoadFailed": "Impossible de charger votre resume de compte.",
+        "temporaryError": "Une erreur temporaire est survenue."
+      }
+    },
+    "profile": {
+      "loading": "Chargement du profil...",
+      "title": "Profil",
+      "description": "Mettez a jour vos informations personnelles.",
+      "fields": {
+        "firstName": "Prenom",
+        "lastName": "Nom",
+        "email": "Adresse e-mail",
+        "phoneOptional": "Telephone (optionnel)"
+      },
+      "validation": {
+        "required": "Champ requis.",
+        "emailInvalid": "Adresse e-mail invalide.",
+        "phoneInvalid": "Numero de telephone invalide."
+      },
+      "actions": {
+        "save": "Enregistrer",
+        "saving": "Enregistrement..."
+      },
+      "success": {
+        "saved": "Profil mis a jour avec succes."
+      },
+      "errors": {
+        "loadFailed": "Impossible de charger le profil.",
+        "temporaryLoadError": "Une erreur temporaire est survenue pendant le chargement.",
+        "validationBeforeSave": "Corrigez les champs avant de sauvegarder.",
+        "emailConflict": "Cette adresse e-mail est deja utilisee.",
+        "saveFailed": "Impossible d'enregistrer le profil.",
+        "serverError": "Une erreur serveur est survenue."
+      }
+    },
+    "addresses": {
+      "title": "Adresses",
+      "description": "Gerez vos adresses de facturation et de livraison.",
+      "confirmDelete": "Voulez-vous vraiment supprimer cette adresse ?",
+      "fields": {
+        "firstName": "Prenom",
+        "lastName": "Nom",
+        "address1": "Adresse 1",
+        "address2Optional": "Adresse 2 (optionnel)",
+        "city": "Ville",
+        "postalCode": "Code postal",
+        "country": "Pays",
+        "phone": "Telephone"
+      },
+      "validation": {
+        "required": "Champ requis."
+      },
+      "form": {
+        "createTitle": "Ajouter une adresse",
+        "editTitle": "Modifier l'adresse"
+      },
+      "actions": {
+        "add": "Ajouter",
+        "update": "Mettre a jour",
+        "saving": "Enregistrement...",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "list": {
+        "title": "Adresses enregistrees",
+        "loading": "Chargement des adresses...",
+        "empty": "Aucune adresse enregistree.",
+        "itemLabel": "Adresse {index}"
+      },
+      "success": {
+        "created": "Adresse ajoutee avec succes.",
+        "updated": "Adresse mise a jour avec succes.",
+        "deleted": "Adresse supprimee avec succes."
+      },
+      "errors": {
+        "loadFailed": "Impossible de charger les adresses.",
+        "validationBeforeSave": "Completez les champs obligatoires avant de sauvegarder.",
+        "createFailed": "Impossible d'ajouter cette adresse.",
+        "updateFailed": "Impossible de mettre a jour cette adresse.",
+        "deleteFailed": "Impossible de supprimer cette adresse.",
+        "serverError": "Une erreur serveur est survenue."
+      }
+    },
+    "payments": {
+      "title": "Moyens de paiement",
+      "description": "Gerez vos cartes enregistrees pour un checkout plus rapide.",
+      "confirmDelete": "Voulez-vous vraiment supprimer ce moyen de paiement ?",
+      "fields": {
+        "stripePaymentId": "ID paiement Stripe",
+        "cardHolder": "Nom du titulaire",
+        "last4": "4 derniers chiffres",
+        "expiry": "Expiration (MM/AA)",
+        "isDefault": "Definir comme moyen de paiement par defaut",
+        "label": "Carte"
+      },
+      "validation": {
+        "required": "Champ requis.",
+        "last4Invalid": "Les 4 derniers chiffres sont invalides.",
+        "expiryInvalid": "La date d'expiration est invalide."
+      },
+      "form": {
+        "createTitle": "Ajouter un moyen de paiement"
+      },
+      "actions": {
+        "add": "Ajouter",
+        "save": "Enregistrer",
+        "saving": "Enregistrement...",
+        "reset": "Reinitialiser",
+        "cancel": "Annuler",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "list": {
+        "title": "Moyens de paiement enregistres",
+        "loading": "Chargement des moyens de paiement...",
+        "empty": "Aucun moyen de paiement enregistre.",
+        "expLabel": "Exp.",
+        "defaultBadge": "Par defaut"
+      },
+      "success": {
+        "created": "Moyen de paiement ajoute avec succes.",
+        "updated": "Moyen de paiement mis a jour avec succes.",
+        "deleted": "Moyen de paiement supprime avec succes."
+      },
+      "errors": {
+        "loadFailed": "Impossible de charger les moyens de paiement.",
+        "validationBeforeCreate": "Completez les champs obligatoires avant d'ajouter ce moyen de paiement.",
+        "createFailed": "Impossible d'ajouter ce moyen de paiement.",
+        "updateFailed": "Impossible de modifier ce moyen de paiement.",
+        "deleteFailed": "Impossible de supprimer ce moyen de paiement.",
+        "serverError": "Une erreur serveur est survenue."
+      }
+    },
+    "orders": {
+      "loading": "Chargement des commandes...",
+      "retry": "Reessayer",
+      "title": "Mes commandes",
+      "empty": "Aucune commande n'a encore ete enregistree sur votre compte.",
+      "description": "Retrouvez le statut de vos commandes et accedez a vos documents.",
+      "noProductLabel": "Produit non renseigne",
+      "count": "{count} commande(s)",
+      "errors": {
+        "loadFailed": "Impossible de charger les commandes.",
+        "temporaryLoadError": "Une erreur temporaire est survenue pendant le chargement."
+      },
+      "filters": {
+        "ariaLabel": "Recherche et filtres commandes",
+        "searchLabel": "Recherche",
+        "searchPlaceholder": "Produit, numero, date...",
+        "yearLabel": "Annee",
+        "allYears": "Toutes",
+        "typeLabel": "Type de commande",
+        "allTypes": "Tous",
+        "statusLabel": "Statut",
+        "allStatuses": "Tous",
+        "reset": "Reinitialiser les filtres"
+      },
+      "orderType": {
+        "mono_produit": "Mono-produit",
+        "multi_produits": "Multi-produits"
+      },
+      "status": {
+        "terminee": "Terminee",
+        "en_cours": "En cours",
+        "annulee": "Annulee",
+        "en_attente": "En attente"
+      },
+      "paymentStatus": {
+        "valide": "Valide",
+        "echoue": "Echoue",
+        "rembourse": "Rembourse",
+        "en_attente": "En attente"
+      },
+      "noResults": {
+        "title": "Aucun resultat pour cette recherche",
+        "description": "Essayez un autre produit, une autre annee ou ajustez les filtres.",
+        "resetToHistory": "Revenir a l'historique complet"
+      },
+      "actions": {
+        "viewDetails": "Voir le detail",
+        "downloadInvoice": "Telecharger la facture",
+        "invoiceUnavailable": "Facture indisponible"
+      }
+    },
+    "orderDetail": {
+      "loading": "Chargement du detail commande...",
+      "title": "Commande {orderNumber}",
+      "actions": {
+        "backToOrders": "Retour aux commandes",
+        "back": "Retour"
+      },
+      "errors": {
+        "forbidden": "Acces refuse a cette commande.",
+        "notFound": "Commande introuvable.",
+        "loadFailed": "Impossible de charger le detail de la commande.",
+        "server": "Une erreur serveur est survenue.",
+        "unavailable": "Commande indisponible."
+      },
+      "summary": {
+        "dateLabel": "Date:",
+        "orderStatusLabel": "Statut commande:",
+        "paymentStatusLabel": "Statut paiement:",
+        "totalHtLabel": "Montant HT:",
+        "vatLabel": "TVA:",
+        "totalTtcLabel": "Total TTC"
+      },
+      "payment": {
+        "title": "Paiement",
+        "cardLabel": "Carte bancaire",
+        "methodLabel": "Moyen de paiement",
+        "unavailable": "Moyen de paiement indisponible."
+      },
+      "billing": {
+        "title": "Adresse de facturation",
+        "unavailable": "Adresse de facturation indisponible."
+      },
+      "products": {
+        "title": "Produits",
+        "quantity": "Quantite: {quantity}",
+        "lineTotal": "Total ligne",
+        "viewProduct": "Voir le produit"
+      },
+      "invoice": {
+        "title": "Document associe",
+        "download": "Telecharger la facture {invoiceNumber}",
+        "unavailable": "Aucune facture disponible."
+      }
+    }
+  },
+  "CheckoutPage": {
+    "header": {
+      "title": "Checkout multi-etapes",
+      "description": "Finalisez votre commande en 4 etapes: compte, adresse, paiement et confirmation."
+    },
+    "stockConflictMessage": "Votre panier contient des produits indisponibles ou en conflit de stock. Corrigez-les avant de finaliser l'achat.",
+    "progress": {
+      "ariaLabel": "Progression checkout",
+      "stepLabel": "Etape {step}: {label}"
+    },
+    "steps": {
+      "connection": "Connexion",
+      "address": "Adresse",
+      "payment": "Paiement",
+      "confirmation": "Confirmation",
+      "step1Title": "Etape 1 — Connexion / Inscription / Invite",
+      "step2Title": "Etape 2 — Adresse de livraison/facturation",
+      "step3Title": "Etape 3 — Informations de paiement",
+      "step4Title": "Etape 4 — Confirmation"
+    },
+    "auth": {
+      "ariaLabel": "Etape connexion checkout",
+      "connected": {
+        "title": "Session connectee",
+        "description": "Vous etes connecte en tant que {email}. Vous pouvez poursuivre le checkout.",
+        "continueToAddress": "Continuer vers l'adresse"
+      },
+      "modes": {
+        "guest": "Invite",
+        "signIn": "Connexion",
+        "signUp": "Inscription rapide"
+      },
+      "guest": {
+        "description": "Continuez sans compte en renseignant un e-mail de contact.",
+        "emailLabel": "E-mail invite",
+        "continue": "Continuer en invite"
+      },
+      "signIn": {
+        "emailLabel": "E-mail",
+        "passwordLabel": "Mot de passe",
+        "forgotPassword": "Mot de passe oublie ?",
+        "submitting": "Connexion...",
+        "continue": "Se connecter et continuer",
+        "openPage": "Ouvrir la page connexion"
+      },
+      "signUp": {
+        "fullNameLabel": "Nom complet",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Mot de passe",
+        "passwordConfirmLabel": "Confirmation mot de passe",
+        "submitting": "Inscription...",
+        "continue": "S'inscrire et continuer",
+        "openPage": "Ouvrir la page inscription"
+      },
+      "errors": {
+        "guestEmailInvalid": "Veuillez saisir un e-mail invite valide.",
+        "signInEmailInvalid": "Adresse e-mail de connexion invalide.",
+        "passwordRequired": "Le mot de passe est obligatoire pour la connexion.",
+        "authConfigUnavailableSignIn": "Configuration d'authentification indisponible. Utilisez la page connexion.",
+        "sessionUnavailableAfterSignIn": "Connexion effectuee mais session utilisateur indisponible. Reessayez.",
+        "signInFailed": "Impossible de vous connecter pour le moment.",
+        "fullNameRequired": "Le nom complet est obligatoire.",
+        "signUpEmailInvalid": "Adresse e-mail d'inscription invalide.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caracteres.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas.",
+        "authConfigUnavailableSignUp": "Configuration d'authentification indisponible. Utilisez la page inscription.",
+        "signUpFailed": "Impossible de creer le compte pour le moment."
+      },
+      "success": {
+        "guestModeActive": "Mode invite active pour ce checkout.",
+        "signIn": "Connexion reussie.",
+        "signUp": "Inscription reussie.",
+        "signUpContinueAsGuest": "Compte cree. Continuez en invite et validez ensuite votre email."
+      }
+    },
+    "address": {
+      "ariaLabel": "Etape adresse checkout",
+      "modes": {
+        "saved": "Adresse enregistree",
+        "new": "Nouvelle adresse"
+      },
+      "savedSelectionAriaLabel": "Selection adresse enregistree",
+      "fields": {
+        "firstName": "Prenom",
+        "lastName": "Nom",
+        "address1": "Adresse 1",
+        "address2Optional": "Adresse 2 (optionnel)",
+        "city": "Ville",
+        "region": "Region",
+        "postalCode": "Code postal",
+        "country": "Pays",
+        "phone": "Telephone mobile"
+      },
+      "errors": {
+        "selectSavedAddress": "Selectionnez une adresse enregistree.",
+        "completeRequiredFields": "Completez tous les champs obligatoires de l'adresse."
+      },
+      "continueToPayment": "Continuer vers le paiement"
+    },
+    "payment": {
+      "ariaLabel": "Etape paiement checkout",
+      "modes": {
+        "saved": "Carte enregistree",
+        "new": "Nouvelle carte"
+      },
+      "savedSelectionAriaLabel": "Selection carte enregistree",
+      "fields": {
+        "cardHolder": "Nom sur la carte",
+        "cardNumber": "Numero de carte",
+        "expiry": "Expiration (MM/AA)"
+      },
+      "validation": {
+        "cardNumberInvalid": "Numero de carte invalide.",
+        "expiryInvalid": "Expiration invalide.",
+        "cvcInvalid": "CVC invalide."
+      },
+      "errors": {
+        "selectSavedMethod": "Selectionnez un moyen de paiement enregistre.",
+        "invalidCardInformation": "Verifiez les informations de carte bancaire."
+      },
+      "continueToConfirmation": "Continuer vers la confirmation"
+    },
+    "confirm": {
+      "ariaLabel": "Etape confirmation checkout",
+      "productSummaryTitle": "Recapitulatif des produits",
+      "selectedAddressTitle": "Adresse selectionnee",
+      "paymentMethodTitle": "Moyen de paiement",
+      "cardFallback": "Carte",
+      "submitting": "Confirmation en cours...",
+      "submit": "Confirmer l'achat",
+      "errors": {
+        "stockConflict": "Finalisation bloquee: certains produits ne sont plus disponibles.",
+        "confirmationFailed": "La confirmation de commande a echoue. Veuillez reessayer.",
+        "finalizeFailed": "Impossible de finaliser votre commande actuellement."
+      }
+    },
+    "cartSummary": {
+      "title": "Recapitulatif panier",
+      "quantity": "Quantite: {quantity}",
+      "available": "Disponible",
+      "stockConflict": "Conflit stock",
+      "items": "Articles",
+      "totalHtEstimate": "Total HT (estime)",
+      "vatEstimate": "TVA (estimee)",
+      "totalTtc": "Total TTC",
+      "refresh": "Actualiser le panier",
+      "backToCart": "Retour au panier"
+    },
+    "common": {
+      "requiredField": "Champ requis.",
+      "back": "Retour",
+      "loading": "Chargement..."
+    }
+  },
+  "CheckoutPageStates": {
+    "loading": {
+      "ariaLabel": "Chargement du checkout"
+    },
+    "error": {
+      "title": "Checkout indisponible",
+      "description": "Impossible de charger le checkout pour le moment. Veuillez reessayer.",
+      "retry": "Reessayer"
+    },
+    "blocked": {
+      "title": "Checkout non accessible",
+      "description": "Votre panier est vide ou n'est plus payable. Retournez au panier pour continuer.",
+      "backToCart": "Retour au panier"
+    }
+  },
+  "CheckoutConfirmationPage": {
+    "title": "Achat confirme",
+    "description": "Merci pour votre commande. Votre paiement a bien ete pris en compte et votre commande est en cours de traitement.",
+    "orderReference": "Reference commande : {orderNumber}",
+    "orderReferenceUnavailable": "Reference commande indisponible",
+    "viewOrders": "Voir mes commandes",
+    "continueShopping": "Continuer mes achats"
   },
   "A11y": {
     "skip": "Aller au contenu principal"

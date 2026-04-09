@@ -1,4 +1,5 @@
 import { CheckCircle2 } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "@/i18n/navigation"
@@ -8,6 +9,7 @@ export default async function CheckoutConfirmationPage({
 }: {
   searchParams: Promise<{ order?: string }>
 }) {
+  const t = await getTranslations("CheckoutConfirmationPage")
   const params = await searchParams
   const orderNumber = typeof params.order === "string" ? params.order : null
 
@@ -19,28 +21,25 @@ export default async function CheckoutConfirmationPage({
             <CheckCircle2 className="size-6" aria-hidden="true" />
           </div>
           <CardTitle className="heading-font text-2xl text-brand-nav sm:text-3xl">
-            Achat confirme
+            {t("title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center text-sm text-slate-700 sm:text-base">
-          <p>
-            Merci pour votre commande. Votre paiement a bien ete pris en compte
-            et votre commande est en cours de traitement.
-          </p>
+          <p>{t("description")}</p>
           <p className="font-semibold text-brand-nav">
             {orderNumber
-              ? `Reference commande : ${orderNumber}`
-              : "Reference commande indisponible"}
+              ? t("orderReference", { orderNumber })
+              : t("orderReferenceUnavailable")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
             <Button
               asChild
               className="bg-brand-cta text-white hover:bg-brand-cta/90"
             >
-              <Link href="/mon-compte/commandes">Voir mes commandes</Link>
+              <Link href="/mon-compte/commandes">{t("viewOrders")}</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/catalogue">Continuer mes achats</Link>
+              <Link href="/catalogue">{t("continueShopping")}</Link>
             </Button>
           </div>
         </CardContent>

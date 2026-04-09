@@ -1,15 +1,18 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
 
 export function CheckoutPageLoadingState() {
+  const t = useTranslations("CheckoutPageStates")
+
   return (
     <div
       aria-live="polite"
-      aria-label="Chargement du checkout"
+      aria-label={t("loading.ariaLabel")}
       className="space-y-4"
     >
       {Array.from({ length: 3 }).map((_, index) => (
@@ -33,17 +36,17 @@ export function CheckoutPageErrorState({
 }: {
   onRetry: () => Promise<unknown> | void
 }) {
+  const t = useTranslations("CheckoutPageStates")
+
   return (
     <Card className="border-dashed border-red-200 bg-red-50/50" role="alert">
       <CardHeader className="pb-2">
-        <CardTitle className="text-brand-nav">Checkout indisponible</CardTitle>
+        <CardTitle className="text-brand-nav">{t("error.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-slate-700 sm:text-base">
-        <p>
-          Impossible de charger le checkout pour le moment. Veuillez reessayer.
-        </p>
+        <p>{t("error.description")}</p>
         <Button type="button" variant="outline" onClick={() => void onRetry()}>
-          Reessayer
+          {t("error.retry")}
         </Button>
       </CardContent>
     </Card>
@@ -51,23 +54,20 @@ export function CheckoutPageErrorState({
 }
 
 export function CheckoutPageBlockedState() {
+  const t = useTranslations("CheckoutPageStates")
+
   return (
     <Card className="border-dashed border-slate-300 bg-white" role="status">
       <CardHeader className="pb-2">
-        <CardTitle className="text-brand-nav">
-          Checkout non accessible
-        </CardTitle>
+        <CardTitle className="text-brand-nav">{t("blocked.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4 text-sm text-slate-700 sm:text-base">
-        <p>
-          Votre panier est vide ou n&apos;est plus payable. Retournez au panier
-          pour continuer.
-        </p>
+        <p>{t("blocked.description")}</p>
         <Button
           asChild
           className="bg-brand-cta text-white hover:bg-brand-cta/90"
         >
-          <Link href="/panier">Retour au panier</Link>
+          <Link href="/panier">{t("blocked.backToCart")}</Link>
         </Button>
       </CardContent>
     </Card>

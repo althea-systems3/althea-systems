@@ -7,7 +7,7 @@ import {
   CreditCard,
   UserRound,
 } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,7 @@ function getSessionExpiredPath(pathname: string): string {
 
 export function AccountOverviewSection() {
   const locale = useLocale()
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -86,7 +87,7 @@ export function AccountOverviewSection() {
           !paymentsResponse.ok
         ) {
           if (isMounted) {
-            setErrorMessage("Impossible de charger le resume du compte.")
+            setErrorMessage(t("overview.errors.summaryLoadFailed"))
           }
           return
         }
@@ -126,9 +127,7 @@ export function AccountOverviewSection() {
         console.error("Erreur chargement vue d'ensemble compte", { error })
 
         if (isMounted) {
-          setErrorMessage(
-            "Une erreur temporaire est survenue lors du chargement.",
-          )
+          setErrorMessage(t("overview.errors.temporaryError"))
         }
       } finally {
         if (isMounted) {
@@ -142,7 +141,7 @@ export function AccountOverviewSection() {
     return () => {
       isMounted = false
     }
-  }, [pathname, router])
+  }, [pathname, router, t])
 
   const latestOrderAmount = useMemo(() => {
     if (!summary.latestOrder) {
@@ -159,7 +158,7 @@ export function AccountOverviewSection() {
         aria-live="polite"
       >
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Chargement du dashboard...
+        {t("overview.loading")}
       </div>
     )
   }
@@ -171,7 +170,7 @@ export function AccountOverviewSection() {
           {errorMessage}
         </p>
         <Button type="button" onClick={() => router.refresh()}>
-          Reessayer
+          {t("overview.retry")}
         </Button>
       </div>
     )
@@ -180,14 +179,16 @@ export function AccountOverviewSection() {
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-border bg-slate-50/70 p-4">
-        <h2 className="heading-font text-xl text-brand-nav">Bonjour</h2>
+        <h2 className="heading-font text-xl text-brand-nav">
+          {t("overview.greetingTitle")}
+        </h2>
         <p className="mt-2 text-sm text-slate-700">
           {summary.profile
             ? `${summary.profile.firstName} ${summary.profile.lastName}`.trim()
-            : "Utilisateur"}
+            : t("overview.anonymousUser")}
         </p>
         <p className="text-sm text-slate-600">
-          {summary.profile?.email || "Adresse e-mail indisponible"}
+          {summary.profile?.email || t("overview.emailUnavailable")}
         </p>
       </section>
 
@@ -195,7 +196,7 @@ export function AccountOverviewSection() {
         <article className="rounded-xl border border-border p-4">
           <p className="flex items-center gap-2 text-sm text-slate-600">
             <PackageSearch className="size-4" aria-hidden="true" />
-            Commandes
+            {t("dashboard.navigation.orders")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-brand-nav">
             {summary.ordersCount}
@@ -205,7 +206,7 @@ export function AccountOverviewSection() {
         <article className="rounded-xl border border-border p-4">
           <p className="flex items-center gap-2 text-sm text-slate-600">
             <MapPin className="size-4" aria-hidden="true" />
-            Adresses
+            {t("dashboard.navigation.addresses")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-brand-nav">
             {summary.addressesCount}
@@ -215,7 +216,7 @@ export function AccountOverviewSection() {
         <article className="rounded-xl border border-border p-4">
           <p className="flex items-center gap-2 text-sm text-slate-600">
             <CreditCard className="size-4" aria-hidden="true" />
-            Moyens de paiement
+            {t("dashboard.navigation.payments")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-brand-nav">
             {summary.paymentMethodsCount}
@@ -225,31 +226,39 @@ export function AccountOverviewSection() {
         <article className="rounded-xl border border-border p-4">
           <p className="flex items-center gap-2 text-sm text-slate-600">
             <UserRound className="size-4" aria-hidden="true" />
-            Profil
+            {t("dashboard.navigation.profile")}
           </p>
           <p className="mt-1 text-sm font-medium text-brand-nav">
-            {summary.profile ? "Complet" : "A completer"}
+            {summary.profile
+              ? t("overview.profileComplete")
+              : t("overview.profileIncomplete")}
           </p>
         </article>
       </section>
 
       <section className="rounded-xl border border-border p-4">
         <h3 className="heading-font text-lg text-brand-nav">
-          Derniere commande
+          {t("overview.latestOrder.title")}
         </h3>
 
         {summary.latestOrder ? (
           <div className="mt-3 space-y-2 text-sm text-slate-700">
             <p>
-              <span className="font-medium text-brand-nav">Numero:</span>{" "}
+              <span className="font-medium text-brand-nav">
+                {t("overview.latestOrder.numberLabel")}
+              </span>{" "}
               {summary.latestOrder.orderNumber}
             </p>
             <p>
-              <span className="font-medium text-brand-nav">Date:</span>{" "}
+              <span className="font-medium text-brand-nav">
+                {t("overview.latestOrder.dateLabel")}
+              </span>{" "}
               {formatAccountDate(summary.latestOrder.createdAt, locale)}
             </p>
             <p>
-              <span className="font-medium text-brand-nav">Montant:</span>{" "}
+              <span className="font-medium text-brand-nav">
+                {t("overview.latestOrder.amountLabel")}
+              </span>{" "}
               {latestOrderAmount}
             </p>
             <Button
@@ -259,13 +268,13 @@ export function AccountOverviewSection() {
               <Link
                 href={`/mon-compte/commandes/${summary.latestOrder.orderNumber}`}
               >
-                Voir le detail
+                {t("overview.latestOrder.viewDetail")}
               </Link>
             </Button>
           </div>
         ) : (
           <p className="mt-2 text-sm text-slate-600">
-            Aucune commande disponible pour le moment.
+            {t("overview.latestOrder.empty")}
           </p>
         )}
       </section>

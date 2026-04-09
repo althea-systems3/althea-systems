@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,13 +57,6 @@ type CheckoutStepDefinition = {
   label: string
   icon: typeof UserRound
 }
-
-const CHECKOUT_STEPS: CheckoutStepDefinition[] = [
-  { id: 1, label: "Connexion", icon: UserRound },
-  { id: 2, label: "Adresse", icon: MapPin },
-  { id: 3, label: "Paiement", icon: CreditCard },
-  { id: 4, label: "Confirmation", icon: ShieldCheck },
-]
 
 function getInitialAuthMode(isAuthenticated: boolean): CheckoutAuthMode {
   if (isAuthenticated) {
@@ -126,6 +119,7 @@ function syncAuthenticationInLayout(isAuthenticated: boolean): void {
 
 export function CheckoutPage() {
   const locale = useLocale()
+  const t = useTranslations("CheckoutPage")
   const router = useRouter()
 
   const { cart, isCartLoading, hasCartError, reloadCart } = useCartData()
@@ -181,6 +175,16 @@ export function CheckoutPage() {
 
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [isConfirmingOrder, setIsConfirmingOrder] = useState(false)
+
+  const checkoutSteps = useMemo<CheckoutStepDefinition[]>(
+    () => [
+      { id: 1, label: t("steps.connection"), icon: UserRound },
+      { id: 2, label: t("steps.address"), icon: MapPin },
+      { id: 3, label: t("steps.payment"), icon: CreditCard },
+      { id: 4, label: t("steps.confirmation"), icon: ShieldCheck },
+    ],
+    [t],
+  )
 
   const supabaseBrowserClient = useMemo(() => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -493,11 +497,11 @@ export function CheckoutPage() {
     setAuthSuccessMessage(null)
 
     if (!isValidEmail(guestEmail)) {
-      setAuthErrorMessage("Veuillez saisir un e-mail invite valide.")
+      setAuthErrorMessage(t("auth.errors.guestEmailInvalid"))
       return
     }
 
-    setAuthSuccessMessage("Mode invite active pour ce checkout.")
+    setAuthSuccessMessage(t("auth.success.guestModeActive"))
     goToStep(2)
   }
 
@@ -506,19 +510,17 @@ export function CheckoutPage() {
     setAuthSuccessMessage(null)
 
     if (!isValidEmail(signInEmail)) {
-      setAuthErrorMessage("Adresse e-mail de connexion invalide.")
+      setAuthErrorMessage(t("auth.errors.signInEmailInvalid"))
       return
     }
 
     if (!signInPassword.trim()) {
-      setAuthErrorMessage("Le mot de passe est obligatoire pour la connexion.")
+      setAuthErrorMessage(t("auth.errors.passwordRequired"))
       return
     }
 
     if (!supabaseBrowserClient) {
-      setAuthErrorMessage(
-        "Configuration d'authentification indisponible. Utilisez la page connexion.",
-      )
+      setAuthErrorMessage(t("auth.errors.authConfigUnavailableSignIn"))
       return
     }
 
@@ -538,17 +540,15 @@ export function CheckoutPage() {
       const connectedUser = await refreshAuthUser()
 
       if (!connectedUser) {
-        setAuthErrorMessage(
-          "Connexion effectuee mais session utilisateur indisponible. Reessayez.",
-        )
+        setAuthErrorMessage(t("auth.errors.sessionUnavailableAfterSignIn"))
         return
       }
 
-      setAuthSuccessMessage("Connexion reussie.")
+      setAuthSuccessMessage(t("auth.success.signIn"))
       goToStep(2)
     } catch (error) {
       console.error("Erreur connexion checkout", { error })
-      setAuthErrorMessage("Impossible de vous connecter pour le moment.")
+      setAuthErrorMessage(t("auth.errors.signInFailed"))
     } finally {
       setIsAuthSubmitting(false)
     }
@@ -559,31 +559,27 @@ export function CheckoutPage() {
     setAuthSuccessMessage(null)
 
     if (!signUpFullName.trim()) {
-      setAuthErrorMessage("Le nom complet est obligatoire.")
+      setAuthErrorMessage(t("auth.errors.fullNameRequired"))
       return
     }
 
     if (!isValidEmail(signUpEmail)) {
-      setAuthErrorMessage("Adresse e-mail d'inscription invalide.")
+      setAuthErrorMessage(t("auth.errors.signUpEmailInvalid"))
       return
     }
 
     if (!signUpPassword.trim() || signUpPassword.length < 8) {
-      setAuthErrorMessage(
-        "Le mot de passe doit contenir au moins 8 caracteres.",
-      )
+      setAuthErrorMessage(t("auth.errors.passwordTooShort"))
       return
     }
 
     if (signUpPassword !== signUpPasswordConfirm) {
-      setAuthErrorMessage("Les mots de passe ne correspondent pas.")
+      setAuthErrorMessage(t("auth.errors.passwordMismatch"))
       return
     }
 
     if (!supabaseBrowserClient) {
-      setAuthErrorMessage(
-        "Configuration d'authentification indisponible. Utilisez la page inscription.",
-      )
+      setAuthErrorMessage(t("auth.errors.authConfigUnavailableSignUp"))
       return
     }
 
@@ -608,20 +604,18 @@ export function CheckoutPage() {
       const connectedUser = await refreshAuthUser()
 
       if (connectedUser || data.session) {
-        setAuthSuccessMessage("Inscription reussie.")
+        setAuthSuccessMessage(t("auth.success.signUp"))
         goToStep(2)
         return
       }
 
       setGuestEmail(signUpEmail.trim())
       setAuthMode("guest")
-      setAuthSuccessMessage(
-        "Compte cree. Continuez en invite et validez ensuite votre email.",
-      )
+      setAuthSuccessMessage(t("auth.success.signUpContinueAsGuest"))
       goToStep(2)
     } catch (error) {
       console.error("Erreur inscription checkout", { error })
-      setAuthErrorMessage("Impossible de creer le compte pour le moment.")
+      setAuthErrorMessage(t("auth.errors.signUpFailed"))
     } finally {
       setIsAuthSubmitting(false)
     }
@@ -631,15 +625,13 @@ export function CheckoutPage() {
     setAddressStepError(null)
 
     if (stockConflict) {
-      setAddressStepError(
-        "Des produits sont indisponibles ou en conflit de stock. Corrigez le panier avant de continuer.",
-      )
+      setAddressStepError(t("stockConflictMessage"))
       return
     }
 
     if (addressMode === "saved") {
       if (!selectedAddressId) {
-        setAddressStepError("Selectionnez une adresse enregistree.")
+        setAddressStepError(t("address.errors.selectSavedAddress"))
         return
       }
 
@@ -655,9 +647,7 @@ export function CheckoutPage() {
         nextAddressErrors as Record<string, string | undefined>,
       )
     ) {
-      setAddressStepError(
-        "Completez tous les champs obligatoires de l'adresse.",
-      )
+      setAddressStepError(t("address.errors.completeRequiredFields"))
       return
     }
 
@@ -668,15 +658,13 @@ export function CheckoutPage() {
     setPaymentStepError(null)
 
     if (stockConflict) {
-      setPaymentStepError(
-        "Des produits sont indisponibles ou en conflit de stock. Corrigez le panier avant de continuer.",
-      )
+      setPaymentStepError(t("stockConflictMessage"))
       return
     }
 
     if (paymentMode === "saved") {
       if (!selectedPaymentMethodId) {
-        setPaymentStepError("Selectionnez un moyen de paiement enregistre.")
+        setPaymentStepError(t("payment.errors.selectSavedMethod"))
         return
       }
 
@@ -692,7 +680,7 @@ export function CheckoutPage() {
         nextPaymentErrors as Record<string, string | undefined>,
       )
     ) {
-      setPaymentStepError("Verifiez les informations de carte bancaire.")
+      setPaymentStepError(t("payment.errors.invalidCardInformation"))
       return
     }
 
@@ -703,9 +691,7 @@ export function CheckoutPage() {
     setCheckoutError(null)
 
     if (stockConflict) {
-      setCheckoutError(
-        "Finalisation bloquee: certains produits ne sont plus disponibles.",
-      )
+      setCheckoutError(t("confirm.errors.stockConflict"))
       return
     }
 
@@ -745,8 +731,7 @@ export function CheckoutPage() {
           typeof payload?.error === "string" ? payload.error : null
 
         setCheckoutError(
-          backendMessage ??
-            "La confirmation de commande a echoue. Veuillez reessayer.",
+          backendMessage ?? t("confirm.errors.confirmationFailed"),
         )
         return
       }
@@ -758,7 +743,7 @@ export function CheckoutPage() {
       router.replace(`/checkout/confirmation?order=${confirmation.orderNumber}`)
     } catch (error) {
       console.error("Erreur confirmation checkout", { error })
-      setCheckoutError("Impossible de finaliser votre commande actuellement.")
+      setCheckoutError(t("confirm.errors.finalizeFailed"))
     } finally {
       setIsConfirmingOrder(false)
     }
@@ -780,11 +765,10 @@ export function CheckoutPage() {
     <section className="space-y-6">
       <header className="space-y-2">
         <h1 className="heading-font text-2xl text-brand-nav sm:text-3xl md:text-4xl">
-          Checkout multi-etapes
+          {t("header.title")}
         </h1>
         <p className="max-w-3xl text-sm text-slate-700 sm:text-base">
-          Finalisez votre commande en 4 etapes: compte, adresse, paiement et
-          confirmation.
+          {t("header.description")}
         </p>
       </header>
 
@@ -795,19 +779,16 @@ export function CheckoutPage() {
           aria-live="polite"
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-brand-alert" />
-          <p>
-            Votre panier contient des produits indisponibles ou en conflit de
-            stock. Corrigez-les avant de finaliser l&apos;achat.
-          </p>
+          <p>{t("stockConflictMessage")}</p>
         </div>
       ) : null}
 
       <nav
-        aria-label="Progression checkout"
+        aria-label={t("progress.ariaLabel")}
         className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4"
       >
         <ol className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {CHECKOUT_STEPS.map((step) => {
+          {checkoutSteps.map((step) => {
             const isCurrent = step.id === currentStep
             const isDone = step.id < currentStep
             const canSelect = step.id <= maxReachedStep || step.id < currentStep
@@ -844,7 +825,10 @@ export function CheckoutPage() {
                     />
                   )}
                   <span>
-                    Etape {step.id}: {step.label}
+                    {t("progress.stepLabel", {
+                      step: step.id,
+                      label: step.label,
+                    })}
                   </span>
                 </button>
               </li>
@@ -857,27 +841,23 @@ export function CheckoutPage() {
         <Card className="border-slate-200 bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="heading-font text-xl text-brand-nav">
-              {currentStep === 1 &&
-                "Etape 1 — Connexion / Inscription / Invite"}
-              {currentStep === 2 &&
-                "Etape 2 — Adresse de livraison/facturation"}
-              {currentStep === 3 && "Etape 3 — Informations de paiement"}
-              {currentStep === 4 && "Etape 4 — Confirmation"}
+              {currentStep === 1 && t("steps.step1Title")}
+              {currentStep === 2 && t("steps.step2Title")}
+              {currentStep === 3 && t("steps.step3Title")}
+              {currentStep === 4 && t("steps.step4Title")}
             </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-4">
             {currentStep === 1 ? (
-              <section
-                className="space-y-4"
-                aria-label="Etape connexion checkout"
-              >
+              <section className="space-y-4" aria-label={t("auth.ariaLabel")}>
                 {authUser ? (
                   <div className="rounded-lg border border-brand-success/40 bg-brand-success/10 p-3 text-sm text-brand-nav">
-                    <p className="font-semibold">Session connectee</p>
+                    <p className="font-semibold">{t("auth.connected.title")}</p>
                     <p>
-                      Vous etes connecte en tant que {authUser.email}. Vous
-                      pouvez poursuivre le checkout.
+                      {t("auth.connected.description", {
+                        email: authUser.email,
+                      })}
                     </p>
                   </div>
                 ) : (
@@ -896,7 +876,7 @@ export function CheckoutPage() {
                           setAuthSuccessMessage(null)
                         }}
                       >
-                        Invite
+                        {t("auth.modes.guest")}
                       </Button>
                       <Button
                         type="button"
@@ -911,7 +891,7 @@ export function CheckoutPage() {
                           setAuthSuccessMessage(null)
                         }}
                       >
-                        Connexion
+                        {t("auth.modes.signIn")}
                       </Button>
                       <Button
                         type="button"
@@ -926,22 +906,21 @@ export function CheckoutPage() {
                           setAuthSuccessMessage(null)
                         }}
                       >
-                        Inscription rapide
+                        {t("auth.modes.signUp")}
                       </Button>
                     </div>
 
                     {authMode === "guest" ? (
                       <div className="space-y-3 rounded-lg border border-slate-200 p-3">
                         <p className="text-sm text-slate-700">
-                          Continuez sans compte en renseignant un e-mail de
-                          contact.
+                          {t("auth.guest.description")}
                         </p>
                         <div className="space-y-1">
                           <label
                             htmlFor="checkout-guest-email"
                             className="text-sm font-medium text-brand-nav"
                           >
-                            E-mail invite
+                            {t("auth.guest.emailLabel")}
                           </label>
                           <input
                             id="checkout-guest-email"
@@ -959,7 +938,7 @@ export function CheckoutPage() {
                           className="bg-brand-cta text-white hover:bg-brand-cta/90"
                           onClick={handleContinueAsGuest}
                         >
-                          Continuer en invite
+                          {t("auth.guest.continue")}
                         </Button>
                       </div>
                     ) : null}
@@ -971,7 +950,7 @@ export function CheckoutPage() {
                             htmlFor="checkout-signin-email"
                             className="text-sm font-medium text-brand-nav"
                           >
-                            E-mail
+                            {t("auth.signIn.emailLabel")}
                           </label>
                           <input
                             id="checkout-signin-email"
@@ -989,7 +968,7 @@ export function CheckoutPage() {
                             htmlFor="checkout-signin-password"
                             className="text-sm font-medium text-brand-nav"
                           >
-                            Mot de passe
+                            {t("auth.signIn.passwordLabel")}
                           </label>
                           <input
                             id="checkout-signin-password"
@@ -1007,7 +986,7 @@ export function CheckoutPage() {
                             href="/mot-de-passe-oublie?source=checkout&next=/checkout"
                             className="font-medium text-brand-cta hover:underline"
                           >
-                            Mot de passe oublie ?
+                            {t("auth.signIn.forgotPassword")}
                           </Link>
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -1020,15 +999,15 @@ export function CheckoutPage() {
                             {isAuthSubmitting ? (
                               <>
                                 <Loader2 className="size-4 animate-spin" />
-                                Connexion...
+                                {t("auth.signIn.submitting")}
                               </>
                             ) : (
-                              "Se connecter et continuer"
+                              t("auth.signIn.continue")
                             )}
                           </Button>
                           <Button type="button" variant="outline" asChild>
                             <Link href="/connexion?source=checkout&next=/checkout">
-                              Ouvrir la page connexion
+                              {t("auth.signIn.openPage")}
                             </Link>
                           </Button>
                         </div>
@@ -1042,7 +1021,7 @@ export function CheckoutPage() {
                             htmlFor="checkout-signup-name"
                             className="text-sm font-medium text-brand-nav"
                           >
-                            Nom complet
+                            {t("auth.signUp.fullNameLabel")}
                           </label>
                           <input
                             id="checkout-signup-name"
@@ -1060,7 +1039,7 @@ export function CheckoutPage() {
                             htmlFor="checkout-signup-email"
                             className="text-sm font-medium text-brand-nav"
                           >
-                            E-mail
+                            {t("auth.signUp.emailLabel")}
                           </label>
                           <input
                             id="checkout-signup-email"
@@ -1079,7 +1058,7 @@ export function CheckoutPage() {
                               htmlFor="checkout-signup-password"
                               className="text-sm font-medium text-brand-nav"
                             >
-                              Mot de passe
+                              {t("auth.signUp.passwordLabel")}
                             </label>
                             <input
                               id="checkout-signup-password"
@@ -1097,7 +1076,7 @@ export function CheckoutPage() {
                               htmlFor="checkout-signup-password-confirm"
                               className="text-sm font-medium text-brand-nav"
                             >
-                              Confirmation mot de passe
+                              {t("auth.signUp.passwordConfirmLabel")}
                             </label>
                             <input
                               id="checkout-signup-password-confirm"
@@ -1121,15 +1100,15 @@ export function CheckoutPage() {
                             {isAuthSubmitting ? (
                               <>
                                 <Loader2 className="size-4 animate-spin" />
-                                Inscription...
+                                {t("auth.signUp.submitting")}
                               </>
                             ) : (
-                              "S'inscrire et continuer"
+                              t("auth.signUp.continue")
                             )}
                           </Button>
                           <Button type="button" variant="outline" asChild>
                             <Link href="/inscription?source=checkout&next=/checkout">
-                              Ouvrir la page inscription
+                              {t("auth.signUp.openPage")}
                             </Link>
                           </Button>
                         </div>
@@ -1161,7 +1140,7 @@ export function CheckoutPage() {
                       className="bg-brand-cta text-white hover:bg-brand-cta/90"
                       onClick={() => goToStep(2)}
                     >
-                      Continuer vers l&apos;adresse
+                      {t("auth.connected.continueToAddress")}
                     </Button>
                   </div>
                 ) : null}
@@ -1171,7 +1150,7 @@ export function CheckoutPage() {
             {currentStep === 2 ? (
               <section
                 className="space-y-4"
-                aria-label="Etape adresse checkout"
+                aria-label={t("address.ariaLabel")}
               >
                 {authUser && savedAddresses.length > 0 ? (
                   <div className="space-y-3">
@@ -1187,7 +1166,7 @@ export function CheckoutPage() {
                         )}
                         onClick={() => setAddressMode("saved")}
                       >
-                        Adresse enregistree
+                        {t("address.modes.saved")}
                       </Button>
                       <Button
                         type="button"
@@ -1198,14 +1177,14 @@ export function CheckoutPage() {
                         )}
                         onClick={() => setAddressMode("new")}
                       >
-                        Nouvelle adresse
+                        {t("address.modes.new")}
                       </Button>
                     </div>
 
                     {addressMode === "saved" ? (
                       <fieldset
                         className="space-y-2"
-                        aria-label="Selection adresse enregistree"
+                        aria-label={t("address.savedSelectionAriaLabel")}
                       >
                         {savedAddresses.map((address) => (
                           <label
@@ -1239,7 +1218,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-first-name"
                       >
-                        Prenom
+                        {t("address.fields.firstName")}
                       </label>
                       <input
                         id="checkout-address-first-name"
@@ -1254,7 +1233,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.firstName ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1263,7 +1242,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-last-name"
                       >
-                        Nom
+                        {t("address.fields.lastName")}
                       </label>
                       <input
                         id="checkout-address-last-name"
@@ -1278,7 +1257,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.lastName ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1287,7 +1266,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-1"
                       >
-                        Adresse 1
+                        {t("address.fields.address1")}
                       </label>
                       <input
                         id="checkout-address-1"
@@ -1302,7 +1281,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.address1 ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1311,7 +1290,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-2"
                       >
-                        Adresse 2 (optionnel)
+                        {t("address.fields.address2Optional")}
                       </label>
                       <input
                         id="checkout-address-2"
@@ -1330,7 +1309,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-city"
                       >
-                        Ville
+                        {t("address.fields.city")}
                       </label>
                       <input
                         id="checkout-address-city"
@@ -1345,7 +1324,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.city ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1354,7 +1333,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-region"
                       >
-                        Region
+                        {t("address.fields.region")}
                       </label>
                       <input
                         id="checkout-address-region"
@@ -1369,7 +1348,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.region ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1378,7 +1357,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-postal-code"
                       >
-                        Code postal
+                        {t("address.fields.postalCode")}
                       </label>
                       <input
                         id="checkout-address-postal-code"
@@ -1393,7 +1372,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.postalCode ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1402,7 +1381,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-country"
                       >
-                        Pays
+                        {t("address.fields.country")}
                       </label>
                       <input
                         id="checkout-address-country"
@@ -1417,7 +1396,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.country ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1426,7 +1405,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-address-phone"
                       >
-                        Telephone mobile
+                        {t("address.fields.phone")}
                       </label>
                       <input
                         id="checkout-address-phone"
@@ -1441,7 +1420,7 @@ export function CheckoutPage() {
                       />
                       {addressErrors.phone ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1460,7 +1439,7 @@ export function CheckoutPage() {
                     variant="outline"
                     onClick={() => setCurrentStep(1)}
                   >
-                    Retour
+                    {t("common.back")}
                   </Button>
                   <Button
                     type="button"
@@ -1471,10 +1450,10 @@ export function CheckoutPage() {
                     {isAddressLoading ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Chargement...
+                        {t("common.loading")}
                       </>
                     ) : (
-                      "Continuer vers le paiement"
+                      t("address.continueToPayment")
                     )}
                   </Button>
                 </div>
@@ -1484,7 +1463,7 @@ export function CheckoutPage() {
             {currentStep === 3 ? (
               <section
                 className="space-y-4"
-                aria-label="Etape paiement checkout"
+                aria-label={t("payment.ariaLabel")}
               >
                 {authUser && savedPaymentMethods.length > 0 ? (
                   <div className="space-y-3">
@@ -1500,7 +1479,7 @@ export function CheckoutPage() {
                         )}
                         onClick={() => setPaymentMode("saved")}
                       >
-                        Carte enregistree
+                        {t("payment.modes.saved")}
                       </Button>
                       <Button
                         type="button"
@@ -1511,14 +1490,14 @@ export function CheckoutPage() {
                         )}
                         onClick={() => setPaymentMode("new")}
                       >
-                        Nouvelle carte
+                        {t("payment.modes.new")}
                       </Button>
                     </div>
 
                     {paymentMode === "saved" ? (
                       <fieldset
                         className="space-y-2"
-                        aria-label="Selection carte enregistree"
+                        aria-label={t("payment.savedSelectionAriaLabel")}
                       >
                         {savedPaymentMethods.map((payment) => (
                           <label
@@ -1557,7 +1536,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-payment-card-holder"
                       >
-                        Nom sur la carte
+                        {t("payment.fields.cardHolder")}
                       </label>
                       <input
                         id="checkout-payment-card-holder"
@@ -1572,7 +1551,7 @@ export function CheckoutPage() {
                       />
                       {paymentErrors.cardHolder ? (
                         <p className="text-xs text-brand-error">
-                          Champ requis.
+                          {t("common.requiredField")}
                         </p>
                       ) : null}
                     </div>
@@ -1581,7 +1560,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-payment-card-number"
                       >
-                        Numero de carte
+                        {t("payment.fields.cardNumber")}
                       </label>
                       <input
                         id="checkout-payment-card-number"
@@ -1599,7 +1578,7 @@ export function CheckoutPage() {
                       />
                       {paymentErrors.cardNumber ? (
                         <p className="text-xs text-brand-error">
-                          Numero de carte invalide.
+                          {t("payment.validation.cardNumberInvalid")}
                         </p>
                       ) : null}
                     </div>
@@ -1608,7 +1587,7 @@ export function CheckoutPage() {
                         className="text-sm font-medium text-brand-nav"
                         htmlFor="checkout-payment-expiry"
                       >
-                        Expiration (MM/AA)
+                        {t("payment.fields.expiry")}
                       </label>
                       <input
                         id="checkout-payment-expiry"
@@ -1624,7 +1603,7 @@ export function CheckoutPage() {
                       />
                       {paymentErrors.expiry ? (
                         <p className="text-xs text-brand-error">
-                          Expiration invalide.
+                          {t("payment.validation.expiryInvalid")}
                         </p>
                       ) : null}
                     </div>
@@ -1651,7 +1630,7 @@ export function CheckoutPage() {
                       />
                       {paymentErrors.cvc ? (
                         <p className="text-xs text-brand-error">
-                          CVC invalide.
+                          {t("payment.validation.cvcInvalid")}
                         </p>
                       ) : null}
                     </div>
@@ -1670,7 +1649,7 @@ export function CheckoutPage() {
                     variant="outline"
                     onClick={() => setCurrentStep(2)}
                   >
-                    Retour
+                    {t("common.back")}
                   </Button>
                   <Button
                     type="button"
@@ -1681,10 +1660,10 @@ export function CheckoutPage() {
                     {isPaymentLoading ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Chargement...
+                        {t("common.loading")}
                       </>
                     ) : (
-                      "Continuer vers la confirmation"
+                      t("payment.continueToConfirmation")
                     )}
                   </Button>
                 </div>
@@ -1694,11 +1673,11 @@ export function CheckoutPage() {
             {currentStep === 4 ? (
               <section
                 className="space-y-4"
-                aria-label="Etape confirmation checkout"
+                aria-label={t("confirm.ariaLabel")}
               >
                 <div className="space-y-3 rounded-lg border border-slate-200 p-3">
                   <h3 className="heading-font text-base text-brand-nav">
-                    Recapitulatif des produits
+                    {t("confirm.productSummaryTitle")}
                   </h3>
                   <ul className="space-y-2 text-sm text-slate-700">
                     {cart.lines.map((line) => (
@@ -1719,7 +1698,7 @@ export function CheckoutPage() {
 
                 <div className="space-y-3 rounded-lg border border-slate-200 p-3">
                   <h3 className="heading-font text-base text-brand-nav">
-                    Adresse selectionnee
+                    {t("confirm.selectedAddressTitle")}
                   </h3>
                   <p className="text-sm text-slate-700">
                     {formatAddressSummary(effectiveAddressPreview)}
@@ -1728,10 +1707,10 @@ export function CheckoutPage() {
 
                 <div className="space-y-3 rounded-lg border border-slate-200 p-3">
                   <h3 className="heading-font text-base text-brand-nav">
-                    Moyen de paiement
+                    {t("confirm.paymentMethodTitle")}
                   </h3>
                   <p className="text-sm text-slate-700">
-                    {paymentPreview.cardHolder || "Carte"} -{" "}
+                    {paymentPreview.cardHolder || t("confirm.cardFallback")} -{" "}
                     {maskCard(paymentPreview.last4)} -{" "}
                     {paymentPreview.expiry || "--/--"}
                   </p>
@@ -1749,7 +1728,7 @@ export function CheckoutPage() {
                     variant="outline"
                     onClick={() => setCurrentStep(3)}
                   >
-                    Retour
+                    {t("common.back")}
                   </Button>
                   <Button
                     type="button"
@@ -1760,10 +1739,10 @@ export function CheckoutPage() {
                     {isConfirmingOrder ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Confirmation en cours...
+                        {t("confirm.submitting")}
                       </>
                     ) : (
-                      "Confirmer l'achat"
+                      t("confirm.submit")
                     )}
                   </Button>
                 </div>
@@ -1775,7 +1754,7 @@ export function CheckoutPage() {
         <Card className="border-slate-200 bg-white shadow-sm lg:sticky lg:top-24">
           <CardHeader className="pb-3">
             <CardTitle className="heading-font text-xl text-brand-nav">
-              Recapitulatif panier
+              {t("cartSummary.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -1792,16 +1771,18 @@ export function CheckoutPage() {
                     </p>
                   </div>
                   <div className="flex items-center justify-between gap-2 text-xs text-slate-600">
-                    <span>Quantite: {line.quantity}</span>
+                    <span>
+                      {t("cartSummary.quantity", { quantity: line.quantity })}
+                    </span>
                     {line.isAvailable && line.isStockSufficient ? (
                       <span className="inline-flex items-center gap-1 text-brand-success">
                         <Circle className="size-2 fill-brand-success text-brand-success" />
-                        Disponible
+                        {t("cartSummary.available")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-brand-error">
                         <Circle className="size-2 fill-brand-error text-brand-error" />
-                        Conflit stock
+                        {t("cartSummary.stockConflict")}
                       </span>
                     )}
                   </div>
@@ -1811,19 +1792,21 @@ export function CheckoutPage() {
 
             <dl className="space-y-2 border-t border-slate-100 pt-3 text-sm">
               <div className="flex items-center justify-between gap-2 text-slate-600">
-                <dt>Articles</dt>
+                <dt>{t("cartSummary.items")}</dt>
                 <dd>{cart.totalItems}</dd>
               </div>
               <div className="flex items-center justify-between gap-2 text-slate-600">
-                <dt>Total HT (estime)</dt>
+                <dt>{t("cartSummary.totalHtEstimate")}</dt>
                 <dd>{formatCheckoutPrice(totalHtEstimate, locale)}</dd>
               </div>
               <div className="flex items-center justify-between gap-2 text-slate-600">
-                <dt>TVA (estimee)</dt>
+                <dt>{t("cartSummary.vatEstimate")}</dt>
                 <dd>{formatCheckoutPrice(totalTvaEstimate, locale)}</dd>
               </div>
               <div className="flex items-center justify-between gap-2 text-brand-nav">
-                <dt className="heading-font text-base">Total TTC</dt>
+                <dt className="heading-font text-base">
+                  {t("cartSummary.totalTtc")}
+                </dt>
                 <dd className="heading-font text-lg">
                   {formatCheckoutPrice(cart.totalTtc, locale)}
                 </dd>
@@ -1836,11 +1819,11 @@ export function CheckoutPage() {
               className="w-full"
               onClick={() => void reloadCart({ silent: true })}
             >
-              Actualiser le panier
+              {t("cartSummary.refresh")}
             </Button>
 
             <Button type="button" variant="outline" className="w-full" asChild>
-              <Link href="/panier">Retour au panier</Link>
+              <Link href="/panier">{t("cartSummary.backToCart")}</Link>
             </Button>
           </CardContent>
         </Card>

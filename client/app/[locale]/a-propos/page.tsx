@@ -133,35 +133,41 @@ const ABOUT_PAGE_CONTENT_BY_LOCALE: Record<string, AboutPageLocaleContent> = {
     browseCatalogLabel: "عرض الكتالوج",
     contactTeamLabel: "التواصل مع الفريق",
   },
-  he: {
-    badge: "מי אנחנו",
-    missionTitle: "המשימה שלנו",
+  es: {
+    badge: "Quienes somos",
+    missionTitle: "Nuestra mision",
     missionDescription:
-      "Althea Systems מסייעת לאנשי מקצוע וארגוני בריאות להגיע במהירות למוצרים חיוניים, באמצעות חוויית רכישה ברורה, אמינה ובעלת ביצועים גבוהים.",
-    visionTitle: "החזון שלנו",
+      "Althea Systems ayuda a profesionales y organizaciones sanitarias a acceder rapidamente a productos esenciales mediante una experiencia de compra clara, fiable y de alto rendimiento.",
+    visionTitle: "Nuestra vision",
     visionDescription:
-      "לבנות פלטפורמת אי-קומרס מתמחה שמשלבת איכות שירות, מצוינות תפעולית וליווי אנושי לאורך כל מסע ההזמנה.",
-    metricsTitle: "Althea Systems במספרים",
-    metricsDescription: "מדדים קצרים שממחישים את רמת המחויבות היומיומית שלנו.",
+      "Construir una plataforma de comercio electronico especializada que combine calidad de servicio, rigor operativo y acompanamiento humano en toda la experiencia de pedido.",
+    metricsTitle: "Althea Systems en cifras",
+    metricsDescription:
+      "Indicadores simples que reflejan nuestro nivel de compromiso diario.",
     metrics: [
-      { id: "catalog", label: "פריטי קטלוג", value: "500+" },
-      { id: "delivery", label: "הזמנות שנשלחות בשבוע", value: "1,200+" },
-      { id: "support", label: "זמן תגובה של התמיכה", value: "< 24 שעות" },
-      { id: "satisfaction", label: "שביעות רצון לקוחות", value: "96%" },
+      { id: "catalog", label: "Referencias de catalogo", value: "500+" },
+      { id: "delivery", label: "Pedidos enviados por semana", value: "1.200+" },
+      {
+        id: "support",
+        label: "Tiempo de respuesta de soporte",
+        value: "< 24 h",
+      },
+      { id: "satisfaction", label: "Satisfaccion de clientes", value: "96%" },
     ],
-    commitmentsTitle: "המחויבויות שלנו",
+    commitmentsTitle: "Nuestros compromisos",
     commitmentsDescription:
-      "כל הזמנה מטופלת באותה רמת איכות, מההכנה ועד המעקב מול הלקוח.",
+      "Cada pedido se gestiona con el mismo nivel de exigencia, desde la preparacion hasta el seguimiento del cliente.",
     commitments: [
-      "עדכון רציף של זמינות המוצרים.",
-      "תהליך הזמנה חלק ובטוח.",
-      "מענה מהיר לפניות טכניות ומסחריות.",
-      "שיפור מתמיד על בסיס משוב לקוחות.",
+      "Disponibilidad de productos actualizada de forma continua.",
+      "Proceso de compra fluido y seguro.",
+      "Soporte rapido para solicitudes tecnicas y comerciales.",
+      "Mejora continua basada en los comentarios de clientes.",
     ],
-    ctaTitle: "בואו נעבוד יחד",
-    ctaDescription: "עיינו במוצרים שלנו או צרו קשר עם הצוות לכל בקשה מיוחדת.",
-    browseCatalogLabel: "לצפייה בקטלוג",
-    contactTeamLabel: "יצירת קשר עם הצוות",
+    ctaTitle: "Trabajemos juntos",
+    ctaDescription:
+      "Descubra nuestras gamas o contacte con nuestro equipo para cualquier necesidad especifica.",
+    browseCatalogLabel: "Ver catalogo",
+    contactTeamLabel: "Contactar al equipo",
   },
 }
 

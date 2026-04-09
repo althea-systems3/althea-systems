@@ -3,13 +3,13 @@ import { defaultLocale, isRtlLocale, locales } from "../lib/i18n"
 
 describe("i18n config", () => {
   it("contains expected locales", () => {
-    expect(locales).toEqual(["fr", "en", "ar", "he"])
+    expect(locales).toEqual(["fr", "en", "ar", "es"])
     expect(defaultLocale).toBe("fr")
   })
 
-  it("marks Arabic and Hebrew as RTL", () => {
+  it("marks only Arabic as RTL", () => {
     expect(isRtlLocale("ar")).toBe(true)
-    expect(isRtlLocale("he")).toBe(true)
+    expect(isRtlLocale("es")).toBe(false)
     expect(isRtlLocale("fr")).toBe(false)
   })
 })

@@ -34,7 +34,15 @@ import {
 import { SEARCH_PAGE_PATH } from "@/features/search/searchConstants"
 import { useMainLayoutState } from "@/features/layout/useMainLayoutState"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
-import { locales } from "@/lib/i18n"
+import {
+  defaultLocale,
+  isAppLocale,
+  isRtlLocale,
+  localeDisplayNames,
+  localeLabels,
+  locales,
+  type AppLocale,
+} from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 type MainLayoutProps = {
@@ -57,8 +65,8 @@ const MENU_ITEM_ICON_BY_KEY: Record<
 }
 
 function getLanguageButtonClassName(
-  languageCode: string,
-  currentLocale: string,
+  languageCode: AppLocale,
+  currentLocale: AppLocale,
 ): string {
   const isCurrentLocale = currentLocale === languageCode
 
@@ -75,6 +83,10 @@ export function MainLayout({ children }: MainLayoutProps) {
   const translateAccessibility = useTranslations("A11y")
   const currentPathname = usePathname()
   const currentLocale = useLocale()
+  const activeLocale = isAppLocale(currentLocale)
+    ? currentLocale
+    : defaultLocale
+  const isRtlCurrentLocale = isRtlLocale(activeLocale)
   const router = useRouter()
 
   const isAdminRoute =
@@ -120,7 +132,9 @@ export function MainLayout({ children }: MainLayoutProps) {
     : "pointer-events-none opacity-0"
   const menuVisibilityClassName = isMobileMenuOpen
     ? "translate-x-0"
-    : "translate-x-full"
+    : isRtlCurrentLocale
+      ? "-translate-x-full"
+      : "translate-x-full"
 
   const handleGlobalSearchSubmit = (
     submitEvent: FormEvent<HTMLFormElement>,
@@ -172,13 +186,15 @@ export function MainLayout({ children }: MainLayoutProps) {
                     locale={languageCode}
                     className={getLanguageButtonClassName(
                       languageCode,
-                      currentLocale,
+                      activeLocale,
                     )}
                     aria-current={
-                      currentLocale === languageCode ? "page" : undefined
+                      activeLocale === languageCode ? "page" : undefined
                     }
+                    title={localeDisplayNames[languageCode]}
+                    aria-label={`${translateLayout("languageLabel")} ${localeDisplayNames[languageCode]}`}
                   >
-                    {languageCode}
+                    {localeLabels[languageCode]}
                   </Link>
                 ))}
               </nav>

@@ -8,6 +8,7 @@ import {
   UserRound,
 } from "lucide-react"
 import type { ReactNode } from "react"
+import { useTranslations } from "next-intl"
 
 import { Link, usePathname } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
@@ -18,34 +19,34 @@ type AccountDashboardLayoutProps = {
 
 type DashboardNavigationItem = {
   href: string
-  label: string
+  labelKey: string
   icon: typeof LayoutDashboard
 }
 
 const DASHBOARD_NAVIGATION_ITEMS: DashboardNavigationItem[] = [
   {
     href: "/mon-compte",
-    label: "Vue d'ensemble",
+    labelKey: "dashboard.navigation.overview",
     icon: LayoutDashboard,
   },
   {
     href: "/mon-compte/profil",
-    label: "Profil",
+    labelKey: "dashboard.navigation.profile",
     icon: UserRound,
   },
   {
     href: "/mon-compte/commandes",
-    label: "Commandes",
+    labelKey: "dashboard.navigation.orders",
     icon: PackageSearch,
   },
   {
     href: "/mon-compte/adresses",
-    label: "Adresses",
+    labelKey: "dashboard.navigation.addresses",
     icon: MapPin,
   },
   {
     href: "/mon-compte/paiements",
-    label: "Paiements",
+    labelKey: "dashboard.navigation.payments",
     icon: CreditCard,
   },
 ]
@@ -61,26 +62,26 @@ function isNavigationItemActive(pathname: string, href: string): boolean {
 export function AccountDashboardLayout({
   children,
 }: AccountDashboardLayoutProps) {
+  const t = useTranslations("Account")
   const currentPathname = usePathname()
 
   return (
     <section className="container py-6 sm:py-8 lg:py-10">
       <div className="mb-5 space-y-1 sm:mb-6">
         <h1 className="heading-font text-2xl text-brand-nav sm:text-3xl">
-          Mon compte
+          {t("dashboard.title")}
         </h1>
         <p className="max-w-3xl text-sm text-slate-600 sm:text-base">
-          Gere ton profil, tes commandes, tes adresses et tes moyens de paiement
-          depuis un espace unique.
+          {t("dashboard.description")}
         </p>
       </div>
 
       <nav
-        aria-label="Navigation espace compte"
+        aria-label={t("dashboard.navigationAriaLabel")}
         className="mb-5 flex gap-2 overflow-x-auto pb-2 lg:hidden"
       >
         {DASHBOARD_NAVIGATION_ITEMS.map(
-          ({ href, label, icon: NavigationIcon }) => {
+          ({ href, labelKey, icon: NavigationIcon }) => {
             const isActive = isNavigationItemActive(currentPathname, href)
 
             return (
@@ -96,7 +97,7 @@ export function AccountDashboardLayout({
                 aria-current={isActive ? "page" : undefined}
               >
                 <NavigationIcon className="size-4" aria-hidden="true" />
-                {label}
+                {t(labelKey)}
               </Link>
             )
           },
@@ -106,12 +107,12 @@ export function AccountDashboardLayout({
       <div className="grid gap-4 lg:grid-cols-[240px_1fr] lg:gap-6">
         <aside className="hidden lg:block">
           <nav
-            aria-label="Navigation espace compte"
+            aria-label={t("dashboard.navigationAriaLabel")}
             className="rounded-xl border border-border bg-white p-3"
           >
             <ul className="space-y-1">
               {DASHBOARD_NAVIGATION_ITEMS.map(
-                ({ href, label, icon: NavigationIcon }) => {
+                ({ href, labelKey, icon: NavigationIcon }) => {
                   const isActive = isNavigationItemActive(currentPathname, href)
 
                   return (
@@ -127,7 +128,7 @@ export function AccountDashboardLayout({
                         aria-current={isActive ? "page" : undefined}
                       >
                         <NavigationIcon className="size-4" aria-hidden="true" />
-                        {label}
+                        {t(labelKey)}
                       </Link>
                     </li>
                   )

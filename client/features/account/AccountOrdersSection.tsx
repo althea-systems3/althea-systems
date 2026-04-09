@@ -1,7 +1,7 @@
 "use client"
 
 import { FileText, Loader2, Search } from "lucide-react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -10,10 +10,10 @@ import type { AccountOrderSummary, AccountOrderType } from "./accountTypes"
 import {
   formatAccountDate,
   formatAccountPrice,
-  getOrderTypeLabel,
+  getOrderStatusKey,
+  getOrderTypeKey,
   getOrderYear,
-  getOrderStatusLabel,
-  getPaymentStatusLabel,
+  getPaymentStatusKey,
 } from "./accountUtils"
 
 type OrderYearGroup = {
@@ -49,9 +49,12 @@ function buildOrderDateSearchTokens(
   ]
 }
 
-function getOrderProductSummary(order: AccountOrderSummary): string {
+function getOrderProductSummary(
+  order: AccountOrderSummary,
+  noProductLabel: string,
+): string {
   if (order.productNames.length === 0) {
-    return "Aucun produit associe"
+    return noProductLabel
   }
 
   const productPreview = order.productNames.slice(0, 2)
@@ -62,10 +65,6 @@ function getOrderProductSummary(order: AccountOrderSummary): string {
   }
 
   return `${productPreview.join(", ")} +${remainingCount}`
-}
-
-function formatOrderCount(orderCount: number): string {
-  return `${orderCount} commande${orderCount > 1 ? "s" : ""}`
 }
 
 function getSessionExpiredPath(pathname: string): string {
@@ -79,6 +78,7 @@ function getSessionExpiredPath(pathname: string): string {
 
 export function AccountOrdersSection() {
   const locale = useLocale()
+  const t = useTranslations("Account")
   const router = useRouter()
   const pathname = usePathname()
 
@@ -220,7 +220,7 @@ export function AccountOrdersSection() {
 
         if (!response.ok) {
           if (isMounted) {
-            setErrorMessage("Impossible de charger les commandes.")
+            setErrorMessage(t("orders.errors.loadFailed"))
           }
           return
         }
@@ -260,9 +260,7 @@ export function AccountOrdersSection() {
         console.error("Erreur chargement commandes compte", { error })
 
         if (isMounted) {
-          setErrorMessage(
-            "Une erreur temporaire est survenue pendant le chargement.",
-          )
+          setErrorMessage(t("orders.errors.temporaryLoadError"))
         }
       } finally {
         if (isMounted) {
@@ -276,7 +274,7 @@ export function AccountOrdersSection() {
     return () => {
       isMounted = false
     }
-  }, [pathname, router])
+  }, [pathname, router, t])
 
   if (isLoading) {
     return (
@@ -285,7 +283,7 @@ export function AccountOrdersSection() {
         aria-live="polite"
       >
         <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        Chargement des commandes...
+        {t("orders.loading")}
       </div>
     )
   }
@@ -297,7 +295,7 @@ export function AccountOrdersSection() {
           {errorMessage}
         </p>
         <Button type="button" onClick={() => router.refresh()}>
-          Reessayer
+          {t("orders.retry")}
         </Button>
       </div>
     )
@@ -306,10 +304,10 @@ export function AccountOrdersSection() {
   if (orders.length === 0) {
     return (
       <div className="space-y-2">
-        <h2 className="heading-font text-xl text-brand-nav">Mes commandes</h2>
-        <p className="text-sm text-slate-600">
-          Aucune commande n&apos;a encore ete enregistree sur ton compte.
-        </p>
+        <h2 className="heading-font text-xl text-brand-nav">
+          {t("orders.title")}
+        </h2>
+        <p className="text-sm text-slate-600">{t("orders.empty")}</p>
       </div>
     )
   }
@@ -317,15 +315,15 @@ export function AccountOrdersSection() {
   return (
     <div className="space-y-4">
       <header className="space-y-1">
-        <h2 className="heading-font text-xl text-brand-nav">Mes commandes</h2>
-        <p className="text-sm text-slate-600">
-          Retrouve le statut de tes commandes et accede a tes documents.
-        </p>
+        <h2 className="heading-font text-xl text-brand-nav">
+          {t("orders.title")}
+        </h2>
+        <p className="text-sm text-slate-600">{t("orders.description")}</p>
       </header>
 
       <section
         className="rounded-xl border border-border p-4"
-        aria-label="Recherche et filtres commandes"
+        aria-label={t("orders.filters.ariaLabel")}
       >
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1 sm:col-span-2 lg:col-span-1">
@@ -333,7 +331,7 @@ export function AccountOrdersSection() {
               htmlFor="orders-search"
               className="text-xs font-medium uppercase tracking-wide text-slate-500"
             >
-              Rechercher
+              {t("orders.filters.searchLabel")}
             </label>
             <div className="relative">
               <Search
@@ -345,7 +343,7 @@ export function AccountOrdersSection() {
                 type="search"
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="Produit, numero, date..."
+                placeholder={t("orders.filters.searchPlaceholder")}
                 className="h-10 w-full rounded-md border border-border bg-white pl-9 pr-3 text-sm text-brand-nav shadow-sm outline-none transition focus:border-brand-cta focus:ring-2 focus:ring-brand-cta/25"
               />
             </div>
@@ -356,7 +354,7 @@ export function AccountOrdersSection() {
               htmlFor="orders-year-filter"
               className="text-xs font-medium uppercase tracking-wide text-slate-500"
             >
-              Annee
+              {t("orders.filters.yearLabel")}
             </label>
             <select
               id="orders-year-filter"
@@ -364,7 +362,9 @@ export function AccountOrdersSection() {
               onChange={(event) => setSelectedYear(event.target.value)}
               className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-brand-nav shadow-sm outline-none transition focus:border-brand-cta focus:ring-2 focus:ring-brand-cta/25"
             >
-              <option value={ALL_FILTER_VALUE}>Toutes</option>
+              <option value={ALL_FILTER_VALUE}>
+                {t("orders.filters.allYears")}
+              </option>
               {availableYears.map((year) => (
                 <option key={year} value={String(year)}>
                   {year}
@@ -378,7 +378,7 @@ export function AccountOrdersSection() {
               htmlFor="orders-type-filter"
               className="text-xs font-medium uppercase tracking-wide text-slate-500"
             >
-              Type de commande
+              {t("orders.filters.typeLabel")}
             </label>
             <select
               id="orders-type-filter"
@@ -386,9 +386,15 @@ export function AccountOrdersSection() {
               onChange={(event) => setSelectedOrderType(event.target.value)}
               className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-brand-nav shadow-sm outline-none transition focus:border-brand-cta focus:ring-2 focus:ring-brand-cta/25"
             >
-              <option value={ALL_FILTER_VALUE}>Tous</option>
-              <option value="mono_produit">Mono-produit</option>
-              <option value="multi_produits">Multi-produits</option>
+              <option value={ALL_FILTER_VALUE}>
+                {t("orders.filters.allTypes")}
+              </option>
+              <option value="mono_produit">
+                {t("orders.orderType.mono_produit")}
+              </option>
+              <option value="multi_produits">
+                {t("orders.orderType.multi_produits")}
+              </option>
             </select>
           </div>
 
@@ -397,7 +403,7 @@ export function AccountOrdersSection() {
               htmlFor="orders-status-filter"
               className="text-xs font-medium uppercase tracking-wide text-slate-500"
             >
-              Statut
+              {t("orders.filters.statusLabel")}
             </label>
             <select
               id="orders-status-filter"
@@ -405,10 +411,12 @@ export function AccountOrdersSection() {
               onChange={(event) => setSelectedStatus(event.target.value)}
               className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-brand-nav shadow-sm outline-none transition focus:border-brand-cta focus:ring-2 focus:ring-brand-cta/25"
             >
-              <option value={ALL_FILTER_VALUE}>Tous</option>
+              <option value={ALL_FILTER_VALUE}>
+                {t("orders.filters.allStatuses")}
+              </option>
               {availableStatuses.map((status) => (
                 <option key={status} value={status}>
-                  {getOrderStatusLabel(status)}
+                  {t(getOrderStatusKey(status))}
                 </option>
               ))}
             </select>
@@ -417,7 +425,7 @@ export function AccountOrdersSection() {
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-slate-500" aria-live="polite">
-            {formatOrderCount(filteredOrders.length)} trouvee(s)
+            {t("orders.count", { count: filteredOrders.length })}
           </p>
 
           {hasActiveFilters ? (
@@ -427,7 +435,7 @@ export function AccountOrdersSection() {
               size="sm"
               onClick={resetFilters}
             >
-              Reinitialiser les filtres
+              {t("orders.filters.reset")}
             </Button>
           ) : null}
         </div>
@@ -436,10 +444,10 @@ export function AccountOrdersSection() {
       {filteredOrders.length === 0 ? (
         <section className="rounded-xl border border-dashed border-border p-6 text-center">
           <h3 className="text-sm font-semibold text-brand-nav">
-            Aucun resultat pour cette recherche
+            {t("orders.noResults.title")}
           </h3>
           <p className="mt-1 text-sm text-slate-600">
-            Essaie un autre produit, une autre annee ou ajuste les filtres.
+            {t("orders.noResults.description")}
           </p>
           {hasActiveFilters ? (
             <Button
@@ -449,7 +457,7 @@ export function AccountOrdersSection() {
               className="mt-4"
               onClick={resetFilters}
             >
-              Revenir a l&apos;historique complet
+              {t("orders.noResults.resetToHistory")}
             </Button>
           ) : null}
         </section>
@@ -469,7 +477,7 @@ export function AccountOrdersSection() {
               {group.year}
             </h3>
             <p className="text-xs text-slate-500">
-              {formatOrderCount(group.orders.length)}
+              {t("orders.count", { count: group.orders.length })}
             </p>
           </div>
 
@@ -492,18 +500,18 @@ export function AccountOrdersSection() {
                   </div>
 
                   <p className="mt-2 text-sm text-slate-600">
-                    {getOrderProductSummary(order)}
+                    {getOrderProductSummary(order, t("orders.noProductLabel"))}
                   </p>
 
                   <div className="mt-2 flex flex-wrap gap-2 text-xs">
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-slate-700">
-                      {getOrderStatusLabel(order.status)}
+                      {t(getOrderStatusKey(order.status))}
                     </span>
                     <span className="rounded-full bg-[#10b981]/10 px-2 py-1 text-[#0f766e]">
-                      {getPaymentStatusLabel(order.paymentStatus)}
+                      {t(getPaymentStatusKey(order.paymentStatus))}
                     </span>
                     <span className="rounded-full bg-[#0369a1]/10 px-2 py-1 text-[#075985]">
-                      {getOrderTypeLabel(order.orderType)}
+                      {t(getOrderTypeKey(order.orderType))}
                     </span>
                   </div>
 
@@ -514,7 +522,7 @@ export function AccountOrdersSection() {
                       className="bg-brand-cta text-white hover:bg-brand-cta/90"
                     >
                       <Link href={`/mon-compte/commandes/${order.orderNumber}`}>
-                        Voir le detail
+                        {t("orders.actions.viewDetails")}
                       </Link>
                     </Button>
 
@@ -526,12 +534,12 @@ export function AccountOrdersSection() {
                           rel="noreferrer"
                         >
                           <FileText className="size-4" aria-hidden="true" />
-                          Telecharger la facture
+                          {t("orders.actions.downloadInvoice")}
                         </a>
                       </Button>
                     ) : (
                       <Button size="sm" variant="outline" disabled>
-                        Facture indisponible
+                        {t("orders.actions.invoiceUnavailable")}
                       </Button>
                     )}
                   </div>
