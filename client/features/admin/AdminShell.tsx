@@ -54,7 +54,8 @@ export function AdminShell({ adminName, locale, children }: AdminShellProps) {
           <nav className="mt-6" aria-label="Modules admin">
             <ul className="space-y-1.5">
               {ADMIN_NAV_ITEMS.map((item) => {
-                const isActive = pathname === item.href
+                const isActive =
+                  pathname === item.href || pathname.startsWith(`${item.href}/`)
                 const ItemIcon = item.icon
 
                 return (
