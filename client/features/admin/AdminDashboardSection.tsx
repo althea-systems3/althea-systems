@@ -189,6 +189,14 @@ export function AdminDashboardSection() {
             </li>
             <li>
               <Link
+                href="/admin/categories"
+                className="block rounded-lg border border-border px-3 py-2 text-sm text-brand-nav transition-colors hover:bg-slate-50"
+              >
+                Gérer les catégories
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/admin/commandes"
                 className="block rounded-lg border border-border px-3 py-2 text-sm text-brand-nav transition-colors hover:bg-slate-50"
               >

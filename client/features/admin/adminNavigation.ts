@@ -2,6 +2,7 @@ import {
   BarChart3,
   Bot,
   Boxes,
+  FolderTree,
   ClipboardList,
   Mail,
   Users,
@@ -24,6 +25,11 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "Produits",
     href: "/admin/produits",
     icon: Boxes,
+  },
+  {
+    label: "Catégories",
+    href: "/admin/categories",
+    icon: FolderTree,
   },
   {
     label: "Commandes",
