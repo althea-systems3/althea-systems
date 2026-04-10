@@ -219,6 +219,14 @@ export function AdminDashboardSection() {
                 Suivre les escalades chatbot
               </Link>
             </li>
+            <li>
+              <Link
+                href="/admin/contenu-editorial"
+                className="block rounded-lg border border-border px-3 py-2 text-sm text-brand-nav transition-colors hover:bg-slate-50"
+              >
+                Modifier le texte fixe home
+              </Link>
+            </li>
           </ul>
         </CardContent>
       </Card>

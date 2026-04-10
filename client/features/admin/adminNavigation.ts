@@ -3,6 +3,7 @@ import {
   BarChart3,
   Bot,
   Boxes,
+  FileText,
   FolderTree,
   ClipboardList,
   Mail,
@@ -66,5 +67,10 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "Pages statiques",
     href: "/admin/pages-statiques",
     icon: BookText,
+  },
+  {
+    label: "Contenu editorial",
+    href: "/admin/contenu-editorial",
+    icon: FileText,
   },
 ]

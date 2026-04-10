@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { HomeCarousel } from "@/features/home/carousel/HomeCarousel"
+import { HomeFixedText } from "@/features/home/fixedText/HomeFixedText"
 import { HomeCategoryGrid } from "@/features/home/categories/HomeCategoryGrid"
 import { HomeTopProductsGrid } from "@/features/home/topProducts/HomeTopProductsGrid"
 
@@ -12,6 +13,8 @@ export default function LocalizedHomePage() {
       <section className="container py-8 sm:py-10">
         <HomeCarousel />
       </section>
+
+      <HomeFixedText />
 
       <section className="container pb-10 sm:pb-14">
         <HomeCategoryGrid />

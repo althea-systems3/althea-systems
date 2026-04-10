@@ -46,6 +46,9 @@
     "availabilityOutOfStock": "Out of stock",
     "priceUnavailable": "Price unavailable"
   },
+  "HomeFixedText": {
+    "loading": "Loading fixed text..."
+  },
   "Layout": {
     "search": "Search",
     "searchPlaceholder": "Search for a product or category...",

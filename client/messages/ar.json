@@ -46,6 +46,9 @@
     "availabilityOutOfStock": "نفد المخزون",
     "priceUnavailable": "السعر غير متاح"
   },
+  "HomeFixedText": {
+    "loading": "جار تحميل النص الثابت..."
+  },
   "Layout": {
     "search": "بحث",
     "searchPlaceholder": "ابحث عن منتج او فئة...",

@@ -46,6 +46,9 @@
     "availabilityOutOfStock": "Rupture",
     "priceUnavailable": "Prix non disponible"
   },
+  "HomeFixedText": {
+    "loading": "Chargement du texte fixe..."
+  },
   "Layout": {
     "search": "Recherche",
     "searchPlaceholder": "Rechercher un produit, une categorie...",
