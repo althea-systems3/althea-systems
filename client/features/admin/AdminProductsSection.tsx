@@ -18,12 +18,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 import {
   formatCurrency,
   mapProductStatusClassName,
   mapProductStatusLabel,
 } from "@/features/admin/adminUtils"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 import { cn } from "@/lib/utils"
 
 type ProductStatus = "publie" | "brouillon"
@@ -180,7 +181,7 @@ export function AdminProductsSection() {
         ? `/api/admin/produits?${queryString}`
         : "/api/admin/produits"
 
-      const response = await fetch(endpoint, { cache: "no-store" })
+      const response = await adminFetch(endpoint, { cache: "no-store" })
 
       const payload = await parseApiResponse<ProductsPayload>(
         response,
@@ -249,7 +250,7 @@ export function AdminProductsSection() {
     setIsCreating(true)
 
     try {
-      const response = await fetch("/api/admin/produits", {
+      const response = await adminFetch("/api/admin/produits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -329,21 +330,24 @@ export function AdminProductsSection() {
     setIsUpdating(true)
 
     try {
-      const response = await fetch(`/api/admin/produits/${editingProductId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await adminFetch(
+        `/api/admin/produits/${editingProductId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nom: editForm.nom,
+            description: editForm.description,
+            prix_ttc: price,
+            quantite_stock: Math.round(stockQuantity),
+            statut: editForm.statut,
+            slug: editForm.slug,
+            categoryIds: editForm.categoryIds,
+          }),
         },
-        body: JSON.stringify({
-          nom: editForm.nom,
-          description: editForm.description,
-          prix_ttc: price,
-          quantite_stock: Math.round(stockQuantity),
-          statut: editForm.statut,
-          slug: editForm.slug,
-          categoryIds: editForm.categoryIds,
-        }),
-      })
+      )
 
       await parseApiResponse<{ product: AdminProduct }>(
         response,
@@ -365,9 +369,12 @@ export function AdminProductsSection() {
   }
 
   const handleDeleteProduct = async (product: AdminProduct) => {
-    const shouldDelete = window.confirm(
-      `Supprimer le produit \"${product.nom}\" ? Cette action est irreversible.`,
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer le produit",
+      message: `Supprimer le produit \"${product.nom}\" ? Cette action est irreversible.`,
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return
@@ -378,7 +385,7 @@ export function AdminProductsSection() {
     setDeletingProductId(product.id_produit)
 
     try {
-      const response = await fetch(
+      const response = await adminFetch(
         `/api/admin/produits/${product.id_produit}`,
         {
           method: "DELETE",

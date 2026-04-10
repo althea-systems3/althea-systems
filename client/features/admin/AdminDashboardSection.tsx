@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Link } from "@/i18n/navigation"
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 import { formatCurrency } from "@/features/admin/adminUtils"
 
 type DashboardKpis = {
@@ -51,7 +51,7 @@ export function AdminDashboardSection() {
     setErrorMessage(null)
 
     try {
-      const response = await fetch("/api/admin/dashboard", {
+      const response = await adminFetch("/api/admin/dashboard", {
         cache: "no-store",
       })
 

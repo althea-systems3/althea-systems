@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 const mockSignInWithPassword = vi.fn()
+const mockProfileMaybeSingle = vi.fn()
+const mockSendAdminTwoFactorEmail = vi.fn()
 
 const mockCookieStore = {
   getAll: vi.fn<() => Array<{ name: string; value: string }>>(() => []),
   set: vi.fn(),
+  delete: vi.fn(),
 }
 
 vi.mock("next/headers", () => ({
@@ -16,7 +19,19 @@ vi.mock("@/lib/supabase/server", () => ({
     auth: {
       signInWithPassword: mockSignInWithPassword,
     },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: () => mockProfileMaybeSingle(),
+        }),
+      }),
+    }),
   }),
+}))
+
+vi.mock("@/lib/auth/email", () => ({
+  sendAdminTwoFactorEmail: (...args: unknown[]) =>
+    mockSendAdminTwoFactorEmail(...args),
 }))
 
 import { POST } from "@/app/api/auth/signin/route"
@@ -26,6 +41,8 @@ function createRequest(body: unknown): Request {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      origin: "http://localhost:3000",
+      host: "localhost:3000",
     },
     body: JSON.stringify(body),
   })
@@ -35,6 +52,11 @@ describe("POST /api/auth/signin", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockCookieStore.getAll.mockReturnValue([])
+    mockProfileMaybeSingle.mockResolvedValue({
+      data: null,
+      error: null,
+    })
+    mockSendAdminTwoFactorEmail.mockResolvedValue(undefined)
   })
 
   it("retourne 400 si email invalide", async () => {
@@ -127,6 +149,7 @@ describe("POST /api/auth/signin", () => {
     const body = await response.json()
     expect(body.isAuthenticated).toBe(true)
     expect(body.rememberSession).toBe(false)
+    expect(body.requiresAdminTwoFactor).toBe(false)
 
     expect(mockSignInWithPassword).toHaveBeenCalledWith({
       email: "user@althea.com",
@@ -150,5 +173,45 @@ describe("POST /api/auth/signin", () => {
         path: "/",
       }),
     )
+  })
+
+  it("retourne 200 avec challenge 2FA pour un administrateur", async () => {
+    mockSignInWithPassword.mockResolvedValue({
+      data: {
+        user: {
+          id: "admin-001",
+          email: "admin@althea.com",
+        },
+      },
+      error: null,
+    })
+    mockProfileMaybeSingle.mockResolvedValue({
+      data: {
+        est_admin: true,
+        nom_complet: "Admin Principal",
+      },
+      error: null,
+    })
+
+    const response = await POST(
+      createRequest({
+        email: "admin@althea.com",
+        password: "StrongPass1",
+        rememberSession: true,
+      }),
+    )
+
+    expect(response.status).toBe(200)
+
+    const body = await response.json()
+    expect(body.requiresAdminTwoFactor).toBe(true)
+
+    expect(mockSendAdminTwoFactorEmail).toHaveBeenCalledTimes(1)
+
+    expect(
+      mockCookieStore.set.mock.calls.some(
+        ([cookieName]) => cookieName === "admin_2fa_challenge",
+      ),
+    ).toBe(true)
   })
 })

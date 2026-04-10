@@ -29,6 +29,7 @@ import {
   uploadAdminProductImages,
 } from "./adminProductsApi"
 import type { AdminProductImage } from "./adminProductsTypes"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 type AdminProductImagesManagerProps = {
   productId: string
@@ -148,9 +149,12 @@ export function AdminProductImagesManager({
   }
 
   async function handleDeleteImage(imageUrl: string) {
-    const shouldDelete = window.confirm(
-      "Supprimer cette image produit ? Cette action est irréversible.",
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer l'image",
+      message: "Supprimer cette image produit ? Cette action est irréversible.",
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return

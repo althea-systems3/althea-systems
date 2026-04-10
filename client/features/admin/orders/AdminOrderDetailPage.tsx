@@ -13,6 +13,7 @@ import {
   mapOrderStatusLabel,
 } from "@/features/admin/adminUtils"
 import { Link } from "@/i18n/navigation"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 import { fetchAdminOrderById, updateAdminOrderStatus } from "./adminOrdersApi"
 import type {
@@ -99,9 +100,12 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
       return
     }
 
-    const confirmed = window.confirm(
-      "Confirmer la modification du statut de cette commande ?",
-    )
+    const confirmed = await confirmCriticalAction({
+      title: "Confirmer le changement de statut",
+      message: "Confirmer la modification du statut de cette commande ?",
+      confirmLabel: "Confirmer",
+      tone: "warning",
+    })
 
     if (!confirmed) {
       return

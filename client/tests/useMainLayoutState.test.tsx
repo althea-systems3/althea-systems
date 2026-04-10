@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
@@ -57,6 +57,11 @@ describe("useMainLayoutState", () => {
   it("logs out the user and resets auth state", async () => {
     // Arrange
     window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "true")
+    window.localStorage.setItem(CART_COUNT_STORAGE_KEY, "2")
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(null, { status: 200 }))
+
     const { result } = renderHook(() => useMainLayoutState())
 
     await waitFor(() => {
@@ -68,16 +73,21 @@ describe("useMainLayoutState", () => {
     })
 
     // Act
-    act(() => {
-      result.current.handleLogoutUser()
+    await act(async () => {
+      await result.current.handleLogoutUser()
     })
 
     // Assert
+    expect(fetchSpy).toHaveBeenCalledOnce()
     expect(window.localStorage.getItem(AUTHENTICATION_STORAGE_KEY)).toBe(
       "false",
     )
+    expect(window.localStorage.getItem(CART_COUNT_STORAGE_KEY)).toBeNull()
     expect(result.current.isUserAuthenticated).toBe(false)
     expect(result.current.isMobileMenuOpen).toBe(false)
+    expect(result.current.cartItemCount).toBe(0)
+
+    fetchSpy.mockRestore()
   })
 
   it("closes the mobile menu when Escape is pressed", () => {

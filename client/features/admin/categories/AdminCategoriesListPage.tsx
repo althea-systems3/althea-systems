@@ -55,6 +55,7 @@ import {
   moveCategoryByOffset,
   reorderCategoriesByDragAndDrop,
 } from "./adminCategoriesUtils"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 function toggleSelection(selectedIds: string[], categoryId: string): string[] {
   if (selectedIds.includes(categoryId)) {
@@ -280,9 +281,12 @@ export function AdminCategoriesListPage() {
   }
 
   async function handleDeleteCategory(category: AdminCategory) {
-    const shouldDelete = window.confirm(
-      `Supprimer la catégorie "${category.nom}" ? Cette action est irréversible.`,
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer la catégorie",
+      message: `Supprimer la catégorie "${category.nom}" ? Cette action est irréversible.`,
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return
@@ -313,9 +317,12 @@ export function AdminCategoriesListPage() {
     }
 
     const actionLabel = action === "activate" ? "activer" : "désactiver"
-    const shouldApply = window.confirm(
-      `Confirmer l'action groupée: ${actionLabel} ${selectedCategoryIds.length} catégorie(s) ?`,
-    )
+    const shouldApply = await confirmCriticalAction({
+      title: "Confirmer l'action groupée",
+      message: `Confirmer l'action groupée: ${actionLabel} ${selectedCategoryIds.length} catégorie(s) ?`,
+      confirmLabel: "Appliquer",
+      tone: "warning",
+    })
 
     if (!shouldApply) {
       return

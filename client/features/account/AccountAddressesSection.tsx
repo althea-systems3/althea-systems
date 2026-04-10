@@ -13,6 +13,8 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { InputGroupInput } from "@/components/ui/input-group"
 import { usePathname, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 import type { AccountAddress, AccountAddressForm } from "./accountTypes"
 import {
   getInitialAddressForm,
@@ -70,7 +72,7 @@ export function AccountAddressesSection() {
 
   const loadAddresses = useCallback(async () => {
     try {
-      const response = await fetch("/api/account/addresses", {
+      const response = await secureFetch("/api/account/addresses", {
         cache: "no-store",
       })
 
@@ -171,11 +173,8 @@ export function AccountAddressesSection() {
 
       const method = isEditingAddress ? "PUT" : "POST"
 
-      const response = await fetch(endpoint, {
+      const response = await secureFetch(endpoint, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(addressForm),
       })
 
@@ -221,16 +220,24 @@ export function AccountAddressesSection() {
   }
 
   async function handleDeleteAddress(addressId: string) {
-    const hasConfirmedDeletion = window.confirm(t("addresses.confirmDelete"))
+    const hasConfirmedDeletion = await confirmCriticalAction({
+      title: "Supprimer l'adresse",
+      message: t("addresses.confirmDelete"),
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!hasConfirmedDeletion) {
       return
     }
 
     try {
-      const response = await fetch(`/api/account/addresses/${addressId}`, {
-        method: "DELETE",
-      })
+      const response = await secureFetch(
+        `/api/account/addresses/${addressId}`,
+        {
+          method: "DELETE",
+        },
+      )
 
       if (response.status === 401) {
         router.replace(getSessionExpiredPath(pathname))

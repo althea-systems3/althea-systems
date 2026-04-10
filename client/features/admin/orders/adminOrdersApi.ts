@@ -1,4 +1,4 @@
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 
 import type {
   AdminOrderDetailPayload,
@@ -24,7 +24,7 @@ export async function fetchAdminOrders(
     ? `/api/admin/commandes?${queryString}`
     : "/api/admin/commandes"
 
-  const response = await fetch(endpoint, { cache: "no-store" })
+  const response = await adminFetch(endpoint, { cache: "no-store" })
 
   return parseApiResponse<AdminOrdersListPayload>(
     response,
@@ -35,7 +35,7 @@ export async function fetchAdminOrders(
 export async function fetchAdminOrderById(
   orderId: string,
 ): Promise<AdminOrderDetailPayload> {
-  const response = await fetch(`/api/admin/commandes/${orderId}`, {
+  const response = await adminFetch(`/api/admin/commandes/${orderId}`, {
     cache: "no-store",
   })
 
@@ -49,7 +49,7 @@ export async function updateAdminOrderStatus(
   orderId: string,
   statut: "en_attente" | "en_cours" | "terminee" | "annulee",
 ): Promise<void> {
-  const response = await fetch(`/api/admin/commandes/${orderId}`, {
+  const response = await adminFetch(`/api/admin/commandes/${orderId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

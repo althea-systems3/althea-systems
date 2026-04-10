@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useRouter } from "@/i18n/navigation"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 import {
   mapProductStatusClassName,
   mapProductStatusLabel,
@@ -89,9 +90,12 @@ export function AdminCategoryDetailPage({
       return
     }
 
-    const shouldDelete = window.confirm(
-      `Supprimer la catégorie "${category.nom}" ? Cette action est irréversible.`,
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer la catégorie",
+      message: `Supprimer la catégorie "${category.nom}" ? Cette action est irréversible.`,
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return

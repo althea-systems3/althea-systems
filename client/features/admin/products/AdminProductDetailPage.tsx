@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useRouter } from "@/i18n/navigation"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 import { deleteAdminProduct, fetchAdminProductById } from "./adminProductsApi"
 import {
@@ -81,9 +82,12 @@ export function AdminProductDetailPage({
       return
     }
 
-    const shouldDelete = window.confirm(
-      `Supprimer le produit "${product.nom}" ? Cette action est irréversible.`,
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer le produit",
+      message: `Supprimer le produit "${product.nom}" ? Cette action est irréversible.`,
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return

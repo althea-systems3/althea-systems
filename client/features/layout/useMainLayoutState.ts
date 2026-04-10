@@ -15,6 +15,7 @@ import {
   GUEST_MENU_ITEMS,
   type LayoutMenuItem,
 } from "./layoutConstants"
+import { secureFetch } from "@/lib/http/secureFetch"
 
 type MainLayoutState = {
   cartItemCount: number
@@ -24,7 +25,7 @@ type MainLayoutState = {
   menuToggleButtonRef: MutableRefObject<HTMLButtonElement | null>
   menuItems: LayoutMenuItem[]
   handleCloseMobileMenu: () => void
-  handleLogoutUser: () => void
+  handleLogoutUser: () => Promise<void>
   handleToggleMobileMenu: () => void
 }
 
@@ -127,12 +128,21 @@ export function useMainLayoutState(): MainLayoutState {
     setIsMobileMenuOpen((currentValue) => !currentValue)
   }, [])
 
-  const handleLogoutUser = useCallback(() => {
-    if (canUseBrowserApi()) {
-      window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "false")
-      window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
+  const handleLogoutUser = useCallback(async () => {
+    try {
+      await secureFetch("/api/auth/logout", { method: "POST" })
+    } catch (error) {
+      console.error("Erreur logout utilisateur", { error })
     }
 
+    if (canUseBrowserApi()) {
+      window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "false")
+      window.localStorage.removeItem(CART_COUNT_STORAGE_KEY)
+      window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
+      window.dispatchEvent(new Event(CART_UPDATED_EVENT_NAME))
+    }
+
+    setCartItemCount(0)
     setIsUserAuthenticated(false)
     setIsMobileMenuOpen(false)
   }, [])

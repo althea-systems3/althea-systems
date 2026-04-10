@@ -32,6 +32,7 @@ import {
   fetchAllFilteredProducts,
   runAdminBulkProductsAction,
 } from "./adminProductsApi"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 import {
   ADMIN_PRODUCT_PAGE_SIZE_OPTIONS,
   ADMIN_PRODUCT_SORT_LABELS,
@@ -218,9 +219,12 @@ export function AdminProductsListPage() {
   }
 
   async function handleDeleteProduct(product: AdminProduct) {
-    const shouldDelete = window.confirm(
-      `Supprimer le produit "${product.nom}" ? Cette action est irréversible.`,
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer le produit",
+      message: `Supprimer le produit "${product.nom}" ? Cette action est irréversible.`,
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return
@@ -254,9 +258,13 @@ export function AdminProductsListPage() {
     }
 
     if (action === "delete") {
-      const shouldDelete = window.confirm(
-        "Supprimer tous les produits sélectionnés ? Cette action est irréversible.",
-      )
+      const shouldDelete = await confirmCriticalAction({
+        title: "Supprimer les produits",
+        message:
+          "Supprimer tous les produits sélectionnés ? Cette action est irréversible.",
+        confirmLabel: "Supprimer",
+        tone: "danger",
+      })
 
       if (!shouldDelete) {
         return

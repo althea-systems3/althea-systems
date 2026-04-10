@@ -11,6 +11,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group"
 import { usePathname, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
 import type { AccountProfile } from "./accountTypes"
 import {
   getInitialProfileForm,
@@ -57,7 +58,7 @@ export function AccountProfileSection() {
       setProfileStatus(null)
 
       try {
-        const response = await fetch("/api/account/profile", {
+        const response = await secureFetch("/api/account/profile", {
           cache: "no-store",
         })
 
@@ -135,11 +136,8 @@ export function AccountProfileSection() {
     setProfileStatus(null)
 
     try {
-      const response = await fetch("/api/account/profile", {
+      const response = await secureFetch("/api/account/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(profileForm),
       })
 

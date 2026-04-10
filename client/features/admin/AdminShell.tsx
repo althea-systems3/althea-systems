@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link, usePathname } from "@/i18n/navigation"
 import { ADMIN_NAV_ITEMS } from "@/features/admin/adminNavigation"
+import { secureFetch } from "@/lib/http/secureFetch"
 
 type AdminShellProps = {
   adminName: string
@@ -22,7 +23,7 @@ export function AdminShell({ adminName, locale, children }: AdminShellProps) {
     setIsLoggingOut(true)
 
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
+      await secureFetch("/api/auth/logout", { method: "POST" })
     } finally {
       window.location.href = `/${locale}/connexion`
     }

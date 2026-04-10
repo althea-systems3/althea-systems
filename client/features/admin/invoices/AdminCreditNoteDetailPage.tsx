@@ -20,6 +20,7 @@ import {
 } from "./adminInvoicesApi"
 import type { AdminCreditNoteDetailPayload } from "./adminInvoicesTypes"
 import { mapCreditNoteMotifUi, mapInvoiceStatusUi } from "./adminInvoicesUtils"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 type AdminCreditNoteDetailPageProps = {
   creditNoteId: string
@@ -74,9 +75,12 @@ export function AdminCreditNoteDetailPage({
   }, [loadDetail])
 
   async function handleSendEmail() {
-    const confirmed = window.confirm(
-      "Confirmer le renvoi de cet avoir par email au client ?",
-    )
+    const confirmed = await confirmCriticalAction({
+      title: "Renvoyer l'avoir",
+      message: "Confirmer le renvoi de cet avoir par email au client ?",
+      confirmLabel: "Envoyer",
+      tone: "warning",
+    })
 
     if (!confirmed) {
       return

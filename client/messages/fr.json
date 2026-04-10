@@ -125,10 +125,49 @@
           "incorrectPassword": "Mot de passe incorrect.",
           "accountNotVerified": "Ce compte n'est pas encore verifie. Verifiez votre e-mail.",
           "sessionExpired": "Votre session a expire. Connectez-vous pour continuer.",
+          "adminTwoFactorUnavailable": "Connexion admin impossible pour le moment. Reessayez.",
           "serverError": "Une erreur serveur temporaire est survenue. Reessayez.",
           "signInFailed": "Connexion impossible pour le moment. Reessayez.",
           "passwordResetSuccess": "Mot de passe reinitialise avec succes. Connectez-vous.",
           "verificationSuccess": "Adresse e-mail verifiee. Vous pouvez vous connecter."
+        }
+      }
+    },
+    "adminTwoFactor": {
+      "title": "Verification administrateur",
+      "description": "Un code de verification est requis pour acceder au backoffice.",
+      "form": {
+        "title": "Validation 2FA",
+        "description": "Entrez le code a 6 chiffres recu par e-mail.",
+        "fields": {
+          "code": {
+            "label": "Code de verification",
+            "placeholder": "000000"
+          }
+        },
+        "actions": {
+          "verify": "Valider",
+          "verifying": "Validation...",
+          "resendCode": "Renvoyer un code",
+          "resendIn": "Renvoyer dans {seconds}s",
+          "sending": "Envoi...",
+          "backToSignIn": "Revenir a la connexion"
+        },
+        "hints": {
+          "expiry": "Le code expire rapidement pour limiter les risques de compromission."
+        },
+        "messages": {
+          "codeSent": "Un nouveau code a ete envoye.",
+          "verifiedRedirecting": "Verification reussie. Redirection en cours...",
+          "invalidCodeFormat": "Le code doit contenir 6 chiffres.",
+          "invalidCode": "Code invalide ou expire.",
+          "challengeExpired": "Le code a expire. Demandez-en un nouveau.",
+          "tooManyAttempts": "Trop de tentatives. Reconnectez-vous pour recommencer.",
+          "sessionExpired": "Session expiree. Reconnectez-vous.",
+          "adminRequired": "Acces reserve aux administrateurs.",
+          "challengeUnavailable": "Impossible d'envoyer le code pour le moment.",
+          "verifyFailed": "Verification impossible pour le moment.",
+          "serverError": "Erreur serveur temporaire. Reessayez."
         }
       }
     },

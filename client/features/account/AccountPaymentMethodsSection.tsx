@@ -22,6 +22,8 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { InputGroupInput } from "@/components/ui/input-group"
 import { usePathname, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 import type {
   AccountPaymentCreateForm,
   AccountPaymentEditForm,
@@ -88,7 +90,7 @@ export function AccountPaymentMethodsSection() {
 
   const loadPaymentMethods = useCallback(async () => {
     try {
-      const response = await fetch("/api/account/payment-methods", {
+      const response = await secureFetch("/api/account/payment-methods", {
         cache: "no-store",
       })
 
@@ -182,11 +184,8 @@ export function AccountPaymentMethodsSection() {
     setPaymentStatus(null)
 
     try {
-      const response = await fetch("/api/account/payment-methods", {
+      const response = await secureFetch("/api/account/payment-methods", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(paymentCreateForm),
       })
 
@@ -240,13 +239,10 @@ export function AccountPaymentMethodsSection() {
     setPaymentStatus(null)
 
     try {
-      const response = await fetch(
+      const response = await secureFetch(
         `/api/account/payment-methods/${paymentMethodId}`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(paymentEditForm),
         },
       )
@@ -282,14 +278,19 @@ export function AccountPaymentMethodsSection() {
   }
 
   async function handleDeletePaymentMethod(paymentMethodId: string) {
-    const hasConfirmedDeletion = window.confirm(t("payments.confirmDelete"))
+    const hasConfirmedDeletion = await confirmCriticalAction({
+      title: "Supprimer le moyen de paiement",
+      message: t("payments.confirmDelete"),
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!hasConfirmedDeletion) {
       return
     }
 
     try {
-      const response = await fetch(
+      const response = await secureFetch(
         `/api/account/payment-methods/${paymentMethodId}`,
         {
           method: "DELETE",

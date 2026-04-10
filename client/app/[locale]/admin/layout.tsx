@@ -1,7 +1,10 @@
 import type { ReactNode } from "react"
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 
 import { AdminShell } from "@/features/admin/AdminShell"
+import { isAdminTwoFactorVerified } from "@/lib/auth/adminTwoFactor"
+import { ADMIN_2FA_VERIFIED_COOKIE_NAME } from "@/lib/auth/constants"
 import { getCurrentUser } from "@/lib/auth/session"
 
 type AdminRouteLayoutProps = {
@@ -43,6 +46,18 @@ export default async function AdminRouteLayout({
 
   if (currentUser.userProfile?.est_admin !== true) {
     redirect(`/${locale}`)
+  }
+
+  const cookieStore = await cookies()
+  const adminTwoFactorToken =
+    cookieStore.get(ADMIN_2FA_VERIFIED_COOKIE_NAME)?.value ?? null
+  const isAdminStepUpValid = isAdminTwoFactorVerified(
+    adminTwoFactorToken,
+    currentUser.user.id,
+  )
+
+  if (!isAdminStepUpValid) {
+    redirect(`/${locale}/connexion/admin-verification?next=/admin`)
   }
 
   return (

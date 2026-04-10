@@ -329,7 +329,9 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <button
                     type="button"
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-error transition-colors hover:bg-red-50"
-                    onClick={handleLogoutUser}
+                    onClick={() => {
+                      void handleLogoutUser()
+                    }}
                   >
                     <LogOut className="size-4" aria-hidden="true" />
                     <span>{translateLayout("menuItems.logout")}</span>

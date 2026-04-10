@@ -137,6 +137,75 @@ export async function sendPasswordResetEmail(
   }
 }
 
+// --- Types code 2FA admin ---
+
+export type AdminTwoFactorEmailData = {
+  recipientEmail: string
+  adminName: string
+  code: string
+  expiresInMinutes: number
+}
+
+// --- Constantes code 2FA admin ---
+
+const ADMIN_2FA_EMAIL_SUBJECT =
+  "Code de vérification administrateur — Althea Systems"
+
+// --- Construction HTML code 2FA admin ---
+
+function buildAdminTwoFactorHtml(data: AdminTwoFactorEmailData): string {
+  const safeAdminName = escapeHtml(data.adminName || "Administrateur")
+  const safeCode = escapeHtml(data.code)
+
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+      <h1 style="color:#1a1a1a;font-size:22px">Validation 2FA administrateur</h1>
+      <p>Bonjour ${safeAdminName},</p>
+      <p>Un accès à l'espace administrateur a été demandé. Saisissez le code ci-dessous pour finaliser la connexion :</p>
+
+      <div style="margin:24px 0;text-align:center">
+        <p style="display:inline-block;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:8px;padding:12px 20px;font-size:28px;letter-spacing:6px;font-weight:700;color:#0f172a">
+          ${safeCode}
+        </p>
+      </div>
+
+      <p style="color:#475569;font-size:14px">
+        Ce code expire dans ${data.expiresInMinutes} minute(s).
+      </p>
+
+      <p style="color:#64748b;font-size:13px">
+        Si vous n'êtes pas à l'origine de cette demande, changez immédiatement votre mot de passe administrateur.
+      </p>
+    </div>
+  `
+}
+
+// --- Envoi code 2FA admin ---
+
+export async function sendAdminTwoFactorEmail(
+  data: AdminTwoFactorEmailData,
+): Promise<void> {
+  const resend = getResendClient()
+  const fromEmail = getFromEmail()
+  const htmlContent = buildAdminTwoFactorHtml(data)
+
+  const { error } = await resend.emails.send({
+    from: fromEmail,
+    to: data.recipientEmail,
+    subject: ADMIN_2FA_EMAIL_SUBJECT,
+    html: htmlContent,
+  })
+
+  if (error) {
+    console.error("Erreur envoi email code 2FA admin", {
+      recipientEmail: data.recipientEmail,
+      error,
+    })
+
+    throw new Error("Impossible d envoyer le code 2FA administrateur.")
+  }
+}
+
 // --- Types mail admin direct ---
 
 export type AdminDirectEmailData = {

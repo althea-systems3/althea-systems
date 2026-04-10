@@ -1,4 +1,4 @@
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 
 import {
   buildAdminProductsQueryString,
@@ -45,7 +45,7 @@ type AdminCategoriesResponse = {
 }
 
 export async function fetchAdminCategories(): Promise<AdminCategory[]> {
-  const response = await fetch("/api/admin/categories", {
+  const response = await adminFetch("/api/admin/categories", {
     cache: "no-store",
   })
 
@@ -68,7 +68,7 @@ export async function fetchAdminProducts(
     ? `/api/admin/produits?${queryString}`
     : "/api/admin/produits"
 
-  const response = await fetch(endpoint, {
+  const response = await adminFetch(endpoint, {
     cache: "no-store",
   })
 
@@ -102,7 +102,7 @@ export async function fetchAllFilteredProducts(
 export async function fetchAdminProductById(
   productId: string,
 ): Promise<AdminProduct> {
-  const response = await fetch(`/api/admin/produits/${productId}`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}`, {
     cache: "no-store",
   })
 
@@ -117,7 +117,7 @@ export async function fetchAdminProductById(
 export async function createAdminProduct(
   payload: AdminProductWritePayload,
 ): Promise<AdminProduct> {
-  const response = await fetch("/api/admin/produits", {
+  const response = await adminFetch("/api/admin/produits", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export async function updateAdminProduct(
   productId: string,
   payload: Partial<AdminProductWritePayload>,
 ): Promise<AdminProduct> {
-  const response = await fetch(`/api/admin/produits/${productId}`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -154,7 +154,7 @@ export async function updateAdminProduct(
 }
 
 export async function deleteAdminProduct(productId: string): Promise<void> {
-  const response = await fetch(`/api/admin/produits/${productId}`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}`, {
     method: "DELETE",
   })
 
@@ -169,7 +169,7 @@ export async function runAdminBulkProductsAction(payload: {
   productIds: string[]
   categoryId?: string
 }): Promise<AdminBulkActionResponse> {
-  const response = await fetch("/api/admin/produits/bulk", {
+  const response = await adminFetch("/api/admin/produits/bulk", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -186,7 +186,7 @@ export async function runAdminBulkProductsAction(payload: {
 export async function fetchAdminProductImages(
   productId: string,
 ): Promise<AdminProductImage[]> {
-  const response = await fetch(`/api/admin/produits/${productId}/images`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}/images`, {
     cache: "no-store",
   })
 
@@ -208,7 +208,7 @@ export async function uploadAdminProductImages(
     formData.append("files", file)
   })
 
-  const response = await fetch(`/api/admin/produits/${productId}/images`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}/images`, {
     method: "POST",
     body: formData,
   })
@@ -225,7 +225,7 @@ export async function updateAdminProductImages(
   productId: string,
   images: AdminProductImage[],
 ): Promise<AdminProductImage[]> {
-  const response = await fetch(`/api/admin/produits/${productId}/images`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}/images`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -245,7 +245,7 @@ export async function deleteAdminProductImage(
   productId: string,
   imageUrl: string,
 ): Promise<AdminProductImage[]> {
-  const response = await fetch(`/api/admin/produits/${productId}/images`, {
+  const response = await adminFetch(`/api/admin/produits/${productId}/images`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

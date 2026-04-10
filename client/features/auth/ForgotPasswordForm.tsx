@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation"
 
 import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
+import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -159,11 +160,8 @@ export function ForgotPasswordForm() {
         callbackUrl.searchParams.set("source", sourceContext)
       }
 
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await secureFetch("/api/auth/forgot-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           email: forgotPasswordValues.email,
           redirectTo: callbackUrl.toString(),

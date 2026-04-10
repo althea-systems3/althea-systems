@@ -1,4 +1,4 @@
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 
 import type {
   AdminCreditNoteDetailPayload,
@@ -27,7 +27,7 @@ export async function fetchAdminInvoices(
     ? `/api/admin/invoices?${queryString}`
     : "/api/admin/invoices"
 
-  const response = await fetch(endpoint, { cache: "no-store" })
+  const response = await adminFetch(endpoint, { cache: "no-store" })
 
   return parseApiResponse<AdminInvoicesListPayload>(
     response,
@@ -38,7 +38,7 @@ export async function fetchAdminInvoices(
 export async function fetchAdminInvoiceById(
   invoiceId: string,
 ): Promise<AdminInvoiceDetailPayload> {
-  const response = await fetch(`/api/admin/invoices/${invoiceId}`, {
+  const response = await adminFetch(`/api/admin/invoices/${invoiceId}`, {
     cache: "no-store",
   })
 
@@ -52,7 +52,7 @@ export async function updateAdminInvoiceById(
   invoiceId: string,
   payload: AdminInvoiceUpdatePayload,
 ): Promise<AdminInvoiceDetailPayload> {
-  const response = await fetch(`/api/admin/invoices/${invoiceId}`, {
+  const response = await adminFetch(`/api/admin/invoices/${invoiceId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export async function updateAdminInvoiceById(
 export async function deleteAdminInvoiceById(
   invoiceId: string,
 ): Promise<AdminInvoiceDeletePayload> {
-  const response = await fetch(`/api/admin/invoices/${invoiceId}`, {
+  const response = await adminFetch(`/api/admin/invoices/${invoiceId}`, {
     method: "DELETE",
   })
 
@@ -80,7 +80,7 @@ export async function deleteAdminInvoiceById(
 }
 
 export async function sendAdminInvoiceEmail(invoiceId: string): Promise<void> {
-  const response = await fetch(`/api/admin/invoices/${invoiceId}/email`, {
+  const response = await adminFetch(`/api/admin/invoices/${invoiceId}/email`, {
     method: "POST",
   })
 
@@ -98,7 +98,7 @@ export async function fetchAdminCreditNotes(
     ? `/api/admin/avoirs?${queryString}`
     : "/api/admin/avoirs"
 
-  const response = await fetch(endpoint, { cache: "no-store" })
+  const response = await adminFetch(endpoint, { cache: "no-store" })
 
   return parseApiResponse<AdminCreditNotesListPayload>(
     response,
@@ -109,7 +109,7 @@ export async function fetchAdminCreditNotes(
 export async function fetchAdminCreditNoteById(
   creditNoteId: string,
 ): Promise<AdminCreditNoteDetailPayload> {
-  const response = await fetch(`/api/admin/avoirs/${creditNoteId}`, {
+  const response = await adminFetch(`/api/admin/avoirs/${creditNoteId}`, {
     cache: "no-store",
   })
 
@@ -122,7 +122,7 @@ export async function fetchAdminCreditNoteById(
 export async function sendAdminCreditNoteEmail(
   creditNoteId: string,
 ): Promise<void> {
-  const response = await fetch(`/api/admin/avoirs/${creditNoteId}/email`, {
+  const response = await adminFetch(`/api/admin/avoirs/${creditNoteId}/email`, {
     method: "POST",
   })
 

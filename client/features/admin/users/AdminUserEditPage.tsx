@@ -32,6 +32,7 @@ import {
 } from "./adminUsersApi"
 import type { AdminUserDetailPayload } from "./adminUsersTypes"
 import { mapUserStatusUi } from "./adminUsersUtils"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 type AdminUserEditPageProps = {
   userId: string
@@ -214,9 +215,13 @@ export function AdminUserEditPage({ userId }: AdminUserEditPageProps) {
       return
     }
 
-    const userConfirmed = window.confirm(
-      "Suppression RGPD: cette action anonymise définitivement le compte. Confirmez-vous?",
-    )
+    const userConfirmed = await confirmCriticalAction({
+      title: "Suppression RGPD",
+      message:
+        "Suppression RGPD: cette action anonymise définitivement le compte. Confirmez-vous?",
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!userConfirmed) {
       return

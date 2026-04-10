@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
+import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -109,6 +110,10 @@ function getApiErrorMessageKey(errorCode: string): string {
 
   if (errorCode === "server_error") {
     return "serverError"
+  }
+
+  if (errorCode === "challenge_unavailable") {
+    return "adminTwoFactorUnavailable"
   }
 
   return "signInFailed"
@@ -258,11 +263,8 @@ export function SignInForm() {
     setSignInStatus(null)
 
     try {
-      const response = await fetch("/api/auth/signin", {
+      const response = await secureFetch("/api/auth/signin", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           email: signInFormValues.email,
           password: signInFormValues.password,
@@ -284,6 +286,18 @@ export function SignInForm() {
             `form.messages.${getApiErrorMessageKey(responseCode)}`,
           ),
         })
+        return
+      }
+
+      if (responsePayload.requiresAdminTwoFactor === true) {
+        const adminVerificationPath = buildPathWithContext(
+          "/connexion/admin-verification",
+          nextPath,
+          null,
+        )
+
+        setAuthenticatedLayoutState()
+        router.replace(adminVerificationPath)
         return
       }
 

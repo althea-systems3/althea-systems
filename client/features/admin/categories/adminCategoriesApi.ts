@@ -1,4 +1,4 @@
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 
 import {
   buildAdminCategoriesQueryString,
@@ -38,7 +38,7 @@ export async function fetchAdminCategories(
     ? `/api/admin/categories?${queryString}`
     : "/api/admin/categories"
 
-  const response = await fetch(endpoint, { cache: "no-store" })
+  const response = await adminFetch(endpoint, { cache: "no-store" })
 
   const payload = await parseApiResponse<AdminCategoriesListResponse>(
     response,
@@ -51,7 +51,7 @@ export async function fetchAdminCategories(
 export async function fetchAdminCategoryById(
   categoryId: string,
 ): Promise<AdminCategoryDetailPayload> {
-  const response = await fetch(`/api/admin/categories/${categoryId}`, {
+  const response = await adminFetch(`/api/admin/categories/${categoryId}`, {
     cache: "no-store",
   })
 
@@ -64,7 +64,7 @@ export async function fetchAdminCategoryById(
 export async function createAdminCategory(
   payload: AdminCategoryWritePayload,
 ): Promise<AdminCategory> {
-  const response = await fetch("/api/admin/categories", {
+  const response = await adminFetch("/api/admin/categories", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export async function updateAdminCategory(
   categoryId: string,
   payload: Partial<AdminCategoryWritePayload>,
 ): Promise<AdminCategory> {
-  const response = await fetch(`/api/admin/categories/${categoryId}`, {
+  const response = await adminFetch(`/api/admin/categories/${categoryId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -101,7 +101,7 @@ export async function updateAdminCategory(
 }
 
 export async function deleteAdminCategory(categoryId: string): Promise<void> {
-  const response = await fetch(`/api/admin/categories/${categoryId}`, {
+  const response = await adminFetch(`/api/admin/categories/${categoryId}`, {
     method: "DELETE",
   })
 
@@ -114,7 +114,7 @@ export async function deleteAdminCategory(categoryId: string): Promise<void> {
 export async function reorderAdminCategories(
   categories: Array<{ id: string; ordre_affiche: number }>,
 ): Promise<void> {
-  const response = await fetch("/api/admin/categories/reorder", {
+  const response = await adminFetch("/api/admin/categories/reorder", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -132,7 +132,7 @@ export async function runAdminCategoriesBulkStatusAction(payload: {
   action: AdminCategoriesBulkAction
   categoryIds: string[]
 }): Promise<AdminBulkResponse> {
-  const response = await fetch("/api/admin/categories/bulk", {
+  const response = await adminFetch("/api/admin/categories/bulk", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -153,10 +153,13 @@ export async function uploadAdminCategoryImage(
   const formData = new FormData()
   formData.append("file", imageFile)
 
-  const response = await fetch(`/api/admin/categories/${categoryId}/upload`, {
-    method: "POST",
-    body: formData,
-  })
+  const response = await adminFetch(
+    `/api/admin/categories/${categoryId}/upload`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  )
 
   const payload = await parseApiResponse<AdminCategoryUploadResponse>(
     response,
@@ -169,9 +172,12 @@ export async function uploadAdminCategoryImage(
 export async function deleteAdminCategoryImage(
   categoryId: string,
 ): Promise<void> {
-  const response = await fetch(`/api/admin/categories/${categoryId}/image`, {
-    method: "DELETE",
-  })
+  const response = await adminFetch(
+    `/api/admin/categories/${categoryId}/image`,
+    {
+      method: "DELETE",
+    },
+  )
 
   await parseApiResponse<{ success: boolean }>(
     response,

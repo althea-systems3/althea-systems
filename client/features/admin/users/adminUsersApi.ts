@@ -1,4 +1,4 @@
-import { parseApiResponse } from "@/features/admin/adminApi"
+import { adminFetch, parseApiResponse } from "@/features/admin/adminApi"
 
 import type {
   AdminSendMailPayload,
@@ -26,7 +26,7 @@ export async function fetchAdminUsers(
     ? `/api/admin/utilisateurs?${queryString}`
     : "/api/admin/utilisateurs"
 
-  const response = await fetch(endpoint, { cache: "no-store" })
+  const response = await adminFetch(endpoint, { cache: "no-store" })
 
   return parseApiResponse<AdminUsersListPayload>(
     response,
@@ -37,7 +37,7 @@ export async function fetchAdminUsers(
 export async function fetchAdminUserById(
   userId: string,
 ): Promise<AdminUserDetailPayload> {
-  const response = await fetch(`/api/admin/utilisateurs/${userId}`, {
+  const response = await adminFetch(`/api/admin/utilisateurs/${userId}`, {
     cache: "no-store",
   })
 
@@ -51,7 +51,7 @@ export async function updateAdminUserStatus(
   userId: string,
   statut: "actif" | "inactif" | "en_attente",
 ): Promise<void> {
-  const response = await fetch(`/api/admin/utilisateurs/${userId}`, {
+  const response = await adminFetch(`/api/admin/utilisateurs/${userId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export async function sendAdminUserMail(
   userId: string,
   payload: AdminSendMailPayload,
 ): Promise<void> {
-  const response = await fetch(`/api/admin/utilisateurs/${userId}/mail`, {
+  const response = await adminFetch(`/api/admin/utilisateurs/${userId}/mail`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export async function sendAdminUserMail(
 }
 
 export async function resetAdminUserPassword(userId: string): Promise<void> {
-  const response = await fetch(
+  const response = await adminFetch(
     `/api/admin/utilisateurs/${userId}/reset-password`,
     {
       method: "POST",
@@ -101,7 +101,7 @@ export async function deleteAdminUserWithRgpd(
   userId: string,
   confirmationText: string,
 ): Promise<void> {
-  const response = await fetch(`/api/admin/utilisateurs/${userId}`, {
+  const response = await adminFetch(`/api/admin/utilisateurs/${userId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

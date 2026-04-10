@@ -19,6 +19,7 @@ import {
   validateContactForm,
 } from "@/lib/contact/validation"
 import { sanitizeChatContent } from "@/lib/contact/chatbot"
+import { secureFetch } from "@/lib/http/secureFetch"
 import {
   getContactToolsLocaleContent,
   type ContactToolsLocaleContent,
@@ -166,7 +167,7 @@ export function ContactToolsPage({
 
     async function hydrateSession() {
       try {
-        const response = await fetch("/api/auth/me", { method: "GET" })
+        const response = await secureFetch("/api/auth/me", { method: "GET" })
         const payload = await response.json().catch(() => null)
 
         if (isCancelled) {
@@ -288,11 +289,8 @@ export function ContactToolsPage({
     setFormStatus(null)
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await secureFetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           email: formValues.email,
           subject: formValues.subject,
@@ -364,11 +362,8 @@ export function ContactToolsPage({
     setIsBotReplying(true)
 
     try {
-      const response = await fetch("/api/chatbot", {
+      const response = await secureFetch("/api/chatbot", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           conversationId: chatConversationId,
           message: safeMessage,
@@ -459,11 +454,8 @@ export function ContactToolsPage({
     setChatStatus(null)
 
     try {
-      const response = await fetch("/api/chatbot/escalate", {
+      const response = await secureFetch("/api/chatbot/escalate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           conversationId: chatConversationId,
           email: chatCapturedEmail || formValues.email,

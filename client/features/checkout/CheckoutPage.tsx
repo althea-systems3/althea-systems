@@ -21,6 +21,7 @@ import {
   AUTHENTICATION_UPDATED_EVENT_NAME,
 } from "@/features/layout/layoutConstants"
 import { Link, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
 import { cn } from "@/lib/utils"
 import {
   CheckoutPageBlockedState,
@@ -212,7 +213,7 @@ export function CheckoutPage() {
   const refreshAuthUser =
     useCallback(async (): Promise<CheckoutAuthUser | null> => {
       try {
-        const response = await fetch("/api/auth/me", {
+        const response = await secureFetch("/api/auth/me", {
           method: "GET",
           cache: "no-store",
         })
@@ -298,7 +299,7 @@ export function CheckoutPage() {
       setIsAddressLoading(true)
 
       try {
-        const response = await fetch("/api/checkout/addresses", {
+        const response = await secureFetch("/api/checkout/addresses", {
           method: "GET",
           cache: "no-store",
         })
@@ -368,7 +369,7 @@ export function CheckoutPage() {
       setIsPaymentLoading(true)
 
       try {
-        const response = await fetch("/api/checkout/payment-methods", {
+        const response = await secureFetch("/api/checkout/payment-methods", {
           method: "GET",
           cache: "no-store",
         })
@@ -712,11 +713,8 @@ export function CheckoutPage() {
     setIsConfirmingOrder(true)
 
     try {
-      const response = await fetch("/api/checkout/confirm", {
+      const response = await secureFetch("/api/checkout/confirm", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           guestEmail: authUser ? undefined : guestEmail.trim(),
           address: addressPayload,

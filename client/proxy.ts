@@ -14,16 +14,28 @@ const PROTECTED_PATHS = [
   "/admin",
 ]
 const AUTH_PATHS = ["/connexion", "/inscription", "/mot-de-passe-oublie"]
+const ADMIN_2FA_PATH = "/connexion/admin-verification"
 const ADMIN_API_PREFIX = "/api/admin"
+const SENSITIVE_API_PREFIXES = [
+  ADMIN_API_PREFIX,
+  "/api/account",
+  "/api/checkout",
+  "/api/contact",
+  "/api/chatbot",
+]
+const CSRF_MISSING_HEADERS_MESSAGE =
+  "Requête rejetée : headers origin/host manquants"
+const CSRF_INVALID_ORIGIN_MESSAGE = "Requête rejetée : origin non autorisée"
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // NOTE: Les routes /api/admin/* sont protégées au niveau du proxy
-  const isAdminApiRoute = pathname.startsWith(ADMIN_API_PREFIX)
+  const isSensitiveApiRoute = SENSITIVE_API_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix),
+  )
 
-  if (isAdminApiRoute) {
-    return handleAdminApiRoute(request)
+  if (isSensitiveApiRoute) {
+    return handleSensitiveApiRoute(request)
   }
 
   const intlResponse = intlMiddleware(request)
@@ -35,6 +47,7 @@ export default async function proxy(request: NextRequest) {
   const isAuthRoute = AUTH_PATHS.some((path) =>
     pathWithoutLocale.startsWith(path),
   )
+  const isAdminTwoFactorRoute = pathWithoutLocale.startsWith(ADMIN_2FA_PATH)
   const hasSupabaseAuthConfiguration =
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -74,7 +87,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  if (isAuthRoute && user) {
+  if (isAuthRoute && user && !isAdminTwoFactorRoute) {
     return NextResponse.redirect(new URL(`/${locale}`, request.url))
   }
 
@@ -133,9 +146,21 @@ function createSupabaseProxyClient(
   )
 }
 
-async function handleAdminApiRoute(
+async function handleSensitiveApiRoute(
   request: NextRequest,
 ): Promise<NextResponse> {
+  const csrfError = verifyApiCsrf(request)
+
+  if (csrfError) {
+    return csrfError
+  }
+
+  const pathname = request.nextUrl.pathname
+
+  if (!pathname.startsWith(ADMIN_API_PREFIX)) {
+    return NextResponse.next()
+  }
+
   const hasSupabaseConfig =
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
     Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -164,6 +189,62 @@ async function handleAdminApiRoute(
   return response
 }
 
+function normalizeOriginHost(rawOrigin: string): string | null {
+  try {
+    return new URL(rawOrigin).host.toLowerCase()
+  } catch {
+    return null
+  }
+}
+
+function resolveExpectedHost(request: NextRequest): string | null {
+  const forwardedHost = request.headers
+    .get("x-forwarded-host")
+    ?.trim()
+    .toLowerCase()
+  const hostHeader = request.headers.get("host")?.trim().toLowerCase()
+
+  return forwardedHost || hostHeader || request.nextUrl.host.toLowerCase()
+}
+
+function verifyApiCsrf(request: NextRequest): NextResponse | null {
+  const method = request.method.toUpperCase()
+  const isReadOnlyMethod =
+    method === "GET" || method === "HEAD" || method === "OPTIONS"
+
+  if (isReadOnlyMethod) {
+    return null
+  }
+
+  const origin = request.headers.get("origin")
+  const expectedHost = resolveExpectedHost(request)
+
+  if (!origin || !expectedHost) {
+    return NextResponse.json(
+      { error: CSRF_MISSING_HEADERS_MESSAGE },
+      { status: 403 },
+    )
+  }
+
+  const normalizedOriginHost = normalizeOriginHost(origin)
+
+  if (!normalizedOriginHost || normalizedOriginHost !== expectedHost) {
+    return NextResponse.json(
+      { error: CSRF_INVALID_ORIGIN_MESSAGE },
+      { status: 403 },
+    )
+  }
+
+  return null
+}
+
 export const config = {
-  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)", "/api/admin/:path*"],
+  matcher: [
+    "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+    "/api/admin/:path*",
+    "/api/account/:path*",
+    "/api/checkout/:path*",
+    "/api/contact/:path*",
+    "/api/chatbot/:path*",
+  ],
 }

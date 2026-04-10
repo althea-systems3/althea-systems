@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation"
 
 import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
+import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -198,11 +199,8 @@ export function ResetPasswordForm() {
     setResetPasswordStatus(null)
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await secureFetch("/api/auth/reset-password", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           password: resetPasswordValues.password,
           passwordConfirmation: resetPasswordValues.passwordConfirmation,

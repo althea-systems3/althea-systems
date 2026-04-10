@@ -28,6 +28,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Link, useRouter } from "@/i18n/navigation"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 import {
   createAdminCategory,
@@ -327,9 +328,12 @@ export function AdminCategoryFormPage({
       return
     }
 
-    const shouldDelete = window.confirm(
-      "Supprimer l'image de cette catégorie ?",
-    )
+    const shouldDelete = await confirmCriticalAction({
+      title: "Supprimer l'image",
+      message: "Supprimer l'image de cette catégorie ?",
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!shouldDelete) {
       return

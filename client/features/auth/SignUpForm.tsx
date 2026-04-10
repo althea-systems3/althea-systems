@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
+import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -281,11 +282,8 @@ export function SignUpForm() {
         isCheckoutEntry ? "checkout" : "sign_up_page",
       )
 
-      const response = await fetch("/api/auth/signup", {
+      const response = await secureFetch("/api/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           firstName: signUpFormValues.firstName,
           lastName: signUpFormValues.lastName,

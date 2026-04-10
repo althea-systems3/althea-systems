@@ -28,6 +28,7 @@ import {
 } from "./adminInvoicesApi"
 import type { AdminInvoiceDetailPayload } from "./adminInvoicesTypes"
 import { mapCreditNoteMotifUi, mapInvoiceStatusUi } from "./adminInvoicesUtils"
+import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
 type AdminInvoiceDetailPageProps = {
   invoiceId: string
@@ -81,9 +82,12 @@ export function AdminInvoiceDetailPage({
   }, [loadDetail])
 
   async function handleSendEmail() {
-    const confirmed = window.confirm(
-      "Confirmer le renvoi de cette facture par email au client ?",
-    )
+    const confirmed = await confirmCriticalAction({
+      title: "Renvoyer la facture",
+      message: "Confirmer le renvoi de cette facture par email au client ?",
+      confirmLabel: "Envoyer",
+      tone: "warning",
+    })
 
     if (!confirmed) {
       return
@@ -108,9 +112,13 @@ export function AdminInvoiceDetailPage({
   }
 
   async function handleDeleteInvoice() {
-    const confirmed = window.confirm(
-      "Cette action va annuler la facture et creer automatiquement un avoir. Confirmer ?",
-    )
+    const confirmed = await confirmCriticalAction({
+      title: "Supprimer la facture",
+      message:
+        "Cette action va annuler la facture et creer automatiquement un avoir. Confirmer ?",
+      confirmLabel: "Supprimer",
+      tone: "danger",
+    })
 
     if (!confirmed) {
       return
