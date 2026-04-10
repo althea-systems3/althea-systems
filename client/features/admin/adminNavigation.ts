@@ -1,4 +1,5 @@
 import {
+  BookText,
   BarChart3,
   Bot,
   Boxes,
@@ -60,5 +61,10 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "Chatbot",
     href: "/admin/chatbot",
     icon: Bot,
+  },
+  {
+    label: "Pages statiques",
+    href: "/admin/pages-statiques",
+    icon: BookText,
   },
 ]
