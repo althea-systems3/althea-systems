@@ -989,6 +989,480 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/produits": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Lister les produits (admin)",
+        description: "Liste paginée des produits avec filtres, tri et recherche.",
+        parameters: [
+          { name: "search", in: "query", schema: { type: "string" }, description: "Recherche par nom, slug ou description" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] }, description: "Filtrer par statut" },
+          { name: "categoryId", in: "query", schema: { type: "string" }, description: "Filtrer par catégorie" },
+          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] }, description: "Filtrer par disponibilité" },
+          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de création minimum" },
+          { name: "createdTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de création maximum" },
+          { name: "priceMin", in: "query", schema: { type: "number" }, description: "Prix TTC minimum" },
+          { name: "priceMax", in: "query", schema: { type: "number" }, description: "Prix TTC maximum" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", minimum: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", minimum: 1, maximum: 200 }, description: "Taille de page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des produits",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_produit: { type: "string" },
+                          nom: { type: "string" },
+                          description: { type: "string", nullable: true },
+                          prix_ht: { type: "number" },
+                          tva: { type: "string" },
+                          prix_ttc: { type: "number" },
+                          quantite_stock: { type: "integer" },
+                          statut: { type: "string", enum: ["publie", "brouillon"] },
+                          slug: { type: "string" },
+                          date_creation: { type: "string", nullable: true },
+                          image_principale_url: { type: "string", nullable: true },
+                          categories: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                id_categorie: { type: "string" },
+                                nom: { type: "string" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    categories: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_categorie: { type: "string" },
+                          nom: { type: "string" },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        pageSize: { type: "integer" },
+                        totalItems: { type: "integer" },
+                        totalPages: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Créer un produit",
+        description: "Crée un nouveau produit avec calcul automatique du prix TTC ou HT.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["nom"],
+                properties: {
+                  nom: { type: "string" },
+                  description: { type: "string" },
+                  prix_ht: { type: "number", description: "Prix HT (priorité sur prix_ttc)" },
+                  prix_ttc: { type: "number", description: "Prix TTC (utilisé si prix_ht absent)" },
+                  tva: { type: "string", enum: ["20", "10", "5.5", "0"], default: "20" },
+                  quantite_stock: { type: "integer", minimum: 0 },
+                  statut: { type: "string", enum: ["publie", "brouillon"], default: "brouillon" },
+                  slug: { type: "string", description: "Slug personnalisé (auto-généré si absent)" },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                  caracteristique_tech: { type: "object", description: "Caractéristiques techniques libres" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Produit créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides (nom manquant, prix invalide, slug dupliqué, etc.)" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/produits/{id}": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Détail d un produit",
+        description: "Retourne le détail complet d un produit avec catégories et images.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Détail du produit",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Produits"],
+        summary: "Mettre à jour un produit",
+        description: "Mise à jour partielle. Le prix TTC est recalculé automatiquement si prix_ht ou tva change.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nom: { type: "string" },
+                  description: { type: "string", nullable: true },
+                  prix_ht: { type: "number" },
+                  prix_ttc: { type: "number" },
+                  tva: { type: "string", enum: ["20", "10", "5.5", "0"] },
+                  quantite_stock: { type: "integer", minimum: 0 },
+                  statut: { type: "string", enum: ["publie", "brouillon"] },
+                  slug: { type: "string" },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                  caracteristique_tech: { type: "object", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Produit mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides ou slug dupliqué" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Produits"],
+        summary: "Supprimer un produit",
+        description: "Supprime un produit. Échoue si le produit est lié à des commandes.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Produit supprimé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide ou contrainte FK" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+    },
+    "/api/admin/produits/{id}/images": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Lister les images d un produit",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des images",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Uploader des images produit",
+        description: "Upload une ou plusieurs images (jpeg, png, webp, max 5 Mo chacune) vers Firebase Storage.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  files: {
+                    type: "array",
+                    items: { type: "string", format: "binary" },
+                    description: "Fichiers image (champ files ou file)",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Images uploadées",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Fichier manquant, type invalide ou taille dépassée" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Produits"],
+        summary: "Réorganiser les images d un produit",
+        description: "Met à jour l ordre, l image principale et les textes alt.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["images"],
+                properties: {
+                  images: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/ImageProduit" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Images mises à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Payload images invalide" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Produits"],
+        summary: "Supprimer une image produit",
+        description: "Supprime une image du produit (Firestore + Firebase Storage).",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["url"],
+                properties: {
+                  url: { type: "string", description: "URL publique de l image à supprimer" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Image supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "URL image manquante" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Image introuvable" },
+        },
+      },
+    },
+    "/api/admin/produits/bulk": {
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Actions groupées sur les produits",
+        description: "Suppression, publication, dépublication ou changement de catégorie en masse.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["action", "productIds"],
+                properties: {
+                  action: { type: "string", enum: ["delete", "publish", "unpublish", "set_category"] },
+                  productIds: { type: "array", items: { type: "string" } },
+                  categoryId: { type: "string", description: "Requis si action = set_category" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Action effectuée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    action: { type: "string" },
+                    affectedCount: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Action invalide, pas de produits, ou échec suppression" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/produits/export": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Exporter les produits en CSV ou Excel",
+        description: "Export serveur des produits avec les mêmes filtres que la liste. Maximum 10 000 lignes.",
+        parameters: [
+          { name: "format", in: "query", schema: { type: "string", enum: ["csv", "excel"], default: "csv" }, description: "Format d export" },
+          { name: "search", in: "query", schema: { type: "string" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] } },
+          { name: "categoryId", in: "query", schema: { type: "string" } },
+          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] } },
+          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" } },
+          { name: "createdTo", in: "query", schema: { type: "string", format: "date" } },
+          { name: "priceMin", in: "query", schema: { type: "number" } },
+          { name: "priceMax", in: "query", schema: { type: "number" } },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] } },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
+        ],
+        responses: {
+          "200": {
+            description: "Fichier CSV ou Excel",
+            content: {
+              "text/csv": {
+                schema: { type: "string" },
+              },
+              "application/vnd.ms-excel": {
+                schema: { type: "string" },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -2786,6 +3260,15 @@ export const openApiSpec = {
           statut: { type: "string", enum: ["publie", "brouillon"] },
           priorite: { type: "integer" },
           est_top_produit: { type: "boolean" },
+        },
+      },
+      ImageProduit: {
+        type: "object",
+        properties: {
+          url: { type: "string" },
+          ordre: { type: "integer" },
+          est_principale: { type: "boolean" },
+          alt_text: { type: "string", nullable: true },
         },
       },
       PaymentMethod: {
