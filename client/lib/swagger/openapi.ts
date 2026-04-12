@@ -1597,6 +1597,239 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/utilisateurs": {
+      get: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Lister les utilisateurs",
+        description: "Liste paginée des utilisateurs avec filtres, recherche, tri et données enrichies (commandes, adresses, dernière connexion).",
+        parameters: [
+          { name: "searchName", in: "query", schema: { type: "string" }, description: "Recherche par nom" },
+          { name: "searchEmail", in: "query", schema: { type: "string" }, description: "Recherche par email" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "actif", "inactif", "en_attente"] }, description: "Filtre par statut" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "date_inscription", "nombre_commandes", "ca_total", "derniere_connexion"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des utilisateurs",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    users: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/UtilisateurListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}": {
+      get: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Détail d un utilisateur",
+        description: "Profil complet avec adresses, moyens de paiement, commandes et résumé financier.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail complet de l utilisateur",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    user: { $ref: "#/components/schemas/UtilisateurDetail" },
+                    addresses: { type: "array", items: { type: "object" } },
+                    paymentMethods: { type: "array", items: { type: "object" } },
+                    orders: { type: "array", items: { type: "object" } },
+                    summary: {
+                      type: "object",
+                      properties: {
+                        nombre_commandes: { type: "integer" },
+                        chiffre_affaires_total: { type: "number" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Changer le statut d un utilisateur",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["statut"],
+                properties: {
+                  statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    user: { $ref: "#/components/schemas/UtilisateurDetail" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID ou statut invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Suppression RGPD d un utilisateur",
+        description: "Anonymise les données personnelles. Requiert une confirmation RGPD explicite. Interdit pour les comptes admin.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["acknowledgeRgpd", "confirmationText"],
+                properties: {
+                  acknowledgeRgpd: { type: "boolean", example: true },
+                  confirmationText: { type: "string", example: "SUPPRIMER" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Données anonymisées avec succès",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Confirmation invalide ou compte admin" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur suppression" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}/reset-password": {
+      post: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Réinitialiser le mot de passe",
+        description: "Génère un token de reset et envoie un email. Refusé si le compte est inactif.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        responses: {
+          "200": {
+            description: "Email de reset envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide ou compte inactif" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur reset" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}/mail": {
+      post: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Envoyer un email à un utilisateur",
+        description: "Envoi d un email admin direct. Sujet : 3-160 caractères, contenu : 5-5000 caractères.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["subject", "content"],
+                properties: {
+                  subject: { type: "string", minLength: 3, maxLength: 160 },
+                  content: { type: "string", minLength: 5, maxLength: 5000 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Sujet ou contenu invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur envoi" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -3403,6 +3636,38 @@ export const openApiSpec = {
           ordre: { type: "integer" },
           est_principale: { type: "boolean" },
           alt_text: { type: "string", nullable: true },
+        },
+      },
+      UtilisateurListItem: {
+        type: "object",
+        properties: {
+          id_utilisateur: { type: "string" },
+          email: { type: "string" },
+          nom_complet: { type: "string" },
+          est_admin: { type: "boolean" },
+          statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+          email_verifie: { type: "boolean" },
+          date_inscription: { type: "string", format: "date-time" },
+          nombre_commandes: { type: "integer" },
+          chiffre_affaires_total: { type: "number" },
+          derniere_connexion: { type: "string", format: "date-time", nullable: true },
+          adresses_facturation: { type: "array", items: { type: "string" } },
+          adresses_facturation_count: { type: "integer" },
+        },
+      },
+      UtilisateurDetail: {
+        type: "object",
+        properties: {
+          id_utilisateur: { type: "string" },
+          email: { type: "string" },
+          nom_complet: { type: "string" },
+          est_admin: { type: "boolean" },
+          statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+          email_verifie: { type: "boolean" },
+          date_inscription: { type: "string", format: "date-time", nullable: true },
+          cgu_acceptee_le: { type: "string", format: "date-time", nullable: true },
+          date_validation_email: { type: "string", format: "date-time", nullable: true },
+          derniere_connexion: { type: "string", format: "date-time", nullable: true },
         },
       },
       PaymentMethod: {
