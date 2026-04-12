@@ -1,39 +1,38 @@
-import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { NextResponse } from 'next/server';
 
-import { createServerClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requireAuthenticatedUser } from '@/lib/account/guards';
+import {
+  normalizeString,
+  getAddressValidationError,
+} from '@/lib/account/validation';
+
+// --- Types ---
 
 type AddressRow = {
-  id_adresse: string
-  prenom: string
-  nom: string
-  adresse_1: string
-  adresse_2: string | null
-  ville: string
-  code_postal: string
-  pays: string
-  telephone: string | null
-}
+  id_adresse: string;
+  prenom: string;
+  nom: string;
+  adresse_1: string;
+  adresse_2: string | null;
+  ville: string;
+  code_postal: string;
+  pays: string;
+  telephone: string | null;
+};
 
 type AddressPayload = {
-  firstName: string
-  lastName: string
-  address1: string
-  address2: string
-  city: string
-  postalCode: string
-  country: string
-  phone: string
-}
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+};
 
-function normalizeString(value: unknown): string {
-  if (typeof value !== "string") {
-    return ""
-  }
-
-  return value.trim()
-}
+// --- Helpers ---
 
 function mapAddressRow(row: AddressRow) {
   return {
@@ -41,38 +40,12 @@ function mapAddressRow(row: AddressRow) {
     firstName: row.prenom,
     lastName: row.nom,
     address1: row.adresse_1,
-    address2: row.adresse_2 ?? "",
+    address2: row.adresse_2 ?? '',
     city: row.ville,
     postalCode: row.code_postal,
     country: row.pays,
-    phone: row.telephone ?? "",
-  }
-}
-
-function getValidationError(body: unknown): string | null {
-  const parsedBody = body as Record<string, unknown> | null
-
-  if (!parsedBody || typeof parsedBody !== "object") {
-    return "invalid_payload"
-  }
-
-  const requiredKeys: Array<[keyof AddressPayload, string]> = [
-    ["firstName", "first_name_required"],
-    ["lastName", "last_name_required"],
-    ["address1", "address_1_required"],
-    ["city", "city_required"],
-    ["postalCode", "postal_code_required"],
-    ["country", "country_required"],
-    ["phone", "phone_required"],
-  ]
-
-  for (const [key, code] of requiredKeys) {
-    if (!normalizeString(parsedBody[key])) {
-      return code
-    }
-  }
-
-  return null
+    phone: row.telephone ?? '',
+  };
 }
 
 function toInsertPayload(body: AddressPayload) {
@@ -85,146 +58,108 @@ function toInsertPayload(body: AddressPayload) {
     code_postal: normalizeString(body.postalCode),
     pays: normalizeString(body.country),
     telephone: normalizeString(body.phone),
-  }
+  };
 }
+
+// --- Handlers ---
 
 export async function GET() {
   try {
-    const cookieStore = await cookies()
-    const supabaseClient = createServerClient(cookieStore)
-    const supabaseAdmin = createAdminClient()
+    const auth = await requireAuthenticatedUser();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseClient.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          error: "Session expiree",
-          code: "session_expired",
-        },
-        { status: 401 },
-      )
+    if (auth.response) {
+      return auth.response;
     }
 
+    const supabaseAdmin = createAdminClient();
+
     const { data, error } = await supabaseAdmin
-      .from("adresse")
+      .from('adresse')
       .select(
-        "id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone",
+        'id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone',
       )
-      .eq("id_utilisateur", user.id)
-      .order("id_adresse", { ascending: false })
+      .eq('id_utilisateur', auth.userId)
+      .order('id_adresse', { ascending: false });
 
     if (error || !data) {
-      console.error("Erreur lecture adresses compte", {
+      console.error('Erreur lecture adresses compte', {
         error,
-        userId: user.id,
-      })
+        userId: auth.userId,
+      });
 
       return NextResponse.json(
-        {
-          error: "Impossible de charger les adresses",
-          code: "addresses_fetch_failed",
-        },
+        { error: 'Impossible de charger les adresses', code: 'addresses_fetch_failed' },
         { status: 500 },
-      )
+      );
     }
 
     return NextResponse.json({
       addresses: (data as AddressRow[]).map(mapAddressRow),
-    })
+    });
   } catch (error) {
-    console.error("Erreur inattendue lecture adresses compte", { error })
+    console.error('Erreur inattendue lecture adresses compte', { error });
 
     return NextResponse.json(
-      {
-        error: "Erreur serveur",
-        code: "server_error",
-      },
+      { error: 'Erreur serveur', code: 'server_error' },
       { status: 500 },
-    )
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => null)
-    const validationError = getValidationError(body)
+    const body = await request.json().catch(() => null);
+    const validationError = getAddressValidationError(body);
 
     if (validationError) {
       return NextResponse.json(
-        {
-          error: "Adresse invalide",
-          code: validationError,
-        },
+        { error: 'Adresse invalide', code: validationError },
         { status: 400 },
-      )
+      );
     }
 
-    const cookieStore = await cookies()
-    const supabaseClient = createServerClient(cookieStore)
-    const supabaseAdmin = createAdminClient()
+    const auth = await requireAuthenticatedUser();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseClient.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          error: "Session expiree",
-          code: "session_expired",
-        },
-        { status: 401 },
-      )
+    if (auth.response) {
+      return auth.response;
     }
 
-    const payload = body as AddressPayload
+    const payload = body as AddressPayload;
+    const supabaseAdmin = createAdminClient();
 
     const { data, error } = await supabaseAdmin
-      .from("adresse")
+      .from('adresse')
       .insert({
-        id_utilisateur: user.id,
+        id_utilisateur: auth.userId,
         ...toInsertPayload(payload),
       } as never)
       .select(
-        "id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone",
+        'id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone',
       )
-      .single()
+      .single();
 
     if (error || !data) {
-      console.error("Erreur creation adresse compte", {
+      console.error('Erreur creation adresse compte', {
         error,
-        userId: user.id,
-      })
+        userId: auth.userId,
+      });
 
       return NextResponse.json(
-        {
-          error: "Impossible de creer l'adresse",
-          code: "address_create_failed",
-        },
+        { error: 'Impossible de creer l\'adresse', code: 'address_create_failed' },
         { status: 500 },
-      )
+      );
     }
 
     return NextResponse.json(
-      {
-        address: mapAddressRow(data as AddressRow),
-      },
+      { address: mapAddressRow(data as AddressRow) },
       { status: 201 },
-    )
+    );
   } catch (error) {
-    console.error("Erreur inattendue creation adresse compte", { error })
+    console.error('Erreur inattendue creation adresse compte', { error });
 
     return NextResponse.json(
-      {
-        error: "Erreur serveur",
-        code: "server_error",
-      },
+      { error: 'Erreur serveur', code: 'server_error' },
       { status: 500 },
-    )
+    );
   }
 }
