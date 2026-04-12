@@ -59,6 +59,12 @@ type InvoiceRow = {
   pdf_url: string | null;
 };
 
+type StatusHistoryRow = {
+  statut_precedent: string | null;
+  nouveau_statut: string;
+  date_changement: string;
+};
+
 // --- Helpers ---
 
 function toSafeNumber(value: number | string): number {
@@ -137,7 +143,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     // --- Parallel fetch: lines, address, invoice ---
 
-    const [linesResult, invoiceResult] = await Promise.all([
+    const [linesResult, invoiceResult, statusHistoryResult] = await Promise.all([
       supabaseAdmin
         .from('ligne_commande')
         .select(
@@ -153,6 +159,11 @@ export async function GET(_request: Request, context: RouteContext) {
         .order('date_emission', { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabaseAdmin
+        .from('historique_statut')
+        .select('statut_precedent, nouveau_statut, date_changement')
+        .eq('id_commande', order.id_commande)
+        .order('date_changement', { ascending: true }),
     ]);
 
     let address: {
@@ -216,6 +227,14 @@ export async function GET(_request: Request, context: RouteContext) {
         }
       : null;
 
+    const statusHistory = (
+      (statusHistoryResult.data ?? []) as StatusHistoryRow[]
+    ).map((row) => ({
+      previousStatus: row.statut_precedent,
+      newStatus: row.nouveau_statut,
+      changedAt: row.date_changement,
+    }));
+
     return NextResponse.json({
       order: {
         id: order.id_commande,
@@ -232,6 +251,7 @@ export async function GET(_request: Request, context: RouteContext) {
       lines,
       address,
       invoice,
+      statusHistory,
     });
   } catch (error) {
     console.error('Erreur inattendue detail commande compte', { error });

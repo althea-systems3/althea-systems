@@ -7,6 +7,7 @@ const mockOrderQuery = vi.fn();
 const mockLinesQuery = vi.fn();
 const mockAddressQuery = vi.fn();
 const mockInvoiceQuery = vi.fn();
+const mockStatusHistoryQuery = vi.fn();
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(() =>
@@ -74,6 +75,16 @@ vi.mock('@/lib/supabase/admin', () => ({
         };
       }
 
+      if (table === 'historique_statut') {
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => mockStatusHistoryQuery(),
+            }),
+          }),
+        };
+      }
+
       return {};
     },
   }),
@@ -88,6 +99,7 @@ import { GET } from '@/app/api/account/orders/[numero]/route';
 describe('GET /api/account/orders/[numero]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockStatusHistoryQuery.mockResolvedValue({ data: [], error: null });
   });
 
   it('retourne 401 si utilisateur non authentifie', async () => {
@@ -260,5 +272,69 @@ describe('GET /api/account/orders/[numero]', () => {
     expect(body.address).toBeNull();
     expect(body.invoice).toBeNull();
     expect(body.lines).toHaveLength(0);
+    expect(body.statusHistory).toEqual([]);
+  });
+
+  it('retourne l\'historique des statuts', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-001' } },
+      error: null,
+    });
+
+    mockOrderQuery.mockResolvedValue({
+      data: {
+        id_commande: 'order-001',
+        numero_commande: 'CMD-1001',
+        date_commande: '2026-01-15T10:00:00.000Z',
+        montant_ht: 100,
+        montant_tva: 20,
+        montant_ttc: 120,
+        statut: 'terminee',
+        statut_paiement: 'valide',
+        mode_paiement: 'carte',
+        paiement_dernier_4: '4242',
+        id_adresse: null,
+      },
+      error: null,
+    });
+
+    mockLinesQuery.mockResolvedValue({ data: [], error: null });
+    mockInvoiceQuery.mockResolvedValue({ data: null, error: null });
+
+    mockStatusHistoryQuery.mockResolvedValue({
+      data: [
+        {
+          statut_precedent: null,
+          nouveau_statut: 'en_attente',
+          date_changement: '2026-01-15T10:00:00.000Z',
+        },
+        {
+          statut_precedent: 'en_attente',
+          nouveau_statut: 'en_cours',
+          date_changement: '2026-01-16T08:00:00.000Z',
+        },
+        {
+          statut_precedent: 'en_cours',
+          nouveau_statut: 'terminee',
+          date_changement: '2026-01-17T14:00:00.000Z',
+        },
+      ],
+      error: null,
+    });
+
+    const response = await GET(new Request('http://localhost'), {
+      params: Promise.resolve({ numero: 'CMD-1001' }),
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+
+    expect(body.statusHistory).toHaveLength(3);
+    expect(body.statusHistory[0]).toEqual({
+      previousStatus: null,
+      newStatus: 'en_attente',
+      changedAt: '2026-01-15T10:00:00.000Z',
+    });
+    expect(body.statusHistory[2].newStatus).toBe('terminee');
   });
 });
