@@ -137,22 +137,13 @@ export async function GET(_request: Request, context: RouteContext) {
 
     // --- Parallel fetch: lines, address, invoice ---
 
-    const [linesResult, addressResult, invoiceResult] = await Promise.all([
+    const [linesResult, invoiceResult] = await Promise.all([
       supabaseAdmin
         .from('ligne_commande')
         .select(
           'id_ligne, id_produit, quantite, prix_unitaire_ht, prix_total_ttc, produit:id_produit(nom, slug)',
         )
         .eq('id_commande', order.id_commande),
-      order.id_adresse
-        ? supabaseAdmin
-            .from('adresse')
-            .select(
-              'id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone',
-            )
-            .eq('id_adresse', order.id_adresse)
-            .single()
-        : Promise.resolve({ data: null, error: null }),
       supabaseAdmin
         .from('facture')
         .select(
@@ -163,6 +154,42 @@ export async function GET(_request: Request, context: RouteContext) {
         .limit(1)
         .maybeSingle(),
     ]);
+
+    let address: {
+      firstName: string;
+      lastName: string;
+      address1: string;
+      address2: string;
+      city: string;
+      postalCode: string;
+      country: string;
+      phone: string;
+    } | null = null;
+
+    if (order.id_adresse) {
+      const { data: addressData } = await supabaseAdmin
+        .from('adresse')
+        .select(
+          'id_adresse, prenom, nom, adresse_1, adresse_2, ville, code_postal, pays, telephone',
+        )
+        .eq('id_adresse', order.id_adresse)
+        .single();
+
+      if (addressData) {
+        const row = addressData as AddressRow;
+
+        address = {
+          firstName: row.prenom ?? '',
+          lastName: row.nom ?? '',
+          address1: row.adresse_1 ?? '',
+          address2: row.adresse_2 ?? '',
+          city: row.ville ?? '',
+          postalCode: row.code_postal ?? '',
+          country: row.pays ?? '',
+          phone: row.telephone ?? '',
+        };
+      }
+    }
 
     const lines = ((linesResult.data ?? []) as OrderLineRow[]).map((line) => {
       const product = normalizeProductRelation(line.produit);
@@ -176,19 +203,6 @@ export async function GET(_request: Request, context: RouteContext) {
         product,
       };
     });
-
-    const address = addressResult.data
-      ? {
-          firstName: (addressResult.data as AddressRow).prenom ?? '',
-          lastName: (addressResult.data as AddressRow).nom ?? '',
-          address1: (addressResult.data as AddressRow).adresse_1 ?? '',
-          address2: (addressResult.data as AddressRow).adresse_2 ?? '',
-          city: (addressResult.data as AddressRow).ville ?? '',
-          postalCode: (addressResult.data as AddressRow).code_postal ?? '',
-          country: (addressResult.data as AddressRow).pays ?? '',
-          phone: (addressResult.data as AddressRow).telephone ?? '',
-        }
-      : null;
 
     const invoice = invoiceResult.data
       ? {
