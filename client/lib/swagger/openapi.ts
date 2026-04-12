@@ -2143,6 +2143,481 @@ export const openApiSpec = {
         },
       },
     },
+
+    // --- Compte utilisateur ---
+
+    "/api/account/profile": {
+      get: {
+        tags: ["Compte"],
+        summary: "Consulter son profil",
+        responses: {
+          "200": {
+            description: "Profil utilisateur",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    profile: {
+                      type: "object",
+                      properties: {
+                        firstName: { type: "string" },
+                        lastName: { type: "string" },
+                        email: { type: "string" },
+                        phone: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      put: {
+        tags: ["Compte"],
+        summary: "Mettre à jour son profil",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["firstName", "lastName", "email"],
+                properties: {
+                  firstName: { type: "string", example: "Jean" },
+                  lastName: { type: "string", example: "Dupont" },
+                  email: { type: "string", example: "jean@example.com" },
+                  phone: { type: "string", example: "+33 6 00 00 00 00" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Profil mis à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "409": { description: "Email déjà utilisé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/addresses": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses adresses",
+        responses: {
+          "200": {
+            description: "Liste des adresses",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    addresses: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AccountAddress" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Compte"],
+        summary: "Ajouter une adresse",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AccountAddressPayload" },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "Adresse créée" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/addresses/{id}": {
+      put: {
+        tags: ["Compte"],
+        summary: "Modifier une adresse",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AccountAddressPayload" },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Adresse mise à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Compte"],
+        summary: "Supprimer une adresse",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "Adresse supprimée" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Adresse introuvable" },
+          "409": { description: "Adresse liée à une commande active" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/payment-methods": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses moyens de paiement",
+        responses: {
+          "200": {
+            description: "Liste des moyens de paiement",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    paymentMethods: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AccountPaymentMethod" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Compte"],
+        summary: "Ajouter un moyen de paiement",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["stripePaymentId", "cardHolder", "last4", "expiry"],
+                properties: {
+                  stripePaymentId: { type: "string", example: "pm_123" },
+                  cardHolder: { type: "string", example: "Jean Dupont" },
+                  last4: { type: "string", example: "4242" },
+                  expiry: { type: "string", example: "12/30" },
+                  isDefault: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "Moyen de paiement créé" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/payment-methods/{id}": {
+      patch: {
+        tags: ["Compte"],
+        summary: "Modifier un moyen de paiement",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  cardHolder: { type: "string" },
+                  expiry: { type: "string" },
+                  isDefault: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Moyen de paiement mis à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Moyen de paiement introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Compte"],
+        summary: "Supprimer un moyen de paiement",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "Moyen de paiement supprimé" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Moyen de paiement introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses commandes",
+        parameters: [
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des commandes avec pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          orderNumber: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          paymentStatus: { type: "string" },
+                          orderType: { type: "string", enum: ["mono_produit", "multi_produits"] },
+                          productCount: { type: "integer" },
+                          productNames: { type: "array", items: { type: "string" } },
+                          invoice: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              invoiceNumber: { type: "string" },
+                              status: { type: "string" },
+                              pdfUrl: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        limit: { type: "integer" },
+                        offset: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/{numero}": {
+      get: {
+        tags: ["Compte"],
+        summary: "Détail d une commande",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la commande avec lignes, adresse et facture",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                        paymentMethod: { type: "string", nullable: true },
+                        paymentLast4: { type: "string", nullable: true, example: "**** **** **** 4242" },
+                      },
+                    },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          productId: { type: "string" },
+                          quantity: { type: "integer" },
+                          unitPriceHt: { type: "number" },
+                          totalTtc: { type: "number" },
+                          product: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              name: { type: "string" },
+                              slug: { type: "string" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    address: { $ref: "#/components/schemas/AccountAddress", nullable: true },
+                    invoice: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de commande invalide" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/invoices": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses factures",
+        parameters: [
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des factures avec pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoices: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          invoiceNumber: { type: "string" },
+                          orderNumber: { type: "string", nullable: true },
+                          issuedAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string" },
+                          pdfUrl: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        limit: { type: "integer" },
+                        offset: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/invoices/{numero}": {
+      get: {
+        tags: ["Compte"],
+        summary: "Détail d une facture",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de facture (ex: FAC-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la facture avec commande associée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    order: {
+                      type: "object",
+                      properties: {
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de facture invalide" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
   },
   components: {
     schemas: {
@@ -2237,6 +2712,44 @@ export const openApiSpec = {
           quantity: { type: "integer" },
           unitPriceHt: { type: "number" },
           totalTtc: { type: "number" },
+        },
+      },
+      AccountAddress: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          address1: { type: "string" },
+          address2: { type: "string" },
+          city: { type: "string" },
+          postalCode: { type: "string" },
+          country: { type: "string" },
+          phone: { type: "string" },
+        },
+      },
+      AccountAddressPayload: {
+        type: "object",
+        required: ["firstName", "lastName", "address1", "city", "postalCode", "country"],
+        properties: {
+          firstName: { type: "string", example: "Jean" },
+          lastName: { type: "string", example: "Dupont" },
+          address1: { type: "string", example: "10 rue de la Paix" },
+          address2: { type: "string", example: "" },
+          city: { type: "string", example: "Paris" },
+          postalCode: { type: "string", example: "75001" },
+          country: { type: "string", example: "France" },
+          phone: { type: "string", example: "+33 6 00 00 00 00" },
+        },
+      },
+      AccountPaymentMethod: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          cardHolder: { type: "string" },
+          last4: { type: "string", example: "4242" },
+          expiry: { type: "string", example: "12/30" },
+          isDefault: { type: "boolean" },
         },
       },
     },
