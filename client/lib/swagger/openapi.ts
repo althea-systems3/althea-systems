@@ -630,6 +630,64 @@ export const openApiSpec = {
       },
     },
     "/api/admin/categories/{id}": {
+      get: {
+        tags: ["Admin - Catégories"],
+        summary: "Détail d une catégorie",
+        description: "Retourne le détail complet d une catégorie avec ses produits associés.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la catégorie",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "object",
+                      properties: {
+                        id_categorie: { type: "string" },
+                        nom: { type: "string" },
+                        description: { type: "string", nullable: true },
+                        slug: { type: "string" },
+                        ordre_affiche: { type: "integer" },
+                        statut: { type: "string", enum: ["active", "inactive"] },
+                        image_url: { type: "string", nullable: true },
+                        thumbnail_url: { type: "string", nullable: true },
+                        products_count: { type: "integer" },
+                      },
+                    },
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_produit: { type: "string" },
+                          nom: { type: "string" },
+                          statut: { type: "string" },
+                          quantite_stock: { type: "integer" },
+                          slug: { type: "string" },
+                          image_principale_url: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
       put: {
         tags: ["Admin - Catégories"],
         summary: "Modifier une catégorie",
@@ -795,6 +853,82 @@ export const openApiSpec = {
           },
           "400": { description: "Fichier invalide" },
           "404": { description: "Catégorie introuvable" },
+        },
+      },
+    },
+    "/api/admin/categories/{id}/image": {
+      delete: {
+        tags: ["Admin - Catégories"],
+        summary: "Supprimer l image d une catégorie",
+        description: "Supprime l image de la catégorie (Supabase image_url, Firestore ImagesCategories, Firebase Storage).",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Image supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Catégorie introuvable" },
+          "500": { description: "Erreur suppression image" },
+        },
+      },
+    },
+    "/api/admin/categories/bulk": {
+      post: {
+        tags: ["Admin - Catégories"],
+        summary: "Activation / désactivation groupée",
+        description: "Active ou désactive plusieurs catégories en une seule opération.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["action", "categoryIds"],
+                properties: {
+                  action: { type: "string", enum: ["activate", "deactivate"] },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    action: { type: "string" },
+                    affectedCount: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Action invalide ou aucune catégorie fournie" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
         },
       },
     },
