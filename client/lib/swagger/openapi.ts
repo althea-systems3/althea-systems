@@ -1830,6 +1830,182 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/commandes": {
+      get: {
+        tags: ["Admin - Commandes"],
+        summary: "Lister les commandes",
+        description: "Liste paginée des commandes avec recherche, filtres, tri et données client enrichies.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de commande" },
+          { name: "search", in: "query", schema: { type: "string" }, description: "Alias pour searchNumero" },
+          { name: "searchClientName", in: "query", schema: { type: "string" }, description: "Recherche par nom client" },
+          { name: "searchClientEmail", in: "query", schema: { type: "string" }, description: "Recherche par email client" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtre par statut commande" },
+          { name: "paymentStatus", in: "query", schema: { type: "string", enum: ["all", "valide", "en_attente", "echoue", "rembourse"] }, description: "Filtre par statut paiement" },
+          { name: "paymentMethod", in: "query", schema: { type: "string" }, description: "Filtre par mode de paiement" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["numero_commande", "date_commande", "client", "montant_ttc", "statut", "mode_paiement", "statut_paiement"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des commandes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/CommandeListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                    paymentMethods: { type: "array", items: { type: "string" } },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/commandes/{id}": {
+      get: {
+        tags: ["Admin - Commandes"],
+        summary: "Détail d une commande",
+        description: "Détail complet avec lignes, adresse, facture, historique des statuts et informations de paiement masquées.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail complet de la commande",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: { $ref: "#/components/schemas/CommandeDetail" },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_ligne: { type: "string" },
+                          id_produit: { type: "string" },
+                          quantite: { type: "integer" },
+                          prix_unitaire_ht: { type: "number" },
+                          prix_total_ttc: { type: "number" },
+                          produit: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              nom: { type: "string", nullable: true },
+                              slug: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    address: { type: "object", nullable: true },
+                    statusHistory: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_historique: { type: "string" },
+                          statut_precedent: { type: "string" },
+                          nouveau_statut: { type: "string" },
+                          date_changement: { type: "string", format: "date-time" },
+                          admin: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              nom_complet: { type: "string", nullable: true },
+                              email: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    invoice: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        id_facture: { type: "string" },
+                        numero_facture: { type: "string" },
+                        date_emission: { type: "string", format: "date-time" },
+                        montant_ttc: { type: "number" },
+                        statut: { type: "string" },
+                        pdf_url: { type: "string", nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Commande introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Commandes"],
+        summary: "Changer le statut d une commande",
+        description: "Met à jour le statut, insère un historique et journalise l action admin.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["statut"],
+                properties: {
+                  statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: {
+                      type: "object",
+                      properties: {
+                        id_commande: { type: "string" },
+                        numero_commande: { type: "string" },
+                        statut: { type: "string" },
+                        statut_paiement: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID ou statut invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -3636,6 +3812,52 @@ export const openApiSpec = {
           ordre: { type: "integer" },
           est_principale: { type: "boolean" },
           alt_text: { type: "string", nullable: true },
+        },
+      },
+      CommandeListItem: {
+        type: "object",
+        properties: {
+          id_commande: { type: "string" },
+          numero_commande: { type: "string" },
+          date_commande: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          mode_paiement: { type: "string", nullable: true },
+          paiement_dernier_4_masque: { type: "string", nullable: true },
+          id_utilisateur: { type: "string" },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      CommandeDetail: {
+        type: "object",
+        properties: {
+          id_commande: { type: "string" },
+          numero_commande: { type: "string" },
+          date_commande: { type: "string", format: "date-time" },
+          montant_ht: { type: "number" },
+          montant_tva: { type: "number" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          mode_paiement: { type: "string", nullable: true },
+          paiement_dernier_4_masque: { type: "string", nullable: true },
+          date_paiement: { type: "string", format: "date-time", nullable: true },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
         },
       },
       UtilisateurListItem: {
