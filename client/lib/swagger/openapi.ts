@@ -2507,6 +2507,17 @@ export const openApiSpec = {
                         pdfUrl: { type: "string", nullable: true },
                       },
                     },
+                    statusHistory: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          previousStatus: { type: "string", nullable: true },
+                          newStatus: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          changedAt: { type: "string", format: "date-time" },
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -2515,6 +2526,122 @@ export const openApiSpec = {
           "400": { description: "Numéro de commande invalide" },
           "401": { description: "Session expirée" },
           "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/{numero}/invoice": {
+      get: {
+        tags: ["Compte"],
+        summary: "Facture associée à une commande",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Facture et commande associée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    order: {
+                      type: "object",
+                      properties: {
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de commande invalide" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Commande ou facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/history": {
+      get: {
+        tags: ["Compte"],
+        summary: "Historique des commandes avec filtres",
+        parameters: [
+          { name: "year", in: "query", schema: { type: "integer" }, description: "Filtrer par année (ex: 2026)" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtrer par statut" },
+          { name: "category", in: "query", schema: { type: "string" }, description: "Filtrer par slug catégorie" },
+          { name: "search", in: "query", schema: { type: "string", maxLength: 100 }, description: "Recherche par nom produit ou date (YYYY-MM-DD, DD/MM/YYYY)" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1, minimum: 1 }, description: "Page (1-indexed)" },
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+        ],
+        responses: {
+          "200": {
+            description: "Historique des commandes avec filtres et pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          orderNumber: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          paymentStatus: { type: "string" },
+                          productSummary: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              firstProduct: { type: "string" },
+                              totalCount: { type: "integer" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    filters: {
+                      type: "object",
+                      properties: {
+                        availableYears: { type: "array", items: { type: "integer" }, example: [2026, 2025] },
+                        availableStatuses: { type: "array", items: { type: "string" } },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        limit: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
           "500": { description: "Erreur serveur" },
         },
       },
