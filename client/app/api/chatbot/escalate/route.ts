@@ -1,189 +1,108 @@
-import crypto from "crypto"
+import crypto from "node:crypto"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
-import { createAdminClient } from "@/lib/supabase/admin"
 import { createServerClient } from "@/lib/supabase/server"
 import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
-import { getFirestoreClient } from "@/lib/firebase/admin"
-import { FIRESTORE_CHATBOT_CONVERSATIONS } from "@/lib/contact/constants"
-import { EMAIL_PATTERN, normalizeContactText } from "@/lib/contact/validation"
-import { sanitizeChatContent } from "@/lib/contact/chatbot"
+import { persistEscalation, getConversation } from "@/lib/chatbot/firestore"
+import { logChatbotActivity } from "@/lib/chatbot/logger"
+import { toAppLocale } from "@/lib/i18n"
+import { headers } from "next/headers"
+
+type EscalationReason = "bot_fallback" | "user_request" | "timeout"
 
 type EscalationRequestBody = {
-  conversationId?: unknown
-  email?: unknown
-  subject?: unknown
-  transcript?: unknown
+  conversation_id?: unknown
+  reason?: unknown
 }
 
-type TranscriptMessage = {
-  role?: unknown
-  content?: unknown
-}
-
-function toTranscriptSummary(value: unknown): string {
-  if (!Array.isArray(value)) {
-    return ""
+function parseReason(value: unknown): EscalationReason {
+  if (value === "bot_fallback" || value === "user_request" || value === "timeout") {
+    return value
   }
-
-  return value
-    .map((item) => {
-      const message = item as TranscriptMessage
-      const role = normalizeContactText(message.role).toLowerCase() || "user"
-      const safeContent = sanitizeChatContent(message.content)
-
-      if (!safeContent) {
-        return ""
-      }
-
-      return `${role}: ${safeContent}`
-    })
-    .filter(Boolean)
-    .join("\n")
-    .slice(0, 3000)
+  return "user_request"
 }
 
-async function persistEscalationFlag(params: {
-  conversationId: string
-  email: string | null
-  subject: string | null
-}) {
-  try {
-    const firestore = getFirestoreClient()
-    const docRef = firestore
-      .collection(FIRESTORE_CHATBOT_CONVERSATIONS)
-      .doc(params.conversationId)
-
-    await docRef.set(
-      {
-        conversation_id: params.conversationId,
-        collected_email: params.email,
-        collected_subject: params.subject,
-        human_handover: {
-          requested_at: new Date().toISOString(),
-          status: "pending",
-        },
-        updated_at: new Date().toISOString(),
-      },
-      { merge: true },
-    )
-  } catch (error) {
-    console.error("Erreur mise a jour escalade conversation chatbot", {
-      error,
-      conversationId: params.conversationId,
-    })
-  }
+const SUCCESS_MESSAGES: Record<string, string> = {
+  fr: "Votre demande a été transmise à notre équipe de support. Un agent vous contactera dans les meilleurs délais.",
+  en: "Your request has been sent to our support team. An agent will contact you as soon as possible.",
+  es: "Su solicitud ha sido enviada a nuestro equipo de soporte. Un agente se pondrá en contacto con usted lo antes posible.",
+  ar: "تم إرسال طلبك إلى فريق الدعم لدينا. سيتصل بك أحد الوكلاء في أقرب وقت ممكن.",
 }
 
 export async function POST(request: Request) {
-  try {
-    const body = (await request
-      .json()
-      .catch(() => null)) as EscalationRequestBody | null
+  // ── Detect locale ────────────────────────────────────────────────────────────
+  const requestHeaders = await headers()
+  const localeHeader = requestHeaders.get("x-locale") ?? requestHeaders.get("accept-language") ?? "fr"
+  const locale = toAppLocale(localeHeader.split(",")[0].split("-")[0])
 
-    const conversationId = normalizeContactText(body?.conversationId)
+  try {
+    const body = (await request.json().catch(() => null)) as EscalationRequestBody | null
+
+    const conversationId =
+      typeof body?.conversation_id === "string" && body.conversation_id.trim()
+        ? body.conversation_id.trim()
+        : null
 
     if (!conversationId) {
       return NextResponse.json(
-        {
-          error: "Identifiant de conversation manquant.",
-          code: "conversation_required",
-        },
+        { error: "Identifiant de conversation manquant.", code: "conversation_required" },
         { status: 400 },
       )
     }
 
-    const normalizedEmail = normalizeContactText(body?.email).toLowerCase()
-    const normalizedSubject =
-      normalizeContactText(body?.subject) || "Demande support chatbot"
+    const reason = parseReason(body?.reason)
 
-    if (normalizedEmail && !EMAIL_PATTERN.test(normalizedEmail)) {
-      return NextResponse.json(
-        {
-          error: "Adresse e-mail invalide.",
-          code: "email_invalid",
-        },
-        { status: 400 },
-      )
-    }
-
-    const transcriptSummary = toTranscriptSummary(body?.transcript)
-
+    // ── Auth context ─────────────────────────────────────────────────────────
     const cookieStore = await cookies()
-    const supabaseClient = createServerClient(cookieStore)
+    const supabase = createServerClient(cookieStore)
     const {
       data: { user },
-    } = await supabaseClient.auth.getUser()
+    } = await supabase.auth.getUser()
 
     let sessionId: string
-
     try {
       const session = await getOrCreateCartSessionId()
       sessionId = session.sessionId
-    } catch (error) {
-      console.error("Impossible d initialiser la session escalation chatbot", {
-        error,
-      })
+    } catch {
       sessionId = `chat-${crypto.randomUUID()}`
     }
 
-    const safeEmail =
-      normalizedEmail || user?.email || `guest+${sessionId}@chat.local`
-    const safeSubject = `[Escalade chatbot] ${normalizedSubject}`
+    // Verify conversation belongs to this session/user
+    const conversation = await getConversation(conversationId)
 
-    const escalationContent = [
-      "Demande de transfert vers un agent humain depuis le chatbot.",
-      `Conversation ID: ${conversationId}`,
-      `Session: ${user ? "authenticated" : "guest"}`,
-      transcriptSummary
-        ? `Historique:\n${transcriptSummary}`
-        : "Historique indisponible.",
-    ]
-      .join("\n\n")
-      .slice(0, 3900)
+    if (conversation) {
+      const isOwner =
+        (user && conversation.user_id === user.id) ||
+        conversation.session_id === sessionId
 
-    const supabaseAdmin = createAdminClient()
-    const { data, error } = await supabaseAdmin
-      .from("message_contact")
-      .insert({
-        email: safeEmail,
-        sujet: safeSubject,
-        contenu: escalationContent,
-      } as never)
-      .select("id_message")
-      .single()
-
-    if (error || !data) {
-      console.error("Erreur insertion message escalation", { error })
-
-      return NextResponse.json(
-        {
-          error: "Impossible de transmettre la demande a un agent.",
-          code: "escalation_insert_failed",
-        },
-        { status: 500 },
-      )
+      if (!isOwner) {
+        return NextResponse.json(
+          { error: "Accès non autorisé.", code: "forbidden" },
+          { status: 403 },
+        )
+      }
     }
 
-    await persistEscalationFlag({
-      conversationId,
-      email: EMAIL_PATTERN.test(safeEmail) ? safeEmail : null,
-      subject: normalizedSubject,
+    // ── Persist escalation ───────────────────────────────────────────────────
+    await persistEscalation({ conversationId, reason })
+
+    // ── Log ──────────────────────────────────────────────────────────────────
+    await logChatbotActivity("chatbot_escalation", {
+      conversation_id: conversationId,
+      user_id: user?.id ?? null,
+      reason,
+      email: conversation?.metadata?.email ?? null,
     })
 
     return NextResponse.json({
-      message: "escalation_requested",
-      messageId: (data as { id_message: string }).id_message,
+      success: true,
+      message: SUCCESS_MESSAGES[locale],
     })
   } catch (error) {
-    console.error("Erreur inattendue endpoint chatbot escalation", { error })
-
+    console.error("Erreur endpoint chatbot/escalate", { error })
     return NextResponse.json(
-      {
-        error: "Erreur serveur",
-        code: "server_error",
-      },
+      { error: "Erreur serveur", code: "server_error" },
       { status: 500 },
     )
   }
