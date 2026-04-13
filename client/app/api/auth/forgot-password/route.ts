@@ -88,17 +88,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const user = utilisateur as UtilisateurResetRow;
 
-    // NOTE: Générer et stocker le token reset
+    // NOTE: Générer et stocker le token reset dans la table dédiée
     const { rawToken, tokenHash } = generateVerificationToken();
     const tokenExpiry = computeResetTokenExpiry();
 
+    // NOTE: Invalider les anciens tokens non utilisés
     await supabaseAdmin
-      .from('utilisateur')
-      .update({
-        reset_token_hash: tokenHash,
-        reset_token_expires_at: tokenExpiry.toISOString(),
-      } as never)
-      .eq('id_utilisateur', user.id_utilisateur);
+      .from('password_reset_token')
+      .update({ utilise: true } as never)
+      .eq('id_utilisateur', user.id_utilisateur)
+      .eq('utilise', false);
+
+    await supabaseAdmin.from('password_reset_token').insert({
+      id_utilisateur: user.id_utilisateur,
+      token_hash: tokenHash,
+      expires_at: tokenExpiry.toISOString(),
+    } as never);
 
     // NOTE: Envoyer l'email (non bloquant)
     const resetUrl = buildResetUrl(rawToken);

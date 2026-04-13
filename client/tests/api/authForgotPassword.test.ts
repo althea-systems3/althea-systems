@@ -3,8 +3,9 @@ import { NextRequest } from 'next/server';
 
 // --- Mocks ---
 
-const mockSelectSingle = vi.fn();
-const mockUpdate = vi.fn();
+const mockUserSelectSingle = vi.fn();
+const mockTokenUpdate = vi.fn();
+const mockTokenInsert = vi.fn();
 const mockIsRateLimited = vi.fn();
 const mockSendResetEmail = vi.fn();
 const mockLogAuthActivity = vi.fn();
@@ -21,16 +22,26 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          single: () => mockSelectSingle(),
+    from: (table: string) => {
+      if (table === 'password_reset_token') {
+        return {
+          update: (data: unknown) => ({
+            eq: () => ({
+              eq: () => mockTokenUpdate(data),
+            }),
+          }),
+          insert: (data: unknown) => mockTokenInsert(data),
+        };
+      }
+
+      return {
+        select: () => ({
+          eq: () => ({
+            single: () => mockUserSelectSingle(),
+          }),
         }),
-      }),
-      update: (data: unknown) => ({
-        eq: () => mockUpdate(data),
-      }),
-    }),
+      };
+    },
   }),
 }));
 
@@ -89,7 +100,8 @@ describe('POST /api/auth/forgot-password', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsRateLimited.mockReturnValue(false);
-    mockUpdate.mockResolvedValue({ error: null });
+    mockTokenUpdate.mockResolvedValue({ error: null });
+    mockTokenInsert.mockResolvedValue({ error: null });
     mockSendResetEmail.mockResolvedValue(undefined);
     mockLogAuthActivity.mockResolvedValue(undefined);
   });
@@ -111,7 +123,7 @@ describe('POST /api/auth/forgot-password', () => {
   });
 
   it('retourne 200 anti-énumération si utilisateur non trouvé', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockUserSelectSingle.mockResolvedValue({
       data: null,
       error: { message: 'not found' },
     });
@@ -126,7 +138,7 @@ describe('POST /api/auth/forgot-password', () => {
   });
 
   it('retourne 200 et envoie l\'email si utilisateur trouvé', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockUserSelectSingle.mockResolvedValue({
       data: {
         id_utilisateur: 'user-001',
         nom_complet: 'Jean Dupont',
@@ -150,7 +162,7 @@ describe('POST /api/auth/forgot-password', () => {
   });
 
   it('log auth.forgot_password si utilisateur trouvé', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockUserSelectSingle.mockResolvedValue({
       data: {
         id_utilisateur: 'user-001',
         nom_complet: 'Jean Dupont',

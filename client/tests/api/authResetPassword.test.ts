@@ -3,8 +3,9 @@ import { NextRequest } from 'next/server';
 
 // --- Mocks ---
 
-const mockSelectSingle = vi.fn();
-const mockUpdate = vi.fn();
+const mockTokenSelectSingle = vi.fn();
+const mockUserSelectSingle = vi.fn();
+const mockTokenUpdate = vi.fn();
 const mockUpdateUserById = vi.fn();
 const mockIsRateLimited = vi.fn();
 const mockLogAuthActivity = vi.fn();
@@ -21,16 +22,30 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
-    from: () => ({
-      select: () => ({
-        eq: () => ({
-          single: () => mockSelectSingle(),
+    from: (table: string) => {
+      if (table === 'password_reset_token') {
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () => ({
+                single: () => mockTokenSelectSingle(),
+              }),
+            }),
+          }),
+          update: (data: unknown) => ({
+            eq: () => mockTokenUpdate(data),
+          }),
+        };
+      }
+
+      return {
+        select: () => ({
+          eq: () => ({
+            single: () => mockUserSelectSingle(),
+          }),
         }),
-      }),
-      update: (data: unknown) => ({
-        eq: () => mockUpdate(data),
-      }),
-    }),
+      };
+    },
     auth: {
       admin: {
         updateUserById: (id: string, data: unknown) =>
@@ -89,7 +104,7 @@ describe('POST /api/auth/reset-password', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsRateLimited.mockReturnValue(false);
-    mockUpdate.mockResolvedValue({ error: null });
+    mockTokenUpdate.mockResolvedValue({ error: null });
     mockUpdateUserById.mockResolvedValue({ error: null });
     mockLogAuthActivity.mockResolvedValue(undefined);
   });
@@ -134,7 +149,7 @@ describe('POST /api/auth/reset-password', () => {
   });
 
   it('retourne 400 si token introuvable en base', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockTokenSelectSingle.mockResolvedValue({
       data: null,
       error: { message: 'not found' },
     });
@@ -145,11 +160,12 @@ describe('POST /api/auth/reset-password', () => {
   });
 
   it('retourne 400 si token expiré', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockTokenSelectSingle.mockResolvedValue({
       data: {
+        id_token: 'token-001',
         id_utilisateur: 'user-001',
-        email: 'user@example.com',
-        reset_token_expires_at: '2020-01-01T00:00:00Z',
+        expires_at: '2020-01-01T00:00:00Z',
+        utilise: false,
       },
       error: null,
     });
@@ -157,16 +173,21 @@ describe('POST /api/auth/reset-password', () => {
     const response = await POST(createRequest(VALID_PAYLOAD));
 
     expect(response.status).toBe(400);
-    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockTokenUpdate).toHaveBeenCalled();
   });
 
   it('retourne 200 et met à jour le mot de passe en cas de succès', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockTokenSelectSingle.mockResolvedValue({
       data: {
+        id_token: 'token-001',
         id_utilisateur: 'user-001',
-        email: 'user@example.com',
-        reset_token_expires_at: '2099-12-31T00:00:00Z',
+        expires_at: '2099-12-31T00:00:00Z',
+        utilise: false,
       },
+      error: null,
+    });
+    mockUserSelectSingle.mockResolvedValue({
+      data: { email: 'user@example.com' },
       error: null,
     });
 
@@ -182,12 +203,17 @@ describe('POST /api/auth/reset-password', () => {
   });
 
   it('log auth.reset_password en cas de succès', async () => {
-    mockSelectSingle.mockResolvedValue({
+    mockTokenSelectSingle.mockResolvedValue({
       data: {
+        id_token: 'token-001',
         id_utilisateur: 'user-001',
-        email: 'user@example.com',
-        reset_token_expires_at: '2099-12-31T00:00:00Z',
+        expires_at: '2099-12-31T00:00:00Z',
+        utilise: false,
       },
+      error: null,
+    });
+    mockUserSelectSingle.mockResolvedValue({
+      data: { email: 'user@example.com' },
       error: null,
     });
 

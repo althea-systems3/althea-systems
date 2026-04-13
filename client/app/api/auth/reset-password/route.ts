@@ -13,10 +13,15 @@ import { INVALID_TOKEN_MESSAGE } from '@/lib/auth/constants';
 
 // --- Types ---
 
-type UtilisateurResetTokenRow = {
+type ResetTokenRow = {
+  id_token: string;
   id_utilisateur: string;
+  expires_at: string;
+  utilise: boolean;
+};
+
+type UtilisateurEmailRow = {
   email: string;
-  reset_token_expires_at: string | null;
 };
 
 // --- Constantes ---
@@ -91,47 +96,51 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // NOTE: Vérifier le token en base
+    // NOTE: Vérifier le token en base (table dédiée)
     const tokenHash = hashToken(rawToken);
     const supabaseAdmin = createAdminClient();
 
-    const { data: utilisateur, error } = await supabaseAdmin
-      .from('utilisateur')
-      .select('id_utilisateur, email, reset_token_expires_at')
-      .eq('reset_token_hash', tokenHash)
+    const { data: tokenRow, error } = await supabaseAdmin
+      .from('password_reset_token')
+      .select('id_token, id_utilisateur, expires_at, utilise')
+      .eq('token_hash', tokenHash)
+      .eq('utilise', false)
       .single();
 
-    if (error || !utilisateur) {
+    if (error || !tokenRow) {
       return NextResponse.json(
         { error: INVALID_TOKEN_MESSAGE },
         { status: 400 },
       );
     }
 
-    const user = utilisateur as UtilisateurResetTokenRow;
+    const token = tokenRow as ResetTokenRow;
 
-    if (
-      user.reset_token_expires_at &&
-      isTokenExpired(user.reset_token_expires_at)
-    ) {
+    if (isTokenExpired(token.expires_at)) {
       await supabaseAdmin
-        .from('utilisateur')
-        .update({
-          reset_token_hash: null,
-          reset_token_expires_at: null,
-        } as never)
-        .eq('id_utilisateur', user.id_utilisateur);
+        .from('password_reset_token')
+        .update({ utilise: true } as never)
+        .eq('id_token', token.id_token);
 
       return NextResponse.json(
         { error: INVALID_TOKEN_MESSAGE },
         { status: 400 },
       );
     }
+
+    // NOTE: Récupérer l'email de l'utilisateur pour le log
+    const { data: utilisateur } = await supabaseAdmin
+      .from('utilisateur')
+      .select('email')
+      .eq('id_utilisateur', token.id_utilisateur)
+      .single();
+
+    const userEmail = (utilisateur as UtilisateurEmailRow | null)?.email ?? '';
 
     // NOTE: Mettre à jour le mot de passe via Supabase Auth
     const { error: updateError } =
       await supabaseAdmin.auth.admin.updateUserById(
-        user.id_utilisateur,
+        token.id_utilisateur,
         { password },
       );
 
@@ -145,19 +154,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // NOTE: Nettoyer les colonnes reset token
+    // NOTE: Marquer le token comme utilisé
     await supabaseAdmin
-      .from('utilisateur')
-      .update({
-        reset_token_hash: null,
-        reset_token_expires_at: null,
-      } as never)
-      .eq('id_utilisateur', user.id_utilisateur);
+      .from('password_reset_token')
+      .update({ utilise: true } as never)
+      .eq('id_token', token.id_token);
 
     // NOTE: Journalisation (non bloquant)
     logAuthActivity('auth.reset_password', {
-      userId: user.id_utilisateur,
-      email: user.email,
+      userId: token.id_utilisateur,
+      email: userEmail,
     }).catch(() => {});
 
     return NextResponse.json({

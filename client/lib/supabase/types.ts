@@ -178,6 +178,15 @@ export interface ContenuEditorial {
   date_mise_a_jour: string | null
 }
 
+export interface PasswordResetToken {
+  id_token: string
+  id_utilisateur: string
+  token_hash: string
+  expires_at: string
+  utilise: boolean
+  date_creation: string
+}
+
 // NOTE: Type Database minimal pour typer le client Supabase.
 // Remplacer par les types auto-générés (npx supabase gen types)
 // une fois le projet connecté à Supabase.
@@ -208,6 +217,7 @@ export interface Database {
       avoir: TableHelper<Avoir>
       page_statique: TableHelper<PageStatique>
       contenu_editorial: TableHelper<ContenuEditorial>
+      password_reset_token: TableHelper<PasswordResetToken>
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {}
