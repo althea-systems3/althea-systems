@@ -21,6 +21,7 @@ export interface Utilisateur {
   cgu_acceptee_le: string | null
   reset_token_hash: string | null
   reset_token_expires_at: string | null
+  langue_preferee: string
 }
 
 export interface Categorie {

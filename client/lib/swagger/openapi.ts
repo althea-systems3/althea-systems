@@ -144,6 +144,39 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/i18n/config": {
+      get: {
+        tags: ["i18n"],
+        summary: "Configuration des langues supportées",
+        description: "Endpoint public retournant la liste des langues supportées avec leur direction (ltr/rtl) et la langue par défaut.",
+        responses: {
+          "200": {
+            description: "Configuration i18n",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    languages: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          code: { type: "string", example: "fr" },
+                          label: { type: "string", example: "Français" },
+                          dir: { type: "string", enum: ["ltr", "rtl"] },
+                        },
+                      },
+                    },
+                    default_language: { type: "string", example: "fr" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/auth/me": {
       get: {
         tags: ["Authentification"],
@@ -167,7 +200,8 @@ export const openApiSpec = {
                         nomComplet: { type: "string" },
                         isAdmin: { type: "boolean" },
                         statut: { type: "string" },
-                        locale: { type: "string" },
+                        emailVerifie: { type: "boolean" },
+                        locale: { type: "string", description: "Langue préférée depuis la table utilisateur (défaut: fr)" },
                       },
                     },
                   },
@@ -3453,6 +3487,47 @@ export const openApiSpec = {
           "400": { description: "Données invalides" },
           "401": { description: "Session expirée" },
           "409": { description: "Email déjà utilisé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/preferences": {
+      patch: {
+        tags: ["Compte"],
+        summary: "Mettre à jour la langue préférée",
+        description: "Met à jour la préférence de langue de l utilisateur connecté. La langue doit faire partie de la liste des langues supportées.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["langue_preferee"],
+                properties: {
+                  langue_preferee: { type: "string", example: "en", description: "Code langue (fr, en, ar, es)" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Préférence mise à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "preferences_updated" },
+                    langue_preferee: { type: "string", example: "en" },
+                    dir: { type: "string", enum: ["ltr", "rtl"] },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Langue invalide ou non supportée" },
+          "401": { description: "Session expirée" },
           "500": { description: "Erreur serveur" },
         },
       },

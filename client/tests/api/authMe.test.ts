@@ -62,6 +62,7 @@ describe('GET /api/auth/me', () => {
         est_admin: false,
         statut: 'actif',
         email_verifie: true,
+        langue_preferee: 'en',
       },
     });
 
