@@ -116,6 +116,7 @@ export interface Commande {
   statut_paiement: PaymentStatus
   mode_paiement: string | null
   paiement_dernier_4: string | null
+  mode_paiement_label: string | null
 }
 
 export interface LigneCommande {

@@ -76,6 +76,7 @@ type PaymentInput = {
 type PaymentSnapshot = {
   mode: "carte"
   last4: string
+  label: string
 }
 
 type ConfirmCheckoutBody = {
@@ -157,7 +158,7 @@ async function resolvePaymentSnapshotFromPayload(
     )
 
     if (savedLast4) {
-      return { mode: "carte", last4: savedLast4 }
+      return { mode: "carte", last4: savedLast4, label: `Carte •••• ${savedLast4}` }
     }
   }
 
@@ -172,6 +173,7 @@ async function resolvePaymentSnapshotFromPayload(
   return {
     mode: "carte",
     last4: directLast4,
+    label: `Carte •••• ${directLast4}`,
   }
 }
 
@@ -427,14 +429,19 @@ async function confirmStripePayment(
       if (paymentMethodId) {
         const paymentMethod =
           await stripe.paymentMethods.retrieve(paymentMethodId)
-        const stripeLast4 = normalizeString(
-          (paymentMethod as { card?: { last4?: string } }).card?.last4,
-        )
+        const card = (paymentMethod as { card?: { last4?: string; brand?: string } }).card
+        const stripeLast4 = normalizeString(card?.last4)
+        const stripeBrand = normalizeString(card?.brand)
 
         if (LAST4_PATTERN.test(stripeLast4)) {
+          const brandLabel = stripeBrand
+            ? stripeBrand.charAt(0).toUpperCase() + stripeBrand.slice(1)
+            : "Carte"
+
           paymentSnapshot = {
             mode: "carte",
             last4: stripeLast4,
+            label: `${brandLabel} •••• ${stripeLast4}`,
           }
         }
       }
@@ -483,6 +490,7 @@ async function insertOrder(
       statut_paiement: paymentStatus,
       mode_paiement: paymentSnapshot?.mode ?? null,
       paiement_dernier_4: paymentSnapshot?.last4 ?? null,
+      mode_paiement_label: paymentSnapshot?.label ?? null,
     } as never)
     .select("id_commande")
     .single()
