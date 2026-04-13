@@ -140,6 +140,99 @@ export function getPaymentMethodUpdateValidationError(
 
 // --- Pagination ---
 
+export type HistoryFilters = {
+  year: number | null;
+  status: string | null;
+  category: string | null;
+  search: string | null;
+  searchDate: string | null;
+  limit: number;
+  offset: number;
+  page: number;
+};
+
+const DATE_ISO_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const DATE_FR_PATTERN = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+
+export function parseDateSearch(search: string): string | null {
+  const trimmed = search.trim();
+
+  if (DATE_ISO_PATTERN.test(trimmed)) {
+    return trimmed;
+  }
+
+  const frMatch = DATE_FR_PATTERN.exec(trimmed);
+
+  if (frMatch) {
+    return `${frMatch[3]}-${frMatch[2]}-${frMatch[1]}`;
+  }
+
+  return null;
+}
+
+export function parseHistoryFilters(
+  searchParams: URLSearchParams,
+  defaultLimit: number,
+  maxLimit: number,
+): HistoryFilters {
+  const validStatuses = ['en_attente', 'en_cours', 'terminee', 'annulee'];
+  const currentYear = new Date().getFullYear();
+
+  // Year
+  const rawYear = searchParams.get('year');
+  let year: number | null = null;
+
+  if (rawYear) {
+    const parsed = parseInt(rawYear, 10);
+
+    if (!isNaN(parsed) && parsed >= 2020 && parsed <= currentYear) {
+      year = parsed;
+    }
+  }
+
+  // Status
+  const rawStatus = searchParams.get('status');
+  const status =
+    rawStatus && validStatuses.includes(rawStatus) ? rawStatus : null;
+
+  // Category
+  const rawCategory = normalizeString(searchParams.get('category'));
+  const category = rawCategory || null;
+
+  // Search
+  const rawSearch = normalizeString(searchParams.get('search'));
+  const search = rawSearch ? rawSearch.slice(0, 100) : null;
+  const searchDate = search ? parseDateSearch(search) : null;
+
+  // Pagination (page-based)
+  const rawLimit = searchParams.get('limit');
+  const rawPage = searchParams.get('page');
+
+  let limit = defaultLimit;
+
+  if (rawLimit) {
+    const parsed = parseInt(rawLimit, 10);
+
+    if (!isNaN(parsed) && parsed > 0) {
+      limit = Math.min(parsed, maxLimit);
+    }
+  }
+
+  let page = 1;
+
+  if (rawPage) {
+    const parsed = parseInt(rawPage, 10);
+
+    if (!isNaN(parsed) && parsed > 0) {
+      page = parsed;
+    }
+  }
+
+  const offset = (page - 1) * limit;
+
+  return { year, status, category, search, searchDate, limit, offset, page };
+}
+
 export function parsePaginationParams(
   searchParams: URLSearchParams,
   defaultLimit: number,

@@ -1,35 +1,31 @@
-import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { NextResponse } from 'next/server';
 
-import { createServerClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
+import { createAdminClient } from '@/lib/supabase/admin';
+import { requireAuthenticatedUser } from '@/lib/account/guards';
+import {
+  normalizeString,
+  getPaymentMethodValidationError,
+} from '@/lib/account/validation';
 
-const LAST4_PATTERN = /^\d{4}$/
-const EXPIRY_PATTERN = /^(0[1-9]|1[0-2])\/(\d{2})$/
+// --- Types ---
 
 type PaymentMethodRow = {
-  id_paiement: string
-  nom_carte: string
-  derniers_4_chiffres: string
-  date_expiration: string
-  est_defaut: boolean
-}
+  id_paiement: string;
+  nom_carte: string;
+  derniers_4_chiffres: string;
+  date_expiration: string;
+  est_defaut: boolean;
+};
 
 type PaymentMethodPayload = {
-  stripePaymentId: string
-  cardHolder: string
-  last4: string
-  expiry: string
-  isDefault?: boolean
-}
+  stripePaymentId: string;
+  cardHolder: string;
+  last4: string;
+  expiry: string;
+  isDefault?: boolean;
+};
 
-function normalizeString(value: unknown): string {
-  if (typeof value !== "string") {
-    return ""
-  }
-
-  return value.trim()
-}
+// --- Helpers ---
 
 function mapPaymentMethodRow(row: PaymentMethodRow) {
   return {
@@ -38,149 +34,88 @@ function mapPaymentMethodRow(row: PaymentMethodRow) {
     last4: row.derniers_4_chiffres,
     expiry: row.date_expiration,
     isDefault: row.est_defaut,
-  }
+  };
 }
 
-function validatePayload(body: unknown): string | null {
-  const parsedBody = body as Record<string, unknown> | null
-
-  if (!parsedBody || typeof parsedBody !== "object") {
-    return "invalid_payload"
-  }
-
-  const stripePaymentId = normalizeString(parsedBody.stripePaymentId)
-  const cardHolder = normalizeString(parsedBody.cardHolder)
-  const last4 = normalizeString(parsedBody.last4)
-  const expiry = normalizeString(parsedBody.expiry)
-
-  if (!stripePaymentId) {
-    return "stripe_payment_id_required"
-  }
-
-  if (!cardHolder) {
-    return "card_holder_required"
-  }
-
-  if (!LAST4_PATTERN.test(last4)) {
-    return "last4_invalid"
-  }
-
-  if (!EXPIRY_PATTERN.test(expiry)) {
-    return "expiry_invalid"
-  }
-
-  return null
-}
+// --- Handlers ---
 
 export async function GET() {
   try {
-    const cookieStore = await cookies()
-    const supabaseClient = createServerClient(cookieStore)
-    const supabaseAdmin = createAdminClient()
+    const auth = await requireAuthenticatedUser();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseClient.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          error: "Session expiree",
-          code: "session_expired",
-        },
-        { status: 401 },
-      )
+    if (auth.response) {
+      return auth.response;
     }
 
+    const supabaseAdmin = createAdminClient();
+
     const { data, error } = await supabaseAdmin
-      .from("methode_paiement")
+      .from('methode_paiement')
       .select(
-        "id_paiement, nom_carte, derniers_4_chiffres, date_expiration, est_defaut",
+        'id_paiement, nom_carte, derniers_4_chiffres, date_expiration, est_defaut',
       )
-      .eq("id_utilisateur", user.id)
-      .order("est_defaut", { ascending: false })
+      .eq('id_utilisateur', auth.userId)
+      .order('est_defaut', { ascending: false });
 
     if (error || !data) {
-      console.error("Erreur lecture moyens paiement compte", {
+      console.error('Erreur lecture moyens paiement compte', {
         error,
-        userId: user.id,
-      })
+        userId: auth.userId,
+      });
 
       return NextResponse.json(
-        {
-          error: "Impossible de charger les moyens de paiement",
-          code: "payment_methods_fetch_failed",
-        },
+        { error: 'Impossible de charger les moyens de paiement', code: 'payment_methods_fetch_failed' },
         { status: 500 },
-      )
+      );
     }
 
     return NextResponse.json({
       paymentMethods: (data as PaymentMethodRow[]).map(mapPaymentMethodRow),
-    })
+    });
   } catch (error) {
-    console.error("Erreur inattendue lecture moyens paiement compte", { error })
+    console.error('Erreur inattendue lecture moyens paiement compte', { error });
 
     return NextResponse.json(
-      {
-        error: "Erreur serveur",
-        code: "server_error",
-      },
+      { error: 'Erreur serveur', code: 'server_error' },
       { status: 500 },
-    )
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => null)
-    const validationError = validatePayload(body)
+    const body = await request.json().catch(() => null);
+    const validationError = getPaymentMethodValidationError(body);
 
     if (validationError) {
       return NextResponse.json(
-        {
-          error: "Methode de paiement invalide",
-          code: validationError,
-        },
+        { error: 'Methode de paiement invalide', code: validationError },
         { status: 400 },
-      )
+      );
     }
 
-    const payload = body as PaymentMethodPayload
-    const cookieStore = await cookies()
-    const supabaseClient = createServerClient(cookieStore)
-    const supabaseAdmin = createAdminClient()
+    const auth = await requireAuthenticatedUser();
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseClient.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        {
-          error: "Session expiree",
-          code: "session_expired",
-        },
-        { status: 401 },
-      )
+    if (auth.response) {
+      return auth.response;
     }
 
-    const isDefault = payload.isDefault === true
+    const payload = body as PaymentMethodPayload;
+    const supabaseAdmin = createAdminClient();
+    const isDefault = payload.isDefault === true;
 
     if (isDefault) {
       await supabaseAdmin
-        .from("methode_paiement")
+        .from('methode_paiement')
         .update({ est_defaut: false } as never)
-        .eq("id_utilisateur", user.id)
-        .eq("est_defaut", true)
+        .eq('id_utilisateur', auth.userId)
+        .eq('est_defaut', true);
     }
 
     const { data, error } = await supabaseAdmin
-      .from("methode_paiement")
+      .from('methode_paiement')
       .insert({
-        id_utilisateur: user.id,
+        id_utilisateur: auth.userId,
         nom_carte: normalizeString(payload.cardHolder),
         derniers_4_chiffres: normalizeString(payload.last4),
         date_expiration: normalizeString(payload.expiry),
@@ -188,42 +123,32 @@ export async function POST(request: Request) {
         est_defaut: isDefault,
       } as never)
       .select(
-        "id_paiement, nom_carte, derniers_4_chiffres, date_expiration, est_defaut",
+        'id_paiement, nom_carte, derniers_4_chiffres, date_expiration, est_defaut',
       )
-      .single()
+      .single();
 
     if (error || !data) {
-      console.error("Erreur creation methode paiement compte", {
+      console.error('Erreur creation methode paiement compte', {
         error,
-        userId: user.id,
-      })
+        userId: auth.userId,
+      });
 
       return NextResponse.json(
-        {
-          error: "Impossible de creer la methode de paiement",
-          code: "payment_method_create_failed",
-        },
+        { error: 'Impossible de creer la methode de paiement', code: 'payment_method_create_failed' },
         { status: 500 },
-      )
+      );
     }
 
     return NextResponse.json(
-      {
-        paymentMethod: mapPaymentMethodRow(data as PaymentMethodRow),
-      },
+      { paymentMethod: mapPaymentMethodRow(data as PaymentMethodRow) },
       { status: 201 },
-    )
+    );
   } catch (error) {
-    console.error("Erreur inattendue creation methode paiement compte", {
-      error,
-    })
+    console.error('Erreur inattendue creation methode paiement compte', { error });
 
     return NextResponse.json(
-      {
-        error: "Erreur serveur",
-        code: "server_error",
-      },
+      { error: 'Erreur serveur', code: 'server_error' },
       { status: 500 },
-    )
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { createAdminClient } from "@/lib/supabase/admin"
+import { sanitizeText } from "@/lib/auth/sanitize"
 import {
   hasContactFormErrors,
   normalizeContactText,
@@ -44,8 +45,8 @@ export async function POST(request: Request) {
       .from("message_contact")
       .insert({
         email: values.email,
-        sujet: values.subject,
-        contenu: values.message,
+        sujet: sanitizeText(values.subject, 200),
+        contenu: sanitizeText(values.message, 5000),
       } as never)
       .select("id_message")
       .single()

@@ -43,7 +43,7 @@ export async function GET() {
 
   const { data: userProfile } = await supabaseClient
     .from('utilisateur')
-    .select('nom_complet, est_admin, statut, email_verifie')
+    .select('nom_complet, est_admin, statut, email_verifie, langue_preferee')
     .eq('id_utilisateur', user.id)
     .single();
 
@@ -56,7 +56,7 @@ export async function GET() {
       isAdmin: userProfile?.est_admin ?? false,
       statut: userProfile?.statut ?? 'en_attente',
       emailVerifie: userProfile?.email_verifie ?? false,
-      locale: user.user_metadata?.locale ?? 'fr',
+      locale: userProfile?.langue_preferee ?? 'fr',
     },
   });
 }

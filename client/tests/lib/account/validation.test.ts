@@ -7,6 +7,8 @@ import {
   getPaymentMethodValidationError,
   getPaymentMethodUpdateValidationError,
   parsePaginationParams,
+  parseHistoryFilters,
+  parseDateSearch,
 } from '@/lib/account/validation';
 
 // --- normalizeString ---
@@ -192,5 +194,135 @@ describe('parsePaginationParams', () => {
     const result = parsePaginationParams(params, 10, 50);
 
     expect(result).toEqual({ limit: 10, offset: 0 });
+  });
+});
+
+// --- parseDateSearch ---
+
+describe('parseDateSearch', () => {
+  it('retourne une date ISO valide', () => {
+    expect(parseDateSearch('2026-01-15')).toBe('2026-01-15');
+  });
+
+  it('convertit une date DD/MM/YYYY en ISO', () => {
+    expect(parseDateSearch('15/01/2026')).toBe('2026-01-15');
+  });
+
+  it('retourne null pour un texte non-date', () => {
+    expect(parseDateSearch('routeur pro')).toBeNull();
+  });
+
+  it('retourne null pour une chaîne vide', () => {
+    expect(parseDateSearch('')).toBeNull();
+  });
+
+  it('retourne null pour un format partiel', () => {
+    expect(parseDateSearch('2026-01')).toBeNull();
+  });
+});
+
+// --- parseHistoryFilters ---
+
+describe('parseHistoryFilters', () => {
+  it('retourne les valeurs par defaut sans parametres', () => {
+    const params = new URLSearchParams();
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.year).toBeNull();
+    expect(result.status).toBeNull();
+    expect(result.category).toBeNull();
+    expect(result.search).toBeNull();
+    expect(result.searchDate).toBeNull();
+    expect(result.limit).toBe(10);
+    expect(result.offset).toBe(0);
+    expect(result.page).toBe(1);
+  });
+
+  it('parse une annee valide', () => {
+    const params = new URLSearchParams('year=2025');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.year).toBe(2025);
+  });
+
+  it('ignore une annee future', () => {
+    const params = new URLSearchParams('year=2099');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.year).toBeNull();
+  });
+
+  it('ignore une annee trop ancienne', () => {
+    const params = new URLSearchParams('year=2019');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.year).toBeNull();
+  });
+
+  it('parse un statut valide', () => {
+    const params = new URLSearchParams('status=terminee');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.status).toBe('terminee');
+  });
+
+  it('ignore un statut invalide', () => {
+    const params = new URLSearchParams('status=invalid');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.status).toBeNull();
+  });
+
+  it('parse une recherche texte', () => {
+    const params = new URLSearchParams('search=routeur');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.search).toBe('routeur');
+    expect(result.searchDate).toBeNull();
+  });
+
+  it('detecte une recherche date ISO', () => {
+    const params = new URLSearchParams('search=2026-01-15');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.search).toBe('2026-01-15');
+    expect(result.searchDate).toBe('2026-01-15');
+  });
+
+  it('detecte une recherche date DD/MM/YYYY', () => {
+    const params = new URLSearchParams('search=15/01/2026');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.searchDate).toBe('2026-01-15');
+  });
+
+  it('tronque la recherche a 100 caracteres', () => {
+    const longSearch = 'a'.repeat(150);
+    const params = new URLSearchParams(`search=${longSearch}`);
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.search?.length).toBe(100);
+  });
+
+  it('calcule offset depuis page', () => {
+    const params = new URLSearchParams('page=3&limit=10');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.page).toBe(3);
+    expect(result.offset).toBe(20);
+  });
+
+  it('plafonne limit au maximum', () => {
+    const params = new URLSearchParams('limit=100');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.limit).toBe(50);
+  });
+
+  it('parse une categorie', () => {
+    const params = new URLSearchParams('category=reseau');
+    const result = parseHistoryFilters(params, 10, 50);
+
+    expect(result.category).toBe('reseau');
   });
 });

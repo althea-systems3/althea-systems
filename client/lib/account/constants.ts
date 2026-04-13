@@ -16,3 +16,18 @@ export const ORDERS_MAX_LIMIT = 50;
 // --- Statuts commande actifs (bloquent suppression adresse) ---
 
 export const ACTIVE_ORDER_STATUSES = ['en_attente', 'en_cours'];
+
+// --- Historique commandes ---
+
+export const ORDER_STATUSES = [
+  'en_attente',
+  'en_cours',
+  'terminee',
+  'annulee',
+] as const;
+
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const HISTORY_DEFAULT_PAGE_SIZE = 10;
+export const HISTORY_MAX_PAGE_SIZE = 50;
+export const HISTORY_SEARCH_MAX_LENGTH = 100;

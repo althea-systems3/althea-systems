@@ -144,6 +144,39 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/i18n/config": {
+      get: {
+        tags: ["i18n"],
+        summary: "Configuration des langues supportées",
+        description: "Endpoint public retournant la liste des langues supportées avec leur direction (ltr/rtl) et la langue par défaut.",
+        responses: {
+          "200": {
+            description: "Configuration i18n",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    languages: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          code: { type: "string", example: "fr" },
+                          label: { type: "string", example: "Français" },
+                          dir: { type: "string", enum: ["ltr", "rtl"] },
+                        },
+                      },
+                    },
+                    default_language: { type: "string", example: "fr" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/auth/me": {
       get: {
         tags: ["Authentification"],
@@ -167,7 +200,8 @@ export const openApiSpec = {
                         nomComplet: { type: "string" },
                         isAdmin: { type: "boolean" },
                         statut: { type: "string" },
-                        locale: { type: "string" },
+                        emailVerifie: { type: "boolean" },
+                        locale: { type: "string", description: "Langue préférée depuis la table utilisateur (défaut: fr)" },
                       },
                     },
                   },
@@ -630,6 +664,64 @@ export const openApiSpec = {
       },
     },
     "/api/admin/categories/{id}": {
+      get: {
+        tags: ["Admin - Catégories"],
+        summary: "Détail d une catégorie",
+        description: "Retourne le détail complet d une catégorie avec ses produits associés.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la catégorie",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "object",
+                      properties: {
+                        id_categorie: { type: "string" },
+                        nom: { type: "string" },
+                        description: { type: "string", nullable: true },
+                        slug: { type: "string" },
+                        ordre_affiche: { type: "integer" },
+                        statut: { type: "string", enum: ["active", "inactive"] },
+                        image_url: { type: "string", nullable: true },
+                        thumbnail_url: { type: "string", nullable: true },
+                        products_count: { type: "integer" },
+                      },
+                    },
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_produit: { type: "string" },
+                          nom: { type: "string" },
+                          statut: { type: "string" },
+                          quantite_stock: { type: "integer" },
+                          slug: { type: "string" },
+                          image_principale_url: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Catégorie introuvable" },
+        },
+      },
       put: {
         tags: ["Admin - Catégories"],
         summary: "Modifier une catégorie",
@@ -795,6 +887,82 @@ export const openApiSpec = {
           },
           "400": { description: "Fichier invalide" },
           "404": { description: "Catégorie introuvable" },
+        },
+      },
+    },
+    "/api/admin/categories/{id}/image": {
+      delete: {
+        tags: ["Admin - Catégories"],
+        summary: "Supprimer l image d une catégorie",
+        description: "Supprime l image de la catégorie (Supabase image_url, Firestore ImagesCategories, Firebase Storage).",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Image supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Catégorie introuvable" },
+          "500": { description: "Erreur suppression image" },
+        },
+      },
+    },
+    "/api/admin/categories/bulk": {
+      post: {
+        tags: ["Admin - Catégories"],
+        summary: "Activation / désactivation groupée",
+        description: "Active ou désactive plusieurs catégories en une seule opération.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["action", "categoryIds"],
+                properties: {
+                  action: { type: "string", enum: ["activate", "deactivate"] },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    action: { type: "string" },
+                    affectedCount: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Action invalide ou aucune catégorie fournie" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
         },
       },
     },
@@ -986,6 +1154,1168 @@ export const openApiSpec = {
           },
           "400": { description: "Données invalides" },
           "404": { description: "Un ou plusieurs produits introuvables dans les top" },
+        },
+      },
+    },
+    "/api/admin/produits": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Lister les produits (admin)",
+        description: "Liste paginée des produits avec filtres, tri et recherche.",
+        parameters: [
+          { name: "search", in: "query", schema: { type: "string" }, description: "Recherche par nom, slug ou description" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] }, description: "Filtrer par statut" },
+          { name: "categoryId", in: "query", schema: { type: "string" }, description: "Filtrer par catégorie" },
+          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] }, description: "Filtrer par disponibilité" },
+          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de création minimum" },
+          { name: "createdTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de création maximum" },
+          { name: "priceMin", in: "query", schema: { type: "number" }, description: "Prix TTC minimum" },
+          { name: "priceMax", in: "query", schema: { type: "number" }, description: "Prix TTC maximum" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", minimum: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", minimum: 1, maximum: 200 }, description: "Taille de page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des produits",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_produit: { type: "string" },
+                          nom: { type: "string" },
+                          description: { type: "string", nullable: true },
+                          prix_ht: { type: "number" },
+                          tva: { type: "string" },
+                          prix_ttc: { type: "number" },
+                          quantite_stock: { type: "integer" },
+                          statut: { type: "string", enum: ["publie", "brouillon"] },
+                          slug: { type: "string" },
+                          date_creation: { type: "string", nullable: true },
+                          image_principale_url: { type: "string", nullable: true },
+                          categories: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                id_categorie: { type: "string" },
+                                nom: { type: "string" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    categories: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_categorie: { type: "string" },
+                          nom: { type: "string" },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        pageSize: { type: "integer" },
+                        totalItems: { type: "integer" },
+                        totalPages: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Créer un produit",
+        description: "Crée un nouveau produit avec calcul automatique du prix TTC ou HT.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["nom"],
+                properties: {
+                  nom: { type: "string" },
+                  description: { type: "string" },
+                  prix_ht: { type: "number", description: "Prix HT (priorité sur prix_ttc)" },
+                  prix_ttc: { type: "number", description: "Prix TTC (utilisé si prix_ht absent)" },
+                  tva: { type: "string", enum: ["20", "10", "5.5", "0"], default: "20" },
+                  quantite_stock: { type: "integer", minimum: 0 },
+                  statut: { type: "string", enum: ["publie", "brouillon"], default: "brouillon" },
+                  slug: { type: "string", description: "Slug personnalisé (auto-généré si absent)" },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                  caracteristique_tech: { type: "object", description: "Caractéristiques techniques libres" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "Produit créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides (nom manquant, prix invalide, slug dupliqué, etc.)" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/produits/{id}": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Détail d un produit",
+        description: "Retourne le détail complet d un produit avec catégories et images.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Détail du produit",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Produits"],
+        summary: "Mettre à jour un produit",
+        description: "Mise à jour partielle. Le prix TTC est recalculé automatiquement si prix_ht ou tva change.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nom: { type: "string" },
+                  description: { type: "string", nullable: true },
+                  prix_ht: { type: "number" },
+                  prix_ttc: { type: "number" },
+                  tva: { type: "string", enum: ["20", "10", "5.5", "0"] },
+                  quantite_stock: { type: "integer", minimum: 0 },
+                  statut: { type: "string", enum: ["publie", "brouillon"] },
+                  slug: { type: "string" },
+                  categoryIds: { type: "array", items: { type: "string" } },
+                  caracteristique_tech: { type: "object", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Produit mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    product: { $ref: "#/components/schemas/Produit" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Données invalides ou slug dupliqué" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Produits"],
+        summary: "Supprimer un produit",
+        description: "Supprime un produit. Échoue si le produit est lié à des commandes.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Produit supprimé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide ou contrainte FK" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+    },
+    "/api/admin/produits/{id}/images": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Lister les images d un produit",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des images",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Identifiant invalide" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Uploader des images produit",
+        description: "Upload une ou plusieurs images (jpeg, png, webp, max 5 Mo chacune) vers Firebase Storage.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  files: {
+                    type: "array",
+                    items: { type: "string", format: "binary" },
+                    description: "Fichiers image (champ files ou file)",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Images uploadées",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Fichier manquant, type invalide ou taille dépassée" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Produit introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Produits"],
+        summary: "Réorganiser les images d un produit",
+        description: "Met à jour l ordre, l image principale et les textes alt.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["images"],
+                properties: {
+                  images: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/ImageProduit" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Images mises à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Payload images invalide" },
+          "401": { description: "Non authentifié" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Produits"],
+        summary: "Supprimer une image produit",
+        description: "Supprime une image du produit (Firestore + Firebase Storage).",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["url"],
+                properties: {
+                  url: { type: "string", description: "URL publique de l image à supprimer" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Image supprimée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/ImageProduit" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "URL image manquante" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Image introuvable" },
+        },
+      },
+    },
+    "/api/admin/produits/bulk": {
+      post: {
+        tags: ["Admin - Produits"],
+        summary: "Actions groupées sur les produits",
+        description: "Suppression, publication, dépublication ou changement de catégorie en masse.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["action", "productIds"],
+                properties: {
+                  action: { type: "string", enum: ["delete", "publish", "unpublish", "set_category"] },
+                  productIds: { type: "array", items: { type: "string" } },
+                  categoryId: { type: "string", description: "Requis si action = set_category" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Action effectuée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    action: { type: "string" },
+                    affectedCount: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Action invalide, pas de produits, ou échec suppression" },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/produits/export": {
+      get: {
+        tags: ["Admin - Produits"],
+        summary: "Exporter les produits en CSV ou Excel",
+        description: "Export serveur des produits avec les mêmes filtres que la liste. Maximum 10 000 lignes.",
+        parameters: [
+          { name: "format", in: "query", schema: { type: "string", enum: ["csv", "excel"], default: "csv" }, description: "Format d export" },
+          { name: "search", in: "query", schema: { type: "string" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] } },
+          { name: "categoryId", in: "query", schema: { type: "string" } },
+          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] } },
+          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" } },
+          { name: "createdTo", in: "query", schema: { type: "string", format: "date" } },
+          { name: "priceMin", in: "query", schema: { type: "number" } },
+          { name: "priceMax", in: "query", schema: { type: "number" } },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] } },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
+        ],
+        responses: {
+          "200": {
+            description: "Fichier CSV ou Excel",
+            content: {
+              "text/csv": {
+                schema: { type: "string" },
+              },
+              "application/vnd.ms-excel": {
+                schema: { type: "string" },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs": {
+      get: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Lister les utilisateurs",
+        description: "Liste paginée des utilisateurs avec filtres, recherche, tri et données enrichies (commandes, adresses, dernière connexion).",
+        parameters: [
+          { name: "searchName", in: "query", schema: { type: "string" }, description: "Recherche par nom" },
+          { name: "searchEmail", in: "query", schema: { type: "string" }, description: "Recherche par email" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "actif", "inactif", "en_attente"] }, description: "Filtre par statut" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "date_inscription", "nombre_commandes", "ca_total", "derniere_connexion"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des utilisateurs",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    users: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/UtilisateurListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}": {
+      get: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Détail d un utilisateur",
+        description: "Profil complet avec adresses, moyens de paiement, commandes et résumé financier.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail complet de l utilisateur",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    user: { $ref: "#/components/schemas/UtilisateurDetail" },
+                    addresses: { type: "array", items: { type: "object" } },
+                    paymentMethods: { type: "array", items: { type: "object" } },
+                    orders: { type: "array", items: { type: "object" } },
+                    summary: {
+                      type: "object",
+                      properties: {
+                        nombre_commandes: { type: "integer" },
+                        chiffre_affaires_total: { type: "number" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Changer le statut d un utilisateur",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["statut"],
+                properties: {
+                  statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    user: { $ref: "#/components/schemas/UtilisateurDetail" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID ou statut invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Suppression RGPD d un utilisateur",
+        description: "Anonymise les données personnelles. Requiert une confirmation RGPD explicite. Interdit pour les comptes admin.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["acknowledgeRgpd", "confirmationText"],
+                properties: {
+                  acknowledgeRgpd: { type: "boolean", example: true },
+                  confirmationText: { type: "string", example: "SUPPRIMER" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Données anonymisées avec succès",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Confirmation invalide ou compte admin" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur suppression" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}/reset-password": {
+      post: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Réinitialiser le mot de passe",
+        description: "Génère un token de reset et envoie un email. Refusé si le compte est inactif.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        responses: {
+          "200": {
+            description: "Email de reset envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide ou compte inactif" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur reset" },
+        },
+      },
+    },
+    "/api/admin/utilisateurs/{id}/mail": {
+      post: {
+        tags: ["Admin - Utilisateurs"],
+        summary: "Envoyer un email à un utilisateur",
+        description: "Envoi d un email admin direct. Sujet : 3-160 caractères, contenu : 5-5000 caractères.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["subject", "content"],
+                properties: {
+                  subject: { type: "string", minLength: 3, maxLength: 160 },
+                  content: { type: "string", minLength: 5, maxLength: 5000 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Sujet ou contenu invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Utilisateur introuvable" },
+          "500": { description: "Erreur envoi" },
+        },
+      },
+    },
+    "/api/admin/commandes": {
+      get: {
+        tags: ["Admin - Commandes"],
+        summary: "Lister les commandes",
+        description: "Liste paginée des commandes avec recherche, filtres, tri et données client enrichies.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de commande" },
+          { name: "search", in: "query", schema: { type: "string" }, description: "Alias pour searchNumero" },
+          { name: "searchClientName", in: "query", schema: { type: "string" }, description: "Recherche par nom client" },
+          { name: "searchClientEmail", in: "query", schema: { type: "string" }, description: "Recherche par email client" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["all", "en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtre par statut commande" },
+          { name: "paymentStatus", in: "query", schema: { type: "string", enum: ["all", "valide", "en_attente", "echoue", "rembourse"] }, description: "Filtre par statut paiement" },
+          { name: "paymentMethod", in: "query", schema: { type: "string" }, description: "Filtre par mode de paiement" },
+          { name: "sortBy", in: "query", schema: { type: "string", enum: ["numero_commande", "date_commande", "client", "montant_ttc", "statut", "mode_paiement", "statut_paiement"] }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste paginée des commandes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/CommandeListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                    paymentMethods: { type: "array", items: { type: "string" } },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/commandes/{id}": {
+      get: {
+        tags: ["Admin - Commandes"],
+        summary: "Détail d une commande",
+        description: "Détail complet avec lignes, adresse, facture, historique des statuts et informations de paiement masquées.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail complet de la commande",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: { $ref: "#/components/schemas/CommandeDetail" },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_ligne: { type: "string" },
+                          id_produit: { type: "string" },
+                          quantite: { type: "integer" },
+                          prix_unitaire_ht: { type: "number" },
+                          prix_total_ttc: { type: "number" },
+                          produit: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              nom: { type: "string", nullable: true },
+                              slug: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    address: { type: "object", nullable: true },
+                    statusHistory: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id_historique: { type: "string" },
+                          statut_precedent: { type: "string" },
+                          nouveau_statut: { type: "string" },
+                          date_changement: { type: "string", format: "date-time" },
+                          admin: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              nom_complet: { type: "string", nullable: true },
+                              email: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    invoice: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        id_facture: { type: "string" },
+                        numero_facture: { type: "string" },
+                        date_emission: { type: "string", format: "date-time" },
+                        montant_ttc: { type: "number" },
+                        statut: { type: "string" },
+                        pdf_url: { type: "string", nullable: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Commande introuvable" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Commandes"],
+        summary: "Changer le statut d une commande",
+        description: "Met à jour le statut, insère un historique et journalise l action admin.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["statut"],
+                properties: {
+                  statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Statut mis à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: {
+                      type: "object",
+                      properties: {
+                        id_commande: { type: "string" },
+                        numero_commande: { type: "string" },
+                        statut: { type: "string" },
+                        statut_paiement: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID ou statut invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+    },
+    "/api/admin/invoices": {
+      get: {
+        tags: ["Admin - Factures"],
+        summary: "Liste paginée des factures",
+        description: "Retourne les factures avec recherche, filtres, tri et pagination. Enrichi avec commande et client.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de facture" },
+          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["payee", "en_attente", "annule"] }, description: "Filtre par statut" },
+          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
+          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
+          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des factures",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoices: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/FactureListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/invoices/{id}": {
+      get: {
+        tags: ["Admin - Factures"],
+        summary: "Détail d une facture",
+        description: "Retourne le détail complet d une facture avec commande, client, avoir lié et historique.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la facture",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: { $ref: "#/components/schemas/FactureDetail" },
+                    history: { type: "array", items: { type: "object" } },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Factures"],
+        summary: "Modifier le statut ou le PDF d une facture",
+        description: "Met à jour le statut et/ou l URL du PDF. Log admin invoices.update.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+                  pdf_url: { type: "string", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Facture mise à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: { $ref: "#/components/schemas/FactureDetail" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Statut invalide ou payload vide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Factures"],
+        summary: "Annuler une facture avec création d avoir",
+        description: "Annule la facture, génère automatiquement un avoir (PDF + upload Firebase Storage), et marque la facture comme annulée. Log admin facture_annulee.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Facture annulée et avoir créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    creditNote: {
+                      type: "object",
+                      properties: {
+                        number: { type: "string" },
+                        amount: { type: "number" },
+                        pdfUrl: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Facture déjà annulée ou avoir existant" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/invoices/{id}/email": {
+      post: {
+        tags: ["Admin - Factures"],
+        summary: "Renvoyer une facture par email",
+        description: "Renvoie la facture par email au client via Resend. Log admin invoices.send_email.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur envoi email" },
+        },
+      },
+    },
+    "/api/admin/avoirs": {
+      get: {
+        tags: ["Admin - Avoirs"],
+        summary: "Liste paginée des avoirs",
+        description: "Retourne les avoirs avec recherche, filtres, tri et pagination. Enrichi avec facture, commande et client.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro d avoir" },
+          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
+          { name: "motif", in: "query", schema: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] }, description: "Filtre par motif" },
+          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
+          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
+          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des avoirs",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    creditNotes: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AvoirListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/avoirs/{id}": {
+      get: {
+        tags: ["Admin - Avoirs"],
+        summary: "Détail d un avoir",
+        description: "Retourne le détail complet d un avoir avec facture liée, commande et client.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de l avoir",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    creditNote: { $ref: "#/components/schemas/AvoirDetail" },
+                    invoice: { type: "object", nullable: true },
+                    order: { type: "object", nullable: true },
+                    client: { type: "object", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Avoir introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/avoirs/{id}/email": {
+      post: {
+        tags: ["Admin - Avoirs"],
+        summary: "Renvoyer un avoir par email",
+        description: "Renvoie l avoir par email au client via Resend. Log admin credit_notes.send_email.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+        ],
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Client sans email valide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Avoir, facture ou commande introuvable" },
+          "500": { description: "Erreur envoi email" },
         },
       },
     },
@@ -1869,6 +3199,77 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/auth/admin-2fa/challenge": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Envoyer un code 2FA admin par email",
+        description: "Génère un code à 6 chiffres envoyé par email à l administrateur authentifié. Pose un cookie httpOnly challenge signé HMAC-SHA256. Valide 10 minutes.",
+        responses: {
+          "200": {
+            description: "Code envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "challenge_sent" },
+                    challengeExpiresInSeconds: { type: "integer", example: 600 },
+                    requiresAdminTwoFactor: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Email admin manquant" },
+          "401": { description: "Session expirée" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "500": { description: "Erreur serveur" },
+          "503": { description: "Service indisponible (envoi email échoué)" },
+        },
+      },
+    },
+    "/api/auth/admin-2fa/verify": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Vérifier le code 2FA admin",
+        description: "Valide le code à 6 chiffres contre le challenge cookie. Après 5 tentatives échouées, verrouillage temporaire (429). En cas de succès, pose un cookie vérifié httpOnly valable 8 heures.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["code"],
+                properties: {
+                  code: { type: "string", example: "123456", description: "Code à 6 chiffres reçu par email" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "2FA vérifié",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "admin_2fa_verified" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Code invalide, challenge manquant ou expiré" },
+          "401": { description: "Session expirée" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "410": { description: "Challenge expiré" },
+          "429": { description: "Trop de tentatives (verrouillage)" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/checkout/payment-intent": {
       post: {
         tags: ["Checkout"],
@@ -2100,34 +3501,27 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/admin/invoices/{id}": {
-      delete: {
-        tags: ["Admin - Factures"],
-        summary: "Annuler une facture (créer un avoir)",
-        description: "Annule une facture et crée automatiquement un avoir avec génération du PDF. Accès admin requis. Retourne 409 si un avoir existe déjà.",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
+    // --- Compte utilisateur ---
+
+    "/api/account/profile": {
+      get: {
+        tags: ["Compte"],
+        summary: "Consulter son profil",
         responses: {
           "200": {
-            description: "Facture annulée, avoir créé",
+            description: "Profil utilisateur",
             content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string" },
-                    creditNote: {
+                    profile: {
                       type: "object",
                       properties: {
-                        number: { type: "string", example: "AVO-202604-ABCDEFGH" },
-                        amount: { type: "number" },
-                        pdfUrl: { type: "string", nullable: true },
+                        firstName: { type: "string" },
+                        lastName: { type: "string" },
+                        email: { type: "string" },
+                        phone: { type: "string" },
                       },
                     },
                   },
@@ -2135,10 +3529,616 @@ export const openApiSpec = {
               },
             },
           },
-          "401": { description: "Non authentifié" },
-          "403": { description: "Accès réservé aux administrateurs" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      put: {
+        tags: ["Compte"],
+        summary: "Mettre à jour son profil",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["firstName", "lastName", "email"],
+                properties: {
+                  firstName: { type: "string", example: "Jean" },
+                  lastName: { type: "string", example: "Dupont" },
+                  email: { type: "string", example: "jean@example.com" },
+                  phone: { type: "string", example: "+33 6 00 00 00 00" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Profil mis à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "409": { description: "Email déjà utilisé" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/preferences": {
+      patch: {
+        tags: ["Compte"],
+        summary: "Mettre à jour la langue préférée",
+        description: "Met à jour la préférence de langue de l utilisateur connecté. La langue doit faire partie de la liste des langues supportées.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["langue_preferee"],
+                properties: {
+                  langue_preferee: { type: "string", example: "en", description: "Code langue (fr, en, ar, es)" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Préférence mise à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "preferences_updated" },
+                    langue_preferee: { type: "string", example: "en" },
+                    dir: { type: "string", enum: ["ltr", "rtl"] },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Langue invalide ou non supportée" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/addresses": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses adresses",
+        responses: {
+          "200": {
+            description: "Liste des adresses",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    addresses: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AccountAddress" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Compte"],
+        summary: "Ajouter une adresse",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AccountAddressPayload" },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "Adresse créée" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/addresses/{id}": {
+      put: {
+        tags: ["Compte"],
+        summary: "Modifier une adresse",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AccountAddressPayload" },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Adresse mise à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Compte"],
+        summary: "Supprimer une adresse",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "Adresse supprimée" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Adresse introuvable" },
+          "409": { description: "Adresse liée à une commande active" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/payment-methods": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses moyens de paiement",
+        responses: {
+          "200": {
+            description: "Liste des moyens de paiement",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    paymentMethods: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AccountPaymentMethod" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      post: {
+        tags: ["Compte"],
+        summary: "Ajouter un moyen de paiement",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["stripePaymentId", "cardHolder", "last4", "expiry"],
+                properties: {
+                  stripePaymentId: { type: "string", example: "pm_123" },
+                  cardHolder: { type: "string", example: "Jean Dupont" },
+                  last4: { type: "string", example: "4242" },
+                  expiry: { type: "string", example: "12/30" },
+                  isDefault: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "Moyen de paiement créé" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/payment-methods/{id}": {
+      patch: {
+        tags: ["Compte"],
+        summary: "Modifier un moyen de paiement",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  cardHolder: { type: "string" },
+                  expiry: { type: "string" },
+                  isDefault: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Moyen de paiement mis à jour" },
+          "400": { description: "Données invalides" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Moyen de paiement introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      delete: {
+        tags: ["Compte"],
+        summary: "Supprimer un moyen de paiement",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "Moyen de paiement supprimé" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Moyen de paiement introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses commandes",
+        parameters: [
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des commandes avec pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          orderNumber: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          paymentStatus: { type: "string" },
+                          orderType: { type: "string", enum: ["mono_produit", "multi_produits"] },
+                          productCount: { type: "integer" },
+                          productNames: { type: "array", items: { type: "string" } },
+                          invoice: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              invoiceNumber: { type: "string" },
+                              status: { type: "string" },
+                              pdfUrl: { type: "string", nullable: true },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        limit: { type: "integer" },
+                        offset: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/{numero}": {
+      get: {
+        tags: ["Compte"],
+        summary: "Détail d une commande",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la commande avec lignes, adresse et facture",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    order: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                        paymentMethod: { type: "string", nullable: true },
+                        paymentLast4: { type: "string", nullable: true, example: "**** **** **** 4242" },
+                      },
+                    },
+                    lines: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          productId: { type: "string" },
+                          quantity: { type: "integer" },
+                          unitPriceHt: { type: "number" },
+                          totalTtc: { type: "number" },
+                          product: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              name: { type: "string" },
+                              slug: { type: "string" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    address: { $ref: "#/components/schemas/AccountAddress", nullable: true },
+                    invoice: {
+                      type: "object",
+                      nullable: true,
+                      properties: {
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    statusHistory: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          previousStatus: { type: "string", nullable: true },
+                          newStatus: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          changedAt: { type: "string", format: "date-time" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de commande invalide" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Commande introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/{numero}/invoice": {
+      get: {
+        tags: ["Compte"],
+        summary: "Facture associée à une commande",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Facture et commande associée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    order: {
+                      type: "object",
+                      properties: {
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de commande invalide" },
+          "401": { description: "Session expirée" },
+          "404": { description: "Commande ou facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/orders/history": {
+      get: {
+        tags: ["Compte"],
+        summary: "Historique des commandes avec filtres",
+        parameters: [
+          { name: "year", in: "query", schema: { type: "integer" }, description: "Filtrer par année (ex: 2026)" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtrer par statut" },
+          { name: "category", in: "query", schema: { type: "string" }, description: "Filtrer par slug catégorie" },
+          { name: "search", in: "query", schema: { type: "string", maxLength: 100 }, description: "Recherche par nom produit ou date (YYYY-MM-DD, DD/MM/YYYY)" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1, minimum: 1 }, description: "Page (1-indexed)" },
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+        ],
+        responses: {
+          "200": {
+            description: "Historique des commandes avec filtres et pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    orders: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          orderNumber: { type: "string" },
+                          createdAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          paymentStatus: { type: "string" },
+                          productSummary: {
+                            type: "object",
+                            nullable: true,
+                            properties: {
+                              firstProduct: { type: "string" },
+                              totalCount: { type: "integer" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    filters: {
+                      type: "object",
+                      properties: {
+                        availableYears: { type: "array", items: { type: "integer" }, example: [2026, 2025] },
+                        availableStatuses: { type: "array", items: { type: "string" } },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        limit: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/invoices": {
+      get: {
+        tags: ["Compte"],
+        summary: "Lister ses factures",
+        parameters: [
+          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des factures avec pagination",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoices: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          invoiceNumber: { type: "string" },
+                          orderNumber: { type: "string", nullable: true },
+                          issuedAt: { type: "string", format: "date-time" },
+                          totalTtc: { type: "number" },
+                          status: { type: "string" },
+                          pdfUrl: { type: "string", nullable: true },
+                        },
+                      },
+                    },
+                    pagination: {
+                      type: "object",
+                      properties: {
+                        limit: { type: "integer" },
+                        offset: { type: "integer" },
+                        total: { type: "integer" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Session expirée" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/account/invoices/{numero}": {
+      get: {
+        tags: ["Compte"],
+        summary: "Détail d une facture",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de facture (ex: FAC-1001)" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la facture avec commande associée",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        invoiceNumber: { type: "string" },
+                        issuedAt: { type: "string", format: "date-time" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        pdfUrl: { type: "string", nullable: true },
+                      },
+                    },
+                    order: {
+                      type: "object",
+                      properties: {
+                        orderNumber: { type: "string" },
+                        createdAt: { type: "string", format: "date-time" },
+                        totalHt: { type: "number" },
+                        totalTva: { type: "number" },
+                        totalTtc: { type: "number" },
+                        status: { type: "string" },
+                        paymentStatus: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Numéro de facture invalide" },
+          "401": { description: "Session expirée" },
           "404": { description: "Facture introuvable" },
-          "409": { description: "Un avoir existe déjà pour cette facture" },
           "500": { description: "Erreur serveur" },
         },
       },
@@ -2184,6 +4184,202 @@ export const openApiSpec = {
           statut: { type: "string", enum: ["publie", "brouillon"] },
           priorite: { type: "integer" },
           est_top_produit: { type: "boolean" },
+        },
+      },
+      ImageProduit: {
+        type: "object",
+        properties: {
+          url: { type: "string" },
+          ordre: { type: "integer" },
+          est_principale: { type: "boolean" },
+          alt_text: { type: "string", nullable: true },
+        },
+      },
+      FactureListItem: {
+        type: "object",
+        properties: {
+          id_facture: { type: "string" },
+          numero_facture: { type: "string" },
+          id_commande: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+          pdf_url: { type: "string", nullable: true },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      FactureDetail: {
+        type: "object",
+        properties: {
+          id_facture: { type: "string" },
+          numero_facture: { type: "string" },
+          id_commande: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+          pdf_url: { type: "string", nullable: true },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+              date_commande: { type: "string", format: "date-time" },
+              statut: { type: "string" },
+              statut_paiement: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+          creditNote: { type: "object", nullable: true },
+        },
+      },
+      AvoirListItem: {
+        type: "object",
+        properties: {
+          id_avoir: { type: "string" },
+          numero_avoir: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant: { type: "number" },
+          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          pdf_url: { type: "string", nullable: true },
+          facture: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_facture: { type: "string" },
+              numero_facture: { type: "string" },
+            },
+          },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      AvoirDetail: {
+        type: "object",
+        properties: {
+          id_avoir: { type: "string" },
+          numero_avoir: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant: { type: "number" },
+          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          pdf_url: { type: "string", nullable: true },
+        },
+      },
+      CommandeListItem: {
+        type: "object",
+        properties: {
+          id_commande: { type: "string" },
+          numero_commande: { type: "string" },
+          date_commande: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          mode_paiement: { type: "string", nullable: true },
+          paiement_dernier_4_masque: { type: "string", nullable: true },
+          id_utilisateur: { type: "string" },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      CommandeDetail: {
+        type: "object",
+        properties: {
+          id_commande: { type: "string" },
+          numero_commande: { type: "string" },
+          date_commande: { type: "string", format: "date-time" },
+          montant_ht: { type: "number" },
+          montant_tva: { type: "number" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          mode_paiement: { type: "string", nullable: true },
+          paiement_dernier_4_masque: { type: "string", nullable: true },
+          date_paiement: { type: "string", format: "date-time", nullable: true },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      UtilisateurListItem: {
+        type: "object",
+        properties: {
+          id_utilisateur: { type: "string" },
+          email: { type: "string" },
+          nom_complet: { type: "string" },
+          est_admin: { type: "boolean" },
+          statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+          email_verifie: { type: "boolean" },
+          date_inscription: { type: "string", format: "date-time" },
+          nombre_commandes: { type: "integer" },
+          chiffre_affaires_total: { type: "number" },
+          derniere_connexion: { type: "string", format: "date-time", nullable: true },
+          adresses_facturation: { type: "array", items: { type: "string" } },
+          adresses_facturation_count: { type: "integer" },
+        },
+      },
+      UtilisateurDetail: {
+        type: "object",
+        properties: {
+          id_utilisateur: { type: "string" },
+          email: { type: "string" },
+          nom_complet: { type: "string" },
+          est_admin: { type: "boolean" },
+          statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+          email_verifie: { type: "boolean" },
+          date_inscription: { type: "string", format: "date-time", nullable: true },
+          cgu_acceptee_le: { type: "string", format: "date-time", nullable: true },
+          date_validation_email: { type: "string", format: "date-time", nullable: true },
+          derniere_connexion: { type: "string", format: "date-time", nullable: true },
         },
       },
       PaymentMethod: {
@@ -2237,6 +4433,44 @@ export const openApiSpec = {
           quantity: { type: "integer" },
           unitPriceHt: { type: "number" },
           totalTtc: { type: "number" },
+        },
+      },
+      AccountAddress: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+          address1: { type: "string" },
+          address2: { type: "string" },
+          city: { type: "string" },
+          postalCode: { type: "string" },
+          country: { type: "string" },
+          phone: { type: "string" },
+        },
+      },
+      AccountAddressPayload: {
+        type: "object",
+        required: ["firstName", "lastName", "address1", "city", "postalCode", "country"],
+        properties: {
+          firstName: { type: "string", example: "Jean" },
+          lastName: { type: "string", example: "Dupont" },
+          address1: { type: "string", example: "10 rue de la Paix" },
+          address2: { type: "string", example: "" },
+          city: { type: "string", example: "Paris" },
+          postalCode: { type: "string", example: "75001" },
+          country: { type: "string", example: "France" },
+          phone: { type: "string", example: "+33 6 00 00 00 00" },
+        },
+      },
+      AccountPaymentMethod: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          cardHolder: { type: "string" },
+          last4: { type: "string", example: "4242" },
+          expiry: { type: "string", example: "12/30" },
+          isDefault: { type: "boolean" },
         },
       },
     },

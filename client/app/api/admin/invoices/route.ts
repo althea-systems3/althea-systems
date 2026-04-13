@@ -1,189 +1,189 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server';
 
-import { normalizeString } from "@/lib/admin/common"
-import { verifyAdminAccess } from "@/lib/auth/adminGuard"
-import { createAdminClient } from "@/lib/supabase/admin"
-import type { InvoiceStatus } from "@/lib/supabase/types"
+import { normalizeString } from '@/lib/admin/common';
+import { verifyAdminAccess } from '@/lib/auth/adminGuard';
+import { createAdminClient } from '@/lib/supabase/admin';
+import type { InvoiceStatus } from '@/lib/supabase/types';
 
 type InvoiceSortBy =
-  | "numero_facture"
-  | "date_emission"
-  | "client"
-  | "montant_ttc"
-  | "statut"
+  | 'numero_facture'
+  | 'date_emission'
+  | 'client'
+  | 'montant_ttc'
+  | 'statut';
 
-type SortDirection = "asc" | "desc"
+type SortDirection = 'asc' | 'desc';
 
-type InvoiceStatusFilter = "all" | InvoiceStatus
+type InvoiceStatusFilter = 'all' | InvoiceStatus;
 
 type InvoiceListFilters = {
-  searchNumero: string
-  searchClient: string
-  status: InvoiceStatusFilter
-  dateFrom: string | null
-  dateTo: string | null
-  sortBy: InvoiceSortBy
-  sortDirection: SortDirection
-  page: number
-  pageSize: number
-}
+  searchNumero: string;
+  searchClient: string;
+  status: InvoiceStatusFilter;
+  dateFrom: string | null;
+  dateTo: string | null;
+  sortBy: InvoiceSortBy;
+  sortDirection: SortDirection;
+  page: number;
+  pageSize: number;
+};
 
 type InvoiceRow = {
-  id_facture: string
-  numero_facture: string
-  id_commande: string
-  date_emission: string
-  montant_ttc: number | string
-  statut: InvoiceStatus
-  pdf_url: string | null
-}
+  id_facture: string;
+  numero_facture: string;
+  id_commande: string;
+  date_emission: string;
+  montant_ttc: number | string;
+  statut: InvoiceStatus;
+  pdf_url: string | null;
+};
 
 type OrderRow = {
-  id_commande: string
-  numero_commande: string
-  id_utilisateur: string
-}
+  id_commande: string;
+  numero_commande: string;
+  id_utilisateur: string;
+};
 
 type UserRow = {
-  id_utilisateur: string
-  nom_complet: string | null
-  email: string | null
-}
+  id_utilisateur: string;
+  nom_complet: string | null;
+  email: string | null;
+};
 
 type IdRow = {
-  id_utilisateur?: string
-  id_commande?: string
-}
+  id_utilisateur?: string;
+  id_commande?: string;
+};
 
 type InvoiceListItem = {
-  id_facture: string
-  numero_facture: string
-  id_commande: string
-  date_emission: string
-  montant_ttc: number
-  statut: InvoiceStatus
-  pdf_url: string | null
+  id_facture: string;
+  numero_facture: string;
+  id_commande: string;
+  date_emission: string;
+  montant_ttc: number;
+  statut: InvoiceStatus;
+  pdf_url: string | null;
   commande: {
-    id_commande: string
-    numero_commande: string
-  } | null
+    id_commande: string;
+    numero_commande: string;
+  } | null;
   client: {
-    id_utilisateur: string
-    nom_complet: string | null
-    email: string | null
-  } | null
-}
+    id_utilisateur: string;
+    nom_complet: string | null;
+    email: string | null;
+  } | null;
+};
 
 type FilterableInvoicesQuery = {
-  ilike: (column: string, pattern: string) => unknown
-  eq: (column: string, value: string) => unknown
-  gte: (column: string, value: string) => unknown
-  lte: (column: string, value: string) => unknown
-  in: (column: string, values: string[]) => unknown
-}
+  ilike: (column: string, pattern: string) => unknown;
+  eq: (column: string, value: string) => unknown;
+  gte: (column: string, value: string) => unknown;
+  lte: (column: string, value: string) => unknown;
+  in: (column: string, values: string[]) => unknown;
+};
 
-const DEFAULT_PAGE = 1
-const DEFAULT_PAGE_SIZE = 20
-const MAX_PAGE_SIZE = 100
-const IN_QUERY_CHUNK_SIZE = 100
-const MAX_MATCHED_USERS = 5000
-const MAX_MATCHED_ORDERS = 10000
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 100;
+const IN_QUERY_CHUNK_SIZE = 100;
+const MAX_MATCHED_USERS = 5000;
+const MAX_MATCHED_ORDERS = 10000;
 
 function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
-  const chunks: T[][] = []
+  const chunks: T[][] = [];
 
   for (let index = 0; index < items.length; index += chunkSize) {
-    chunks.push(items.slice(index, index + chunkSize))
+    chunks.push(items.slice(index, index + chunkSize));
   }
 
-  return chunks
+  return chunks;
 }
 
 function parsePage(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? "", 10)
+  const parsedValue = Number.parseInt(value ?? '', 10);
 
   if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE
+    return DEFAULT_PAGE;
   }
 
-  return parsedValue
+  return parsedValue;
 }
 
 function parsePageSize(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? "", 10)
+  const parsedValue = Number.parseInt(value ?? '', 10);
 
   if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE_SIZE
+    return DEFAULT_PAGE_SIZE;
   }
 
-  return Math.min(parsedValue, MAX_PAGE_SIZE)
+  return Math.min(parsedValue, MAX_PAGE_SIZE);
 }
 
 function parseStatus(value: string | null): InvoiceStatusFilter {
-  if (value === "payee" || value === "en_attente" || value === "annule") {
-    return value
+  if (value === 'payee' || value === 'en_attente' || value === 'annule') {
+    return value;
   }
 
-  return "all"
+  return 'all';
 }
 
 function parseSortBy(value: string | null): InvoiceSortBy {
   if (
-    value === "numero_facture" ||
-    value === "date_emission" ||
-    value === "client" ||
-    value === "montant_ttc" ||
-    value === "statut"
+    value === 'numero_facture' ||
+    value === 'date_emission' ||
+    value === 'client' ||
+    value === 'montant_ttc' ||
+    value === 'statut'
   ) {
-    return value
+    return value;
   }
 
-  return "date_emission"
+  return 'date_emission';
 }
 
 function parseSortDirection(value: string | null): SortDirection {
-  return value === "asc" ? "asc" : "desc"
+  return value === 'asc' ? 'asc' : 'desc';
 }
 
 function parseDateFilter(value: string | null): string | null {
-  const normalizedValue = normalizeString(value)
+  const normalizedValue = normalizeString(value);
 
   if (!normalizedValue) {
-    return null
+    return null;
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedValue)) {
-    return null
+    return null;
   }
 
-  return normalizedValue
+  return normalizedValue;
 }
 
 function parseFilters(searchParams: URLSearchParams): InvoiceListFilters {
   return {
-    searchNumero: normalizeString(searchParams.get("searchNumero")),
-    searchClient: normalizeString(searchParams.get("searchClient")),
-    status: parseStatus(searchParams.get("status")),
-    dateFrom: parseDateFilter(searchParams.get("dateFrom")),
-    dateTo: parseDateFilter(searchParams.get("dateTo")),
-    sortBy: parseSortBy(searchParams.get("sortBy")),
-    sortDirection: parseSortDirection(searchParams.get("sortDirection")),
-    page: parsePage(searchParams.get("page")),
-    pageSize: parsePageSize(searchParams.get("pageSize")),
-  }
+    searchNumero: normalizeString(searchParams.get('searchNumero')),
+    searchClient: normalizeString(searchParams.get('searchClient')),
+    status: parseStatus(searchParams.get('status')),
+    dateFrom: parseDateFilter(searchParams.get('dateFrom')),
+    dateTo: parseDateFilter(searchParams.get('dateTo')),
+    sortBy: parseSortBy(searchParams.get('sortBy')),
+    sortDirection: parseSortDirection(searchParams.get('sortDirection')),
+    page: parsePage(searchParams.get('page')),
+    pageSize: parsePageSize(searchParams.get('pageSize')),
+  };
 }
 
 function toSafeNumber(value: number | string): number {
-  const parsedValue = Number(value)
-  return Number.isFinite(parsedValue) ? parsedValue : 0
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
 }
 
 function getDayStartIso(day: string): string {
-  return `${day}T00:00:00.000Z`
+  return `${day}T00:00:00.000Z`;
 }
 
 function getDayEndIso(day: string): string {
-  return `${day}T23:59:59.999Z`
+  return `${day}T23:59:59.999Z`;
 }
 
 function compareWithDirection(
@@ -191,15 +191,15 @@ function compareWithDirection(
   rightValue: string | number,
   sortDirection: SortDirection,
 ): number {
-  const directionFactor = sortDirection === "asc" ? 1 : -1
+  const directionFactor = sortDirection === 'asc' ? 1 : -1;
 
-  if (typeof leftValue === "number" && typeof rightValue === "number") {
-    return (leftValue - rightValue) * directionFactor
+  if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+    return (leftValue - rightValue) * directionFactor;
   }
 
   return (
-    String(leftValue).localeCompare(String(rightValue), "fr") * directionFactor
-  )
+    String(leftValue).localeCompare(String(rightValue), 'fr') * directionFactor
+  );
 }
 
 function applyFiltersToInvoicesQuery(
@@ -207,167 +207,167 @@ function applyFiltersToInvoicesQuery(
   filters: InvoiceListFilters,
   matchedOrderIds: string[] | null,
 ): FilterableInvoicesQuery {
-  let nextQuery = query
+  let nextQuery = query;
 
   if (filters.searchNumero) {
     nextQuery = nextQuery.ilike(
-      "numero_facture",
+      'numero_facture',
       `%${filters.searchNumero}%`,
-    ) as FilterableInvoicesQuery
+    ) as FilterableInvoicesQuery;
   }
 
-  if (filters.status !== "all") {
+  if (filters.status !== 'all') {
     nextQuery = nextQuery.eq(
-      "statut",
+      'statut',
       filters.status,
-    ) as FilterableInvoicesQuery
+    ) as FilterableInvoicesQuery;
   }
 
   if (filters.dateFrom) {
     nextQuery = nextQuery.gte(
-      "date_emission",
+      'date_emission',
       getDayStartIso(filters.dateFrom),
-    ) as FilterableInvoicesQuery
+    ) as FilterableInvoicesQuery;
   }
 
   if (filters.dateTo) {
     nextQuery = nextQuery.lte(
-      "date_emission",
+      'date_emission',
       getDayEndIso(filters.dateTo),
-    ) as FilterableInvoicesQuery
+    ) as FilterableInvoicesQuery;
   }
 
   if (matchedOrderIds) {
     nextQuery = nextQuery.in(
-      "id_commande",
+      'id_commande',
       matchedOrderIds,
-    ) as FilterableInvoicesQuery
+    ) as FilterableInvoicesQuery;
   }
 
-  return nextQuery
+  return nextQuery;
 }
 
 async function fetchMatchedOrderIds(
   searchClient: string,
 ): Promise<string[] | null> {
   if (!searchClient) {
-    return null
+    return null;
   }
 
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = createAdminClient();
 
   const { data: users, error: usersError } = await supabaseAdmin
-    .from("utilisateur")
-    .select("id_utilisateur")
+    .from('utilisateur')
+    .select('id_utilisateur')
     .or(`nom_complet.ilike.%${searchClient}%,email.ilike.%${searchClient}%`)
-    .limit(MAX_MATCHED_USERS)
+    .limit(MAX_MATCHED_USERS);
 
   if (usersError) {
-    throw usersError
+    throw usersError;
   }
 
   const userIds = ((users as IdRow[] | null) ?? [])
     .map((user) => user.id_utilisateur)
-    .filter((value): value is string => Boolean(value))
+    .filter((value): value is string => Boolean(value));
 
   if (userIds.length === 0) {
-    return []
+    return [];
   }
 
-  const matchedOrderIds = new Set<string>()
+  const matchedOrderIds = new Set<string>();
 
   for (const userIdChunk of splitArrayIntoChunks(
     userIds,
     IN_QUERY_CHUNK_SIZE,
   )) {
     const { data: orders, error: ordersError } = await supabaseAdmin
-      .from("commande")
-      .select("id_commande")
-      .in("id_utilisateur", userIdChunk)
-      .limit(MAX_MATCHED_ORDERS)
+      .from('commande')
+      .select('id_commande')
+      .in('id_utilisateur', userIdChunk)
+      .limit(MAX_MATCHED_ORDERS);
 
     if (ordersError) {
-      throw ordersError
+      throw ordersError;
     }
 
-    const rows = (orders as IdRow[] | null) ?? []
+    const rows = (orders as IdRow[] | null) ?? [];
 
     rows.forEach((row) => {
       if (row.id_commande) {
-        matchedOrderIds.add(row.id_commande)
+        matchedOrderIds.add(row.id_commande);
       }
-    })
+    });
   }
 
-  return [...matchedOrderIds]
+  return [...matchedOrderIds];
 }
 
 async function fetchOrdersMap(
   orderIds: string[],
 ): Promise<Map<string, OrderRow>> {
-  const orderById = new Map<string, OrderRow>()
+  const orderById = new Map<string, OrderRow>();
 
   if (orderIds.length === 0) {
-    return orderById
+    return orderById;
   }
 
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = createAdminClient();
 
   for (const orderIdChunk of splitArrayIntoChunks(
     orderIds,
     IN_QUERY_CHUNK_SIZE,
   )) {
     const { data, error } = await supabaseAdmin
-      .from("commande")
-      .select("id_commande, numero_commande, id_utilisateur")
-      .in("id_commande", orderIdChunk)
+      .from('commande')
+      .select('id_commande, numero_commande, id_utilisateur')
+      .in('id_commande', orderIdChunk);
 
     if (error) {
-      console.error("Erreur lecture commandes factures admin", { error })
-      continue
+      console.error('Erreur lecture commandes factures admin', { error });
+      continue;
     }
 
-    const rows = (data as OrderRow[] | null) ?? []
+    const rows = (data as OrderRow[] | null) ?? [];
 
     rows.forEach((row) => {
-      orderById.set(row.id_commande, row)
-    })
+      orderById.set(row.id_commande, row);
+    });
   }
 
-  return orderById
+  return orderById;
 }
 
 async function fetchUsersMap(userIds: string[]): Promise<Map<string, UserRow>> {
-  const userById = new Map<string, UserRow>()
+  const userById = new Map<string, UserRow>();
 
   if (userIds.length === 0) {
-    return userById
+    return userById;
   }
 
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = createAdminClient();
 
   for (const userIdChunk of splitArrayIntoChunks(
     userIds,
     IN_QUERY_CHUNK_SIZE,
   )) {
     const { data, error } = await supabaseAdmin
-      .from("utilisateur")
-      .select("id_utilisateur, nom_complet, email")
-      .in("id_utilisateur", userIdChunk)
+      .from('utilisateur')
+      .select('id_utilisateur, nom_complet, email')
+      .in('id_utilisateur', userIdChunk);
 
     if (error) {
-      console.error("Erreur lecture clients factures admin", { error })
-      continue
+      console.error('Erreur lecture clients factures admin', { error });
+      continue;
     }
 
-    const rows = (data as UserRow[] | null) ?? []
+    const rows = (data as UserRow[] | null) ?? [];
 
     rows.forEach((row) => {
-      userById.set(row.id_utilisateur, row)
-    })
+      userById.set(row.id_utilisateur, row);
+    });
   }
 
-  return userById
+  return userById;
 }
 
 function mapInvoicesToListItems(
@@ -376,8 +376,10 @@ function mapInvoicesToListItems(
   userById: Map<string, UserRow>,
 ): InvoiceListItem[] {
   return invoices.map((invoice) => {
-    const order = orderById.get(invoice.id_commande) ?? null
-    const customer = order ? (userById.get(order.id_utilisateur) ?? null) : null
+    const order = orderById.get(invoice.id_commande) ?? null;
+    const customer = order
+      ? (userById.get(order.id_utilisateur) ?? null)
+      : null;
 
     return {
       id_facture: invoice.id_facture,
@@ -400,8 +402,8 @@ function mapInvoicesToListItems(
             email: customer.email,
           }
         : null,
-    }
-  })
+    };
+  });
 }
 
 function compareInvoiceItemsByClient(
@@ -410,30 +412,30 @@ function compareInvoiceItemsByClient(
   sortDirection: SortDirection,
 ): number {
   const clientA = normalizeString(
-    invoiceA.client?.nom_complet || invoiceA.client?.email || "",
-  )
+    invoiceA.client?.nom_complet || invoiceA.client?.email || '',
+  );
   const clientB = normalizeString(
-    invoiceB.client?.nom_complet || invoiceB.client?.email || "",
-  )
+    invoiceB.client?.nom_complet || invoiceB.client?.email || '',
+  );
 
-  return compareWithDirection(clientA, clientB, sortDirection)
+  return compareWithDirection(clientA, clientB, sortDirection);
 }
 
 function paginateArray<T>(items: T[], page: number, pageSize: number): T[] {
-  const startIndex = (page - 1) * pageSize
-  return items.slice(startIndex, startIndex + pageSize)
+  const startIndex = (page - 1) * pageSize;
+  return items.slice(startIndex, startIndex + pageSize);
 }
 
 function toSafePage(page: number, totalPages: number): number {
   if (page < 1) {
-    return 1
+    return 1;
   }
 
   if (page > totalPages) {
-    return totalPages
+    return totalPages;
   }
 
-  return page
+  return page;
 }
 
 async function fetchPagedInvoices(
@@ -444,55 +446,55 @@ async function fetchPagedInvoices(
     return {
       invoices: [],
       total: 0,
-    }
+    };
   }
 
-  const sortColumnByFilter: Record<Exclude<InvoiceSortBy, "client">, string> = {
-    numero_facture: "numero_facture",
-    date_emission: "date_emission",
-    montant_ttc: "montant_ttc",
-    statut: "statut",
-  }
+  const sortColumnByFilter: Record<Exclude<InvoiceSortBy, 'client'>, string> = {
+    numero_facture: 'numero_facture',
+    date_emission: 'date_emission',
+    montant_ttc: 'montant_ttc',
+    statut: 'statut',
+  };
 
   const sortColumn =
     sortColumnByFilter[
-      (filters.sortBy === "client"
-        ? "date_emission"
-        : filters.sortBy) as Exclude<InvoiceSortBy, "client">
-    ]
+      (filters.sortBy === 'client'
+        ? 'date_emission'
+        : filters.sortBy) as Exclude<InvoiceSortBy, 'client'>
+    ];
 
-  const startIndex = (filters.page - 1) * filters.pageSize
-  const endIndex = startIndex + filters.pageSize - 1
-  const supabaseAdmin = createAdminClient()
+  const startIndex = (filters.page - 1) * filters.pageSize;
+  const endIndex = startIndex + filters.pageSize - 1;
+  const supabaseAdmin = createAdminClient();
 
   let query = supabaseAdmin
-    .from("facture")
+    .from('facture')
     .select(
-      "id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url",
-      { count: "exact" },
-    )
+      'id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url',
+      { count: 'exact' },
+    );
 
   query = applyFiltersToInvoicesQuery(
     query as unknown as FilterableInvoicesQuery,
     filters,
     matchedOrderIds,
-  ) as typeof query
+  ) as typeof query;
 
   const { data, error, count } = await query
     .order(sortColumn, {
-      ascending: filters.sortDirection === "asc",
+      ascending: filters.sortDirection === 'asc',
     })
-    .range(startIndex, endIndex)
+    .range(startIndex, endIndex);
 
   if (error) {
-    console.error("Erreur lecture factures admin", { error })
-    return null
+    console.error('Erreur lecture factures admin', { error });
+    return null;
   }
 
   return {
     invoices: (data as InvoiceRow[] | null) ?? [],
     total: count ?? 0,
-  }
+  };
 }
 
 async function fetchAllFilteredInvoices(
@@ -500,82 +502,82 @@ async function fetchAllFilteredInvoices(
   matchedOrderIds: string[] | null,
 ): Promise<InvoiceRow[] | null> {
   if (matchedOrderIds && matchedOrderIds.length === 0) {
-    return []
+    return [];
   }
 
-  const supabaseAdmin = createAdminClient()
+  const supabaseAdmin = createAdminClient();
 
   let query = supabaseAdmin
-    .from("facture")
+    .from('facture')
     .select(
-      "id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url",
-    )
+      'id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url',
+    );
 
   query = applyFiltersToInvoicesQuery(
     query as unknown as FilterableInvoicesQuery,
     filters,
     matchedOrderIds,
-  ) as typeof query
+  ) as typeof query;
 
-  const { data, error } = await query
+  const { data, error } = await query;
 
   if (error) {
-    console.error("Erreur lecture factures admin (full scan)", { error })
-    return null
+    console.error('Erreur lecture factures admin (full scan)', { error });
+    return null;
   }
 
-  return (data as InvoiceRow[] | null) ?? []
+  return (data as InvoiceRow[] | null) ?? [];
 }
 
 export async function GET(request: NextRequest) {
-  const deniedResponse = await verifyAdminAccess()
+  const deniedResponse = await verifyAdminAccess();
 
   if (deniedResponse) {
-    return deniedResponse
+    return deniedResponse;
   }
 
   try {
-    const filters = parseFilters(request.nextUrl.searchParams)
-    const matchedOrderIds = await fetchMatchedOrderIds(filters.searchClient)
+    const filters = parseFilters(request.nextUrl.searchParams);
+    const matchedOrderIds = await fetchMatchedOrderIds(filters.searchClient);
 
-    const requiresInMemorySort = filters.sortBy === "client"
+    const requiresInMemorySort = filters.sortBy === 'client';
 
     if (!requiresInMemorySort) {
-      const pagedInvoices = await fetchPagedInvoices(filters, matchedOrderIds)
+      const pagedInvoices = await fetchPagedInvoices(filters, matchedOrderIds);
 
       if (!pagedInvoices) {
         return NextResponse.json(
           {
-            error: "Erreur lors du chargement des factures.",
-            code: "admin_invoices_read_failed",
+            error: 'Erreur lors du chargement des factures.',
+            code: 'admin_invoices_read_failed',
           },
           { status: 500 },
-        )
+        );
       }
 
       const orderIds = [
         ...new Set(
           pagedInvoices.invoices.map((invoice) => invoice.id_commande),
         ),
-      ]
-      const orderById = await fetchOrdersMap(orderIds)
+      ];
+      const orderById = await fetchOrdersMap(orderIds);
       const userIds = [
         ...new Set(
           [...orderById.values()].map((order) => order.id_utilisateur),
         ),
-      ]
-      const userById = await fetchUsersMap(userIds)
+      ];
+      const userById = await fetchUsersMap(userIds);
 
       const invoices = mapInvoicesToListItems(
         pagedInvoices.invoices,
         orderById,
         userById,
-      )
+      );
 
       const totalPages = Math.max(
         1,
         Math.ceil(pagedInvoices.total / filters.pageSize),
-      )
+      );
 
       return NextResponse.json({
         invoices,
@@ -583,60 +585,60 @@ export async function GET(request: NextRequest) {
         page: toSafePage(filters.page, totalPages),
         pageSize: filters.pageSize,
         totalPages,
-      })
+      });
     }
 
     const allFilteredInvoices = await fetchAllFilteredInvoices(
       filters,
       matchedOrderIds,
-    )
+    );
 
     if (!allFilteredInvoices) {
       return NextResponse.json(
         {
-          error: "Erreur lors du chargement des factures.",
-          code: "admin_invoices_read_failed",
+          error: 'Erreur lors du chargement des factures.',
+          code: 'admin_invoices_read_failed',
         },
         { status: 500 },
-      )
+      );
     }
 
     const allOrderIds = [
       ...new Set(allFilteredInvoices.map((invoice) => invoice.id_commande)),
-    ]
-    const orderById = await fetchOrdersMap(allOrderIds)
+    ];
+    const orderById = await fetchOrdersMap(allOrderIds);
     const userIds = [
       ...new Set([...orderById.values()].map((order) => order.id_utilisateur)),
-    ]
-    const userById = await fetchUsersMap(userIds)
+    ];
+    const userById = await fetchUsersMap(userIds);
 
     const allInvoices = mapInvoicesToListItems(
       allFilteredInvoices,
       orderById,
       userById,
-    )
+    );
 
     const sortedInvoices = [...allInvoices].sort((invoiceA, invoiceB) => {
       const comparedValue = compareInvoiceItemsByClient(
         invoiceA,
         invoiceB,
         filters.sortDirection,
-      )
+      );
 
       if (comparedValue !== 0) {
-        return comparedValue
+        return comparedValue;
       }
 
       return invoiceA.numero_facture.localeCompare(
         invoiceB.numero_facture,
-        "fr",
-      )
-    })
+        'fr',
+      );
+    });
 
-    const total = sortedInvoices.length
-    const totalPages = Math.max(1, Math.ceil(total / filters.pageSize))
-    const safePage = toSafePage(filters.page, totalPages)
-    const invoices = paginateArray(sortedInvoices, safePage, filters.pageSize)
+    const total = sortedInvoices.length;
+    const totalPages = Math.max(1, Math.ceil(total / filters.pageSize));
+    const safePage = toSafePage(filters.page, totalPages);
+    const invoices = paginateArray(sortedInvoices, safePage, filters.pageSize);
 
     return NextResponse.json({
       invoices,
@@ -644,16 +646,16 @@ export async function GET(request: NextRequest) {
       page: safePage,
       pageSize: filters.pageSize,
       totalPages,
-    })
+    });
   } catch (error) {
-    console.error("Erreur inattendue lecture factures admin", { error })
+    console.error('Erreur inattendue lecture factures admin', { error });
 
     return NextResponse.json(
       {
-        error: "Erreur serveur",
-        code: "server_error",
+        error: 'Erreur serveur',
+        code: 'server_error',
       },
       { status: 500 },
-    )
+    );
   }
 }
