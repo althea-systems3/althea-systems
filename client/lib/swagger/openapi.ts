@@ -2006,6 +2006,285 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/invoices": {
+      get: {
+        tags: ["Admin - Factures"],
+        summary: "Liste paginée des factures",
+        description: "Retourne les factures avec recherche, filtres, tri et pagination. Enrichi avec commande et client.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de facture" },
+          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
+          { name: "status", in: "query", schema: { type: "string", enum: ["payee", "en_attente", "annule"] }, description: "Filtre par statut" },
+          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
+          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
+          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des factures",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoices: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/FactureListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/invoices/{id}": {
+      get: {
+        tags: ["Admin - Factures"],
+        summary: "Détail d une facture",
+        description: "Retourne le détail complet d une facture avec commande, client, avoir lié et historique.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de la facture",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: { $ref: "#/components/schemas/FactureDetail" },
+                    history: { type: "array", items: { type: "object" } },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      patch: {
+        tags: ["Admin - Factures"],
+        summary: "Modifier le statut ou le PDF d une facture",
+        description: "Met à jour le statut et/ou l URL du PDF. Log admin invoices.update.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+                  pdf_url: { type: "string", nullable: true },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Facture mise à jour",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    invoice: { $ref: "#/components/schemas/FactureDetail" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Statut invalide ou payload vide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur mise à jour" },
+        },
+      },
+      delete: {
+        tags: ["Admin - Factures"],
+        summary: "Annuler une facture avec création d avoir",
+        description: "Annule la facture, génère automatiquement un avoir (PDF + upload Firebase Storage), et marque la facture comme annulée. Log admin facture_annulee.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Facture annulée et avoir créé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    creditNote: {
+                      type: "object",
+                      properties: {
+                        number: { type: "string" },
+                        amount: { type: "number" },
+                        pdfUrl: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Facture déjà annulée ou avoir existant" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/invoices/{id}/email": {
+      post: {
+        tags: ["Admin - Factures"],
+        summary: "Renvoyer une facture par email",
+        description: "Renvoie la facture par email au client via Resend. Log admin invoices.send_email.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+        ],
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Facture introuvable" },
+          "500": { description: "Erreur envoi email" },
+        },
+      },
+    },
+    "/api/admin/avoirs": {
+      get: {
+        tags: ["Admin - Avoirs"],
+        summary: "Liste paginée des avoirs",
+        description: "Retourne les avoirs avec recherche, filtres, tri et pagination. Enrichi avec facture, commande et client.",
+        parameters: [
+          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro d avoir" },
+          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
+          { name: "motif", in: "query", schema: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] }, description: "Filtre par motif" },
+          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
+          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
+          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
+          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
+          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+        ],
+        responses: {
+          "200": {
+            description: "Liste des avoirs",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    creditNotes: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/AvoirListItem" },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    pageSize: { type: "integer" },
+                    totalPages: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "401": { description: "Non authentifié" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/avoirs/{id}": {
+      get: {
+        tags: ["Admin - Avoirs"],
+        summary: "Détail d un avoir",
+        description: "Retourne le détail complet d un avoir avec facture liée, commande et client.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+        ],
+        responses: {
+          "200": {
+            description: "Détail de l avoir",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    creditNote: { $ref: "#/components/schemas/AvoirDetail" },
+                    invoice: { type: "object", nullable: true },
+                    order: { type: "object", nullable: true },
+                    client: { type: "object", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "ID invalide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Avoir introuvable" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/avoirs/{id}/email": {
+      post: {
+        tags: ["Admin - Avoirs"],
+        summary: "Renvoyer un avoir par email",
+        description: "Renvoie l avoir par email au client via Resend. Log admin credit_notes.send_email.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+        ],
+        responses: {
+          "200": {
+            description: "Email envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Client sans email valide" },
+          "401": { description: "Non authentifié" },
+          "404": { description: "Avoir, facture ou commande introuvable" },
+          "500": { description: "Erreur envoi email" },
+        },
+      },
+    },
     "/api/admin/carousel/reorder": {
       patch: {
         tags: ["Admin - Carrousel"],
@@ -3117,50 +3396,6 @@ export const openApiSpec = {
         },
       },
     },
-    "/api/admin/invoices/{id}": {
-      delete: {
-        tags: ["Admin - Factures"],
-        summary: "Annuler une facture (créer un avoir)",
-        description: "Annule une facture et crée automatiquement un avoir avec génération du PDF. Accès admin requis. Retourne 409 si un avoir existe déjà.",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
-        responses: {
-          "200": {
-            description: "Facture annulée, avoir créé",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string" },
-                    creditNote: {
-                      type: "object",
-                      properties: {
-                        number: { type: "string", example: "AVO-202604-ABCDEFGH" },
-                        amount: { type: "number" },
-                        pdfUrl: { type: "string", nullable: true },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          "401": { description: "Non authentifié" },
-          "403": { description: "Accès réservé aux administrateurs" },
-          "404": { description: "Facture introuvable" },
-          "409": { description: "Un avoir existe déjà pour cette facture" },
-          "500": { description: "Erreur serveur" },
-        },
-      },
-    },
-
     // --- Compte utilisateur ---
 
     "/api/account/profile": {
@@ -3812,6 +4047,115 @@ export const openApiSpec = {
           ordre: { type: "integer" },
           est_principale: { type: "boolean" },
           alt_text: { type: "string", nullable: true },
+        },
+      },
+      FactureListItem: {
+        type: "object",
+        properties: {
+          id_facture: { type: "string" },
+          numero_facture: { type: "string" },
+          id_commande: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+          pdf_url: { type: "string", nullable: true },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      FactureDetail: {
+        type: "object",
+        properties: {
+          id_facture: { type: "string" },
+          numero_facture: { type: "string" },
+          id_commande: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant_ttc: { type: "number" },
+          statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+          pdf_url: { type: "string", nullable: true },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+              date_commande: { type: "string", format: "date-time" },
+              statut: { type: "string" },
+              statut_paiement: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+          creditNote: { type: "object", nullable: true },
+        },
+      },
+      AvoirListItem: {
+        type: "object",
+        properties: {
+          id_avoir: { type: "string" },
+          numero_avoir: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant: { type: "number" },
+          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          pdf_url: { type: "string", nullable: true },
+          facture: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_facture: { type: "string" },
+              numero_facture: { type: "string" },
+            },
+          },
+          commande: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_commande: { type: "string" },
+              numero_commande: { type: "string" },
+            },
+          },
+          client: {
+            type: "object",
+            nullable: true,
+            properties: {
+              id_utilisateur: { type: "string" },
+              nom_complet: { type: "string", nullable: true },
+              email: { type: "string", nullable: true },
+            },
+          },
+        },
+      },
+      AvoirDetail: {
+        type: "object",
+        properties: {
+          id_avoir: { type: "string" },
+          numero_avoir: { type: "string" },
+          date_emission: { type: "string", format: "date-time" },
+          montant: { type: "number" },
+          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          pdf_url: { type: "string", nullable: true },
         },
       },
       CommandeListItem: {

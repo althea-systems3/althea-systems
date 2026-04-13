@@ -1,90 +1,90 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server';
 
-import { normalizeString } from "@/lib/admin/common"
-import { verifyAdminAccess } from "@/lib/auth/adminGuard"
-import { getCurrentUser } from "@/lib/auth/session"
+import { normalizeString } from '@/lib/admin/common';
+import { verifyAdminAccess } from '@/lib/auth/adminGuard';
+import { getCurrentUser } from '@/lib/auth/session';
 import {
   CREDIT_NOTE_REASON_CANCELLATION,
   INVOICES_STORAGE_PATH,
-} from "@/lib/checkout/constants"
-import { buildCreditNoteNumber } from "@/lib/checkout/numberGenerator"
-import { generateCreditNotePdf } from "@/lib/checkout/pdf"
-import type { CreditNotePdfData } from "@/lib/checkout/pdf"
-import { logAdminActivity } from "@/lib/firebase/logActivity"
-import { createAdminClient } from "@/lib/supabase/admin"
-import type { CreditNoteReason, InvoiceStatus } from "@/lib/supabase/types"
+} from '@/lib/checkout/constants';
+import { buildCreditNoteNumber } from '@/lib/checkout/numberGenerator';
+import { generateCreditNotePdf } from '@/lib/checkout/pdf';
+import type { CreditNotePdfData } from '@/lib/checkout/pdf';
+import { logAdminActivity } from '@/lib/firebase/logActivity';
+import { createAdminClient } from '@/lib/supabase/admin';
+import type { CreditNoteReason, InvoiceStatus } from '@/lib/supabase/types';
 
 type RouteContext = {
-  params: Promise<{ id: string }>
-}
+  params: Promise<{ id: string }>;
+};
 
 type InvoiceUpdatePayload = {
-  statut?: unknown
-  pdf_url?: unknown
-}
+  statut?: unknown;
+  pdf_url?: unknown;
+};
 
 type InvoiceRow = {
-  id_facture: string
-  numero_facture: string
-  id_commande: string
-  date_emission: string
-  montant_ttc: number
-  statut: InvoiceStatus
-  pdf_url: string | null
-}
+  id_facture: string;
+  numero_facture: string;
+  id_commande: string;
+  date_emission: string;
+  montant_ttc: number;
+  statut: InvoiceStatus;
+  pdf_url: string | null;
+};
 
 type OrderRow = {
-  id_commande: string
-  numero_commande: string
-  id_utilisateur: string
-  date_commande: string
-  statut: string
-  statut_paiement: string
-}
+  id_commande: string;
+  numero_commande: string;
+  id_utilisateur: string;
+  date_commande: string;
+  statut: string;
+  statut_paiement: string;
+};
 
 type UserRow = {
-  id_utilisateur: string
-  nom_complet: string | null
-  email: string | null
-}
+  id_utilisateur: string;
+  nom_complet: string | null;
+  email: string | null;
+};
 
 type CreditNoteRow = {
-  id_avoir: string
-  numero_avoir: string
-  date_emission: string
-  montant: number
-  motif: CreditNoteReason
-  pdf_url: string | null
-}
+  id_avoir: string;
+  numero_avoir: string;
+  date_emission: string;
+  montant: number;
+  motif: CreditNoteReason;
+  pdf_url: string | null;
+};
 
 function parseInvoiceStatus(value: unknown): InvoiceStatus | null {
-  if (value === "payee" || value === "en_attente" || value === "annule") {
-    return value
+  if (value === 'payee' || value === 'en_attente' || value === 'annule') {
+    return value;
   }
 
-  return null
+  return null;
 }
 
 function parseOptionalPdfUrl(value: unknown): string | null | undefined {
   if (value === undefined) {
-    return undefined
+    return undefined;
   }
 
   if (value === null) {
-    return null
+    return null;
   }
 
-  if (typeof value !== "string") {
-    return undefined
+  if (typeof value !== 'string') {
+    return undefined;
   }
 
-  const normalizedValue = value.trim()
+  const normalizedValue = value.trim();
 
   if (!normalizedValue) {
-    return null
+    return null;
   }
 
-  return normalizedValue
+  return normalizedValue;
 }
 
 async function fetchInvoice(
@@ -92,18 +92,18 @@ async function fetchInvoice(
   invoiceId: string,
 ): Promise<InvoiceRow | null> {
   const { data, error } = await supabaseAdmin
-    .from("facture")
+    .from('facture')
     .select(
-      "id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url",
+      'id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url',
     )
-    .eq("id_facture", invoiceId)
-    .single()
+    .eq('id_facture', invoiceId)
+    .single();
 
   if (error || !data) {
-    return null
+    return null;
   }
 
-  return data as InvoiceRow
+  return data as InvoiceRow;
 }
 
 async function fetchOrderForInvoice(
@@ -111,18 +111,18 @@ async function fetchOrderForInvoice(
   orderId: string,
 ): Promise<OrderRow | null> {
   const { data, error } = await supabaseAdmin
-    .from("commande")
+    .from('commande')
     .select(
-      "id_commande, numero_commande, id_utilisateur, date_commande, statut, statut_paiement",
+      'id_commande, numero_commande, id_utilisateur, date_commande, statut, statut_paiement',
     )
-    .eq("id_commande", orderId)
-    .single()
+    .eq('id_commande', orderId)
+    .single();
 
   if (error || !data) {
-    return null
+    return null;
   }
 
-  return data as OrderRow
+  return data as OrderRow;
 }
 
 async function fetchUser(
@@ -130,16 +130,16 @@ async function fetchUser(
   userId: string,
 ): Promise<UserRow | null> {
   const { data, error } = await supabaseAdmin
-    .from("utilisateur")
-    .select("id_utilisateur, nom_complet, email")
-    .eq("id_utilisateur", userId)
-    .single()
+    .from('utilisateur')
+    .select('id_utilisateur, nom_complet, email')
+    .eq('id_utilisateur', userId)
+    .single();
 
   if (error || !data) {
-    return null
+    return null;
   }
 
-  return data as UserRow
+  return data as UserRow;
 }
 
 async function fetchCreditNoteByInvoiceId(
@@ -147,18 +147,18 @@ async function fetchCreditNoteByInvoiceId(
   invoiceId: string,
 ): Promise<CreditNoteRow | null> {
   const { data, error } = await supabaseAdmin
-    .from("avoir")
-    .select("id_avoir, numero_avoir, date_emission, montant, motif, pdf_url")
-    .eq("id_facture", invoiceId)
-    .order("date_emission", { ascending: false })
+    .from('avoir')
+    .select('id_avoir, numero_avoir, date_emission, montant, motif, pdf_url')
+    .eq('id_facture', invoiceId)
+    .order('date_emission', { ascending: false })
     .limit(1)
-    .maybeSingle()
+    .maybeSingle();
 
   if (error || !data) {
-    return null
+    return null;
   }
 
-  return data as CreditNoteRow
+  return data as CreditNoteRow;
 }
 
 async function checkExistingCreditNote(
@@ -166,12 +166,12 @@ async function checkExistingCreditNote(
   invoiceId: string,
 ): Promise<boolean> {
   const { data } = await supabaseAdmin
-    .from("avoir")
-    .select("id_avoir")
-    .eq("id_facture", invoiceId)
-    .limit(1)
+    .from('avoir')
+    .select('id_avoir')
+    .eq('id_facture', invoiceId)
+    .limit(1);
 
-  return (data?.length ?? 0) > 0
+  return (data?.length ?? 0) > 0;
 }
 
 async function uploadCreditNotePdf(
@@ -179,22 +179,22 @@ async function uploadCreditNotePdf(
   pdfBuffer: Buffer,
 ): Promise<string | null> {
   try {
-    const admin = await import("firebase-admin")
-    const bucket = admin.default.storage().bucket()
-    const filePath = `${INVOICES_STORAGE_PATH}/${creditNoteNumber}.pdf`
-    const file = bucket.file(filePath)
+    const admin = await import('firebase-admin');
+    const bucket = admin.default.storage().bucket();
+    const filePath = `${INVOICES_STORAGE_PATH}/${creditNoteNumber}.pdf`;
+    const file = bucket.file(filePath);
 
     await file.save(pdfBuffer, {
-      contentType: "application/pdf",
+      contentType: 'application/pdf',
       metadata: { documentNumber: creditNoteNumber },
-    })
+    });
 
-    await file.makePublic()
+    await file.makePublic();
 
-    return file.publicUrl()
+    return file.publicUrl();
   } catch (error) {
-    console.error("Erreur upload PDF avoir", { error })
-    return null
+    console.error('Erreur upload PDF avoir', { error });
+    return null;
   }
 }
 
@@ -204,7 +204,7 @@ async function createCreditNote(
   customerName: string,
   customerEmail: string,
 ): Promise<{ creditNoteNumber: string; pdfUrl: string | null } | null> {
-  const creditNoteNumber = buildCreditNoteNumber()
+  const creditNoteNumber = buildCreditNoteNumber();
 
   const creditNoteData: CreditNotePdfData = {
     creditNoteNumber,
@@ -214,31 +214,31 @@ async function createCreditNote(
     reason: CREDIT_NOTE_REASON_CANCELLATION,
     customerName,
     customerEmail,
-  }
+  };
 
-  let pdfUrl: string | null = null
+  let pdfUrl: string | null = null;
 
   try {
-    const pdfBuffer = await generateCreditNotePdf(creditNoteData)
-    pdfUrl = await uploadCreditNotePdf(creditNoteNumber, pdfBuffer)
+    const pdfBuffer = await generateCreditNotePdf(creditNoteData);
+    pdfUrl = await uploadCreditNotePdf(creditNoteNumber, pdfBuffer);
   } catch (error) {
-    console.error("Erreur generation PDF avoir", { error })
+    console.error('Erreur generation PDF avoir', { error });
   }
 
-  const { error } = await supabaseAdmin.from("avoir").insert({
+  const { error } = await supabaseAdmin.from('avoir').insert({
     numero_avoir: creditNoteNumber,
     id_facture: invoice.id_facture,
     montant: invoice.montant_ttc,
     motif: CREDIT_NOTE_REASON_CANCELLATION,
     pdf_url: pdfUrl,
-  } as never)
+  } as never);
 
   if (error) {
-    console.error("Erreur insertion avoir", { error })
-    return null
+    console.error('Erreur insertion avoir', { error });
+    return null;
   }
 
-  return { creditNoteNumber, pdfUrl }
+  return { creditNoteNumber, pdfUrl };
 }
 
 async function markInvoiceAsCancelled(
@@ -246,44 +246,44 @@ async function markInvoiceAsCancelled(
   invoiceId: string,
 ): Promise<void> {
   const { error } = await supabaseAdmin
-    .from("facture")
-    .update({ statut: "annule" } as never)
-    .eq("id_facture", invoiceId)
+    .from('facture')
+    .update({ statut: 'annule' } as never)
+    .eq('id_facture', invoiceId);
 
   if (error) {
-    console.error("Erreur annulation facture", { error })
+    console.error('Erreur annulation facture', { error });
   }
 }
 
 function toSafeNumber(value: number): number {
-  const parsedValue = Number(value)
-  return Number.isFinite(parsedValue) ? parsedValue : 0
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
 }
 
 function buildInvoicePayload(params: {
-  invoice: InvoiceRow
-  order: OrderRow | null
-  customer: UserRow | null
-  creditNote: CreditNoteRow | null
+  invoice: InvoiceRow;
+  order: OrderRow | null;
+  customer: UserRow | null;
+  creditNote: CreditNoteRow | null;
 }) {
-  const { invoice, order, customer, creditNote } = params
+  const { invoice, order, customer, creditNote } = params;
 
   const history = [
     {
-      type: "emission",
-      label: "Facture emise",
+      type: 'emission',
+      label: 'Facture emise',
       date: invoice.date_emission,
     },
     ...(creditNote
       ? [
           {
-            type: "annulation",
-            label: "Facture annulee avec creation d avoir",
+            type: 'annulation',
+            label: 'Facture annulee avec creation d avoir',
             date: creditNote.date_emission,
           },
         ]
       : []),
-  ]
+  ];
 
   return {
     invoice: {
@@ -321,48 +321,48 @@ function buildInvoicePayload(params: {
         : null,
     },
     history,
-  }
+  };
 }
 
 export async function GET(_request: Request, context: RouteContext) {
-  const deniedResponse = await verifyAdminAccess()
+  const deniedResponse = await verifyAdminAccess();
 
   if (deniedResponse) {
-    return deniedResponse
+    return deniedResponse;
   }
 
   try {
-    const { id } = await context.params
-    const invoiceId = normalizeString(id)
+    const { id } = await context.params;
+    const invoiceId = normalizeString(id);
 
     if (!invoiceId) {
       return NextResponse.json(
         {
-          error: "Identifiant facture invalide.",
-          code: "id_invalid",
+          error: 'Identifiant facture invalide.',
+          code: 'id_invalid',
         },
         { status: 400 },
-      )
+      );
     }
 
-    const supabaseAdmin = createAdminClient()
-    const invoice = await fetchInvoice(supabaseAdmin, invoiceId)
+    const supabaseAdmin = createAdminClient();
+    const invoice = await fetchInvoice(supabaseAdmin, invoiceId);
 
     if (!invoice) {
       return NextResponse.json(
-        { error: "Facture introuvable", code: "invoice_not_found" },
+        { error: 'Facture introuvable', code: 'invoice_not_found' },
         { status: 404 },
-      )
+      );
     }
 
     const [order, creditNote] = await Promise.all([
       fetchOrderForInvoice(supabaseAdmin, invoice.id_commande),
       fetchCreditNoteByInvoiceId(supabaseAdmin, invoice.id_facture),
-    ])
+    ]);
 
     const customer = order
       ? await fetchUser(supabaseAdmin, order.id_utilisateur)
-      : null
+      : null;
 
     return NextResponse.json(
       buildInvoicePayload({
@@ -371,137 +371,137 @@ export async function GET(_request: Request, context: RouteContext) {
         customer,
         creditNote,
       }),
-    )
+    );
   } catch (error) {
-    console.error("Erreur detail facture admin", { error })
+    console.error('Erreur detail facture admin', { error });
 
     return NextResponse.json(
       {
-        error: "Erreur serveur",
-        code: "server_error",
+        error: 'Erreur serveur',
+        code: 'server_error',
       },
       { status: 500 },
-    )
+    );
   }
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const deniedResponse = await verifyAdminAccess()
+  const deniedResponse = await verifyAdminAccess();
 
   if (deniedResponse) {
-    return deniedResponse
+    return deniedResponse;
   }
 
   try {
-    const { id } = await context.params
-    const invoiceId = normalizeString(id)
+    const { id } = await context.params;
+    const invoiceId = normalizeString(id);
 
     if (!invoiceId) {
       return NextResponse.json(
         {
-          error: "Identifiant facture invalide.",
-          code: "id_invalid",
+          error: 'Identifiant facture invalide.',
+          code: 'id_invalid',
         },
         { status: 400 },
-      )
+      );
     }
 
     const body = (await request
       .json()
-      .catch(() => null)) as InvoiceUpdatePayload | null
+      .catch(() => null)) as InvoiceUpdatePayload | null;
 
-    const hasStatusInPayload = body?.statut !== undefined
-    const hasPdfInPayload = body?.pdf_url !== undefined
+    const hasStatusInPayload = body?.statut !== undefined;
+    const hasPdfInPayload = body?.pdf_url !== undefined;
 
     if (!hasStatusInPayload && !hasPdfInPayload) {
       return NextResponse.json(
         {
-          error: "Aucune modification fournie.",
-          code: "empty_payload",
+          error: 'Aucune modification fournie.',
+          code: 'empty_payload',
         },
         { status: 400 },
-      )
+      );
     }
 
     const nextStatus = hasStatusInPayload
       ? parseInvoiceStatus(body?.statut)
-      : null
-    const nextPdfUrl = parseOptionalPdfUrl(body?.pdf_url)
+      : null;
+    const nextPdfUrl = parseOptionalPdfUrl(body?.pdf_url);
 
     if (hasStatusInPayload && !nextStatus) {
       return NextResponse.json(
         {
-          error: "Statut facture invalide.",
-          code: "status_invalid",
+          error: 'Statut facture invalide.',
+          code: 'status_invalid',
         },
         { status: 400 },
-      )
+      );
     }
 
     if (hasPdfInPayload && nextPdfUrl === undefined) {
       return NextResponse.json(
         {
-          error: "URL PDF invalide.",
-          code: "pdf_url_invalid",
+          error: 'URL PDF invalide.',
+          code: 'pdf_url_invalid',
         },
         { status: 400 },
-      )
+      );
     }
 
-    const supabaseAdmin = createAdminClient()
-    const existingInvoice = await fetchInvoice(supabaseAdmin, invoiceId)
+    const supabaseAdmin = createAdminClient();
+    const existingInvoice = await fetchInvoice(supabaseAdmin, invoiceId);
 
     if (!existingInvoice) {
       return NextResponse.json(
-        { error: "Facture introuvable", code: "invoice_not_found" },
+        { error: 'Facture introuvable', code: 'invoice_not_found' },
         { status: 404 },
-      )
+      );
     }
 
-    if (nextStatus === "annule") {
+    if (nextStatus === 'annule') {
       const hasCreditNote = await checkExistingCreditNote(
         supabaseAdmin,
         invoiceId,
-      )
+      );
 
       if (!hasCreditNote) {
         return NextResponse.json(
           {
             error:
-              "Utilisez la suppression de facture pour annuler et generer automatiquement l avoir.",
-            code: "invoice_cancel_requires_delete",
+              'Utilisez la suppression de facture pour annuler et generer automatiquement l avoir.',
+            code: 'invoice_cancel_requires_delete',
           },
           { status: 400 },
-        )
+        );
       }
     }
 
     const updatePayload: { statut?: InvoiceStatus; pdf_url?: string | null } =
-      {}
+      {};
 
     if (hasStatusInPayload && nextStatus) {
-      updatePayload.statut = nextStatus
+      updatePayload.statut = nextStatus;
     }
 
     if (hasPdfInPayload) {
-      updatePayload.pdf_url = nextPdfUrl ?? null
+      updatePayload.pdf_url = nextPdfUrl ?? null;
     }
 
     const hasStatusChange =
       updatePayload.statut !== undefined &&
-      updatePayload.statut !== existingInvoice.statut
+      updatePayload.statut !== existingInvoice.statut;
     const hasPdfChange =
       updatePayload.pdf_url !== undefined &&
-      updatePayload.pdf_url !== existingInvoice.pdf_url
+      updatePayload.pdf_url !== existingInvoice.pdf_url;
 
     if (!hasStatusChange && !hasPdfChange) {
       const [order, creditNote] = await Promise.all([
         fetchOrderForInvoice(supabaseAdmin, existingInvoice.id_commande),
         fetchCreditNoteByInvoiceId(supabaseAdmin, existingInvoice.id_facture),
-      ])
+      ]);
       const customer = order
         ? await fetchUser(supabaseAdmin, order.id_utilisateur)
-        : null
+        : null;
 
       return NextResponse.json(
         buildInvoicePayload({
@@ -510,48 +510,48 @@ export async function PATCH(request: Request, context: RouteContext) {
           customer,
           creditNote,
         }),
-      )
+      );
     }
 
     const { data: updatedInvoice, error: updateError } = await supabaseAdmin
-      .from("facture")
+      .from('facture')
       .update(updatePayload as never)
-      .eq("id_facture", invoiceId)
+      .eq('id_facture', invoiceId)
       .select(
-        "id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url",
+        'id_facture, numero_facture, id_commande, date_emission, montant_ttc, statut, pdf_url',
       )
-      .single()
+      .single();
 
     if (updateError || !updatedInvoice) {
       return NextResponse.json(
         {
-          error: "Impossible de mettre a jour la facture.",
-          code: "invoice_update_failed",
+          error: 'Impossible de mettre a jour la facture.',
+          code: 'invoice_update_failed',
         },
         { status: 500 },
-      )
+      );
     }
 
-    const updatedInvoiceRow = updatedInvoice as InvoiceRow
+    const updatedInvoiceRow = updatedInvoice as InvoiceRow;
 
     const [order, creditNote] = await Promise.all([
       fetchOrderForInvoice(supabaseAdmin, updatedInvoiceRow.id_commande),
       fetchCreditNoteByInvoiceId(supabaseAdmin, updatedInvoiceRow.id_facture),
-    ])
+    ]);
     const customer = order
       ? await fetchUser(supabaseAdmin, order.id_utilisateur)
-      : null
+      : null;
 
-    const currentUser = await getCurrentUser()
+    const currentUser = await getCurrentUser();
 
     if (currentUser) {
-      await logAdminActivity(currentUser.user.id, "invoices.update", {
+      await logAdminActivity(currentUser.user.id, 'invoices.update', {
         invoiceId,
         previousStatus: existingInvoice.statut,
         nextStatus: updatedInvoiceRow.statut,
         previousPdfUrl: existingInvoice.pdf_url,
         nextPdfUrl: updatedInvoiceRow.pdf_url,
-      })
+      });
     }
 
     return NextResponse.json(
@@ -561,17 +561,17 @@ export async function PATCH(request: Request, context: RouteContext) {
         customer,
         creditNote,
       }),
-    )
+    );
   } catch (error) {
-    console.error("Erreur mise a jour facture admin", { error })
+    console.error('Erreur mise a jour facture admin', { error });
 
     return NextResponse.json(
       {
-        error: "Erreur serveur",
-        code: "server_error",
+        error: 'Erreur serveur',
+        code: 'server_error',
       },
       { status: 500 },
-    )
+    );
   }
 }
 
@@ -579,92 +579,95 @@ export async function DELETE(
   _request: NextRequest,
   context: RouteContext,
 ): Promise<NextResponse> {
-  const deniedResponse = await verifyAdminAccess()
+  const deniedResponse = await verifyAdminAccess();
 
   if (deniedResponse) {
-    return deniedResponse
+    return deniedResponse;
   }
 
   try {
-    const { id } = await context.params
-    const invoiceId = normalizeString(id)
+    const { id } = await context.params;
+    const invoiceId = normalizeString(id);
 
     if (!invoiceId) {
       return NextResponse.json(
         {
-          error: "Identifiant facture invalide.",
-          code: "id_invalid",
+          error: 'Identifiant facture invalide.',
+          code: 'id_invalid',
         },
         { status: 400 },
-      )
+      );
     }
 
-    const supabaseAdmin = createAdminClient()
-    const invoice = await fetchInvoice(supabaseAdmin, invoiceId)
+    const supabaseAdmin = createAdminClient();
+    const invoice = await fetchInvoice(supabaseAdmin, invoiceId);
 
     if (!invoice) {
       return NextResponse.json(
-        { error: "Facture introuvable" },
+        { error: 'Facture introuvable' },
         { status: 404 },
-      )
+      );
     }
 
     const hasExistingCreditNote = await checkExistingCreditNote(
       supabaseAdmin,
       invoiceId,
-    )
+    );
 
     if (hasExistingCreditNote) {
       return NextResponse.json(
-        { error: "Un avoir existe déjà pour cette facture" },
+        { error: 'Un avoir existe déjà pour cette facture' },
         { status: 409 },
-      )
+      );
     }
 
-    const order = await fetchOrderForInvoice(supabaseAdmin, invoice.id_commande)
+    const order = await fetchOrderForInvoice(
+      supabaseAdmin,
+      invoice.id_commande,
+    );
     const customer = order
       ? await fetchUser(supabaseAdmin, order.id_utilisateur)
-      : null
+      : null;
 
-    const customerName = customer?.nom_complet ?? "Client"
-    const customerEmail = customer?.email ?? ""
+    const customerName = customer?.nom_complet ?? 'Client';
+    const customerEmail = customer?.email ?? '';
 
     const creditNote = await createCreditNote(
       supabaseAdmin,
       invoice,
       customerName,
       customerEmail,
-    )
+    );
 
     if (!creditNote) {
       return NextResponse.json(
         { error: "Impossible de créer l'avoir" },
         { status: 500 },
-      )
+      );
     }
 
-    await markInvoiceAsCancelled(supabaseAdmin, invoiceId)
+    await markInvoiceAsCancelled(supabaseAdmin, invoiceId);
 
-    const currentUser = await getCurrentUser()
+    const currentUser = await getCurrentUser();
 
-    logAdminActivity(currentUser?.user.id ?? "unknown", "facture_annulee", {
+    logAdminActivity(currentUser?.user.id ?? 'unknown', 'facture_annulee', {
       invoiceId,
       invoiceNumber: invoice.numero_facture,
       creditNoteNumber: creditNote.creditNoteNumber,
       amount: invoice.montant_ttc,
-    }).catch(() => {})
+    }).catch(() => {});
 
     return NextResponse.json({
-      message: "Facture annulée, avoir créé automatiquement",
+      message: 'Facture annulée, avoir créé automatiquement',
       creditNote: {
         number: creditNote.creditNoteNumber,
         amount: invoice.montant_ttc,
         pdfUrl: creditNote.pdfUrl,
       },
-    })
+    });
   } catch (error) {
-    console.error("Erreur inattendue suppression facture", { error })
+    console.error('Erreur inattendue suppression facture', { error });
 
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
