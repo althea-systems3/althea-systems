@@ -4143,6 +4143,166 @@ export const openApiSpec = {
         },
       },
     },
+    // --- Contenu éditorial ---
+
+    "/api/static-pages/{slug}": {
+      get: {
+        tags: ["Contenu"],
+        summary: "Lire une page statique publique",
+        description: "Retourne le contenu d une page statique (cgu, mentions-legales, a-propos). Avec fallback si contenu absent en base.",
+        parameters: [
+          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] }, description: "Slug de la page" },
+          { name: "locale", in: "query", schema: { type: "string", default: "fr" }, description: "Langue demandée" },
+        ],
+        responses: {
+          "200": {
+            description: "Contenu de la page",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    slug: { type: "string" },
+                    locale: { type: "string" },
+                    title: { type: "string" },
+                    description: { type: "string", nullable: true },
+                    contentMarkdown: { type: "string" },
+                    updatedAt: { type: "string", format: "date-time", nullable: true },
+                    isFallbackData: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "404": { description: "Slug inconnu" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/pages/texte-fixe-home": {
+      get: {
+        tags: ["Contenu"],
+        summary: "Lire le texte fixe de la page d accueil",
+        description: "Retourne le contenu éditorial de la page d accueil. Fallback si absent.",
+        parameters: [
+          { name: "locale", in: "query", schema: { type: "string", default: "fr" }, description: "Langue demandée" },
+        ],
+        responses: {
+          "200": {
+            description: "Contenu éditorial home",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    slug: { type: "string", example: "texte-fixe-home" },
+                    locale: { type: "string" },
+                    title: { type: "string", nullable: true },
+                    contentMarkdown: { type: "string" },
+                    updatedAt: { type: "string", format: "date-time", nullable: true },
+                    isFallbackData: { type: "boolean" },
+                  },
+                },
+              },
+            },
+          },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/static-pages/{slug}": {
+      get: {
+        tags: ["Admin - Contenu Editorial"],
+        summary: "Lire une page statique (admin)",
+        description: "Retourne le contenu d une page statique pour édition admin. Retourne les valeurs par défaut si aucun contenu en base.",
+        parameters: [
+          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] } },
+          { name: "locale", in: "query", schema: { type: "string", default: "fr" } },
+        ],
+        responses: {
+          "200": { description: "Contenu de la page" },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "404": { description: "Slug inconnu" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      put: {
+        tags: ["Admin - Contenu Editorial"],
+        summary: "Modifier une page statique",
+        description: "Met à jour le contenu d une page statique (upsert). Log admin static_pages.update.",
+        parameters: [
+          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] } },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["title", "contentMarkdown"],
+                properties: {
+                  locale: { type: "string", default: "fr" },
+                  title: { type: "string" },
+                  description: { type: "string", nullable: true },
+                  contentMarkdown: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Page mise à jour" },
+          "400": { description: "Titre ou contenu manquant" },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "404": { description: "Slug inconnu" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
+    "/api/admin/pages/texte-fixe-home": {
+      get: {
+        tags: ["Admin - Contenu Editorial"],
+        summary: "Lire le texte fixe home (admin)",
+        description: "Retourne le contenu éditorial de la page d accueil pour édition admin.",
+        parameters: [
+          { name: "locale", in: "query", schema: { type: "string", default: "fr" } },
+        ],
+        responses: {
+          "200": { description: "Contenu éditorial home" },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+      put: {
+        tags: ["Admin - Contenu Editorial"],
+        summary: "Modifier le texte fixe home",
+        description: "Met à jour le contenu éditorial de la page d accueil (upsert). Log admin editorial.texte_fixe_home.update.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  locale: { type: "string", default: "fr" },
+                  title: { type: "string", nullable: true },
+                  contentMarkdown: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Contenu mis à jour" },
+          "401": { description: "Non authentifié" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
   },
   components: {
     schemas: {

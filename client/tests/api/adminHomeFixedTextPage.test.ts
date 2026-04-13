@@ -9,6 +9,17 @@ vi.mock("@/lib/auth/adminGuard", () => ({
   verifyAdminAccess: () => mockVerifyAdminAccess(),
 }))
 
+vi.mock("@/lib/auth/session", () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
+    user: { id: "admin-1" },
+    userProfile: { est_admin: true },
+  }),
+}))
+
+vi.mock("@/lib/firebase/logActivity", () => ({
+  logAdminActivity: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
     from: () => ({

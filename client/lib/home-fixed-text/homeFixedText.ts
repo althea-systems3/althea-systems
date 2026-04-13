@@ -1,15 +1,15 @@
-import type { AppLocale } from "@/lib/i18n"
+import type { AppLocale } from '@/lib/i18n';
 
-export const HOME_FIXED_TEXT_SLUG = "texte-fixe-home" as const
+export const HOME_FIXED_TEXT_SLUG = 'texte-fixe-home' as const;
 
 export type HomeFixedTextPayload = {
-  slug: typeof HOME_FIXED_TEXT_SLUG
-  locale: AppLocale
-  title: string | null
-  contentMarkdown: string
-  updatedAt: string | null
-  isFallbackData: boolean
-}
+  slug: typeof HOME_FIXED_TEXT_SLUG;
+  locale: AppLocale;
+  title: string | null;
+  contentMarkdown: string;
+  updatedAt: string | null;
+  isFallbackData: boolean;
+};
 
 export function createEmptyHomeFixedTextPayload(
   locale: AppLocale,
@@ -18,8 +18,8 @@ export function createEmptyHomeFixedTextPayload(
     slug: HOME_FIXED_TEXT_SLUG,
     locale,
     title: null,
-    contentMarkdown: "",
+    contentMarkdown: '',
     updatedAt: null,
     isFallbackData: true,
-  }
+  };
 }

@@ -1,15 +1,26 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
-import { NextRequest } from "next/server"
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextRequest } from 'next/server';
 
-const mockVerifyAdminAccess = vi.fn()
-const mockSupabaseMaybeSingle = vi.fn()
-const mockSupabaseUpsertSingle = vi.fn()
+const mockVerifyAdminAccess = vi.fn();
+const mockSupabaseMaybeSingle = vi.fn();
+const mockSupabaseUpsertSingle = vi.fn();
 
-vi.mock("@/lib/auth/adminGuard", () => ({
+vi.mock('@/lib/auth/adminGuard', () => ({
   verifyAdminAccess: () => mockVerifyAdminAccess(),
-}))
+}));
 
-vi.mock("@/lib/supabase/admin", () => ({
+vi.mock('@/lib/auth/session', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
+    user: { id: 'admin-1' },
+    userProfile: { est_admin: true },
+  }),
+}));
+
+vi.mock('@/lib/firebase/logActivity', () => ({
+  logAdminActivity: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
     from: () => ({
       select: () => ({
@@ -26,90 +37,90 @@ vi.mock("@/lib/supabase/admin", () => ({
       }),
     }),
   }),
-}))
+}));
 
-import { GET, PUT } from "@/app/api/admin/static-pages/[slug]/route"
+import { GET, PUT } from '@/app/api/admin/static-pages/[slug]/route';
 
-function createRequest(method: "GET" | "PUT", body?: unknown) {
+function createRequest(method: 'GET' | 'PUT', body?: unknown) {
   return new NextRequest(
-    "http://localhost:3000/api/admin/static-pages/cgu?locale=fr",
+    'http://localhost:3000/api/admin/static-pages/cgu?locale=fr',
     {
       method,
       body: body ? JSON.stringify(body) : null,
       headers: body
         ? {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           }
         : undefined,
     },
-  )
+  );
 }
 
 function createRouteContext(slug: string) {
   return {
     params: Promise.resolve({ slug }),
-  }
+  };
 }
 
-describe("/api/admin/static-pages/[slug]", () => {
+describe('/api/admin/static-pages/[slug]', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockVerifyAdminAccess.mockResolvedValue(null)
-  })
+    vi.clearAllMocks();
+    mockVerifyAdminAccess.mockResolvedValue(null);
+  });
 
-  it("GET returns fallback defaults when no row exists", async () => {
-    mockSupabaseMaybeSingle.mockResolvedValue({ data: null, error: null })
+  it('GET returns fallback defaults when no row exists', async () => {
+    mockSupabaseMaybeSingle.mockResolvedValue({ data: null, error: null });
 
-    const response = await GET(createRequest("GET"), createRouteContext("cgu"))
-    const body = await response.json()
+    const response = await GET(createRequest('GET'), createRouteContext('cgu'));
+    const body = await response.json();
 
-    expect(response.status).toBe(200)
-    expect(body.slug).toBe("cgu")
-    expect(body.isFallbackData).toBe(true)
-  })
+    expect(response.status).toBe(200);
+    expect(body.slug).toBe('cgu');
+    expect(body.isFallbackData).toBe(true);
+  });
 
-  it("PUT validates title and markdown", async () => {
+  it('PUT validates title and markdown', async () => {
     const response = await PUT(
-      createRequest("PUT", {
-        locale: "fr",
-        title: "",
-        description: "",
-        contentMarkdown: "",
+      createRequest('PUT', {
+        locale: 'fr',
+        title: '',
+        description: '',
+        contentMarkdown: '',
       }),
-      createRouteContext("cgu"),
-    )
+      createRouteContext('cgu'),
+    );
 
-    expect(response.status).toBe(400)
-  })
+    expect(response.status).toBe(400);
+  });
 
-  it("PUT saves static page content", async () => {
+  it('PUT saves static page content', async () => {
     mockSupabaseUpsertSingle.mockResolvedValue({
       data: {
-        slug: "cgu",
-        locale: "fr",
-        titre: "CGU",
-        description: "Description",
-        contenu_markdown: "## Test",
-        date_mise_a_jour: "2026-01-01T10:00:00.000Z",
+        slug: 'cgu',
+        locale: 'fr',
+        titre: 'CGU',
+        description: 'Description',
+        contenu_markdown: '## Test',
+        date_mise_a_jour: '2026-01-01T10:00:00.000Z',
       },
       error: null,
-    })
+    });
 
     const response = await PUT(
-      createRequest("PUT", {
-        locale: "fr",
-        title: "CGU",
-        description: "Description",
-        contentMarkdown: "## Test",
+      createRequest('PUT', {
+        locale: 'fr',
+        title: 'CGU',
+        description: 'Description',
+        contentMarkdown: '## Test',
       }),
-      createRouteContext("cgu"),
-    )
+      createRouteContext('cgu'),
+    );
 
-    const body = await response.json()
+    const body = await response.json();
 
-    expect(response.status).toBe(200)
-    expect(body.isFallbackData).toBe(false)
-    expect(body.slug).toBe("cgu")
-    expect(body.title).toBe("CGU")
-  })
-})
+    expect(response.status).toBe(200);
+    expect(body.isFallbackData).toBe(false);
+    expect(body.slug).toBe('cgu');
+    expect(body.title).toBe('CGU');
+  });
+});

@@ -155,6 +155,27 @@ export interface Avoir {
   pdf_url: string | null
 }
 
+export interface PageStatique {
+  id_page: string
+  slug: string
+  locale: string
+  titre: string
+  description: string | null
+  contenu_markdown: string
+  date_creation: string
+  date_mise_a_jour: string | null
+}
+
+export interface ContenuEditorial {
+  id_contenu: string
+  slug: string
+  locale: string
+  titre: string | null
+  contenu_markdown: string | null
+  date_creation: string
+  date_mise_a_jour: string | null
+}
+
 // NOTE: Type Database minimal pour typer le client Supabase.
 // Remplacer par les types auto-générés (npx supabase gen types)
 // une fois le projet connecté à Supabase.
@@ -183,6 +204,8 @@ export interface Database {
       historique_statut: TableHelper<HistoriqueStatut>
       facture: TableHelper<Facture>
       avoir: TableHelper<Avoir>
+      page_statique: TableHelper<PageStatique>
+      contenu_editorial: TableHelper<ContenuEditorial>
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {}
