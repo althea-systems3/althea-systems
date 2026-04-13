@@ -3199,6 +3199,77 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/auth/admin-2fa/challenge": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Envoyer un code 2FA admin par email",
+        description: "Génère un code à 6 chiffres envoyé par email à l administrateur authentifié. Pose un cookie httpOnly challenge signé HMAC-SHA256. Valide 10 minutes.",
+        responses: {
+          "200": {
+            description: "Code envoyé",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "challenge_sent" },
+                    challengeExpiresInSeconds: { type: "integer", example: 600 },
+                    requiresAdminTwoFactor: { type: "boolean", example: true },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Email admin manquant" },
+          "401": { description: "Session expirée" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "500": { description: "Erreur serveur" },
+          "503": { description: "Service indisponible (envoi email échoué)" },
+        },
+      },
+    },
+    "/api/auth/admin-2fa/verify": {
+      post: {
+        tags: ["Authentification"],
+        summary: "Vérifier le code 2FA admin",
+        description: "Valide le code à 6 chiffres contre le challenge cookie. Après 5 tentatives échouées, verrouillage temporaire (429). En cas de succès, pose un cookie vérifié httpOnly valable 8 heures.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["code"],
+                properties: {
+                  code: { type: "string", example: "123456", description: "Code à 6 chiffres reçu par email" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "2FA vérifié",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "admin_2fa_verified" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { description: "Code invalide, challenge manquant ou expiré" },
+          "401": { description: "Session expirée" },
+          "403": { description: "Accès réservé aux administrateurs" },
+          "410": { description: "Challenge expiré" },
+          "429": { description: "Trop de tentatives (verrouillage)" },
+          "500": { description: "Erreur serveur" },
+        },
+      },
+    },
     "/api/checkout/payment-intent": {
       post: {
         tags: ["Checkout"],
