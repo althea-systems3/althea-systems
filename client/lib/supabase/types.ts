@@ -47,6 +47,7 @@ export interface Produit {
   slug: string
   priorite: number
   est_top_produit: boolean
+  est_nouveau: boolean
 }
 
 export interface Carrousel {
