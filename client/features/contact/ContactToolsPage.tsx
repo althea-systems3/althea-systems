@@ -457,7 +457,7 @@ export function ContactToolsPage({
       const response = await secureFetch("/api/chatbot/escalate", {
         method: "POST",
         body: JSON.stringify({
-          conversationId: chatConversationId,
+          conversation_id: chatConversationId,
           email: chatCapturedEmail || formValues.email,
           subject: chatCapturedSubject || formValues.subject,
           transcript: chatMessages.map((message) => ({
