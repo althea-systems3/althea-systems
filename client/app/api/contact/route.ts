@@ -7,6 +7,7 @@ import {
   normalizeContactText,
   validateContactForm,
 } from "@/lib/contact/validation"
+import { sendContactFormNotificationEmail } from "@/lib/checkout/email"
 
 type ContactRequestBody = {
   email?: unknown
@@ -62,6 +63,12 @@ export async function POST(request: Request) {
         { status: 500 },
       )
     }
+
+    await sendContactFormNotificationEmail({
+      email: values.email,
+      subject: sanitizeText(values.subject, 200),
+      message: sanitizeText(values.message, 5000),
+    }).catch((err) => console.error("Erreur envoi email notification contact", err))
 
     return NextResponse.json(
       {
