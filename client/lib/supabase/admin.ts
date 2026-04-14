@@ -1,6 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js"
 
-let cachedAdminClient: ReturnType<typeof createClient> | null = null;
+import {
+  assertRuntimeConfig,
+  SUPABASE_ADMIN_ENV_KEYS,
+} from "@/lib/config/runtime"
+
+let cachedAdminClient: ReturnType<typeof createClient> | null = null
 
 /**
  * NOTE: Ce client utilise la service_role key pour bypasser le RLS.
@@ -12,11 +17,18 @@ let cachedAdminClient: ReturnType<typeof createClient> | null = null;
  */
 export function createAdminClient() {
   if (!cachedAdminClient) {
-    cachedAdminClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } },
-    );
+    assertRuntimeConfig("supabase.admin", SUPABASE_ADMIN_ENV_KEYS)
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error("Configuration Supabase admin invalide.")
+    }
+
+    cachedAdminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    })
   }
-  return cachedAdminClient;
+  return cachedAdminClient
 }

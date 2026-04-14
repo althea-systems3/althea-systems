@@ -35,11 +35,17 @@ export function CartPageLoadingState() {
 }
 
 export function CartPageErrorState({
+  errorCode,
   onRetry,
 }: {
+  errorCode?: string | null
   onRetry: () => Promise<unknown> | void
 }) {
   const t = useTranslations("CartPage")
+  const descriptionKey =
+    errorCode === "configuration_missing"
+      ? "states.configErrorDescription"
+      : "states.errorDescription"
 
   return (
     <Card className="border-dashed border-red-200 bg-red-50/50" role="alert">
@@ -49,7 +55,7 @@ export function CartPageErrorState({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm text-slate-700 sm:text-base">
-        <p>{t("states.errorDescription")}</p>
+        <p>{t(descriptionKey)}</p>
         <Button type="button" variant="outline" onClick={() => void onRetry()}>
           {t("states.retry")}
         </Button>

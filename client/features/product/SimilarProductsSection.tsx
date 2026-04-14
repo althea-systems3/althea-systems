@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
@@ -56,14 +57,10 @@ function SimilarProductCard({ product }: { product: SimilarProduct }) {
                 onError={() => setHasImageLoadFailed(true)}
               />
             ) : (
-              <div
-                className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-nav/90 to-brand-cta/80"
-                aria-hidden="true"
-              >
-                <span className="heading-font px-4 text-center text-lg text-white">
-                  {t("similar.missingImageLabel")}
-                </span>
-              </div>
+              <ImagePlaceholder
+                label={t("similar.missingImageLabel")}
+                textClassName="text-lg"
+              />
             )}
 
             <div

@@ -1,37 +1,37 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from "vitest"
 
 // --- Mocks ---
 
-const mockGetUser = vi.fn();
-const mockGetCartSessionId = vi.fn();
-const mockCartSingle = vi.fn();
-const mockLineSingle = vi.fn();
-const mockProductSingle = vi.fn();
-const mockUpdateSingle = vi.fn();
-const mockDeleteEq = vi.fn();
+const mockGetUser = vi.fn()
+const mockGetCartSessionId = vi.fn()
+const mockCartSingle = vi.fn()
+const mockLineSingle = vi.fn()
+const mockProductSingle = vi.fn()
+const mockUpdateSingle = vi.fn()
+const mockDeleteEq = vi.fn()
 
-vi.mock('next/headers', () => ({
+vi.mock("next/headers", () => ({
   cookies: () => Promise.resolve({}),
-}));
+}))
 
-vi.mock('@/lib/supabase/server', () => ({
+vi.mock("@/lib/supabase/server", () => ({
   createServerClient: () => ({
     auth: { getUser: () => mockGetUser() },
   }),
-}));
+}))
 
-vi.mock('@/lib/auth/cartSession', () => ({
+vi.mock("@/lib/auth/cartSession", () => ({
   getCartSessionId: () => mockGetCartSessionId(),
-}));
+}))
 
-vi.mock('@/lib/products/constants', () => ({
+vi.mock("@/lib/products/constants", () => ({
   MAX_QUANTITY_PER_LINE: 99,
-}));
+}))
 
-vi.mock('@/lib/supabase/admin', () => ({
+vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
     from: (table: string) => {
-      if (table === 'panier') {
+      if (table === "panier") {
         return {
           select: () => ({
             eq: () => ({
@@ -40,10 +40,10 @@ vi.mock('@/lib/supabase/admin', () => ({
               }),
             }),
           }),
-        };
+        }
       }
 
-      if (table === 'produit') {
+      if (table === "produit") {
         return {
           select: () => ({
             eq: () => ({
@@ -52,7 +52,7 @@ vi.mock('@/lib/supabase/admin', () => ({
               }),
             }),
           }),
-        };
+        }
       }
 
       // table === 'ligne_panier'
@@ -72,209 +72,230 @@ vi.mock('@/lib/supabase/admin', () => ({
         delete: () => ({
           eq: () => mockDeleteEq(),
         }),
-      };
+      }
     },
   }),
-}));
+}))
 
 // --- Import après mocks ---
 
-import { PATCH, DELETE } from '@/app/api/cart/items/[id]/route';
+import { PATCH, DELETE } from "@/app/api/cart/items/[id]/route"
 
 // --- Helpers ---
 
 function createPatchRequest(body: unknown): Request {
-  return new Request('http://localhost:3000/api/cart/items/line-001', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+  return new Request("http://localhost:3000/api/cart/items/line-001", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  });
+  })
 }
 
 function createDeleteRequest(): Request {
-  return new Request('http://localhost:3000/api/cart/items/line-001', {
-    method: 'DELETE',
-  });
+  return new Request("http://localhost:3000/api/cart/items/line-001", {
+    method: "DELETE",
+  })
 }
 
 function createParams(id: string): { params: Promise<{ id: string }> } {
-  return { params: Promise.resolve({ id }) };
+  return { params: Promise.resolve({ id }) }
 }
 
 function setupAuthMocks() {
-  mockGetUser.mockResolvedValue({ data: { user: { id: 'user-001' } } });
+  mockGetUser.mockResolvedValue({ data: { user: { id: "user-001" } } })
   mockCartSingle.mockResolvedValue({
-    data: { id_panier: 'cart-001' },
-  });
+    data: { id_panier: "cart-001" },
+  })
 }
 
 // --- Tests PATCH ---
 
-describe('PATCH /api/cart/items/[id]', () => {
+describe("PATCH /api/cart/items/[id]", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321"
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key"
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role-key"
+    process.env.CART_COOKIE_SECRET = "cart-cookie-secret"
+  })
 
-  it('retourne 400 si quantite est invalide', async () => {
+  it("retourne 503 si la configuration panier est manquante", async () => {
+    delete process.env.CART_COOKIE_SECRET
+
+    const response = await PATCH(
+      createPatchRequest({ quantite: 2 }),
+      createParams("line-001"),
+    )
+
+    expect(response.status).toBe(503)
+    const body = await response.json()
+    expect(body.code).toBe("configuration_missing")
+  })
+
+  it("retourne 400 si quantite est invalide", async () => {
     const response = await PATCH(
       createPatchRequest({ quantite: -1 }),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain('quantite');
-  });
+    expect(response.status).toBe(400)
+    const body = await response.json()
+    expect(body.error).toContain("quantite")
+  })
 
-  it('retourne 404 si la ligne n appartient pas au panier', async () => {
-    setupAuthMocks();
+  it("retourne 404 si la ligne n appartient pas au panier", async () => {
+    setupAuthMocks()
 
     mockLineSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-other',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-other",
+        id_produit: "prod-001",
         quantite: 2,
       },
-    });
+    })
 
     const response = await PATCH(
       createPatchRequest({ quantite: 3 }),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(404);
-  });
+    expect(response.status).toBe(404)
+  })
 
-  it('retourne 400 si stock insuffisant', async () => {
-    setupAuthMocks();
+  it("retourne 400 si stock insuffisant", async () => {
+    setupAuthMocks()
 
     mockLineSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-001',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-001",
+        id_produit: "prod-001",
         quantite: 2,
       },
-    });
+    })
 
     mockProductSingle.mockResolvedValue({
       data: { quantite_stock: 3 },
-    });
+    })
 
     const response = await PATCH(
       createPatchRequest({ quantite: 10 }),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(400);
-    const body = await response.json();
-    expect(body.error).toContain('Stock insuffisant');
-    expect(body.availableStock).toBe(3);
-  });
+    expect(response.status).toBe(400)
+    const body = await response.json()
+    expect(body.error).toContain("Stock insuffisant")
+    expect(body.availableStock).toBe(3)
+  })
 
-  it('retourne 200 avec la ligne mise à jour', async () => {
-    setupAuthMocks();
+  it("retourne 200 avec la ligne mise à jour", async () => {
+    setupAuthMocks()
 
     mockLineSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-001',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-001",
+        id_produit: "prod-001",
         quantite: 2,
       },
-    });
+    })
 
     mockProductSingle.mockResolvedValue({
       data: { quantite_stock: 12 },
-    });
+    })
 
     mockUpdateSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-001',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-001",
+        id_produit: "prod-001",
         quantite: 5,
       },
       error: null,
-    });
+    })
 
     const response = await PATCH(
       createPatchRequest({ quantite: 5 }),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body.cartLine.quantite).toBe(5);
-  });
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.cartLine.quantite).toBe(5)
+  })
 
-  it('supprime la ligne si quantite vaut 0', async () => {
-    setupAuthMocks();
+  it("supprime la ligne si quantite vaut 0", async () => {
+    setupAuthMocks()
 
     mockLineSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-001',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-001",
+        id_produit: "prod-001",
         quantite: 2,
       },
-    });
+    })
 
-    mockDeleteEq.mockResolvedValue({ error: null });
+    mockDeleteEq.mockResolvedValue({ error: null })
 
     const response = await PATCH(
       createPatchRequest({ quantite: 0 }),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body.deleted).toBe(true);
-  });
-});
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.deleted).toBe(true)
+  })
+})
 
 // --- Tests DELETE ---
 
-describe('DELETE /api/cart/items/[id]', () => {
+describe("DELETE /api/cart/items/[id]", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321"
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key"
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role-key"
+    process.env.CART_COOKIE_SECRET = "cart-cookie-secret"
+  })
 
-  it('retourne 404 si la ligne est introuvable', async () => {
-    setupAuthMocks();
+  it("retourne 404 si la ligne est introuvable", async () => {
+    setupAuthMocks()
 
-    mockLineSingle.mockResolvedValue({ data: null });
+    mockLineSingle.mockResolvedValue({ data: null })
 
     const response = await DELETE(
       createDeleteRequest(),
-      createParams('line-inexistant'),
-    );
+      createParams("line-inexistant"),
+    )
 
-    expect(response.status).toBe(404);
-  });
+    expect(response.status).toBe(404)
+  })
 
-  it('retourne 200 et supprime la ligne', async () => {
-    setupAuthMocks();
+  it("retourne 200 et supprime la ligne", async () => {
+    setupAuthMocks()
 
     mockLineSingle.mockResolvedValue({
       data: {
-        id_ligne_panier: 'line-001',
-        id_panier: 'cart-001',
-        id_produit: 'prod-001',
+        id_ligne_panier: "line-001",
+        id_panier: "cart-001",
+        id_produit: "prod-001",
         quantite: 2,
       },
-    });
+    })
 
-    mockDeleteEq.mockResolvedValue({ error: null });
+    mockDeleteEq.mockResolvedValue({ error: null })
 
     const response = await DELETE(
       createDeleteRequest(),
-      createParams('line-001'),
-    );
+      createParams("line-001"),
+    )
 
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body.deleted).toBe(true);
-  });
-});
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.deleted).toBe(true)
+  })
+})

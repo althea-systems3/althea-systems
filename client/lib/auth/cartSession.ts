@@ -1,78 +1,99 @@
-import crypto from 'crypto';
+import crypto from "crypto"
 
-import { cookies } from 'next/headers';
+import { cookies } from "next/headers"
 
-const CART_COOKIE_NAME = 'cart_session_id';
-const CART_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 jours
+import { assertRuntimeConfig, CART_COOKIE_ENV_KEYS } from "@/lib/config/runtime"
+
+const CART_COOKIE_NAME = "cart_session_id"
+const CART_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30 // 30 jours
+
+let cachedCartCookieSecret: string | null = null
+
+function getCartCookieSecret(): string {
+  if (cachedCartCookieSecret) {
+    return cachedCartCookieSecret
+  }
+
+  assertRuntimeConfig("cart.cookie", CART_COOKIE_ENV_KEYS)
+
+  const secret = process.env.CART_COOKIE_SECRET
+
+  if (!secret) {
+    throw new Error("Configuration cookie panier invalide.")
+  }
+
+  cachedCartCookieSecret = secret
+  return secret
+}
 
 function signValue(value: string): string {
-  const secret = process.env.CART_COOKIE_SECRET!;
+  const secret = getCartCookieSecret()
   const signature = crypto
-    .createHmac('sha256', secret)
+    .createHmac("sha256", secret)
     .update(value)
-    .digest('base64url');
-  return `${value}.${signature}`;
+    .digest("base64url")
+  return `${value}.${signature}`
 }
 
 function unsignValue(signedValue: string): string | null {
-  const lastDotIndex = signedValue.lastIndexOf('.');
+  const lastDotIndex = signedValue.lastIndexOf(".")
 
   if (lastDotIndex === -1) {
-    return null;
+    return null
   }
 
-  const originalValue = signedValue.slice(0, lastDotIndex);
-  const expectedSignedValue = signValue(originalValue);
+  const originalValue = signedValue.slice(0, lastDotIndex)
+  const expectedSignedValue = signValue(originalValue)
 
   // NOTE: timingSafeEqual empêche les attaques par timing
   if (signedValue.length !== expectedSignedValue.length) {
-    return null;
+    return null
   }
 
   const isValid = crypto.timingSafeEqual(
     Buffer.from(signedValue),
-    Buffer.from(expectedSignedValue)
-  );
+    Buffer.from(expectedSignedValue),
+  )
 
-  return isValid ? originalValue : null;
+  return isValid ? originalValue : null
 }
 
 export async function getCartSessionId(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const existingCookie = cookieStore.get(CART_COOKIE_NAME)?.value;
+  const cookieStore = await cookies()
+  const existingCookie = cookieStore.get(CART_COOKIE_NAME)?.value
 
   if (!existingCookie) {
-    return null;
+    return null
   }
 
-  return unsignValue(existingCookie);
+  return unsignValue(existingCookie)
 }
 
 export async function getOrCreateCartSessionId(): Promise<{
-  sessionId: string;
-  isNewSession: boolean;
+  sessionId: string
+  isNewSession: boolean
 }> {
-  const existingSessionId = await getCartSessionId();
+  const existingSessionId = await getCartSessionId()
 
   if (existingSessionId) {
-    return { sessionId: existingSessionId, isNewSession: false };
+    return { sessionId: existingSessionId, isNewSession: false }
   }
 
-  const newSessionId = crypto.randomUUID();
-  const cookieStore = await cookies();
+  const newSessionId = crypto.randomUUID()
+  const cookieStore = await cookies()
 
   cookieStore.set(CART_COOKIE_NAME, signValue(newSessionId), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
     maxAge: CART_COOKIE_MAX_AGE_SECONDS,
-  });
+  })
 
-  return { sessionId: newSessionId, isNewSession: true };
+  return { sessionId: newSessionId, isNewSession: true }
 }
 
 export async function clearCartSession(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(CART_COOKIE_NAME);
+  const cookieStore = await cookies()
+  cookieStore.delete(CART_COOKIE_NAME)
 }

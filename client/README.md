@@ -1,69 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Althea Systems Frontend (client)
 
-## CI/CD and Deployment
+Frontend e-commerce multilingue construit avec Next.js App Router, TypeScript, next-intl, Supabase et Firebase.
 
-### CI (GitHub Actions)
+## Demarrage local
 
-A workflow is configured in `.github/workflows/ci.yml`.
-
-- On each pull request: runs `npm ci`, `npm run lint`, `npm run test`.
-- On push to `main`: runs `npm ci`, `npm run lint`, `npm run test`, `npm run build`.
-
-### Vercel deployment
-
-This repository is intended to be connected to Vercel with Git integration:
-
-- `main` branch -> Production deployment.
-- Feature branches / pull requests -> Preview deployments.
-
-The website is currently available at: `https://althea-systems.vercel.app/fr`.
-
-### Required environment variables
-
-Use `.env.example` as the source of truth for required variables.
-
-Configure these variables in Vercel for the appropriate environments (Production, Preview, Development):
-
-- Supabase variables.
-- Firebase variables.
-
-### Health endpoint
-
-An API health endpoint is available at:
-
-- `GET /api/health` -> `{ "status": "ok" }`
-
-## Getting Started
-
-First, run the development server:
+1. Dupliquer `.env.example` en `.env.local`.
+2. Completer les variables obligatoires (sections ci-dessous).
+3. Lancer:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Application locale: `http://localhost:3000/fr`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables d'environnement obligatoires
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Utiliser `.env.example` comme base. Les variables ci-dessous sont requises par feature en production.
 
-## Learn More
+### 1) Noyau Supabase (auth/session/cart/static pages)
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_SUPABASE_URL`
+  : URL du projet Supabase.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  : Cle publique utilisee par les flux auth serveur (signin/signup/session).
+- `SUPABASE_SERVICE_ROLE_KEY`
+  : Cle serveur pour endpoints admin/serveur (register legacy, panier, catalogue, pages statiques, administration).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2) Authentification
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_APP_URL`
+  : URL publique de l'application pour generer les liens de verification e-mail (endpoint register legacy).
+- `RESEND_API_KEY`
+  : Cle API Resend pour envoi des e-mails transactionnels.
+- `RESEND_FROM_EMAIL`
+  : Adresse expediteur des e-mails transactionnels.
 
-## Deploy on Vercel
+### 3) Panier (guest + compte connecte)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `CART_COOKIE_SECRET`
+  : Secret obligatoire pour signer le cookie de session panier guest (`cart_session_id`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Si cette variable est absente, les APIs panier renvoient `503` avec `code: "configuration_missing"`.
+
+### 4) Pages statiques publiques (CGU, Mentions legales, A propos)
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Si la base n'est pas joignable ou la config absente, un contenu editorial de fallback est servi cote serveur.
+
+### 5) Images (Firestore / Firebase Admin)
+
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` (necessaire si usage Storage)
+
+Ces variables alimentent les images categories/produits (home, catalogue, panier, top produits) via Firebase Admin.
+
+### 6) Checkout paiement
+
+- `STRIPE_SECRET_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+
+### 7) Chatbot
+
+- `GROQ_API_KEY` (requis pour l'appel LLM)
+- `GROQ_MODEL` (optionnel, valeur par defaut possible)
+
+## Comportements de robustesse config
+
+- Les routes critiques (`/api/cart`, `/api/cart/items`, `/api/cart/items/[id]`, `/api/cart/count`, `/api/auth/signup`) valident maintenant la config requise.
+- En cas de config manquante:
+  - logs serveur actionnables (variables manquantes et feature cible),
+  - reponse API explicite `503` avec `code: "configuration_missing"`,
+  - message front comprehensible (signup et panier).
+
+## Endpoint legacy
+
+- Endpoint cible unique: `/api/auth/signup`.
+- `/api/auth/register` est deprecie et conserve uniquement pour retrocompatibilite externe.
+- Sunset planifie: `31 Dec 2026 23:59:59 GMT`.
+- A partir du sunset, `/api/auth/register` renvoie `410 endpoint_sunset` avec l'endpoint de remplacement.
+
+## Verification avant merge
+
+```bash
+pnpm lint
+pnpm test -- tests/api/authSignup.test.ts tests/api/authRegister.test.ts tests/api/cart.test.ts tests/api/cartItems.test.ts tests/api/cartItemsId.test.ts tests/api/staticPagesPublic.test.ts
+pnpm build
+```
+
+Routes smoke recommandees:
+
+- `/fr`
+- `/fr/cgu`
+- `/fr/mentions-legales`
+- `/fr/a-propos`
+- `/fr/panier`
+- `/fr/inscription`
+- `/fr/connexion`
+- `/fr/contact`
+- `/fr/recherche`
+- `/fr/catalogue`

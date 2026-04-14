@@ -102,7 +102,8 @@ export const openApiSpec = {
       get: {
         tags: ["Catégories"],
         summary: "Récupérer les catégories pour le menu de navigation",
-        description: "Retourne les catégories actives triées par ordre d'affichage. Réponse cachée 60s.",
+        description:
+          "Retourne les catégories actives triées par ordre d'affichage. Réponse cachée 60s.",
         responses: {
           "200": {
             description: "Liste des catégories actives",
@@ -135,7 +136,10 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    error: { type: "string", example: "Impossible de charger les catégories." },
+                    error: {
+                      type: "string",
+                      example: "Impossible de charger les catégories.",
+                    },
                   },
                 },
               },
@@ -148,7 +152,8 @@ export const openApiSpec = {
       get: {
         tags: ["i18n"],
         summary: "Configuration des langues supportées",
-        description: "Endpoint public retournant la liste des langues supportées avec leur direction (ltr/rtl) et la langue par défaut.",
+        description:
+          "Endpoint public retournant la liste des langues supportées avec leur direction (ltr/rtl) et la langue par défaut.",
         responses: {
           "200": {
             description: "Configuration i18n",
@@ -201,7 +206,11 @@ export const openApiSpec = {
                         isAdmin: { type: "boolean" },
                         statut: { type: "string" },
                         emailVerifie: { type: "boolean" },
-                        locale: { type: "string", description: "Langue préférée depuis la table utilisateur (défaut: fr)" },
+                        locale: {
+                          type: "string",
+                          description:
+                            "Langue préférée depuis la table utilisateur (défaut: fr)",
+                        },
                       },
                     },
                   },
@@ -216,14 +225,16 @@ export const openApiSpec = {
       post: {
         tags: ["Panier"],
         summary: "Fusionner le panier guest dans le panier utilisateur",
-        description: "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Additionne les quantités guest et user pour chaque produit, plafonne au stock disponible, exclut les produits non publiés, puis supprime le panier guest.",
+        description:
+          "Appelé après la connexion. Nécessite un token CSRF et les cookies de session Supabase. Additionne les quantités guest et user pour chaque produit, plafonne au stock disponible, exclut les produits non publiés, puis supprime le panier guest.",
         parameters: [
           {
             name: "x-csrf-token",
             in: "header",
             required: true,
             schema: { type: "string" },
-            description: "Token CSRF pour la protection contre les attaques CSRF",
+            description:
+              "Token CSRF pour la protection contre les attaques CSRF",
           },
         ],
         responses: {
@@ -243,7 +254,10 @@ export const openApiSpec = {
                       type: "object",
                       properties: {
                         isMerged: { type: "boolean", example: false },
-                        reason: { type: "string", example: "aucun_panier_guest" },
+                        reason: {
+                          type: "string",
+                          example: "aucun_panier_guest",
+                        },
                       },
                     },
                   ],
@@ -258,7 +272,10 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    error: { type: "string", example: "Authentification requise." },
+                    error: {
+                      type: "string",
+                      example: "Authentification requise.",
+                    },
                   },
                 },
               },
@@ -271,7 +288,10 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    error: { type: "string", example: "Impossible de créer le panier." },
+                    error: {
+                      type: "string",
+                      example: "Impossible de créer le panier.",
+                    },
                   },
                 },
               },
@@ -284,7 +304,8 @@ export const openApiSpec = {
       get: {
         tags: ["Panier"],
         summary: "Lecture complète du panier",
-        description: "Retourne le panier avec lignes détaillées (nom, slug, prix, stock, disponibilité), images Firestore, sous-totaux par ligne et totaux globaux. Supporte guest (cookie session) et utilisateur connecté. Exclut silencieusement les produits non publiés.",
+        description:
+          "Retourne le panier avec lignes détaillées (nom, slug, prix, stock, disponibilité), images Firestore, sous-totaux par ligne et totaux globaux. Supporte guest (cookie session) et utilisateur connecté. Exclut silencieusement les produits non publiés.",
         responses: {
           "200": {
             description: "Contenu du panier",
@@ -328,7 +349,8 @@ export const openApiSpec = {
       get: {
         tags: ["Panier"],
         summary: "Compter les articles du panier",
-        description: "Retourne le nombre d'articles. Utilise les cookies de session (user connecté) ou le cookie cart_session_id (guest).",
+        description:
+          "Retourne le nombre d'articles. Utilise les cookies de session (user connecté) ou le cookie cart_session_id (guest).",
         responses: {
           "200": {
             description: "Nombre d'articles dans le panier",
@@ -351,7 +373,8 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Carrousel"],
         summary: "Lister tous les slides",
-        description: "Retourne tous les slides triés par ordre. Accès admin requis.",
+        description:
+          "Retourne tous les slides triés par ordre. Accès admin requis.",
         responses: {
           "200": {
             description: "Liste des slides",
@@ -376,7 +399,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Carrousel"],
         summary: "Créer un slide",
-        description: "Crée un nouveau slide. Maximum 3 slides. Accès admin requis.",
+        description:
+          "Crée un nouveau slide. Maximum 3 slides. Accès admin requis.",
         requestBody: {
           required: true,
           content: {
@@ -387,7 +411,11 @@ export const openApiSpec = {
                 properties: {
                   titre: { type: "string", example: "Nouveau produit" },
                   texte: { type: "string", nullable: true },
-                  lien_redirection: { type: "string", example: "/produits", nullable: true },
+                  lien_redirection: {
+                    type: "string",
+                    example: "/produits",
+                    nullable: true,
+                  },
                   actif: { type: "boolean", example: false },
                   image_url: { type: "string", nullable: true },
                 },
@@ -419,7 +447,8 @@ export const openApiSpec = {
       put: {
         tags: ["Admin - Carrousel"],
         summary: "Modifier un slide",
-        description: "Met à jour les champs d un slide existant. Accès admin requis.",
+        description:
+          "Met à jour les champs d un slide existant. Accès admin requis.",
         parameters: [
           {
             name: "id",
@@ -465,7 +494,8 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Carrousel"],
         summary: "Supprimer un slide",
-        description: "Supprime le slide, ses images Firestore et ses fichiers Storage. Accès admin requis.",
+        description:
+          "Supprime le slide, ses images Firestore et ses fichiers Storage. Accès admin requis.",
         parameters: [
           {
             name: "id",
@@ -541,7 +571,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Carrousel"],
         summary: "Uploader une image pour un slide",
-        description: "Upload une image desktop ou mobile dans Firebase Storage. Formats : jpeg, png, webp. Taille max : 5 Mo.",
+        description:
+          "Upload une image desktop ou mobile dans Firebase Storage. Formats : jpeg, png, webp. Taille max : 5 Mo.",
         parameters: [
           {
             name: "id",
@@ -589,7 +620,8 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Catégories"],
         summary: "Lister toutes les catégories",
-        description: "Retourne toutes les catégories triées par ordre avec comptage produits. Accès admin requis.",
+        description:
+          "Retourne toutes les catégories triées par ordre avec comptage produits. Accès admin requis.",
         responses: {
           "200": {
             description: "Liste des catégories",
@@ -624,7 +656,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Catégories"],
         summary: "Créer une catégorie",
-        description: "Crée une nouvelle catégorie. Le slug doit être unique. Accès admin requis.",
+        description:
+          "Crée une nouvelle catégorie. Le slug doit être unique. Accès admin requis.",
         requestBody: {
           required: true,
           content: {
@@ -636,7 +669,11 @@ export const openApiSpec = {
                   nom: { type: "string", example: "Bijoux" },
                   slug: { type: "string", example: "bijoux" },
                   description: { type: "string", nullable: true },
-                  statut: { type: "string", enum: ["active", "inactive"], example: "active" },
+                  statut: {
+                    type: "string",
+                    enum: ["active", "inactive"],
+                    example: "active",
+                  },
                   image_url: { type: "string", nullable: true },
                 },
               },
@@ -667,7 +704,8 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Catégories"],
         summary: "Détail d une catégorie",
-        description: "Retourne le détail complet d une catégorie avec ses produits associés.",
+        description:
+          "Retourne le détail complet d une catégorie avec ses produits associés.",
         parameters: [
           {
             name: "id",
@@ -692,7 +730,10 @@ export const openApiSpec = {
                         description: { type: "string", nullable: true },
                         slug: { type: "string" },
                         ordre_affiche: { type: "integer" },
-                        statut: { type: "string", enum: ["active", "inactive"] },
+                        statut: {
+                          type: "string",
+                          enum: ["active", "inactive"],
+                        },
                         image_url: { type: "string", nullable: true },
                         thumbnail_url: { type: "string", nullable: true },
                         products_count: { type: "integer" },
@@ -708,7 +749,10 @@ export const openApiSpec = {
                           statut: { type: "string" },
                           quantite_stock: { type: "integer" },
                           slug: { type: "string" },
-                          image_principale_url: { type: "string", nullable: true },
+                          image_principale_url: {
+                            type: "string",
+                            nullable: true,
+                          },
                         },
                       },
                     },
@@ -725,7 +769,8 @@ export const openApiSpec = {
       put: {
         tags: ["Admin - Catégories"],
         summary: "Modifier une catégorie",
-        description: "Met à jour les champs d une catégorie existante. Accès admin requis.",
+        description:
+          "Met à jour les champs d une catégorie existante. Accès admin requis.",
         parameters: [
           {
             name: "id",
@@ -771,7 +816,8 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Catégories"],
         summary: "Supprimer une catégorie",
-        description: "Supprime la catégorie, ses images Firestore et Storage. Refusé si des produits sont liés. Accès admin requis.",
+        description:
+          "Supprime la catégorie, ses images Firestore et Storage. Refusé si des produits sont liés. Accès admin requis.",
         parameters: [
           {
             name: "id",
@@ -848,7 +894,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Catégories"],
         summary: "Uploader une image pour une catégorie",
-        description: "Upload une image dans Firebase Storage. Formats : jpeg, png, webp. Taille max : 5 Mo.",
+        description:
+          "Upload une image dans Firebase Storage. Formats : jpeg, png, webp. Taille max : 5 Mo.",
         parameters: [
           {
             name: "id",
@@ -894,7 +941,8 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Catégories"],
         summary: "Supprimer l image d une catégorie",
-        description: "Supprime l image de la catégorie (Supabase image_url, Firestore ImagesCategories, Firebase Storage).",
+        description:
+          "Supprime l image de la catégorie (Supabase image_url, Firestore ImagesCategories, Firebase Storage).",
         parameters: [
           {
             name: "id",
@@ -928,7 +976,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Catégories"],
         summary: "Activation / désactivation groupée",
-        description: "Active ou désactive plusieurs catégories en une seule opération.",
+        description:
+          "Active ou désactive plusieurs catégories en une seule opération.",
         requestBody: {
           required: true,
           content: {
@@ -970,7 +1019,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Catégories"],
         summary: "Réordonner les catégories",
-        description: "Change l ordre d affichage des catégories. Pas de doublons, ordre entier positif.",
+        description:
+          "Change l ordre d affichage des catégories. Pas de doublons, ordre entier positif.",
         requestBody: {
           required: true,
           content: {
@@ -1018,7 +1068,8 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Top Produits"],
         summary: "Lister les produits vedettes",
-        description: "Retourne tous les produits marqués comme top, triés par priorité.",
+        description:
+          "Retourne tous les produits marqués comme top, triés par priorité.",
         responses: {
           "200": {
             description: "Liste des top produits",
@@ -1043,7 +1094,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Top Produits"],
         summary: "Ajouter un produit aux vedettes",
-        description: "Marque un produit publié comme top produit. Limite de 8 produits vedettes.",
+        description:
+          "Marque un produit publié comme top produit. Limite de 8 produits vedettes.",
         requestBody: {
           required: true,
           content: {
@@ -1072,7 +1124,9 @@ export const openApiSpec = {
               },
             },
           },
-          "400": { description: "Produit non publié, déjà top, ou limite atteinte" },
+          "400": {
+            description: "Produit non publié, déjà top, ou limite atteinte",
+          },
           "404": { description: "Produit introuvable" },
         },
       },
@@ -1081,7 +1135,8 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Top Produits"],
         summary: "Retirer un produit des vedettes",
-        description: "Retire un produit de la sélection home sans le supprimer du catalogue. Réindexe les priorités.",
+        description:
+          "Retire un produit de la sélection home sans le supprimer du catalogue. Réindexe les priorités.",
         parameters: [
           {
             name: "id",
@@ -1113,7 +1168,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Top Produits"],
         summary: "Réordonner les produits vedettes",
-        description: "Change l ordre de priorité des top produits. Pas de doublons, priorité entier positif.",
+        description:
+          "Change l ordre de priorité des top produits. Pas de doublons, priorité entier positif.",
         requestBody: {
           required: true,
           content: {
@@ -1153,7 +1209,9 @@ export const openApiSpec = {
             },
           },
           "400": { description: "Données invalides" },
-          "404": { description: "Un ou plusieurs produits introuvables dans les top" },
+          "404": {
+            description: "Un ou plusieurs produits introuvables dans les top",
+          },
         },
       },
     },
@@ -1161,20 +1219,94 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Produits"],
         summary: "Lister les produits (admin)",
-        description: "Liste paginée des produits avec filtres, tri et recherche.",
+        description:
+          "Liste paginée des produits avec filtres, tri et recherche.",
         parameters: [
-          { name: "search", in: "query", schema: { type: "string" }, description: "Recherche par nom, slug ou description" },
-          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] }, description: "Filtrer par statut" },
-          { name: "categoryId", in: "query", schema: { type: "string" }, description: "Filtrer par catégorie" },
-          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] }, description: "Filtrer par disponibilité" },
-          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de création minimum" },
-          { name: "createdTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de création maximum" },
-          { name: "priceMin", in: "query", schema: { type: "number" }, description: "Prix TTC minimum" },
-          { name: "priceMax", in: "query", schema: { type: "number" }, description: "Prix TTC maximum" },
-          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] }, description: "Champ de tri" },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
-          { name: "page", in: "query", schema: { type: "integer", minimum: 1 }, description: "Numéro de page" },
-          { name: "pageSize", in: "query", schema: { type: "integer", minimum: 1, maximum: 200 }, description: "Taille de page" },
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par nom, slug ou description",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: { type: "string", enum: ["all", "publie", "brouillon"] },
+            description: "Filtrer par statut",
+          },
+          {
+            name: "categoryId",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filtrer par catégorie",
+          },
+          {
+            name: "availability",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["all", "in_stock", "out_of_stock"],
+            },
+            description: "Filtrer par disponibilité",
+          },
+          {
+            name: "createdFrom",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de création minimum",
+          },
+          {
+            name: "createdTo",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de création maximum",
+          },
+          {
+            name: "priceMin",
+            in: "query",
+            schema: { type: "number" },
+            description: "Prix TTC minimum",
+          },
+          {
+            name: "priceMax",
+            in: "query",
+            schema: { type: "number" },
+            description: "Prix TTC maximum",
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: [
+                "nom",
+                "prix_ht",
+                "prix_ttc",
+                "quantite_stock",
+                "statut",
+                "date_creation",
+              ],
+            },
+            description: "Champ de tri",
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+            description: "Direction du tri",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", minimum: 1 },
+            description: "Numéro de page",
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", minimum: 1, maximum: 200 },
+            description: "Taille de page",
+          },
         ],
         responses: {
           "200": {
@@ -1196,10 +1328,16 @@ export const openApiSpec = {
                           tva: { type: "string" },
                           prix_ttc: { type: "number" },
                           quantite_stock: { type: "integer" },
-                          statut: { type: "string", enum: ["publie", "brouillon"] },
+                          statut: {
+                            type: "string",
+                            enum: ["publie", "brouillon"],
+                          },
                           slug: { type: "string" },
                           date_creation: { type: "string", nullable: true },
-                          image_principale_url: { type: "string", nullable: true },
+                          image_principale_url: {
+                            type: "string",
+                            nullable: true,
+                          },
                           categories: {
                             type: "array",
                             items: {
@@ -1244,7 +1382,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Produits"],
         summary: "Créer un produit",
-        description: "Crée un nouveau produit avec calcul automatique du prix TTC ou HT.",
+        description:
+          "Crée un nouveau produit avec calcul automatique du prix TTC ou HT.",
         requestBody: {
           required: true,
           content: {
@@ -1255,14 +1394,34 @@ export const openApiSpec = {
                 properties: {
                   nom: { type: "string" },
                   description: { type: "string" },
-                  prix_ht: { type: "number", description: "Prix HT (priorité sur prix_ttc)" },
-                  prix_ttc: { type: "number", description: "Prix TTC (utilisé si prix_ht absent)" },
-                  tva: { type: "string", enum: ["20", "10", "5.5", "0"], default: "20" },
+                  prix_ht: {
+                    type: "number",
+                    description: "Prix HT (priorité sur prix_ttc)",
+                  },
+                  prix_ttc: {
+                    type: "number",
+                    description: "Prix TTC (utilisé si prix_ht absent)",
+                  },
+                  tva: {
+                    type: "string",
+                    enum: ["20", "10", "5.5", "0"],
+                    default: "20",
+                  },
                   quantite_stock: { type: "integer", minimum: 0 },
-                  statut: { type: "string", enum: ["publie", "brouillon"], default: "brouillon" },
-                  slug: { type: "string", description: "Slug personnalisé (auto-généré si absent)" },
+                  statut: {
+                    type: "string",
+                    enum: ["publie", "brouillon"],
+                    default: "brouillon",
+                  },
+                  slug: {
+                    type: "string",
+                    description: "Slug personnalisé (auto-généré si absent)",
+                  },
                   categoryIds: { type: "array", items: { type: "string" } },
-                  caracteristique_tech: { type: "object", description: "Caractéristiques techniques libres" },
+                  caracteristique_tech: {
+                    type: "object",
+                    description: "Caractéristiques techniques libres",
+                  },
                 },
               },
             },
@@ -1282,7 +1441,10 @@ export const openApiSpec = {
               },
             },
           },
-          "400": { description: "Données invalides (nom manquant, prix invalide, slug dupliqué, etc.)" },
+          "400": {
+            description:
+              "Données invalides (nom manquant, prix invalide, slug dupliqué, etc.)",
+          },
           "401": { description: "Non authentifié" },
           "500": { description: "Erreur serveur" },
         },
@@ -1292,9 +1454,15 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Produits"],
         summary: "Détail d un produit",
-        description: "Retourne le détail complet d un produit avec catégories et images.",
+        description:
+          "Retourne le détail complet d un produit avec catégories et images.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           "200": {
@@ -1318,9 +1486,15 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Produits"],
         summary: "Mettre à jour un produit",
-        description: "Mise à jour partielle. Le prix TTC est recalculé automatiquement si prix_ht ou tva change.",
+        description:
+          "Mise à jour partielle. Le prix TTC est recalculé automatiquement si prix_ht ou tva change.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -1367,9 +1541,15 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Produits"],
         summary: "Supprimer un produit",
-        description: "Supprime un produit. Échoue si le produit est lié à des commandes.",
+        description:
+          "Supprime un produit. Échoue si le produit est lié à des commandes.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           "200": {
@@ -1395,7 +1575,12 @@ export const openApiSpec = {
         tags: ["Admin - Produits"],
         summary: "Lister les images d un produit",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           "200": {
@@ -1421,9 +1606,15 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Produits"],
         summary: "Uploader des images produit",
-        description: "Upload une ou plusieurs images (jpeg, png, webp, max 5 Mo chacune) vers Firebase Storage.",
+        description:
+          "Upload une ou plusieurs images (jpeg, png, webp, max 5 Mo chacune) vers Firebase Storage.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -1459,7 +1650,9 @@ export const openApiSpec = {
               },
             },
           },
-          "400": { description: "Fichier manquant, type invalide ou taille dépassée" },
+          "400": {
+            description: "Fichier manquant, type invalide ou taille dépassée",
+          },
           "401": { description: "Non authentifié" },
           "404": { description: "Produit introuvable" },
         },
@@ -1467,9 +1660,15 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Produits"],
         summary: "Réorganiser les images d un produit",
-        description: "Met à jour l ordre, l image principale et les textes alt.",
+        description:
+          "Met à jour l ordre, l image principale et les textes alt.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -1512,9 +1711,15 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Produits"],
         summary: "Supprimer une image produit",
-        description: "Supprime une image du produit (Firestore + Firebase Storage).",
+        description:
+          "Supprime une image du produit (Firestore + Firebase Storage).",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -1524,7 +1729,10 @@ export const openApiSpec = {
                 type: "object",
                 required: ["url"],
                 properties: {
-                  url: { type: "string", description: "URL publique de l image à supprimer" },
+                  url: {
+                    type: "string",
+                    description: "URL publique de l image à supprimer",
+                  },
                 },
               },
             },
@@ -1557,7 +1765,8 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Produits"],
         summary: "Actions groupées sur les produits",
-        description: "Suppression, publication, dépublication ou changement de catégorie en masse.",
+        description:
+          "Suppression, publication, dépublication ou changement de catégorie en masse.",
         requestBody: {
           required: true,
           content: {
@@ -1566,9 +1775,15 @@ export const openApiSpec = {
                 type: "object",
                 required: ["action", "productIds"],
                 properties: {
-                  action: { type: "string", enum: ["delete", "publish", "unpublish", "set_category"] },
+                  action: {
+                    type: "string",
+                    enum: ["delete", "publish", "unpublish", "set_category"],
+                  },
                   productIds: { type: "array", items: { type: "string" } },
-                  categoryId: { type: "string", description: "Requis si action = set_category" },
+                  categoryId: {
+                    type: "string",
+                    description: "Requis si action = set_category",
+                  },
                 },
               },
             },
@@ -1590,7 +1805,10 @@ export const openApiSpec = {
               },
             },
           },
-          "400": { description: "Action invalide, pas de produits, ou échec suppression" },
+          "400": {
+            description:
+              "Action invalide, pas de produits, ou échec suppression",
+          },
           "401": { description: "Non authentifié" },
           "500": { description: "Erreur serveur" },
         },
@@ -1600,19 +1818,62 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Produits"],
         summary: "Exporter les produits en CSV ou Excel",
-        description: "Export serveur des produits avec les mêmes filtres que la liste. Maximum 10 000 lignes.",
+        description:
+          "Export serveur des produits avec les mêmes filtres que la liste. Maximum 10 000 lignes.",
         parameters: [
-          { name: "format", in: "query", schema: { type: "string", enum: ["csv", "excel"], default: "csv" }, description: "Format d export" },
+          {
+            name: "format",
+            in: "query",
+            schema: { type: "string", enum: ["csv", "excel"], default: "csv" },
+            description: "Format d export",
+          },
           { name: "search", in: "query", schema: { type: "string" } },
-          { name: "status", in: "query", schema: { type: "string", enum: ["all", "publie", "brouillon"] } },
+          {
+            name: "status",
+            in: "query",
+            schema: { type: "string", enum: ["all", "publie", "brouillon"] },
+          },
           { name: "categoryId", in: "query", schema: { type: "string" } },
-          { name: "availability", in: "query", schema: { type: "string", enum: ["all", "in_stock", "out_of_stock"] } },
-          { name: "createdFrom", in: "query", schema: { type: "string", format: "date" } },
-          { name: "createdTo", in: "query", schema: { type: "string", format: "date" } },
+          {
+            name: "availability",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["all", "in_stock", "out_of_stock"],
+            },
+          },
+          {
+            name: "createdFrom",
+            in: "query",
+            schema: { type: "string", format: "date" },
+          },
+          {
+            name: "createdTo",
+            in: "query",
+            schema: { type: "string", format: "date" },
+          },
           { name: "priceMin", in: "query", schema: { type: "number" } },
           { name: "priceMax", in: "query", schema: { type: "number" } },
-          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "prix_ht", "prix_ttc", "quantite_stock", "statut", "date_creation"] } },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] } },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: [
+                "nom",
+                "prix_ht",
+                "prix_ttc",
+                "quantite_stock",
+                "statut",
+                "date_creation",
+              ],
+            },
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+          },
         ],
         responses: {
           "200": {
@@ -1635,15 +1896,63 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Utilisateurs"],
         summary: "Lister les utilisateurs",
-        description: "Liste paginée des utilisateurs avec filtres, recherche, tri et données enrichies (commandes, adresses, dernière connexion).",
+        description:
+          "Liste paginée des utilisateurs avec filtres, recherche, tri et données enrichies (commandes, adresses, dernière connexion).",
         parameters: [
-          { name: "searchName", in: "query", schema: { type: "string" }, description: "Recherche par nom" },
-          { name: "searchEmail", in: "query", schema: { type: "string" }, description: "Recherche par email" },
-          { name: "status", in: "query", schema: { type: "string", enum: ["all", "actif", "inactif", "en_attente"] }, description: "Filtre par statut" },
-          { name: "sortBy", in: "query", schema: { type: "string", enum: ["nom", "date_inscription", "nombre_commandes", "ca_total", "derniere_connexion"] }, description: "Champ de tri" },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
-          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
-          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+          {
+            name: "searchName",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par nom",
+          },
+          {
+            name: "searchEmail",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par email",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["all", "actif", "inactif", "en_attente"],
+            },
+            description: "Filtre par statut",
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: [
+                "nom",
+                "date_inscription",
+                "nombre_commandes",
+                "ca_total",
+                "derniere_connexion",
+              ],
+            },
+            description: "Champ de tri",
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+            description: "Direction du tri",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+            description: "Numéro de page",
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", default: 20, maximum: 100 },
+            description: "Nombre par page",
+          },
         ],
         responses: {
           "200": {
@@ -1655,7 +1964,9 @@ export const openApiSpec = {
                   properties: {
                     users: {
                       type: "array",
-                      items: { $ref: "#/components/schemas/UtilisateurListItem" },
+                      items: {
+                        $ref: "#/components/schemas/UtilisateurListItem",
+                      },
                     },
                     total: { type: "integer" },
                     page: { type: "integer" },
@@ -1675,9 +1986,16 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Utilisateurs"],
         summary: "Détail d un utilisateur",
-        description: "Profil complet avec adresses, moyens de paiement, commandes et résumé financier.",
+        description:
+          "Profil complet avec adresses, moyens de paiement, commandes et résumé financier.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID utilisateur",
+          },
         ],
         responses: {
           "200": {
@@ -1689,7 +2007,10 @@ export const openApiSpec = {
                   properties: {
                     user: { $ref: "#/components/schemas/UtilisateurDetail" },
                     addresses: { type: "array", items: { type: "object" } },
-                    paymentMethods: { type: "array", items: { type: "object" } },
+                    paymentMethods: {
+                      type: "array",
+                      items: { type: "object" },
+                    },
                     orders: { type: "array", items: { type: "object" } },
                     summary: {
                       type: "object",
@@ -1712,7 +2033,13 @@ export const openApiSpec = {
         tags: ["Admin - Utilisateurs"],
         summary: "Changer le statut d un utilisateur",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID utilisateur",
+          },
         ],
         requestBody: {
           required: true,
@@ -1722,7 +2049,10 @@ export const openApiSpec = {
                 type: "object",
                 required: ["statut"],
                 properties: {
-                  statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+                  statut: {
+                    type: "string",
+                    enum: ["actif", "inactif", "en_attente"],
+                  },
                 },
               },
             },
@@ -1751,9 +2081,16 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Utilisateurs"],
         summary: "Suppression RGPD d un utilisateur",
-        description: "Anonymise les données personnelles. Requiert une confirmation RGPD explicite. Interdit pour les comptes admin.",
+        description:
+          "Anonymise les données personnelles. Requiert une confirmation RGPD explicite. Interdit pour les comptes admin.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID utilisateur",
+          },
         ],
         requestBody: {
           required: true,
@@ -1795,9 +2132,16 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Utilisateurs"],
         summary: "Réinitialiser le mot de passe",
-        description: "Génère un token de reset et envoie un email. Refusé si le compte est inactif.",
+        description:
+          "Génère un token de reset et envoie un email. Refusé si le compte est inactif.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID utilisateur",
+          },
         ],
         responses: {
           "200": {
@@ -1824,9 +2168,16 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Utilisateurs"],
         summary: "Envoyer un email à un utilisateur",
-        description: "Envoi d un email admin direct. Sujet : 3-160 caractères, contenu : 5-5000 caractères.",
+        description:
+          "Envoi d un email admin direct. Sujet : 3-160 caractères, contenu : 5-5000 caractères.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID utilisateur" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID utilisateur",
+          },
         ],
         requestBody: {
           required: true,
@@ -1868,19 +2219,92 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Commandes"],
         summary: "Lister les commandes",
-        description: "Liste paginée des commandes avec recherche, filtres, tri et données client enrichies.",
+        description:
+          "Liste paginée des commandes avec recherche, filtres, tri et données client enrichies.",
         parameters: [
-          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de commande" },
-          { name: "search", in: "query", schema: { type: "string" }, description: "Alias pour searchNumero" },
-          { name: "searchClientName", in: "query", schema: { type: "string" }, description: "Recherche par nom client" },
-          { name: "searchClientEmail", in: "query", schema: { type: "string" }, description: "Recherche par email client" },
-          { name: "status", in: "query", schema: { type: "string", enum: ["all", "en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtre par statut commande" },
-          { name: "paymentStatus", in: "query", schema: { type: "string", enum: ["all", "valide", "en_attente", "echoue", "rembourse"] }, description: "Filtre par statut paiement" },
-          { name: "paymentMethod", in: "query", schema: { type: "string" }, description: "Filtre par mode de paiement" },
-          { name: "sortBy", in: "query", schema: { type: "string", enum: ["numero_commande", "date_commande", "client", "montant_ttc", "statut", "mode_paiement", "statut_paiement"] }, description: "Champ de tri" },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
-          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
-          { name: "pageSize", in: "query", schema: { type: "integer", default: 20, maximum: 100 }, description: "Nombre par page" },
+          {
+            name: "searchNumero",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par numéro de commande",
+          },
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string" },
+            description: "Alias pour searchNumero",
+          },
+          {
+            name: "searchClientName",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par nom client",
+          },
+          {
+            name: "searchClientEmail",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par email client",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["all", "en_attente", "en_cours", "terminee", "annulee"],
+            },
+            description: "Filtre par statut commande",
+          },
+          {
+            name: "paymentStatus",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["all", "valide", "en_attente", "echoue", "rembourse"],
+            },
+            description: "Filtre par statut paiement",
+          },
+          {
+            name: "paymentMethod",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filtre par mode de paiement",
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: [
+                "numero_commande",
+                "date_commande",
+                "client",
+                "montant_ttc",
+                "statut",
+                "mode_paiement",
+                "statut_paiement",
+              ],
+            },
+            description: "Champ de tri",
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+            description: "Direction du tri",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+            description: "Numéro de page",
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", default: 20, maximum: 100 },
+            description: "Nombre par page",
+          },
         ],
         responses: {
           "200": {
@@ -1898,7 +2322,10 @@ export const openApiSpec = {
                     page: { type: "integer" },
                     pageSize: { type: "integer" },
                     totalPages: { type: "integer" },
-                    paymentMethods: { type: "array", items: { type: "string" } },
+                    paymentMethods: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
                   },
                 },
               },
@@ -1913,9 +2340,16 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Commandes"],
         summary: "Détail d une commande",
-        description: "Détail complet avec lignes, adresse, facture, historique des statuts et informations de paiement masquées.",
+        description:
+          "Détail complet avec lignes, adresse, facture, historique des statuts et informations de paiement masquées.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID commande",
+          },
         ],
         responses: {
           "200": {
@@ -1956,7 +2390,10 @@ export const openApiSpec = {
                           id_historique: { type: "string" },
                           statut_precedent: { type: "string" },
                           nouveau_statut: { type: "string" },
-                          date_changement: { type: "string", format: "date-time" },
+                          date_changement: {
+                            type: "string",
+                            format: "date-time",
+                          },
                           admin: {
                             type: "object",
                             nullable: true,
@@ -1993,9 +2430,16 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Commandes"],
         summary: "Changer le statut d une commande",
-        description: "Met à jour le statut, insère un historique et journalise l action admin.",
+        description:
+          "Met à jour le statut, insère un historique et journalise l action admin.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID commande" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID commande",
+          },
         ],
         requestBody: {
           required: true,
@@ -2005,7 +2449,10 @@ export const openApiSpec = {
                 type: "object",
                 required: ["statut"],
                 properties: {
-                  statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                  statut: {
+                    type: "string",
+                    enum: ["en_attente", "en_cours", "terminee", "annulee"],
+                  },
                 },
               },
             },
@@ -2044,17 +2491,63 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Factures"],
         summary: "Liste paginée des factures",
-        description: "Retourne les factures avec recherche, filtres, tri et pagination. Enrichi avec commande et client.",
+        description:
+          "Retourne les factures avec recherche, filtres, tri et pagination. Enrichi avec commande et client.",
         parameters: [
-          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro de facture" },
-          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
-          { name: "status", in: "query", schema: { type: "string", enum: ["payee", "en_attente", "annule"] }, description: "Filtre par statut" },
-          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
-          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
-          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
-          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
-          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+          {
+            name: "searchNumero",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par numéro de facture",
+          },
+          {
+            name: "searchClient",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par nom ou email du client",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: { type: "string", enum: ["payee", "en_attente", "annule"] },
+            description: "Filtre par statut",
+          },
+          {
+            name: "dateFrom",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de début (incluse)",
+          },
+          {
+            name: "dateTo",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de fin (incluse)",
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: { type: "string" },
+            description: "Champ de tri",
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+            description: "Direction du tri",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+            description: "Numéro de page",
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", default: 20 },
+            description: "Nombre d éléments par page",
+          },
         ],
         responses: {
           "200": {
@@ -2086,9 +2579,16 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Factures"],
         summary: "Détail d une facture",
-        description: "Retourne le détail complet d une facture avec commande, client, avoir lié et historique.",
+        description:
+          "Retourne le détail complet d une facture avec commande, client, avoir lié et historique.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de la facture",
+          },
         ],
         responses: {
           "200": {
@@ -2114,9 +2614,16 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Factures"],
         summary: "Modifier le statut ou le PDF d une facture",
-        description: "Met à jour le statut et/ou l URL du PDF. Log admin invoices.update.",
+        description:
+          "Met à jour le statut et/ou l URL du PDF. Log admin invoices.update.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de la facture",
+          },
         ],
         requestBody: {
           required: true,
@@ -2125,7 +2632,10 @@ export const openApiSpec = {
               schema: {
                 type: "object",
                 properties: {
-                  statut: { type: "string", enum: ["payee", "en_attente", "annule"] },
+                  statut: {
+                    type: "string",
+                    enum: ["payee", "en_attente", "annule"],
+                  },
                   pdf_url: { type: "string", nullable: true },
                 },
               },
@@ -2155,9 +2665,16 @@ export const openApiSpec = {
       delete: {
         tags: ["Admin - Factures"],
         summary: "Annuler une facture avec création d avoir",
-        description: "Annule la facture, génère automatiquement un avoir (PDF + upload Firebase Storage), et marque la facture comme annulée. Log admin facture_annulee.",
+        description:
+          "Annule la facture, génère automatiquement un avoir (PDF + upload Firebase Storage), et marque la facture comme annulée. Log admin facture_annulee.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de la facture",
+          },
         ],
         responses: {
           "200": {
@@ -2192,9 +2709,16 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Factures"],
         summary: "Renvoyer une facture par email",
-        description: "Renvoie la facture par email au client via Resend. Log admin invoices.send_email.",
+        description:
+          "Renvoie la facture par email au client via Resend. Log admin invoices.send_email.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de la facture" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de la facture",
+          },
         ],
         responses: {
           "200": {
@@ -2220,17 +2744,72 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Avoirs"],
         summary: "Liste paginée des avoirs",
-        description: "Retourne les avoirs avec recherche, filtres, tri et pagination. Enrichi avec facture, commande et client.",
+        description:
+          "Retourne les avoirs avec recherche, filtres, tri et pagination. Enrichi avec facture, commande et client.",
         parameters: [
-          { name: "searchNumero", in: "query", schema: { type: "string" }, description: "Recherche par numéro d avoir" },
-          { name: "searchClient", in: "query", schema: { type: "string" }, description: "Recherche par nom ou email du client" },
-          { name: "motif", in: "query", schema: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] }, description: "Filtre par motif" },
-          { name: "dateFrom", in: "query", schema: { type: "string", format: "date" }, description: "Date de début (incluse)" },
-          { name: "dateTo", in: "query", schema: { type: "string", format: "date" }, description: "Date de fin (incluse)" },
-          { name: "sortBy", in: "query", schema: { type: "string" }, description: "Champ de tri" },
-          { name: "sortDirection", in: "query", schema: { type: "string", enum: ["asc", "desc"] }, description: "Direction du tri" },
-          { name: "page", in: "query", schema: { type: "integer", default: 1 }, description: "Numéro de page" },
-          { name: "pageSize", in: "query", schema: { type: "integer", default: 20 }, description: "Nombre d éléments par page" },
+          {
+            name: "searchNumero",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par numéro d avoir",
+          },
+          {
+            name: "searchClient",
+            in: "query",
+            schema: { type: "string" },
+            description: "Recherche par nom ou email du client",
+          },
+          {
+            name: "motif",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: [
+                "annulation",
+                "retour",
+                "geste_commercial",
+                "erreur_facturation",
+                "autre",
+              ],
+            },
+            description: "Filtre par motif",
+          },
+          {
+            name: "dateFrom",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de début (incluse)",
+          },
+          {
+            name: "dateTo",
+            in: "query",
+            schema: { type: "string", format: "date" },
+            description: "Date de fin (incluse)",
+          },
+          {
+            name: "sortBy",
+            in: "query",
+            schema: { type: "string" },
+            description: "Champ de tri",
+          },
+          {
+            name: "sortDirection",
+            in: "query",
+            schema: { type: "string", enum: ["asc", "desc"] },
+            description: "Direction du tri",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1 },
+            description: "Numéro de page",
+          },
+          {
+            name: "pageSize",
+            in: "query",
+            schema: { type: "integer", default: 20 },
+            description: "Nombre d éléments par page",
+          },
         ],
         responses: {
           "200": {
@@ -2262,9 +2841,16 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Avoirs"],
         summary: "Détail d un avoir",
-        description: "Retourne le détail complet d un avoir avec facture liée, commande et client.",
+        description:
+          "Retourne le détail complet d un avoir avec facture liée, commande et client.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de l avoir",
+          },
         ],
         responses: {
           "200": {
@@ -2294,9 +2880,16 @@ export const openApiSpec = {
       post: {
         tags: ["Admin - Avoirs"],
         summary: "Renvoyer un avoir par email",
-        description: "Renvoie l avoir par email au client via Resend. Log admin credit_notes.send_email.",
+        description:
+          "Renvoie l avoir par email au client via Resend. Log admin credit_notes.send_email.",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID de l avoir" },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de l avoir",
+          },
         ],
         responses: {
           "200": {
@@ -2323,7 +2916,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Admin - Carrousel"],
         summary: "Réordonner les slides",
-        description: "Change l ordre d affichage des slides. Pas de doublons, ordre entier positif.",
+        description:
+          "Change l ordre d affichage des slides. Pas de doublons, ordre entier positif.",
         requestBody: {
           required: true,
           content: {
@@ -2371,7 +2965,8 @@ export const openApiSpec = {
       get: {
         tags: ["Catalogue public"],
         summary: "Détail d'une catégorie par slug",
-        description: "Retourne les informations d'une catégorie active avec image Firestore. 404 si inactive ou inexistante.",
+        description:
+          "Retourne les informations d'une catégorie active avec image Firestore. 404 si inactive ou inexistante.",
         parameters: [
           {
             name: "slug",
@@ -2413,7 +3008,8 @@ export const openApiSpec = {
       get: {
         tags: ["Catalogue public"],
         summary: "Produits paginés d'une catégorie",
-        description: "Retourne les produits publiés liés à une catégorie, triés par priorité puis disponibilité. Images enrichies depuis Firestore ImagesProduits.",
+        description:
+          "Retourne les produits publiés liés à une catégorie, triés par priorité puis disponibilité. Images enrichies depuis Firestore ImagesProduits.",
         parameters: [
           {
             name: "slug",
@@ -2477,7 +3073,8 @@ export const openApiSpec = {
       get: {
         tags: ["Produit public"],
         summary: "Détail d'un produit par slug",
-        description: "Retourne un produit publié avec images Firestore triées, caractéristiques techniques et disponibilité.",
+        description:
+          "Retourne un produit publié avec images Firestore triées, caractéristiques techniques et disponibilité.",
         parameters: [
           {
             name: "slug",
@@ -2535,7 +3132,8 @@ export const openApiSpec = {
       get: {
         tags: ["Produit public"],
         summary: "Produits similaires",
-        description: "Retourne jusqu'à 6 produits similaires issus des mêmes catégories, triés par disponibilité. Enrichis avec image principale Firestore.",
+        description:
+          "Retourne jusqu'à 6 produits similaires issus des mêmes catégories, triés par disponibilité. Enrichis avec image principale Firestore.",
         parameters: [
           {
             name: "slug",
@@ -2580,7 +3178,8 @@ export const openApiSpec = {
       post: {
         tags: ["Panier"],
         summary: "Ajouter un produit au panier",
-        description: "Ajoute un produit au panier. Supporte guest (cookie session) et utilisateur connecté. Vérifie stock côté serveur. Incrémente si la ligne existe déjà.",
+        description:
+          "Ajoute un produit au panier. Supporte guest (cookie session) et utilisateur connecté. Vérifie stock côté serveur. Incrémente si la ligne existe déjà.",
         requestBody: {
           required: true,
           content: {
@@ -2589,7 +3188,10 @@ export const openApiSpec = {
                 type: "object",
                 required: ["id_produit", "quantite"],
                 properties: {
-                  id_produit: { type: "string", example: "b2c3d4e5-0001-4000-8000-000000000001" },
+                  id_produit: {
+                    type: "string",
+                    example: "b2c3d4e5-0001-4000-8000-000000000001",
+                  },
                   quantite: { type: "integer", minimum: 1, example: 1 },
                 },
               },
@@ -2620,7 +3222,10 @@ export const openApiSpec = {
             },
           },
           "200": { description: "Ligne existante incrémentée" },
-          "400": { description: "Payload invalide, rupture de stock ou stock insuffisant" },
+          "400": {
+            description:
+              "Payload invalide, rupture de stock ou stock insuffisant",
+          },
           "404": { description: "Produit inexistant ou non publié" },
         },
       },
@@ -2629,7 +3234,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Panier"],
         summary: "Modifier la quantité d'une ligne",
-        description: "Met à jour la quantité d'une ligne panier. Si quantité = 0, suppression implicite. Vérifie la propriété du panier et le stock disponible. Maximum 99 unités par ligne.",
+        description:
+          "Met à jour la quantité d'une ligne panier. Si quantité = 0, suppression implicite. Vérifie la propriété du panier et le stock disponible. Maximum 99 unités par ligne.",
         parameters: [
           {
             name: "id",
@@ -2647,7 +3253,12 @@ export const openApiSpec = {
                 type: "object",
                 required: ["quantite"],
                 properties: {
-                  quantite: { type: "integer", minimum: 0, maximum: 99, example: 3 },
+                  quantite: {
+                    type: "integer",
+                    minimum: 0,
+                    maximum: 99,
+                    example: 3,
+                  },
                 },
               },
             },
@@ -2706,7 +3317,8 @@ export const openApiSpec = {
       delete: {
         tags: ["Panier"],
         summary: "Supprimer une ligne du panier",
-        description: "Supprime une ligne panier. Vérifie la propriété du panier avant suppression.",
+        description:
+          "Supprime une ligne panier. Vérifie la propriété du panier avant suppression.",
         parameters: [
           {
             name: "id",
@@ -2739,12 +3351,14 @@ export const openApiSpec = {
       get: {
         tags: ["Recherche"],
         summary: "Recherche avancée de produits",
-        description: "Recherche avec facettes (texte, prix, catégories, disponibilité), scoring de pertinence (exact > 1 diff > starts with > contains), tris dynamiques et pagination. Résultats enrichis avec images Firestore.",
+        description:
+          "Recherche avec facettes (texte, prix, catégories, disponibilité), scoring de pertinence (exact > 1 diff > starts with > contains), tris dynamiques et pagination. Résultats enrichis avec images Firestore.",
         parameters: [
           {
             name: "q",
             in: "query",
-            description: "Terme de recherche (titre, description, caractéristiques techniques JSONB)",
+            description:
+              "Terme de recherche (titre, description, caractéristiques techniques JSONB)",
             schema: { type: "string" },
             example: "audio",
           },
@@ -2779,7 +3393,10 @@ export const openApiSpec = {
             name: "sort",
             in: "query",
             description: "Tri des résultats",
-            schema: { type: "string", enum: ["relevance", "price_asc", "price_desc", "availability"] },
+            schema: {
+              type: "string",
+              enum: ["relevance", "price_asc", "price_desc", "availability"],
+            },
           },
           {
             name: "page",
@@ -2837,7 +3454,8 @@ export const openApiSpec = {
       get: {
         tags: ["Recherche"],
         summary: "Facettes disponibles pour la recherche",
-        description: "Retourne les catégories actives, les bornes de prix min/max des produits publiés, et les options de tri disponibles.",
+        description:
+          "Retourne les catégories actives, les bornes de prix min/max des produits publiés, et les options de tri disponibles.",
         responses: {
           "200": {
             description: "Facettes de recherche",
@@ -2886,19 +3504,30 @@ export const openApiSpec = {
     "/api/auth/register": {
       post: {
         tags: ["Authentification"],
-        summary: "Créer un nouveau compte utilisateur",
-        description: "Inscription avec validation serveur, hash mot de passe via Supabase Auth, envoi email de vérification. Anti-énumération : même réponse si email déjà pris.",
+        summary: "Créer un nouveau compte utilisateur (legacy)",
+        deprecated: true,
+        description:
+          "Endpoint legacy de transition. Utiliser `/api/auth/signup` pour les nouveaux consommateurs. Sunset: 31 Dec 2026 23:59:59 GMT. Apres sunset, la route retourne 410 `endpoint_sunset`.",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["email", "mot_de_passe", "mot_de_passe_confirmation", "nom_complet", "cgu_acceptee"],
+                required: [
+                  "email",
+                  "mot_de_passe",
+                  "mot_de_passe_confirmation",
+                  "nom_complet",
+                  "cgu_acceptee",
+                ],
                 properties: {
                   email: { type: "string", example: "marc@example.com" },
                   mot_de_passe: { type: "string", example: "Secure1pwd" },
-                  mot_de_passe_confirmation: { type: "string", example: "Secure1pwd" },
+                  mot_de_passe_confirmation: {
+                    type: "string",
+                    example: "Secure1pwd",
+                  },
                   nom_complet: { type: "string", example: "Marc Dupont" },
                   cgu_acceptee: { type: "boolean", example: true },
                 },
@@ -2908,20 +3537,26 @@ export const openApiSpec = {
         },
         responses: {
           "201": {
-            description: "Compte créé (ou email déjà pris — même message pour anti-énumération)",
+            description:
+              "Compte créé (ou email déjà pris — même message pour anti-énumération)",
             content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "Compte créé. Vérifiez votre email pour activer votre compte." },
+                    message: {
+                      type: "string",
+                      example:
+                        "Compte créé. Vérifiez votre email pour activer votre compte.",
+                    },
                   },
                 },
               },
             },
           },
           "400": {
-            description: "Payload invalide (email, mot de passe, CGU, confirmation)",
+            description:
+              "Payload invalide (email, mot de passe, CGU, confirmation)",
             content: {
               "application/json": {
                 schema: {
@@ -2934,6 +3569,24 @@ export const openApiSpec = {
             },
           },
           "429": { description: "Rate limit dépassé" },
+          "410": {
+            description: "Endpoint retire apres sunset",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: { type: "string" },
+                    code: { type: "string", example: "endpoint_sunset" },
+                    replacementEndpoint: {
+                      type: "string",
+                      example: "/api/auth/signup",
+                    },
+                  },
+                },
+              },
+            },
+          },
           "500": { description: "Erreur serveur" },
         },
       },
@@ -2942,7 +3595,8 @@ export const openApiSpec = {
       get: {
         tags: ["Authentification"],
         summary: "Vérifier l adresse email via token",
-        description: "Valide le token de vérification, active le compte (statut actif, email_verifie true) et redirige vers /connexion?verified=true. Token expiré ou invalide retourne 400.",
+        description:
+          "Valide le token de vérification, active le compte (statut actif, email_verifie true) et redirige vers /connexion?verified=true. Token expiré ou invalide retourne 400.",
         parameters: [
           {
             name: "token",
@@ -2953,7 +3607,10 @@ export const openApiSpec = {
           },
         ],
         responses: {
-          "307": { description: "Redirection vers /connexion?verified=true en cas de succès" },
+          "307": {
+            description:
+              "Redirection vers /connexion?verified=true en cas de succès",
+          },
           "400": {
             description: "Token invalide, expiré ou absent",
             content: {
@@ -2961,7 +3618,10 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    error: { type: "string", example: "Lien invalide ou expiré." },
+                    error: {
+                      type: "string",
+                      example: "Lien invalide ou expiré.",
+                    },
                   },
                 },
               },
@@ -2975,7 +3635,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Renvoyer l email de vérification",
-        description: "Génère un nouveau token et renvoie l email de vérification. Anti-énumération : même réponse 200 que l email existe ou non.",
+        description:
+          "Génère un nouveau token et renvoie l email de vérification. Anti-énumération : même réponse 200 que l email existe ou non.",
         requestBody: {
           required: true,
           content: {
@@ -2998,7 +3659,11 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "Si un compte existe avec cet email, un lien de vérification a été envoyé." },
+                    message: {
+                      type: "string",
+                      example:
+                        "Si un compte existe avec cet email, un lien de vérification a été envoyé.",
+                    },
                   },
                 },
               },
@@ -3014,7 +3679,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Connexion utilisateur",
-        description: "Authentifie l utilisateur via email et mot de passe. Vérifie que l email est vérifié et le compte actif. Supporte l option remember me (cookie 30 jours).",
+        description:
+          "Authentifie l utilisateur via email et mot de passe. Vérifie que l email est vérifié et le compte actif. Supporte l option remember me (cookie 30 jours).",
         requestBody: {
           required: true,
           content: {
@@ -3025,7 +3691,11 @@ export const openApiSpec = {
                 properties: {
                   email: { type: "string", example: "user@example.com" },
                   mot_de_passe: { type: "string", example: "Secure1pwd" },
-                  se_souvenir: { type: "boolean", example: false, description: "Active le cookie remember me (30 jours)" },
+                  se_souvenir: {
+                    type: "boolean",
+                    example: false,
+                    description: "Active le cookie remember me (30 jours)",
+                  },
                 },
               },
             },
@@ -3047,7 +3717,10 @@ export const openApiSpec = {
                         email: { type: "string" },
                         nomComplet: { type: "string" },
                         isAdmin: { type: "boolean" },
-                        statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
+                        statut: {
+                          type: "string",
+                          enum: ["actif", "inactif", "en_attente"],
+                        },
                       },
                     },
                   },
@@ -3057,7 +3730,10 @@ export const openApiSpec = {
           },
           "400": { description: "Email ou mot de passe manquant" },
           "401": { description: "Identifiants incorrects" },
-          "403": { description: "Email non vérifié (code EMAIL_NOT_VERIFIED) ou compte inactif" },
+          "403": {
+            description:
+              "Email non vérifié (code EMAIL_NOT_VERIFIED) ou compte inactif",
+          },
           "429": { description: "Rate limit dépassé" },
           "500": { description: "Erreur serveur" },
         },
@@ -3067,7 +3743,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Déconnexion utilisateur",
-        description: "Déconnecte l utilisateur, supprime le cookie remember me et journalise l événement.",
+        description:
+          "Déconnecte l utilisateur, supprime le cookie remember me et journalise l événement.",
         responses: {
           "200": {
             description: "Déconnexion réussie",
@@ -3076,7 +3753,10 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "Déconnexion réussie." },
+                    message: {
+                      type: "string",
+                      example: "Déconnexion réussie.",
+                    },
                   },
                 },
               },
@@ -3090,7 +3770,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Demander la réinitialisation du mot de passe",
-        description: "Génère un token de réinitialisation (SHA-256, expiry 1h) et envoie un email. Anti-énumération : même réponse 200 que l email existe ou non.",
+        description:
+          "Génère un token de réinitialisation (SHA-256, expiry 1h) et envoie un email. Anti-énumération : même réponse 200 que l email existe ou non.",
         requestBody: {
           required: true,
           content: {
@@ -3113,7 +3794,11 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé." },
+                    message: {
+                      type: "string",
+                      example:
+                        "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.",
+                    },
                   },
                 },
               },
@@ -3129,7 +3814,8 @@ export const openApiSpec = {
       get: {
         tags: ["Authentification"],
         summary: "Valider un token de réinitialisation",
-        description: "Vérifie que le token de réinitialisation est valide et non expiré. Utilisé par le frontend avant d afficher le formulaire.",
+        description:
+          "Vérifie que le token de réinitialisation est valide et non expiré. Utilisé par le frontend avant d afficher le formulaire.",
         parameters: [
           {
             name: "token",
@@ -3162,18 +3848,29 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Réinitialiser le mot de passe",
-        description: "Vérifie le token, valide le nouveau mot de passe et met à jour via Supabase Auth admin. Le token est consommé après usage.",
+        description:
+          "Vérifie le token, valide le nouveau mot de passe et met à jour via Supabase Auth admin. Le token est consommé après usage.",
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["token", "mot_de_passe", "mot_de_passe_confirmation"],
+                required: [
+                  "token",
+                  "mot_de_passe",
+                  "mot_de_passe_confirmation",
+                ],
                 properties: {
-                  token: { type: "string", description: "Token brut reçu par email" },
+                  token: {
+                    type: "string",
+                    description: "Token brut reçu par email",
+                  },
                   mot_de_passe: { type: "string", example: "NewSecure1pwd" },
-                  mot_de_passe_confirmation: { type: "string", example: "NewSecure1pwd" },
+                  mot_de_passe_confirmation: {
+                    type: "string",
+                    example: "NewSecure1pwd",
+                  },
                 },
               },
             },
@@ -3187,13 +3884,19 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "Mot de passe réinitialisé avec succès." },
+                    message: {
+                      type: "string",
+                      example: "Mot de passe réinitialisé avec succès.",
+                    },
                   },
                 },
               },
             },
           },
-          "400": { description: "Token invalide/expiré, mot de passe faible ou confirmation incorrecte" },
+          "400": {
+            description:
+              "Token invalide/expiré, mot de passe faible ou confirmation incorrecte",
+          },
           "429": { description: "Rate limit dépassé" },
           "500": { description: "Erreur serveur" },
         },
@@ -3203,7 +3906,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Envoyer un code 2FA admin par email",
-        description: "Génère un code à 6 chiffres envoyé par email à l administrateur authentifié. Pose un cookie httpOnly challenge signé HMAC-SHA256. Valide 10 minutes.",
+        description:
+          "Génère un code à 6 chiffres envoyé par email à l administrateur authentifié. Pose un cookie httpOnly challenge signé HMAC-SHA256. Valide 10 minutes.",
         responses: {
           "200": {
             description: "Code envoyé",
@@ -3213,7 +3917,10 @@ export const openApiSpec = {
                   type: "object",
                   properties: {
                     message: { type: "string", example: "challenge_sent" },
-                    challengeExpiresInSeconds: { type: "integer", example: 600 },
+                    challengeExpiresInSeconds: {
+                      type: "integer",
+                      example: 600,
+                    },
                     requiresAdminTwoFactor: { type: "boolean", example: true },
                   },
                 },
@@ -3232,7 +3939,8 @@ export const openApiSpec = {
       post: {
         tags: ["Authentification"],
         summary: "Vérifier le code 2FA admin",
-        description: "Valide le code à 6 chiffres contre le challenge cookie. Après 5 tentatives échouées, verrouillage temporaire (429). En cas de succès, pose un cookie vérifié httpOnly valable 8 heures.",
+        description:
+          "Valide le code à 6 chiffres contre le challenge cookie. Après 5 tentatives échouées, verrouillage temporaire (429). En cas de succès, pose un cookie vérifié httpOnly valable 8 heures.",
         requestBody: {
           required: true,
           content: {
@@ -3241,7 +3949,11 @@ export const openApiSpec = {
                 type: "object",
                 required: ["code"],
                 properties: {
-                  code: { type: "string", example: "123456", description: "Code à 6 chiffres reçu par email" },
+                  code: {
+                    type: "string",
+                    example: "123456",
+                    description: "Code à 6 chiffres reçu par email",
+                  },
                 },
               },
             },
@@ -3274,7 +3986,8 @@ export const openApiSpec = {
       post: {
         tags: ["Checkout"],
         summary: "Créer un PaymentIntent Stripe",
-        description: "Calcule le total du panier, vérifie le stock et crée un PaymentIntent Stripe. Fonctionne pour utilisateurs connectés et invités.",
+        description:
+          "Calcule le total du panier, vérifie le stock et crée un PaymentIntent Stripe. Fonctionne pour utilisateurs connectés et invités.",
         responses: {
           "200": {
             description: "PaymentIntent créé",
@@ -3283,16 +3996,27 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    clientSecret: { type: "string", example: "pi_xxx_secret_xxx" },
+                    clientSecret: {
+                      type: "string",
+                      example: "pi_xxx_secret_xxx",
+                    },
                     paymentIntentId: { type: "string", example: "pi_xxx" },
-                    amount: { type: "integer", description: "Montant en centimes", example: 5999 },
+                    amount: {
+                      type: "integer",
+                      description: "Montant en centimes",
+                      example: 5999,
+                    },
                   },
                 },
               },
             },
           },
-          "400": { description: "Panier introuvable, vide ou montant invalide" },
-          "409": { description: "Stock insuffisant pour un ou plusieurs produits" },
+          "400": {
+            description: "Panier introuvable, vide ou montant invalide",
+          },
+          "409": {
+            description: "Stock insuffisant pour un ou plusieurs produits",
+          },
           "500": { description: "Erreur serveur" },
         },
       },
@@ -3301,7 +4025,8 @@ export const openApiSpec = {
       get: {
         tags: ["Checkout"],
         summary: "Lister les méthodes de paiement",
-        description: "Retourne les méthodes de paiement enregistrées pour l utilisateur connecté. Retourne une liste vide si non authentifié.",
+        description:
+          "Retourne les méthodes de paiement enregistrées pour l utilisateur connecté. Retourne une liste vide si non authentifié.",
         responses: {
           "200": {
             description: "Liste des méthodes de paiement",
@@ -3324,7 +4049,8 @@ export const openApiSpec = {
       post: {
         tags: ["Checkout"],
         summary: "Ajouter une méthode de paiement",
-        description: "Enregistre une nouvelle méthode de paiement (token Stripe, jamais de données carte brutes). Authentification requise.",
+        description:
+          "Enregistre une nouvelle méthode de paiement (token Stripe, jamais de données carte brutes). Authentification requise.",
         requestBody: {
           required: true,
           content: {
@@ -3335,7 +4061,11 @@ export const openApiSpec = {
                 properties: {
                   stripePaymentId: { type: "string", example: "pm_xxx" },
                   cardHolder: { type: "string", example: "Jean Dupont" },
-                  last4: { type: "string", example: "4242", pattern: "^\\d{4}$" },
+                  last4: {
+                    type: "string",
+                    example: "4242",
+                    pattern: "^\\d{4}$",
+                  },
                   expiry: { type: "string", example: "12/27" },
                   isDefault: { type: "boolean", example: false },
                 },
@@ -3351,13 +4081,18 @@ export const openApiSpec = {
                 schema: {
                   type: "object",
                   properties: {
-                    paymentMethod: { $ref: "#/components/schemas/PaymentMethod" },
+                    paymentMethod: {
+                      $ref: "#/components/schemas/PaymentMethod",
+                    },
                   },
                 },
               },
             },
           },
-          "400": { description: "Payload invalide (champs manquants ou last4 incorrect)" },
+          "400": {
+            description:
+              "Payload invalide (champs manquants ou last4 incorrect)",
+          },
           "401": { description: "Authentification requise" },
           "500": { description: "Erreur serveur" },
         },
@@ -3367,7 +4102,8 @@ export const openApiSpec = {
       post: {
         tags: ["Checkout"],
         summary: "Confirmer la commande",
-        description: "Vérifie le paiement Stripe, crée la commande avec lignes, décrémente le stock, génère la facture PDF, envoie l email de confirmation. Supporte les utilisateurs connectés et invités (via guestEmail).",
+        description:
+          "Vérifie le paiement Stripe, crée la commande avec lignes, décrémente le stock, génère la facture PDF, envoie l email de confirmation. Supporte les utilisateurs connectés et invités (via guestEmail).",
         requestBody: {
           required: true,
           content: {
@@ -3377,7 +4113,11 @@ export const openApiSpec = {
                 required: ["paymentIntentId"],
                 properties: {
                   paymentIntentId: { type: "string", example: "pi_xxx" },
-                  guestEmail: { type: "string", example: "guest@example.com", description: "Requis si non connecté" },
+                  guestEmail: {
+                    type: "string",
+                    example: "guest@example.com",
+                    description: "Requis si non connecté",
+                  },
                   address: { $ref: "#/components/schemas/AddressInput" },
                 },
               },
@@ -3393,7 +4133,10 @@ export const openApiSpec = {
                   type: "object",
                   properties: {
                     orderId: { type: "string" },
-                    orderNumber: { type: "string", example: "ALT-202604-ABCDEFGH" },
+                    orderNumber: {
+                      type: "string",
+                      example: "ALT-202604-ABCDEFGH",
+                    },
                     status: { type: "string", example: "confirmed" },
                     summary: {
                       type: "object",
@@ -3411,7 +4154,10 @@ export const openApiSpec = {
             },
           },
           "200": { description: "Commande déjà confirmée (idempotence)" },
-          "400": { description: "paymentIntentId manquant, email guest manquant, panier introuvable/vide ou adresse invalide" },
+          "400": {
+            description:
+              "paymentIntentId manquant, email guest manquant, panier introuvable/vide ou adresse invalide",
+          },
           "402": { description: "Paiement Stripe échoué" },
           "409": { description: "Conflit de stock" },
           "500": { description: "Erreur serveur" },
@@ -3422,7 +4168,8 @@ export const openApiSpec = {
       get: {
         tags: ["Checkout"],
         summary: "Lister les adresses de l utilisateur",
-        description: "Retourne les adresses enregistrées pour l utilisateur connecté.",
+        description:
+          "Retourne les adresses enregistrées pour l utilisateur connecté.",
         responses: {
           "200": {
             description: "Liste des adresses",
@@ -3447,7 +4194,8 @@ export const openApiSpec = {
       get: {
         tags: ["Commandes"],
         summary: "Page de confirmation commande",
-        description: "Retourne les détails complets d une commande pour la page de confirmation. L utilisateur doit être le propriétaire de la commande.",
+        description:
+          "Retourne les détails complets d une commande pour la page de confirmation. L utilisateur doit être le propriétaire de la commande.",
         parameters: [
           {
             name: "numero",
@@ -3469,8 +4217,20 @@ export const openApiSpec = {
                       type: "object",
                       properties: {
                         orderNumber: { type: "string" },
-                        status: { type: "string", enum: ["en_attente", "en_cours", "expediee", "livree", "annulee"] },
-                        paymentStatus: { type: "string", enum: ["en_attente", "valide", "echoue", "rembourse"] },
+                        status: {
+                          type: "string",
+                          enum: [
+                            "en_attente",
+                            "en_cours",
+                            "expediee",
+                            "livree",
+                            "annulee",
+                          ],
+                        },
+                        paymentStatus: {
+                          type: "string",
+                          enum: ["en_attente", "valide", "echoue", "rembourse"],
+                        },
                         totalHt: { type: "number" },
                         totalTva: { type: "number" },
                         totalTtc: { type: "number" },
@@ -3495,7 +4255,9 @@ export const openApiSpec = {
               },
             },
           },
-          "403": { description: "Accès refusé (non propriétaire ou non authentifié)" },
+          "403": {
+            description: "Accès refusé (non propriétaire ou non authentifié)",
+          },
           "404": { description: "Commande introuvable" },
           "500": { description: "Erreur serveur" },
         },
@@ -3566,7 +4328,8 @@ export const openApiSpec = {
       patch: {
         tags: ["Compte"],
         summary: "Mettre à jour la langue préférée",
-        description: "Met à jour la préférence de langue de l utilisateur connecté. La langue doit faire partie de la liste des langues supportées.",
+        description:
+          "Met à jour la préférence de langue de l utilisateur connecté. La langue doit faire partie de la liste des langues supportées.",
         requestBody: {
           required: true,
           content: {
@@ -3575,7 +4338,11 @@ export const openApiSpec = {
                 type: "object",
                 required: ["langue_preferee"],
                 properties: {
-                  langue_preferee: { type: "string", example: "en", description: "Code langue (fr, en, ar, es)" },
+                  langue_preferee: {
+                    type: "string",
+                    example: "en",
+                    description: "Code langue (fr, en, ar, es)",
+                  },
                 },
               },
             },
@@ -3652,7 +4419,12 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Modifier une adresse",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -3673,7 +4445,12 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Supprimer une adresse",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           "200": { description: "Adresse supprimée" },
@@ -3698,7 +4475,9 @@ export const openApiSpec = {
                   properties: {
                     paymentMethods: {
                       type: "array",
-                      items: { $ref: "#/components/schemas/AccountPaymentMethod" },
+                      items: {
+                        $ref: "#/components/schemas/AccountPaymentMethod",
+                      },
                     },
                   },
                 },
@@ -3743,7 +4522,12 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Modifier un moyen de paiement",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         requestBody: {
           required: true,
@@ -3772,7 +4556,12 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Supprimer un moyen de paiement",
         parameters: [
-          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
         ],
         responses: {
           "200": { description: "Moyen de paiement supprimé" },
@@ -3787,8 +4576,16 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Lister ses commandes",
         parameters: [
-          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
-          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 10, maximum: 50 },
+          },
+          {
+            name: "offset",
+            in: "query",
+            schema: { type: "integer", default: 0 },
+          },
         ],
         responses: {
           "200": {
@@ -3807,11 +4604,25 @@ export const openApiSpec = {
                           orderNumber: { type: "string" },
                           createdAt: { type: "string", format: "date-time" },
                           totalTtc: { type: "number" },
-                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          status: {
+                            type: "string",
+                            enum: [
+                              "en_attente",
+                              "en_cours",
+                              "terminee",
+                              "annulee",
+                            ],
+                          },
                           paymentStatus: { type: "string" },
-                          orderType: { type: "string", enum: ["mono_produit", "multi_produits"] },
+                          orderType: {
+                            type: "string",
+                            enum: ["mono_produit", "multi_produits"],
+                          },
                           productCount: { type: "integer" },
-                          productNames: { type: "array", items: { type: "string" } },
+                          productNames: {
+                            type: "array",
+                            items: { type: "string" },
+                          },
                           invoice: {
                             type: "object",
                             nullable: true,
@@ -3847,11 +4658,18 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Détail d une commande",
         parameters: [
-          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+          {
+            name: "numero",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Numéro de commande (ex: CMD-1001)",
+          },
         ],
         responses: {
           "200": {
-            description: "Détail de la commande avec lignes, adresse et facture",
+            description:
+              "Détail de la commande avec lignes, adresse et facture",
             content: {
               "application/json": {
                 schema: {
@@ -3869,7 +4687,11 @@ export const openApiSpec = {
                         status: { type: "string" },
                         paymentStatus: { type: "string" },
                         paymentMethod: { type: "string", nullable: true },
-                        paymentLast4: { type: "string", nullable: true, example: "**** **** **** 4242" },
+                        paymentLast4: {
+                          type: "string",
+                          nullable: true,
+                          example: "**** **** **** 4242",
+                        },
                       },
                     },
                     lines: {
@@ -3893,7 +4715,10 @@ export const openApiSpec = {
                         },
                       },
                     },
-                    address: { $ref: "#/components/schemas/AccountAddress", nullable: true },
+                    address: {
+                      $ref: "#/components/schemas/AccountAddress",
+                      nullable: true,
+                    },
                     invoice: {
                       type: "object",
                       nullable: true,
@@ -3911,7 +4736,15 @@ export const openApiSpec = {
                         type: "object",
                         properties: {
                           previousStatus: { type: "string", nullable: true },
-                          newStatus: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          newStatus: {
+                            type: "string",
+                            enum: [
+                              "en_attente",
+                              "en_cours",
+                              "terminee",
+                              "annulee",
+                            ],
+                          },
                           changedAt: { type: "string", format: "date-time" },
                         },
                       },
@@ -3933,7 +4766,13 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Facture associée à une commande",
         parameters: [
-          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de commande (ex: CMD-1001)" },
+          {
+            name: "numero",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Numéro de commande (ex: CMD-1001)",
+          },
         ],
         responses: {
           "200": {
@@ -3983,12 +4822,45 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Historique des commandes avec filtres",
         parameters: [
-          { name: "year", in: "query", schema: { type: "integer" }, description: "Filtrer par année (ex: 2026)" },
-          { name: "status", in: "query", schema: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] }, description: "Filtrer par statut" },
-          { name: "category", in: "query", schema: { type: "string" }, description: "Filtrer par slug catégorie" },
-          { name: "search", in: "query", schema: { type: "string", maxLength: 100 }, description: "Recherche par nom produit ou date (YYYY-MM-DD, DD/MM/YYYY)" },
-          { name: "page", in: "query", schema: { type: "integer", default: 1, minimum: 1 }, description: "Page (1-indexed)" },
-          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
+          {
+            name: "year",
+            in: "query",
+            schema: { type: "integer" },
+            description: "Filtrer par année (ex: 2026)",
+          },
+          {
+            name: "status",
+            in: "query",
+            schema: {
+              type: "string",
+              enum: ["en_attente", "en_cours", "terminee", "annulee"],
+            },
+            description: "Filtrer par statut",
+          },
+          {
+            name: "category",
+            in: "query",
+            schema: { type: "string" },
+            description: "Filtrer par slug catégorie",
+          },
+          {
+            name: "search",
+            in: "query",
+            schema: { type: "string", maxLength: 100 },
+            description:
+              "Recherche par nom produit ou date (YYYY-MM-DD, DD/MM/YYYY)",
+          },
+          {
+            name: "page",
+            in: "query",
+            schema: { type: "integer", default: 1, minimum: 1 },
+            description: "Page (1-indexed)",
+          },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 10, maximum: 50 },
+          },
         ],
         responses: {
           "200": {
@@ -4006,7 +4878,15 @@ export const openApiSpec = {
                           orderNumber: { type: "string" },
                           createdAt: { type: "string", format: "date-time" },
                           totalTtc: { type: "number" },
-                          status: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
+                          status: {
+                            type: "string",
+                            enum: [
+                              "en_attente",
+                              "en_cours",
+                              "terminee",
+                              "annulee",
+                            ],
+                          },
                           paymentStatus: { type: "string" },
                           productSummary: {
                             type: "object",
@@ -4022,8 +4902,15 @@ export const openApiSpec = {
                     filters: {
                       type: "object",
                       properties: {
-                        availableYears: { type: "array", items: { type: "integer" }, example: [2026, 2025] },
-                        availableStatuses: { type: "array", items: { type: "string" } },
+                        availableYears: {
+                          type: "array",
+                          items: { type: "integer" },
+                          example: [2026, 2025],
+                        },
+                        availableStatuses: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
                       },
                     },
                     pagination: {
@@ -4049,8 +4936,16 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Lister ses factures",
         parameters: [
-          { name: "limit", in: "query", schema: { type: "integer", default: 10, maximum: 50 } },
-          { name: "offset", in: "query", schema: { type: "integer", default: 0 } },
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", default: 10, maximum: 50 },
+          },
+          {
+            name: "offset",
+            in: "query",
+            schema: { type: "integer", default: 0 },
+          },
         ],
         responses: {
           "200": {
@@ -4098,7 +4993,13 @@ export const openApiSpec = {
         tags: ["Compte"],
         summary: "Détail d une facture",
         parameters: [
-          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Numéro de facture (ex: FAC-1001)" },
+          {
+            name: "numero",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Numéro de facture (ex: FAC-1001)",
+          },
         ],
         responses: {
           "200": {
@@ -4149,10 +5050,25 @@ export const openApiSpec = {
       get: {
         tags: ["Contenu"],
         summary: "Lire une page statique publique",
-        description: "Retourne le contenu d une page statique (cgu, mentions-legales, a-propos). Avec fallback si contenu absent en base.",
+        description:
+          "Retourne le contenu d une page statique (cgu, mentions-legales, a-propos). Avec fallback si contenu absent en base.",
         parameters: [
-          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] }, description: "Slug de la page" },
-          { name: "locale", in: "query", schema: { type: "string", default: "fr" }, description: "Langue demandée" },
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+              enum: ["cgu", "mentions-legales", "a-propos"],
+            },
+            description: "Slug de la page",
+          },
+          {
+            name: "locale",
+            in: "query",
+            schema: { type: "string", default: "fr" },
+            description: "Langue demandée",
+          },
         ],
         responses: {
           "200": {
@@ -4167,7 +5083,11 @@ export const openApiSpec = {
                     title: { type: "string" },
                     description: { type: "string", nullable: true },
                     contentMarkdown: { type: "string" },
-                    updatedAt: { type: "string", format: "date-time", nullable: true },
+                    updatedAt: {
+                      type: "string",
+                      format: "date-time",
+                      nullable: true,
+                    },
                     isFallbackData: { type: "boolean" },
                   },
                 },
@@ -4183,9 +5103,15 @@ export const openApiSpec = {
       get: {
         tags: ["Contenu"],
         summary: "Lire le texte fixe de la page d accueil",
-        description: "Retourne le contenu éditorial de la page d accueil. Fallback si absent.",
+        description:
+          "Retourne le contenu éditorial de la page d accueil. Fallback si absent.",
         parameters: [
-          { name: "locale", in: "query", schema: { type: "string", default: "fr" }, description: "Langue demandée" },
+          {
+            name: "locale",
+            in: "query",
+            schema: { type: "string", default: "fr" },
+            description: "Langue demandée",
+          },
         ],
         responses: {
           "200": {
@@ -4199,7 +5125,11 @@ export const openApiSpec = {
                     locale: { type: "string" },
                     title: { type: "string", nullable: true },
                     contentMarkdown: { type: "string" },
-                    updatedAt: { type: "string", format: "date-time", nullable: true },
+                    updatedAt: {
+                      type: "string",
+                      format: "date-time",
+                      nullable: true,
+                    },
                     isFallbackData: { type: "boolean" },
                   },
                 },
@@ -4214,10 +5144,23 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Contenu Editorial"],
         summary: "Lire une page statique (admin)",
-        description: "Retourne le contenu d une page statique pour édition admin. Retourne les valeurs par défaut si aucun contenu en base.",
+        description:
+          "Retourne le contenu d une page statique pour édition admin. Retourne les valeurs par défaut si aucun contenu en base.",
         parameters: [
-          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] } },
-          { name: "locale", in: "query", schema: { type: "string", default: "fr" } },
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+              enum: ["cgu", "mentions-legales", "a-propos"],
+            },
+          },
+          {
+            name: "locale",
+            in: "query",
+            schema: { type: "string", default: "fr" },
+          },
         ],
         responses: {
           "200": { description: "Contenu de la page" },
@@ -4230,9 +5173,18 @@ export const openApiSpec = {
       put: {
         tags: ["Admin - Contenu Editorial"],
         summary: "Modifier une page statique",
-        description: "Met à jour le contenu d une page statique (upsert). Log admin static_pages.update.",
+        description:
+          "Met à jour le contenu d une page statique (upsert). Log admin static_pages.update.",
         parameters: [
-          { name: "slug", in: "path", required: true, schema: { type: "string", enum: ["cgu", "mentions-legales", "a-propos"] } },
+          {
+            name: "slug",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+              enum: ["cgu", "mentions-legales", "a-propos"],
+            },
+          },
         ],
         requestBody: {
           required: true,
@@ -4265,9 +5217,14 @@ export const openApiSpec = {
       get: {
         tags: ["Admin - Contenu Editorial"],
         summary: "Lire le texte fixe home (admin)",
-        description: "Retourne le contenu éditorial de la page d accueil pour édition admin.",
+        description:
+          "Retourne le contenu éditorial de la page d accueil pour édition admin.",
         parameters: [
-          { name: "locale", in: "query", schema: { type: "string", default: "fr" } },
+          {
+            name: "locale",
+            in: "query",
+            schema: { type: "string", default: "fr" },
+          },
         ],
         responses: {
           "200": { description: "Contenu éditorial home" },
@@ -4279,7 +5236,8 @@ export const openApiSpec = {
       put: {
         tags: ["Admin - Contenu Editorial"],
         summary: "Modifier le texte fixe home",
-        description: "Met à jour le contenu éditorial de la page d accueil (upsert). Log admin editorial.texte_fixe_home.update.",
+        description:
+          "Met à jour le contenu éditorial de la page d accueil (upsert). Log admin editorial.texte_fixe_home.update.",
         requestBody: {
           required: true,
           content: {
@@ -4424,7 +5382,16 @@ export const openApiSpec = {
           numero_avoir: { type: "string" },
           date_emission: { type: "string", format: "date-time" },
           montant: { type: "number" },
-          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          motif: {
+            type: "string",
+            enum: [
+              "annulation",
+              "retour",
+              "geste_commercial",
+              "erreur_facturation",
+              "autre",
+            ],
+          },
           pdf_url: { type: "string", nullable: true },
           facture: {
             type: "object",
@@ -4460,7 +5427,16 @@ export const openApiSpec = {
           numero_avoir: { type: "string" },
           date_emission: { type: "string", format: "date-time" },
           montant: { type: "number" },
-          motif: { type: "string", enum: ["annulation", "retour", "geste_commercial", "erreur_facturation", "autre"] },
+          motif: {
+            type: "string",
+            enum: [
+              "annulation",
+              "retour",
+              "geste_commercial",
+              "erreur_facturation",
+              "autre",
+            ],
+          },
           pdf_url: { type: "string", nullable: true },
         },
       },
@@ -4471,8 +5447,14 @@ export const openApiSpec = {
           numero_commande: { type: "string" },
           date_commande: { type: "string", format: "date-time" },
           montant_ttc: { type: "number" },
-          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
-          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          statut: {
+            type: "string",
+            enum: ["en_attente", "en_cours", "terminee", "annulee"],
+          },
+          statut_paiement: {
+            type: "string",
+            enum: ["valide", "en_attente", "echoue", "rembourse"],
+          },
           mode_paiement: { type: "string", nullable: true },
           paiement_dernier_4_masque: { type: "string", nullable: true },
           id_utilisateur: { type: "string" },
@@ -4495,11 +5477,21 @@ export const openApiSpec = {
           montant_ht: { type: "number" },
           montant_tva: { type: "number" },
           montant_ttc: { type: "number" },
-          statut: { type: "string", enum: ["en_attente", "en_cours", "terminee", "annulee"] },
-          statut_paiement: { type: "string", enum: ["valide", "en_attente", "echoue", "rembourse"] },
+          statut: {
+            type: "string",
+            enum: ["en_attente", "en_cours", "terminee", "annulee"],
+          },
+          statut_paiement: {
+            type: "string",
+            enum: ["valide", "en_attente", "echoue", "rembourse"],
+          },
           mode_paiement: { type: "string", nullable: true },
           paiement_dernier_4_masque: { type: "string", nullable: true },
-          date_paiement: { type: "string", format: "date-time", nullable: true },
+          date_paiement: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
           client: {
             type: "object",
             nullable: true,
@@ -4522,7 +5514,11 @@ export const openApiSpec = {
           date_inscription: { type: "string", format: "date-time" },
           nombre_commandes: { type: "integer" },
           chiffre_affaires_total: { type: "number" },
-          derniere_connexion: { type: "string", format: "date-time", nullable: true },
+          derniere_connexion: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
           adresses_facturation: { type: "array", items: { type: "string" } },
           adresses_facturation_count: { type: "integer" },
         },
@@ -4536,10 +5532,26 @@ export const openApiSpec = {
           est_admin: { type: "boolean" },
           statut: { type: "string", enum: ["actif", "inactif", "en_attente"] },
           email_verifie: { type: "boolean" },
-          date_inscription: { type: "string", format: "date-time", nullable: true },
-          cgu_acceptee_le: { type: "string", format: "date-time", nullable: true },
-          date_validation_email: { type: "string", format: "date-time", nullable: true },
-          derniere_connexion: { type: "string", format: "date-time", nullable: true },
+          date_inscription: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          cgu_acceptee_le: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          date_validation_email: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
+          derniere_connexion: {
+            type: "string",
+            format: "date-time",
+            nullable: true,
+          },
         },
       },
       PaymentMethod: {
@@ -4555,7 +5567,10 @@ export const openApiSpec = {
       AddressInput: {
         type: "object",
         properties: {
-          savedAddressId: { type: "string", description: "ID d une adresse existante (prioritaire)" },
+          savedAddressId: {
+            type: "string",
+            description: "ID d une adresse existante (prioritaire)",
+          },
           firstName: { type: "string", example: "Jean" },
           lastName: { type: "string", example: "Dupont" },
           address1: { type: "string", example: "10 rue de la Paix" },
@@ -4611,7 +5626,14 @@ export const openApiSpec = {
       },
       AccountAddressPayload: {
         type: "object",
-        required: ["firstName", "lastName", "address1", "city", "postalCode", "country"],
+        required: [
+          "firstName",
+          "lastName",
+          "address1",
+          "city",
+          "postalCode",
+          "country",
+        ],
         properties: {
           firstName: { type: "string", example: "Jean" },
           lastName: { type: "string", example: "Dupont" },
@@ -4635,4 +5657,4 @@ export const openApiSpec = {
       },
     },
   },
-};
+}

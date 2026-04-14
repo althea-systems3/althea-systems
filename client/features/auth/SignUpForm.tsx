@@ -109,6 +109,10 @@ function getApiErrorMessageKey(errorCode: string): string {
     return "passwordTooWeak"
   }
 
+  if (errorCode === "configuration_missing") {
+    return "configurationUnavailable"
+  }
+
   if (errorCode === "server_error") {
     return "serverError"
   }

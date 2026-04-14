@@ -2,6 +2,13 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 
 import { createServerClient } from "@/lib/supabase/server"
+import {
+  SIGNUP_API_ENV_KEYS,
+  createConfigurationMissingApiPayload,
+  isMissingRuntimeConfigError,
+  logMissingRuntimeConfig,
+  validateRuntimeConfig,
+} from "@/lib/config/runtime"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PASSWORD_MIN_LENGTH = 8
@@ -127,6 +134,20 @@ function mapSupabaseSignUpError(errorMessage: string): {
 }
 
 export async function POST(request: Request) {
+  const configValidation = validateRuntimeConfig(SIGNUP_API_ENV_KEYS)
+
+  if (!configValidation.isValid) {
+    logMissingRuntimeConfig(
+      "api.auth.signup.post",
+      configValidation.missingKeys,
+    )
+
+    return NextResponse.json(
+      createConfigurationMissingApiPayload("Inscription"),
+      { status: 503 },
+    )
+  }
+
   try {
     const body = (await request
       .json()
@@ -203,6 +224,15 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
+    if (isMissingRuntimeConfigError(error)) {
+      logMissingRuntimeConfig("api.auth.signup.post", error.missingKeys)
+
+      return NextResponse.json(
+        createConfigurationMissingApiPayload("Inscription"),
+        { status: 503 },
+      )
+    }
+
     console.error("Erreur inattendue inscription", { error })
     return NextResponse.json(
       {

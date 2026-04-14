@@ -41,6 +41,19 @@ const VALID_PAYLOAD = {
 describe("POST /api/auth/signup", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321"
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key"
+  })
+
+  it("retourne 503 si la configuration Supabase est manquante", async () => {
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    const response = await POST(createRequest(VALID_PAYLOAD))
+
+    expect(response.status).toBe(503)
+    const body = await response.json()
+    expect(body.code).toBe("configuration_missing")
   })
 
   it("retourne 400 si prenom manquant", async () => {

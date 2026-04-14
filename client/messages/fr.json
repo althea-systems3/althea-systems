@@ -1,8 +1,14 @@
 {
   "Home": {
-    "title": "Base front-end Althea Systems",
-    "subtitle": "Projet Next.js pret pour votre e-commerce international.",
-    "cta": "Tester Shadcn"
+    "valueTitle": "La plateforme e-commerce Althea Systems",
+    "valueDescription": "Un front performant pour accompagner vos achats professionnels: catalogue produit, disponibilite en temps reel et parcours de commande fluide.",
+    "valueCardOperationsTitle": "Pilotage operationnel",
+    "valueCardOperationsDescription": "Centralisez categories, mises en avant et contenus editoriaux depuis votre backoffice sans degrader l'experience client.",
+    "valueCardAvailabilityTitle": "Disponibilite maitrisee",
+    "valueCardAvailabilityDescription": "Affichez des stocks fiables, des prix clairs et des informations produit exploitables pour accelerer la decision d'achat.",
+    "valueCardSupportTitle": "Accompagnement continu",
+    "valueCardSupportDescription": "Offrez un suivi avant et apres commande avec un support reactif, une recherche efficace et un panier toujours synchronise.",
+    "valueCta": "Explorer le catalogue"
   },
   "HomeCarousel": {
     "badgeLabel": "Promotion",
@@ -22,8 +28,8 @@
     "loadingLabel": "Chargement des categories",
     "errorTitle": "Categories temporairement indisponibles",
     "errorDescription": "Impossible de charger les categories pour le moment. Veuillez reessayer plus tard.",
-    "fallbackDataTitle": "Affichage temporaire des categories",
-    "fallbackDataDescription": "Les categories affichees sont temporaires jusqu'a la connexion du backend.",
+    "fallbackDataTitle": "Categories recommandees",
+    "fallbackDataDescription": "Certaines categories affichees sont issues de notre selection de continuite.",
     "emptyTitle": "Aucune categorie disponible",
     "emptyDescription": "Les categories actives n'ont pas encore ete publiees.",
     "categoryImageAlt": "Image representative de la categorie {categoryName}",
@@ -35,8 +41,8 @@
     "loadingLabel": "Chargement des top produits",
     "errorTitle": "Top produits temporairement indisponibles",
     "errorDescription": "Impossible de charger les top produits pour le moment. Veuillez reessayer plus tard.",
-    "fallbackDataTitle": "Affichage temporaire des top produits",
-    "fallbackDataDescription": "Les produits affiches sont temporaires jusqu'a la finalisation du backend.",
+    "fallbackDataTitle": "Selection du moment",
+    "fallbackDataDescription": "Certains produits affiches proviennent de notre selection de continuite.",
     "emptyTitle": "Aucun top produit disponible",
     "emptyDescription": "Aucun produit vedette actif n'a encore ete publie.",
     "productImageAlt": "Image principale du produit {productName}",
@@ -88,6 +94,10 @@
     "about": {
       "title": "A propos",
       "description": "Althea Systems accompagne les entreprises avec une plateforme e-commerce performante et evolutive."
+    },
+    "catalogue": {
+      "title": "Catalogue",
+      "description": "Parcourez les univers produits et accedez rapidement a la categorie adaptee a votre besoin."
     },
     "signIn": {
       "title": "Se connecter",
@@ -319,6 +329,7 @@
           "verificationInvalid": "Lien de verification invalide. Demandez un nouvel e-mail de confirmation.",
           "emailAlreadyUsed": "Cette adresse e-mail est deja utilisee.",
           "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de securite.",
+          "configurationUnavailable": "Le service d'inscription est momentanement indisponible. Veuillez reessayer plus tard.",
           "signupFailed": "Impossible de creer le compte pour le moment. Reessayez.",
           "serverError": "Une erreur serveur est survenue. Reessayez plus tard.",
           "nextStepHint": "Si vous ne voyez pas l'e-mail, verifiez vos spams ou promotions."
@@ -347,7 +358,7 @@
     },
     "category": {
       "title": "Categorie : {categorySlug}",
-      "description": "La page catalogue de la categorie {categorySlug} sera enrichie avec les produits des que le backend sera connecte."
+      "description": "Retrouvez les produits disponibles pour la categorie {categorySlug}, avec stock et prix actualises."
     }
   },
   "CataloguePage": {
@@ -517,6 +528,7 @@
       "loadingLabel": "Chargement du panier",
       "errorTitle": "Panier temporairement indisponible",
       "errorDescription": "Impossible de charger votre panier pour le moment. Veuillez reessayer.",
+      "configErrorDescription": "Le panier est momentanement indisponible en raison d'une configuration serveur incomplete.",
       "retry": "Reessayer",
       "emptyTitle": "Votre panier est vide",
       "emptyDescription": "Ajoutez des produits pour commencer votre commande.",

@@ -26,6 +26,10 @@ type PaginationMeta = {
   totalPages: number
 }
 
+type CatalogueProduitRow = Produit & {
+  image_url?: string | null
+}
+
 function parsePaginationParams(searchParams: URLSearchParams): {
   page: number
   pageSize: number
@@ -45,7 +49,7 @@ function parsePaginationParams(searchParams: URLSearchParams): {
   return { page, pageSize }
 }
 
-function getSortTier(product: Produit): number {
+function getSortTier(product: CatalogueProduitRow): number {
   const isAvailable = product.quantite_stock > 0
   const isPriority = product.priorite > 0
 
@@ -54,7 +58,7 @@ function getSortTier(product: Produit): number {
   return 2
 }
 
-function sortProducts(products: Produit[]): Produit[] {
+function sortProducts(products: CatalogueProduitRow[]): CatalogueProduitRow[] {
   return [...products].sort((a, b) => {
     const tierA = getSortTier(a)
     const tierB = getSortTier(b)
@@ -118,14 +122,16 @@ async function fetchProductImages(
 }
 
 function mapToPayload(
-  product: Produit,
+  product: CatalogueProduitRow,
   imageUrl: string | null,
 ): CatalogueProductPayload {
+  const resolvedImageUrl = imageUrl ?? product.image_url ?? null
+
   return {
     id: product.id_produit,
     name: product.nom,
     slug: product.slug,
-    imageUrl,
+    imageUrl: resolvedImageUrl,
     price: product.prix_ttc ?? null,
     isAvailable: product.quantite_stock > 0,
   }
@@ -215,7 +221,7 @@ export async function GET(
     const { data: rawProducts, error: productsError } = await supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut",
+        "id_produit, nom, slug, image_url, prix_ttc, quantite_stock, priorite, statut",
       )
       .in("id_produit", productIds)
       .eq("statut", "publie")
@@ -234,7 +240,7 @@ export async function GET(
       )
     }
 
-    const products = (rawProducts ?? []) as Produit[]
+    const products = (rawProducts ?? []) as CatalogueProduitRow[]
     const sorted = sortProducts(products)
 
     const total = sorted.length

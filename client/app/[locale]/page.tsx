@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
+import { Link } from "@/i18n/navigation"
 import { HomeCarousel } from "@/features/home/carousel/HomeCarousel"
 import { HomeFixedText } from "@/features/home/fixedText/HomeFixedText"
 import { HomeCategoryGrid } from "@/features/home/categories/HomeCategoryGrid"
@@ -25,12 +26,44 @@ export default function LocalizedHomePage() {
       </section>
 
       <section className="container pb-14 sm:pb-20">
-        <h1 className="heading-font text-3xl tracking-tight text-brand-nav sm:text-4xl">
-          {t("title")}
-        </h1>
-        <p className="mt-3 max-w-2xl text-slate-700">{t("subtitle")}</p>
+        <h2 className="heading-font text-3xl tracking-tight text-brand-nav sm:text-4xl">
+          {t("valueTitle")}
+        </h2>
+        <p className="mt-3 max-w-3xl text-slate-700">{t("valueDescription")}</p>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="heading-font text-xl text-brand-nav">
+              {t("valueCardOperationsTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-slate-700 sm:text-base">
+              {t("valueCardOperationsDescription")}
+            </p>
+          </article>
+
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="heading-font text-xl text-brand-nav">
+              {t("valueCardAvailabilityTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-slate-700 sm:text-base">
+              {t("valueCardAvailabilityDescription")}
+            </p>
+          </article>
+
+          <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="heading-font text-xl text-brand-nav">
+              {t("valueCardSupportTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-slate-700 sm:text-base">
+              {t("valueCardSupportDescription")}
+            </p>
+          </article>
+        </div>
+
         <div className="mt-8">
-          <Button>{t("cta")}</Button>
+          <Button asChild>
+            <Link href="/catalogue">{t("valueCta")}</Link>
+          </Button>
         </div>
       </section>
     </>

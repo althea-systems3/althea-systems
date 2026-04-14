@@ -1,8 +1,14 @@
 {
   "Home": {
-    "title": "الهيكل الامامي لـ Althea Systems",
-    "subtitle": "قاعدة Next.js جاهزة للتجارة الإلكترونية متعددة اللغات.",
-    "cta": "اختبار Shadcn"
+    "valueTitle": "منصة التجارة الإلكترونية من Althea Systems",
+    "valueDescription": "واجهة جاهزة للإنتاج لعمليات الشراء المهنية مع توفر فوري للمنتجات، بيانات واضحة، ومسار دفع سلس.",
+    "valueCardOperationsTitle": "تحكم تشغيلي",
+    "valueCardOperationsDescription": "إدارة الفئات والمنتجات المميزة والمحتوى التحريري من لوحة الإدارة دون التأثير على تجربة العميل.",
+    "valueCardAvailabilityTitle": "توفر موثوق",
+    "valueCardAvailabilityDescription": "عرض مخزون دقيق وأسعار واضحة ومعلومات منتج عملية لتسريع قرار الشراء.",
+    "valueCardSupportTitle": "دعم مستمر",
+    "valueCardSupportDescription": "تقديم دعم سريع قبل الشراء وبعده مع بحث فعال وسلة متزامنة باستمرار.",
+    "valueCta": "استعراض الكتالوج"
   },
   "HomeCarousel": {
     "badgeLabel": "عرض",
@@ -22,8 +28,8 @@
     "loadingLabel": "جار تحميل الفئات",
     "errorTitle": "الفئات غير متاحة مؤقتا",
     "errorDescription": "تعذر تحميل الفئات حاليا. يرجى المحاولة لاحقا.",
-    "fallbackDataTitle": "يتم عرض بيانات فئات مؤقتة",
-    "fallbackDataDescription": "الفئات المعروضة مؤقتة حتى يتم ربط بيانات الواجهة الخلفية.",
+    "fallbackDataTitle": "فئات مقترحة",
+    "fallbackDataDescription": "بعض الفئات المعروضة حاليا تأتي من قائمة استمرارية مختارة.",
     "emptyTitle": "لا توجد فئات متاحة",
     "emptyDescription": "لم يتم نشر أي فئات نشطة بعد.",
     "categoryImageAlt": "صورة معبرة عن الفئة {categoryName}",
@@ -35,8 +41,8 @@
     "loadingLabel": "جار تحميل افضل المنتجات",
     "errorTitle": "افضل المنتجات غير متاحة مؤقتا",
     "errorDescription": "تعذر تحميل افضل المنتجات حاليا. يرجى المحاولة لاحقا.",
-    "fallbackDataTitle": "يتم عرض بيانات مؤقتة لافضل المنتجات",
-    "fallbackDataDescription": "المنتجات المعروضة مؤقتة حتى اكتمال ربط الواجهة الخلفية.",
+    "fallbackDataTitle": "اختيار هذا الوقت",
+    "fallbackDataDescription": "بعض المنتجات المعروضة حاليا تأتي من قائمة استمرارية مختارة.",
     "emptyTitle": "لا توجد منتجات مميزة",
     "emptyDescription": "لم يتم نشر اي منتج مميز نشط بعد.",
     "productImageAlt": "الصورة الرئيسية للمنتج {productName}",
@@ -88,6 +94,10 @@
     "about": {
       "title": "من نحن",
       "description": "تدعم Althea Systems الشركات بمنصة تجارة إلكترونية مرنة وعالية الأداء."
+    },
+    "catalogue": {
+      "title": "الكتالوج",
+      "description": "استعرض فئات المنتجات للوصول بسرعة إلى القسم المناسب لاحتياجك."
     },
     "signIn": {
       "title": "تسجيل الدخول",
@@ -280,6 +290,7 @@
           "verificationInvalid": "رابط التأكيد غير صالح. اطلب رسالة تأكيد جديدة.",
           "emailAlreadyUsed": "هذا البريد الإلكتروني مستخدم بالفعل.",
           "passwordTooWeak": "كلمة المرور لا تستوفي متطلبات الأمان.",
+          "configurationUnavailable": "التسجيل غير متاح مؤقتا بسبب نقص في تهيئة الخادم. يرجى المحاولة لاحقا.",
           "signupFailed": "تعذر إنشاء الحساب حاليا. يرجى المحاولة مرة أخرى.",
           "serverError": "حدث خطأ في الخادم. يرجى المحاولة لاحقا.",
           "nextStepHint": "إذا لم تصلك الرسالة، تحقق من مجلد الرسائل غير المرغوب فيها."
@@ -308,7 +319,7 @@
     },
     "category": {
       "title": "الفئة: {categorySlug}",
-      "description": "سيتم تعزيز صفحة كتالوج الفئة {categorySlug} بالمنتجات فور ربط الواجهة الخلفية."
+      "description": "اعثر على المنتجات المتاحة ضمن الفئة {categorySlug} مع مخزون وأسعار محدثة."
     }
   },
   "CataloguePage": {
@@ -478,6 +489,7 @@
       "loadingLabel": "جار تحميل السلة",
       "errorTitle": "السلة غير متاحة مؤقتا",
       "errorDescription": "تعذر تحميل السلة حاليا. حاول مرة أخرى.",
+      "configErrorDescription": "السلة غير متاحة مؤقتا بسبب نقص في تهيئة الخادم.",
       "retry": "إعادة المحاولة",
       "emptyTitle": "سلتك فارغة",
       "emptyDescription": "أضف منتجات لبدء الطلب.",

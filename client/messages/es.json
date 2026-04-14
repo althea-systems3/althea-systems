@@ -1,8 +1,14 @@
 {
   "Home": {
-    "title": "Althea Systems frontend base",
-    "subtitle": "Next.js starter ready for your international e-commerce.",
-    "cta": "Try Shadcn"
+    "valueTitle": "La plataforma e-commerce de Althea Systems",
+    "valueDescription": "Un frontend listo para produccion para compras profesionales: disponibilidad en tiempo real, informacion clara del producto y checkout fluido.",
+    "valueCardOperationsTitle": "Control operativo",
+    "valueCardOperationsDescription": "Gestione categorias, productos destacados y contenido editorial desde el backoffice sin degradar la experiencia del cliente.",
+    "valueCardAvailabilityTitle": "Disponibilidad fiable",
+    "valueCardAvailabilityDescription": "Muestre stock preciso, precios claros y datos de producto accionables para acelerar la decision de compra.",
+    "valueCardSupportTitle": "Soporte continuo",
+    "valueCardSupportDescription": "Ofrezca soporte rapido antes y despues de la compra con busqueda eficaz y carrito siempre sincronizado.",
+    "valueCta": "Explorar el catalogo"
   },
   "HomeCarousel": {
     "badgeLabel": "Promotion",
@@ -22,8 +28,8 @@
     "loadingLabel": "Loading categories",
     "errorTitle": "Categories are temporarily unavailable",
     "errorDescription": "We cannot load categories right now. Please try again later.",
-    "fallbackDataTitle": "Temporary category data is displayed",
-    "fallbackDataDescription": "Displayed categories are temporary until backend data is connected.",
+    "fallbackDataTitle": "Categorias recomendadas",
+    "fallbackDataDescription": "Algunas categorias provienen temporalmente de nuestra seleccion de continuidad.",
     "emptyTitle": "No category available",
     "emptyDescription": "Active categories have not been published yet.",
     "categoryImageAlt": "Representative image for category {categoryName}",
@@ -35,8 +41,8 @@
     "loadingLabel": "Loading top products",
     "errorTitle": "Top products are temporarily unavailable",
     "errorDescription": "We cannot load top products right now. Please try again later.",
-    "fallbackDataTitle": "Temporary top product data is displayed",
-    "fallbackDataDescription": "Displayed products are temporary until backend delivery is complete.",
+    "fallbackDataTitle": "Seleccion actual",
+    "fallbackDataDescription": "Algunos productos provienen temporalmente de nuestra seleccion de continuidad.",
     "emptyTitle": "No top product available",
     "emptyDescription": "No active featured product has been published yet.",
     "productImageAlt": "Main image for product {productName}",
@@ -88,6 +94,10 @@
     "about": {
       "title": "About",
       "description": "Althea Systems helps businesses with a scalable and performance-focused e-commerce platform."
+    },
+    "catalogue": {
+      "title": "Catalogo",
+      "description": "Explore familias de productos y acceda rapidamente a la categoria que necesita."
     },
     "signIn": {
       "title": "Sign in",
@@ -280,6 +290,7 @@
           "verificationInvalid": "Verification link is invalid. Request a new confirmation email.",
           "emailAlreadyUsed": "This email address is already in use.",
           "passwordTooWeak": "This password does not meet security requirements.",
+          "configurationUnavailable": "El registro esta temporalmente no disponible porque la configuracion del servidor esta incompleta. Intente nuevamente mas tarde.",
           "signupFailed": "Unable to create the account right now. Please try again.",
           "serverError": "A server error occurred. Please try again later.",
           "nextStepHint": "If you do not see the email, check your spam or promotions folder."
@@ -308,7 +319,7 @@
     },
     "category": {
       "title": "Category: {categorySlug}",
-      "description": "This category catalog page for {categorySlug} will be enriched with products once the backend is connected."
+      "description": "Encuentre productos disponibles en la categoria {categorySlug}, con stock y precios actualizados."
     }
   },
   "CataloguePage": {
@@ -478,6 +489,7 @@
       "loadingLabel": "Loading cart",
       "errorTitle": "Cart temporarily unavailable",
       "errorDescription": "We cannot load your cart right now. Please try again.",
+      "configErrorDescription": "El carrito esta temporalmente no disponible porque la configuracion del servidor esta incompleta.",
       "retry": "Try again",
       "emptyTitle": "Your cart is empty",
       "emptyDescription": "Add products to start your order.",

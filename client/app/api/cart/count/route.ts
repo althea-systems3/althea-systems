@@ -1,36 +1,75 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
-import { createServerClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { getCartSessionId } from '@/lib/auth/cartSession';
+import { createServerClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+import { getCartSessionId } from "@/lib/auth/cartSession"
+import {
+  CART_API_ENV_KEYS,
+  createConfigurationMissingApiPayload,
+  isMissingRuntimeConfigError,
+  logMissingRuntimeConfig,
+  validateRuntimeConfig,
+} from "@/lib/config/runtime"
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic"
 
 // NOTE: Types temporaires en attendant les types auto-générés Supabase
-interface PanierRow { id_panier: string }
-interface CartLineRow { quantite: number; produit: { prix_ttc: number } | null }
+interface PanierRow {
+  id_panier: string
+}
+interface CartLineRow {
+  quantite: number
+  produit: { prix_ttc: number } | null
+}
 
-const EMPTY_CART_RESPONSE = { count: 0, total: 0 };
+const EMPTY_CART_RESPONSE = { count: 0, total: 0 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const supabaseClient = createServerClient(cookieStore);
-  const supabaseAdmin = createAdminClient();
+  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
 
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!configValidation.isValid) {
+    logMissingRuntimeConfig("api.cart.count.get", configValidation.missingKeys)
 
-  const cart = user
-    ? await fetchCartByUserId(supabaseAdmin, user.id)
-    : await fetchCartBySession(supabaseAdmin);
-
-  if (!cart) {
-    return NextResponse.json(EMPTY_CART_RESPONSE);
+    return NextResponse.json(
+      createConfigurationMissingApiPayload("Service panier"),
+      { status: 503 },
+    )
   }
 
-  const cartTotals = await calculateCartTotals(supabaseAdmin, cart.id_panier);
+  try {
+    const cookieStore = await cookies()
+    const supabaseClient = createServerClient(cookieStore)
+    const supabaseAdmin = createAdminClient()
 
-  return NextResponse.json(cartTotals);
+    const {
+      data: { user },
+    } = await supabaseClient.auth.getUser()
+
+    const cart = user
+      ? await fetchCartByUserId(supabaseAdmin, user.id)
+      : await fetchCartBySession(supabaseAdmin)
+
+    if (!cart) {
+      return NextResponse.json(EMPTY_CART_RESPONSE)
+    }
+
+    const cartTotals = await calculateCartTotals(supabaseAdmin, cart.id_panier)
+
+    return NextResponse.json(cartTotals)
+  } catch (error) {
+    if (isMissingRuntimeConfigError(error)) {
+      logMissingRuntimeConfig("api.cart.count.get", error.missingKeys)
+
+      return NextResponse.json(
+        createConfigurationMissingApiPayload("Service panier"),
+        { status: 503 },
+      )
+    }
+
+    console.error("Erreur inattendue compteur panier", { error })
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+  }
 }
 
 async function fetchCartByUserId(
@@ -38,32 +77,32 @@ async function fetchCartByUserId(
   userId: string,
 ): Promise<PanierRow | null> {
   const { data } = await supabaseAdmin
-    .from('panier')
-    .select('id_panier')
-    .eq('id_utilisateur', userId)
+    .from("panier")
+    .select("id_panier")
+    .eq("id_utilisateur", userId)
     .limit(1)
-    .single();
+    .single()
 
-  return data as PanierRow | null;
+  return data as PanierRow | null
 }
 
 async function fetchCartBySession(
   supabaseAdmin: ReturnType<typeof createAdminClient>,
 ): Promise<PanierRow | null> {
-  const sessionId = await getCartSessionId();
+  const sessionId = await getCartSessionId()
 
   if (!sessionId) {
-    return null;
+    return null
   }
 
   const { data } = await supabaseAdmin
-    .from('panier')
-    .select('id_panier')
-    .eq('session_id', sessionId)
+    .from("panier")
+    .select("id_panier")
+    .eq("session_id", sessionId)
     .limit(1)
-    .single();
+    .single()
 
-  return data as PanierRow | null;
+  return data as PanierRow | null
 }
 
 async function calculateCartTotals(
@@ -71,28 +110,28 @@ async function calculateCartTotals(
   cartId: string,
 ) {
   const { data } = await supabaseAdmin
-    .from('ligne_panier')
-    .select('quantite, produit:id_produit(prix_ttc)')
-    .eq('id_panier', cartId);
+    .from("ligne_panier")
+    .select("quantite, produit:id_produit(prix_ttc)")
+    .eq("id_panier", cartId)
 
-  const cartLines = data as CartLineRow[] | null;
+  const cartLines = data as CartLineRow[] | null
 
   if (!cartLines || cartLines.length === 0) {
-    return EMPTY_CART_RESPONSE;
+    return EMPTY_CART_RESPONSE
   }
 
   const totalItemsCount = cartLines.reduce(
     (sum, line) => sum + line.quantite,
     0,
-  );
+  )
 
   const totalPrice = cartLines.reduce((sum, line) => {
-    const productPrice = line.produit?.prix_ttc ?? 0;
-    return sum + line.quantite * Number(productPrice);
-  }, 0);
+    const productPrice = line.produit?.prix_ttc ?? 0
+    return sum + line.quantite * Number(productPrice)
+  }, 0)
 
   return {
     count: totalItemsCount,
     total: Math.round(totalPrice * 100) / 100,
-  };
+  }
 }

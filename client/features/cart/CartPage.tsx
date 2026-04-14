@@ -105,6 +105,7 @@ export function CartPage() {
     isCartLoading,
     isCartRefreshing,
     hasCartError,
+    cartErrorCode,
     reloadCart,
   } = useCartData()
 
@@ -298,7 +299,12 @@ export function CartPage() {
   }
 
   if (hasCartError) {
-    return <CartPageErrorState onRetry={() => reloadCart()} />
+    return (
+      <CartPageErrorState
+        errorCode={cartErrorCode}
+        onRetry={() => reloadCart()}
+      />
+    )
   }
 
   if (cart.lines.length === 0) {

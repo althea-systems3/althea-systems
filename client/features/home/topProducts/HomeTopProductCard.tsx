@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { useLocale, useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
+import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { cn } from "@/lib/utils"
 import { HOME_TOP_PRODUCTS_PRIORITY_CARD_COUNT } from "./topProductsConstants"
 import type { HomeTopProduct } from "./topProductsTypes"
@@ -32,14 +33,10 @@ function HomeTopProductCardImage({
 
   if (!hasProductImage) {
     return (
-      <div
-        className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-nav/90 to-brand-cta/80"
-        aria-hidden="true"
-      >
-        <span className="heading-font px-4 text-center text-xl text-white sm:text-2xl">
-          {translateHomeTopProductsGrid("missingImageLabel")}
-        </span>
-      </div>
+      <ImagePlaceholder
+        label={translateHomeTopProductsGrid("missingImageLabel")}
+        textClassName="text-xl sm:text-2xl"
+      />
     )
   }
 

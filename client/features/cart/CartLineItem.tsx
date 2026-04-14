@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Minus, Plus, Trash2 } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
+import { ImagePlaceholder } from "@/components/ui/image-placeholder"
 import { Link } from "@/i18n/navigation"
 import { cn } from "@/lib/utils"
 import { getProductPagePath } from "@/features/product/productUtils"
@@ -29,14 +30,12 @@ function CartLineImage({ line }: { line: CartLine }) {
 
   if (!hasImage) {
     return (
-      <div
-        className="flex h-full min-h-24 w-full items-center justify-center rounded-lg bg-gradient-to-br from-brand-nav/90 to-brand-cta/80"
-        aria-hidden="true"
-      >
-        <span className="heading-font px-3 text-center text-sm text-white">
-          {t("line.missingImageLabel")}
-        </span>
-      </div>
+      <ImagePlaceholder
+        label={t("line.missingImageLabel")}
+        className="min-h-24 rounded-lg"
+        iconClassName="size-5"
+        textClassName="text-sm"
+      />
     )
   }
 
