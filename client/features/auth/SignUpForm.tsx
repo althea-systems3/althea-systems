@@ -327,12 +327,6 @@ export function SignUpForm() {
         return
       }
 
-      setSignUpFormValues((currentValue) => ({
-        ...currentValue,
-        password: "",
-        passwordConfirmation: "",
-      }))
-
       setSignUpStatus({
         isError: false,
         message: translateSignUp(
@@ -341,6 +335,10 @@ export function SignUpForm() {
             : "form.messages.verificationEmailSent",
         ),
       })
+
+      setTimeout(() => {
+        router.replace("/connexion")
+      }, 2000)
     } catch (error) {
       console.error("Erreur inscription utilisateur", { error })
       setSignUpStatus({
