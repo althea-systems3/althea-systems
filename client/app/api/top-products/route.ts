@@ -20,9 +20,7 @@ type FirestoreImageDoc = {
   image_url: string
 }
 
-type TopProduitRow = Produit & {
-  image_url?: string | null
-}
+type TopProduitRow = Produit
 
 const FALLBACK_HOME_TOP_PRODUCTS: HomeTopProductPayload[] = [
   {
@@ -101,7 +99,7 @@ function mapToPayload(
   fallbackOrder: number,
   imageDoc?: FirestoreImageDoc,
 ): HomeTopProductPayload {
-  const imageUrl = imageDoc?.image_url ?? product.image_url ?? null
+  const imageUrl = imageDoc?.image_url ?? null
 
   return {
     id: product.id_produit,
@@ -127,7 +125,7 @@ export async function GET() {
     const { data: rawTopProducts, error } = await supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, slug, image_url, prix_ttc, quantite_stock, priorite, statut, est_top_produit",
+        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut, est_top_produit",
       )
       .eq("est_top_produit", true)
       .eq("statut", "publie")
