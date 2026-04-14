@@ -26,9 +26,7 @@ type PaginationMeta = {
   totalPages: number
 }
 
-type CatalogueProduitRow = Produit & {
-  image_url?: string | null
-}
+type CatalogueProduitRow = Produit
 
 function parsePaginationParams(searchParams: URLSearchParams): {
   page: number
@@ -125,7 +123,7 @@ function mapToPayload(
   product: CatalogueProduitRow,
   imageUrl: string | null,
 ): CatalogueProductPayload {
-  const resolvedImageUrl = imageUrl ?? product.image_url ?? null
+  const resolvedImageUrl = imageUrl ?? null
 
   return {
     id: product.id_produit,
@@ -221,7 +219,7 @@ export async function GET(
     const { data: rawProducts, error: productsError } = await supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, slug, image_url, prix_ttc, quantite_stock, priorite, statut",
+        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut",
       )
       .in("id_produit", productIds)
       .eq("statut", "publie")
