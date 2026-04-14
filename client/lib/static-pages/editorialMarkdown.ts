@@ -30,6 +30,22 @@ export type EditorialMarkdownBlock =
 
 const INLINE_LINK_PATTERN = /\[([^\]]+)\]\(([^)]+)\)/g
 
+function normalizeEditorialMarkdown(markdown: string): string {
+  const normalizedLineBreaks = markdown
+    .replaceAll("\r\n", "\n")
+    .replaceAll("\r", "\n")
+
+  // Legacy seed data can contain escaped line breaks ("\\n") instead of real new lines.
+  if (normalizedLineBreaks.includes("\n")) {
+    return normalizedLineBreaks
+  }
+
+  return normalizedLineBreaks
+    .replaceAll("\\r\\n", "\n")
+    .replaceAll("\\n", "\n")
+    .replaceAll("\\r", "\n")
+}
+
 export function isSafeEditorialHref(rawHref: string): boolean {
   const href = rawHref.trim().toLowerCase()
 
@@ -107,7 +123,7 @@ export function parseEditorialInlineNodes(
 export function parseEditorialMarkdown(
   markdown: string,
 ): EditorialMarkdownBlock[] {
-  const normalized = markdown.replaceAll("\r\n", "\n").trim()
+  const normalized = normalizeEditorialMarkdown(markdown).trim()
 
   if (!normalized) {
     return []

@@ -1,39 +1,58 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest"
 
 import {
   parseEditorialInlineNodes,
   parseEditorialMarkdown,
-} from '@/lib/static-pages/editorialMarkdown';
+} from "@/lib/static-pages/editorialMarkdown"
 
-describe('editorial markdown parser', () => {
-  it('parses headings paragraphs and lists', () => {
-    const markdown = `## Titre\nParagraphe de test.\n\n### Sous-titre\n- item 1\n- item 2\n\n1. first\n2. second`;
+describe("editorial markdown parser", () => {
+  it("parses headings paragraphs and lists", () => {
+    const markdown = `## Titre\nParagraphe de test.\n\n### Sous-titre\n- item 1\n- item 2\n\n1. first\n2. second`
 
-    const blocks = parseEditorialMarkdown(markdown);
+    const blocks = parseEditorialMarkdown(markdown)
 
     expect(blocks.map((block) => block.type)).toEqual([
-      'h2',
-      'paragraph',
-      'h3',
-      'list',
-      'list',
-    ]);
-  });
+      "h2",
+      "paragraph",
+      "h3",
+      "list",
+      "list",
+    ])
+  })
 
-  it('parses inline links with safe href', () => {
+  it("parses markdown with escaped new lines from legacy content", () => {
+    const markdown =
+      "## Objet\\nLes conditions s'appliquent.\\n\\n## Contact\\n- Ecrire au support"
+
+    const blocks = parseEditorialMarkdown(markdown)
+
+    expect(blocks.map((block) => block.type)).toEqual([
+      "h2",
+      "paragraph",
+      "h2",
+      "list",
+    ])
+    expect(blocks[0]).toEqual({ type: "h2", text: "Objet" })
+    expect(blocks[1]).toEqual({
+      type: "paragraph",
+      text: "Les conditions s'appliquent.",
+    })
+  })
+
+  it("parses inline links with safe href", () => {
     const nodes = parseEditorialInlineNodes(
       "Consultez [la page contact](/contact) pour plus d'informations.",
-    );
+    )
 
-    expect(nodes.some((node) => node.type === 'link')).toBe(true);
-  });
+    expect(nodes.some((node) => node.type === "link")).toBe(true)
+  })
 
-  it('keeps unsafe links as plain text', () => {
+  it("keeps unsafe links as plain text", () => {
     const nodes = parseEditorialInlineNodes(
       "Lien [dangereux](javascript:alert('x')).",
-    );
+    )
 
-    const hasUnsafeLinkNode = nodes.some((node) => node.type === 'link');
-    expect(hasUnsafeLinkNode).toBe(false);
-  });
-});
+    const hasUnsafeLinkNode = nodes.some((node) => node.type === "link")
+    expect(hasUnsafeLinkNode).toBe(false)
+  })
+})
