@@ -12,6 +12,7 @@ const mockCert = vi.fn();
 
 vi.mock('firebase-admin', () => ({
   default: {
+    apps: [],
     initializeApp: mockInitializeApp,
     credential: { cert: mockCert },
   },
