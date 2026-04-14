@@ -127,7 +127,17 @@ INSERT INTO carrousel (id_slide, titre, texte, lien_redirection, ordre, actif, i
 ON CONFLICT (id_slide) DO NOTHING;
 
 -- =============================================================
--- 5. Réactiver RLS
+-- 5. Marquer quelques produits comme nouveaux
+-- =============================================================
+
+UPDATE produit SET est_nouveau = TRUE WHERE id_produit IN (
+  'b2c3d4e5-0001-4000-8000-000000000007',  -- Point d'Acces WiFi 6 Industriel
+  'b2c3d4e5-0001-4000-8000-000000000010',  -- Capteur Temperature Industriel
+  'b2c3d4e5-0001-4000-8000-000000000016'   -- Camera IP Dome 4K
+);
+
+-- =============================================================
+-- 6. Réactiver RLS
 -- =============================================================
 
 ALTER TABLE categorie ENABLE ROW LEVEL SECURITY;
@@ -142,4 +152,5 @@ ALTER TABLE carrousel ENABLE ROW LEVEL SECURITY;
 --   6 top produits (priorite 1 a 6)
 --  20 liens produit-categorie (dont 3 multi-categories)
 --   3 slides carrousel actifs
+--   3 produits marqués est_nouveau
 -- =============================================================
