@@ -74,7 +74,8 @@ export async function POST(request: Request) {
     if (conversation) {
       const isOwner =
         (user && conversation.user_id === user.id) ||
-        conversation.session_id === sessionId
+        conversation.session_id === sessionId ||
+        !conversation.session_id
 
       if (!isOwner) {
         return NextResponse.json(

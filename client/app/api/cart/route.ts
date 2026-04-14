@@ -30,7 +30,6 @@ type CartLineRow = {
     prix_ttc: number
     quantite_stock: number
     statut: string
-    image_url: string | null
   } | null
 }
 
@@ -92,7 +91,7 @@ async function fetchCartLines(
   const { data, error } = await supabaseAdmin
     .from("ligne_panier")
     .select(
-      "id_ligne_panier, id_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ttc, quantite_stock, statut, image_url)",
+      "id_ligne_panier, id_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ttc, quantite_stock, statut)",
     )
     .eq("id_panier", cartId)
 
@@ -154,7 +153,7 @@ function mapToLinePayload(
 ): CartLinePayload {
   const product = line.produit!
   const priceTtc = Number(product.prix_ttc)
-  const resolvedImageUrl = imageUrl ?? product.image_url ?? null
+  const resolvedImageUrl = imageUrl ?? null
 
   return {
     id: line.id_ligne_panier,
