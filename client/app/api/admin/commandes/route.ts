@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { normalizeString } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parsePaginationParams,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { OrderStatus, PaymentStatus } from '@/lib/supabase/types';
@@ -85,108 +91,84 @@ type FilterableOrdersQuery = {
   in: (column: string, values: string[]) => unknown;
 };
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
+const ORDER_PAGE_SIZE_DEFAULT = 20;
+const ORDER_PAGE_SIZE_MAX = 100;
 const MAX_MATCHED_USERS = 5000;
 const MAX_PAYMENT_METHOD_OPTIONS = 2000;
 
-function parsePage(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE;
-  }
-
-  return parsedValue;
-}
-
-function parsePageSize(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE_SIZE;
-  }
-
-  return Math.min(parsedValue, MAX_PAGE_SIZE);
-}
-
-function parseStatus(value: string | null): OrderStatusFilter {
-  if (
-    value === 'en_attente' ||
-    value === 'en_cours' ||
-    value === 'terminee' ||
-    value === 'annulee'
-  ) {
-    return value;
-  }
-
-  return 'all';
-}
-
-function parsePaymentStatus(value: string | null): PaymentStatusFilter {
-  if (
-    value === 'valide' ||
-    value === 'en_attente' ||
-    value === 'echoue' ||
-    value === 'rembourse'
-  ) {
-    return value;
-  }
-
-  return 'all';
-}
+const ORDER_STATUS_VALUES = [
+  'en_attente',
+  'en_cours',
+  'terminee',
+  'annulee',
+] as const;
+const ORDER_PAYMENT_STATUS_VALUES = [
+  'valide',
+  'en_attente',
+  'echoue',
+  'rembourse',
+] as const;
+const ORDER_SORT_KEYS = [
+  'numero_commande',
+  'date_commande',
+  'client',
+  'montant_ttc',
+  'statut',
+  'mode_paiement',
+  'statut_paiement',
+] as const;
 
 function parsePaymentMethod(value: string | null): PaymentMethodFilter {
   const normalizedValue = normalizeString(value);
 
-  if (!normalizedValue) {
-    return 'all';
-  }
-
-  if (normalizedValue === 'all') {
+  if (!normalizedValue || normalizedValue === 'all') {
     return 'all';
   }
 
   return normalizedValue;
 }
 
-function parseSortBy(value: string | null): OrderSortBy {
-  if (
-    value === 'numero_commande' ||
-    value === 'date_commande' ||
-    value === 'client' ||
-    value === 'montant_ttc' ||
-    value === 'statut' ||
-    value === 'mode_paiement' ||
-    value === 'statut_paiement'
-  ) {
-    return value;
+function parseFilters(searchParams: URLSearchParams): OrderListFilters {
+  const { page, pageSize } = parsePaginationParams(
+    searchParams,
+    ORDER_PAGE_SIZE_MAX,
+  );
+
+  const sortParamsSource = new URLSearchParams(searchParams);
+  if (!sortParamsSource.get('sortDirection') && sortParamsSource.get('sort')) {
+    sortParamsSource.set('sortDirection', sortParamsSource.get('sort')!);
   }
 
-  return 'date_commande';
-}
+  const { sortBy, sortDirection } = parseSortParams(
+    sortParamsSource,
+    ORDER_SORT_KEYS,
+    'date_commande',
+    'desc',
+  );
 
-function parseSortDirection(value: string | null): SortDirection {
-  return value === 'asc' ? 'asc' : 'desc';
-}
-
-function parseFilters(searchParams: URLSearchParams): OrderListFilters {
   return {
     searchNumero: normalizeString(
       searchParams.get('searchNumero') ?? searchParams.get('search'),
     ),
-    searchClientName: normalizeString(searchParams.get('searchClientName')),
-    searchClientEmail: normalizeString(searchParams.get('searchClientEmail')),
-    status: parseStatus(searchParams.get('status')),
-    paymentStatus: parsePaymentStatus(searchParams.get('paymentStatus')),
+    searchClientName: parseStringFilter(searchParams, 'searchClientName'),
+    searchClientEmail: parseStringFilter(searchParams, 'searchClientEmail'),
+    status: parseEnumFilter(
+      searchParams,
+      'status',
+      ORDER_STATUS_VALUES,
+      'all',
+    ) as OrderStatusFilter,
+    paymentStatus: parseEnumFilter(
+      searchParams,
+      'paymentStatus',
+      ORDER_PAYMENT_STATUS_VALUES,
+      'all',
+    ) as PaymentStatusFilter,
     paymentMethod: parsePaymentMethod(searchParams.get('paymentMethod')),
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    sortDirection: parseSortDirection(
-      searchParams.get('sortDirection') ?? searchParams.get('sort'),
-    ),
-    page: parsePage(searchParams.get('page')),
-    pageSize: parsePageSize(searchParams.get('pageSize')),
+    sortBy,
+    sortDirection,
+    page,
+    pageSize: pageSize > 0 ? pageSize : ORDER_PAGE_SIZE_DEFAULT,
   };
 }
 

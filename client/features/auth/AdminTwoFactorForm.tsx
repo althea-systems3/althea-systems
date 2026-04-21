@@ -1,20 +1,21 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, RefreshCw, ShieldCheck } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useSearchParams } from "next/navigation"
-import {
-  type FormEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group"
 import { Link, useRouter } from "@/i18n/navigation"
 import { secureFetch } from "@/lib/http/secureFetch"
-import { useTranslations } from "next-intl"
+import {
+  adminTwoFactorSchema,
+  type AdminTwoFactorInput,
+} from "@/lib/validation/authSchemas"
+
 import {
   AuthFormCard,
   AuthPageSection,
@@ -29,61 +30,33 @@ type TwoFactorStatus = {
 const RESEND_COOLDOWN_SECONDS = 30
 
 function getSafeNextPath(nextPath: string | null): string | null {
-  if (!nextPath) {
-    return null
-  }
+  if (!nextPath) return null
+  const normalized = nextPath.trim()
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return null
+  return normalized
+}
 
-  const normalizedPath = nextPath.trim()
+const CHALLENGE_ERROR_KEYS: Record<string, string> = {
+  session_expired: "sessionExpired",
+  challenge_unavailable: "challengeUnavailable",
+  admin_required: "adminRequired",
+}
 
-  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
-    return null
-  }
-
-  return normalizedPath
+const VERIFY_ERROR_KEYS: Record<string, string> = {
+  invalid_code: "invalidCode",
+  challenge_expired: "challengeExpired",
+  challenge_missing: "challengeExpired",
+  too_many_attempts: "tooManyAttempts",
+  session_expired: "sessionExpired",
+  admin_required: "adminRequired",
 }
 
 function mapChallengeErrorCode(code: string): string {
-  if (code === "session_expired") {
-    return "sessionExpired"
-  }
-
-  if (code === "challenge_unavailable") {
-    return "challengeUnavailable"
-  }
-
-  if (code === "admin_required") {
-    return "adminRequired"
-  }
-
-  return "challengeUnavailable"
+  return CHALLENGE_ERROR_KEYS[code] ?? "challengeUnavailable"
 }
 
 function mapVerifyErrorCode(code: string): string {
-  if (code === "invalid_code") {
-    return "invalidCode"
-  }
-
-  if (code === "challenge_expired" || code === "challenge_missing") {
-    return "challengeExpired"
-  }
-
-  if (code === "too_many_attempts") {
-    return "tooManyAttempts"
-  }
-
-  if (code === "session_expired") {
-    return "sessionExpired"
-  }
-
-  if (code === "admin_required") {
-    return "adminRequired"
-  }
-
-  return "verifyFailed"
-}
-
-function isSixDigits(value: string): boolean {
-  return /^\d{6}$/.test(value)
+  return VERIFY_ERROR_KEYS[code] ?? "verifyFailed"
 }
 
 export function AdminTwoFactorForm() {
@@ -94,19 +67,26 @@ export function AdminTwoFactorForm() {
   const safeNextPath = getSafeNextPath(searchParams.get("next"))
   const nextPath = safeNextPath ?? "/admin"
 
-  const [verificationCode, setVerificationCode] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm<AdminTwoFactorInput>({
+    resolver: zodResolver(adminTwoFactorSchema),
+    defaultValues: { code: "" },
+    mode: "onSubmit",
+  })
+
   const [isSendingCode, setIsSendingCode] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
   const [status, setStatus] = useState<TwoFactorStatus | null>(null)
 
   useEffect(() => {
-    if (resendCooldown <= 0) {
-      return
-    }
+    if (resendCooldown <= 0) return
 
     const timerId = window.setTimeout(() => {
-      setResendCooldown((currentValue) => Math.max(currentValue - 1, 0))
+      setResendCooldown((current) => Math.max(current - 1, 0))
     }, 1000)
 
     return () => {
@@ -127,12 +107,12 @@ export function AdminTwoFactorForm() {
         const payload = await response.json().catch(() => null)
 
         if (!response.ok) {
-          const responseCode =
+          const code =
             typeof payload?.code === "string"
               ? payload.code
               : "challenge_unavailable"
 
-          if (responseCode === "session_expired") {
+          if (code === "session_expired") {
             router.replace(
               `/connexion?reason=session_expired&next=${encodeURIComponent(nextPath)}`,
             )
@@ -142,7 +122,7 @@ export function AdminTwoFactorForm() {
           setStatus({
             isError: true,
             message: translateForm(
-              `messages.${mapChallengeErrorCode(responseCode)}`,
+              `messages.${mapChallengeErrorCode(code)}`,
             ),
           })
           return
@@ -158,7 +138,6 @@ export function AdminTwoFactorForm() {
         }
       } catch (error) {
         console.error("Erreur challenge 2FA admin", { error })
-
         setStatus({
           isError: true,
           message: translateForm("messages.serverError"),
@@ -174,33 +153,22 @@ export function AdminTwoFactorForm() {
     void requestChallenge(false)
   }, [requestChallenge])
 
-  async function handleSubmit(formSubmitEvent: FormEvent<HTMLFormElement>) {
-    formSubmitEvent.preventDefault()
-
-    if (!isSixDigits(verificationCode)) {
-      setStatus({
-        isError: true,
-        message: translateForm("messages.invalidCodeFormat"),
-      })
-      return
-    }
-
-    setIsSubmitting(true)
+  async function onSubmit(values: AdminTwoFactorInput) {
     setStatus(null)
 
     try {
       const response = await secureFetch("/api/auth/admin-2fa/verify", {
         method: "POST",
-        body: JSON.stringify({ code: verificationCode }),
+        body: JSON.stringify({ code: values.code }),
       })
 
       const payload = await response.json().catch(() => null)
 
       if (!response.ok) {
-        const responseCode =
+        const code =
           typeof payload?.code === "string" ? payload.code : "verify_failed"
 
-        if (responseCode === "session_expired") {
+        if (code === "session_expired") {
           router.replace(
             `/connexion?reason=session_expired&next=${encodeURIComponent(nextPath)}`,
           )
@@ -209,9 +177,7 @@ export function AdminTwoFactorForm() {
 
         setStatus({
           isError: true,
-          message: translateForm(
-            `messages.${mapVerifyErrorCode(responseCode)}`,
-          ),
+          message: translateForm(`messages.${mapVerifyErrorCode(code)}`),
         })
         return
       }
@@ -224,13 +190,10 @@ export function AdminTwoFactorForm() {
       router.replace(nextPath)
     } catch (error) {
       console.error("Erreur vérification 2FA admin", { error })
-
       setStatus({
         isError: true,
         message: translateForm("messages.serverError"),
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -242,7 +205,6 @@ export function AdminTwoFactorForm() {
     if (resendCooldown <= 0) {
       return translateForm("actions.resendCode")
     }
-
     return translateForm("actions.resendIn", {
       seconds: String(resendCooldown),
     })
@@ -263,7 +225,7 @@ export function AdminTwoFactorForm() {
           />
         }
       >
-        <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <label className="space-y-1.5" htmlFor="admin-2fa-code">
             <span className="text-sm font-medium text-brand-nav">
               {translateForm("fields.code.label")}
@@ -271,18 +233,19 @@ export function AdminTwoFactorForm() {
             <InputGroup>
               <InputGroupInput
                 id="admin-2fa-code"
-                name="admin-2fa-code"
                 inputMode="numeric"
                 pattern="[0-9]*"
                 autoComplete="one-time-code"
-                value={verificationCode}
-                onChange={(event) => {
-                  const digitsOnly = event.target.value.replaceAll(/\D/g, "")
-                  setVerificationCode(digitsOnly.slice(0, 6))
-                }}
                 placeholder={translateForm("fields.code.placeholder")}
                 className="tracking-[0.35em]"
                 aria-label={translateForm("fields.code.label")}
+                {...register("code")}
+                onChange={(event) => {
+                  const digitsOnly = event.target.value.replaceAll(/\D/g, "")
+                  setValue("code", digitsOnly.slice(0, 6), {
+                    shouldValidate: false,
+                  })
+                }}
               />
             </InputGroup>
           </label>

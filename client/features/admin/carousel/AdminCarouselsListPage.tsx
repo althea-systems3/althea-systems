@@ -1,7 +1,6 @@
 "use client"
 
 import {
-  AlertCircle,
   ArrowDown,
   ArrowUp,
   Eye,
@@ -23,6 +22,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AdminListErrorAlert,
+  AdminListNoticeAlert,
+} from "@/features/admin/shared"
 import { Link, useRouter } from "@/i18n/navigation"
 import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
 
@@ -316,23 +319,8 @@ export function AdminCarouselsListPage() {
             )}
           </div>
 
-          {errorMessage && (
-            <div
-              role="alert"
-              className="flex items-center gap-2 rounded-md bg-brand-alert/10 p-3 text-sm text-brand-alert"
-            >
-              <AlertCircle className="size-4" aria-hidden="true" />
-              {errorMessage}
-            </div>
-          )}
-          {noticeMessage && (
-            <div
-              role="status"
-              className="rounded-md bg-brand-success/10 p-3 text-sm text-brand-success"
-            >
-              {noticeMessage}
-            </div>
-          )}
+          <AdminListErrorAlert message={errorMessage} />
+          <AdminListNoticeAlert message={noticeMessage} />
 
           {isLoading ? (
             <p className="text-sm text-muted-foreground">

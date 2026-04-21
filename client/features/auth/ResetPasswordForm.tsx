@@ -1,28 +1,30 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader2, Lock } from "lucide-react"
-import { type FormEvent, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 
-import { Link, useRouter } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
-import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { Link, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import {
+  resetPasswordSchema,
+  type ResetPasswordInput,
+} from "@/lib/validation/authSchemas"
+
 import {
   AuthFormCard,
   AuthPageSection,
   AuthStatusMessage,
 } from "./authFormShared"
-import {
-  getInitialResetPasswordFormValues,
-  hasResetPasswordFormErrors,
-  validateResetPasswordForm,
-} from "./passwordResetValidation"
 import { isStrongPassword } from "./signUpValidation"
 
 type ResetPasswordStatus = {
@@ -31,214 +33,150 @@ type ResetPasswordStatus = {
 }
 
 function getSafeNextPath(nextPath: string | null): string | null {
-  if (!nextPath) {
-    return null
-  }
-
-  const normalizedPath = nextPath.trim()
-
-  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
-    return null
-  }
-
-  return normalizedPath
+  if (!nextPath) return null
+  const normalized = nextPath.trim()
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return null
+  return normalized
 }
 
 function appendQueryParam(path: string, key: string, value: string): string {
   const [pathname, queryString = ""] = path.split("?")
-  const searchParams = new URLSearchParams(queryString)
-  searchParams.set(key, value)
-
-  const nextQueryString = searchParams.toString()
-
-  if (!nextQueryString) {
-    return pathname
-  }
-
-  return `${pathname}?${nextQueryString}`
+  const params = new URLSearchParams(queryString)
+  params.set(key, value)
+  const query = params.toString()
+  return query ? `${pathname}?${query}` : pathname
 }
 
 function buildPathWithContext(
   basePath: string,
   nextPath: string | null,
 ): string {
-  if (!nextPath) {
-    return basePath
-  }
+  return nextPath ? appendQueryParam(basePath, "next", nextPath) : basePath
+}
 
-  return appendQueryParam(basePath, "next", nextPath)
+const API_ERROR_KEYS: Record<string, string> = {
+  session_expired: "sessionExpired",
+  password_too_weak: "passwordTooWeak",
+  server_error: "serverError",
 }
 
 function getApiErrorMessageKey(errorCode: string): string {
-  if (errorCode === "session_expired") {
-    return "sessionExpired"
-  }
-
-  if (errorCode === "password_too_weak") {
-    return "passwordTooWeak"
-  }
-
-  if (errorCode === "server_error") {
-    return "serverError"
-  }
-
-  return "resetFailed"
+  return API_ERROR_KEYS[errorCode] ?? "resetFailed"
 }
 
 export function ResetPasswordForm() {
-  const translateResetPassword = useTranslations("Pages.resetPassword")
+  const translate = useTranslations("Pages.resetPassword")
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const recoveryStatus = searchParams.get("recovery")
   const safeNextPath = getSafeNextPath(searchParams.get("next"))
 
-  const [resetPasswordValues, setResetPasswordValues] = useState(
-    getInitialResetPasswordFormValues(),
-  )
-  const [touchedPasswordFields, setTouchedPasswordFields] = useState<
-    Partial<Record<"password" | "passwordConfirmation", boolean>>
-  >({})
-  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { password: "", passwordConfirmation: "" },
+    mode: "onTouched",
+  })
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmationVisible, setIsPasswordConfirmationVisible] =
     useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [resetPasswordStatus, setResetPasswordStatus] =
-    useState<ResetPasswordStatus | null>(null)
+  const [status, setStatus] = useState<ResetPasswordStatus | null>(null)
 
-  const resetPasswordErrors = useMemo(() => {
-    return validateResetPasswordForm(resetPasswordValues)
-  }, [resetPasswordValues])
-
-  const hasStrongPassword = isStrongPassword(resetPasswordValues.password)
-  const hasFormErrors = hasResetPasswordFormErrors(resetPasswordErrors)
+  const passwordValue = watch("password")
+  const hasStrongPassword = isStrongPassword(passwordValue ?? "")
 
   const queryFeedback = useMemo<ResetPasswordStatus | null>(() => {
     if (recoveryStatus === "expired") {
       return {
         isError: true,
-        message: translateResetPassword("form.messages.tokenExpired"),
+        message: translate("form.messages.tokenExpired"),
       }
     }
-
     if (recoveryStatus === "invalid") {
       return {
         isError: true,
-        message: translateResetPassword("form.messages.tokenInvalid"),
+        message: translate("form.messages.tokenInvalid"),
       }
     }
-
     return null
-  }, [recoveryStatus, translateResetPassword])
+  }, [recoveryStatus, translate])
 
-  function getFieldErrorMessage(
-    fieldName: "password" | "passwordConfirmation",
+  function passwordErrorToMessage(error: string | undefined): string | null {
+    if (!error) return null
+    if (error === "Mot de passe requis.") {
+      return translate("form.validation.passwordRequired")
+    }
+    return translate("form.validation.passwordWeak")
+  }
+
+  function confirmationErrorToMessage(
+    error: string | undefined,
+    confirmationValue: string,
   ): string | null {
-    const shouldShowError =
-      isSubmitAttempted || Boolean(touchedPasswordFields[fieldName])
-
-    if (!shouldShowError) {
-      return null
+    if (!error) return null
+    if (!confirmationValue) {
+      return translate("form.validation.passwordConfirmationRequired")
     }
-
-    const fieldErrorCode = resetPasswordErrors[fieldName]
-
-    if (!fieldErrorCode) {
-      return null
-    }
-
-    if (fieldName === "password" && fieldErrorCode === "required") {
-      return translateResetPassword("form.validation.passwordRequired")
-    }
-
-    if (fieldName === "password" && fieldErrorCode === "weak") {
-      return translateResetPassword("form.validation.passwordWeak")
-    }
-
-    if (fieldName === "passwordConfirmation" && fieldErrorCode === "required") {
-      return translateResetPassword(
-        "form.validation.passwordConfirmationRequired",
-      )
-    }
-
-    return translateResetPassword("form.validation.passwordsMismatch")
+    return translate("form.validation.passwordsMismatch")
   }
 
-  function markAllFieldsAsTouched() {
-    setTouchedPasswordFields({
-      password: true,
-      passwordConfirmation: true,
-    })
-  }
+  const passwordMessage = passwordErrorToMessage(errors.password?.message)
+  const confirmationMessage = confirmationErrorToMessage(
+    errors.passwordConfirmation?.message,
+    watch("passwordConfirmation") ?? "",
+  )
 
-  async function handleResetPasswordSubmit(
-    formSubmitEvent: FormEvent<HTMLFormElement>,
-  ) {
-    formSubmitEvent.preventDefault()
-    setIsSubmitAttempted(true)
-    markAllFieldsAsTouched()
+  async function onSubmit(values: ResetPasswordInput) {
+    setStatus(null)
 
     if (recoveryStatus === "invalid" || recoveryStatus === "expired") {
-      setResetPasswordStatus({
+      setStatus({
         isError: true,
-        message: translateResetPassword("form.messages.requestNewLink"),
+        message: translate("form.messages.requestNewLink"),
       })
       return
     }
-
-    if (hasFormErrors) {
-      setResetPasswordStatus({
-        isError: true,
-        message: translateResetPassword("form.messages.errorHint"),
-      })
-      return
-    }
-
-    setIsSubmitting(true)
-    setResetPasswordStatus(null)
 
     try {
       const response = await secureFetch("/api/auth/reset-password", {
         method: "POST",
         body: JSON.stringify({
-          password: resetPasswordValues.password,
-          passwordConfirmation: resetPasswordValues.passwordConfirmation,
+          password: values.password,
+          passwordConfirmation: values.passwordConfirmation,
         }),
       })
 
-      const responsePayload = await response.json().catch(() => null)
+      const payload = await response.json().catch(() => null)
 
-      if (!response.ok || !responsePayload) {
-        const responseCode =
-          typeof responsePayload?.code === "string"
-            ? responsePayload.code
-            : "reset_failed"
-
-        setResetPasswordStatus({
+      if (!response.ok || !payload) {
+        const code =
+          typeof payload?.code === "string" ? payload.code : "reset_failed"
+        setStatus({
           isError: true,
-          message: translateResetPassword(
-            `form.messages.${getApiErrorMessageKey(responseCode)}`,
+          message: translate(
+            `form.messages.${getApiErrorMessageKey(code)}`,
           ),
         })
         return
       }
 
       let signInPath = appendQueryParam("/connexion", "reset", "success")
-
       if (safeNextPath) {
         signInPath = appendQueryParam(signInPath, "next", safeNextPath)
       }
-
       router.replace(signInPath)
     } catch (error) {
       console.error("Erreur reset mot de passe", { error })
-      setResetPasswordStatus({
+      setStatus({
         isError: true,
-        message: translateResetPassword("form.messages.serverError"),
+        message: translate("form.messages.serverError"),
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -247,22 +185,16 @@ export function ResetPasswordForm() {
     safeNextPath,
   )
   const signInPath = buildPathWithContext("/connexion", safeNextPath)
-
-  const effectiveStatus = resetPasswordStatus ?? queryFeedback
-
-  const passwordErrorMessage = getFieldErrorMessage("password")
-  const passwordConfirmationErrorMessage = getFieldErrorMessage(
-    "passwordConfirmation",
-  )
+  const effectiveStatus = status ?? queryFeedback
 
   return (
     <AuthPageSection
-      title={translateResetPassword("title")}
-      description={translateResetPassword("description")}
+      title={translate("title")}
+      description={translate("description")}
     >
       <AuthFormCard
-        title={translateResetPassword("form.title")}
-        description={translateResetPassword("form.description")}
+        title={translate("form.title")}
+        description={translate("form.description")}
         footer={
           <AuthStatusMessage
             message={effectiveStatus?.message ?? null}
@@ -272,7 +204,7 @@ export function ResetPasswordForm() {
       >
         <form
           className="space-y-4"
-          onSubmit={handleResetPasswordSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
           <div className="space-y-1.5">
@@ -280,42 +212,25 @@ export function ResetPasswordForm() {
               htmlFor="reset-password"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateResetPassword("form.fields.password.label")}
+              {translate("form.fields.password.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="reset-password"
-                name="password"
                 type={isPasswordVisible ? "text" : "password"}
                 autoComplete="new-password"
-                value={resetPasswordValues.password}
-                onChange={(changeEvent) => {
-                  setResetPasswordValues((currentValue) => ({
-                    ...currentValue,
-                    password: changeEvent.target.value,
-                  }))
-                  setTouchedPasswordFields((currentValue) => ({
-                    ...currentValue,
-                    password: true,
-                  }))
-
-                  if (resetPasswordStatus?.isError) {
-                    setResetPasswordStatus(null)
-                  }
-                }}
                 className="ps-9 pe-11"
-                placeholder={translateResetPassword(
-                  "form.fields.password.placeholder",
-                )}
-                aria-invalid={Boolean(passwordErrorMessage)}
+                placeholder={translate("form.fields.password.placeholder")}
+                aria-invalid={Boolean(passwordMessage)}
                 aria-describedby={
                   [
-                    passwordErrorMessage ? "reset-password-error" : null,
+                    passwordMessage ? "reset-password-error" : null,
                     "reset-password-hint",
                   ]
                     .filter(Boolean)
                     .join(" ") || undefined
                 }
+                {...register("password")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
@@ -325,12 +240,10 @@ export function ResetPasswordForm() {
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500"
                 aria-label={
                   isPasswordVisible
-                    ? translateResetPassword("form.actions.hidePassword")
-                    : translateResetPassword("form.actions.showPassword")
+                    ? translate("form.actions.hidePassword")
+                    : translate("form.actions.showPassword")
                 }
-                onClick={() =>
-                  setIsPasswordVisible((currentValue) => !currentValue)
-                }
+                onClick={() => setIsPasswordVisible((v) => !v)}
               >
                 {isPasswordVisible ? (
                   <EyeOff className="size-4" aria-hidden="true" />
@@ -341,16 +254,16 @@ export function ResetPasswordForm() {
             </InputGroup>
             <p id="reset-password-hint" className="text-xs text-slate-600">
               {hasStrongPassword
-                ? translateResetPassword("form.messages.passwordStrong")
-                : translateResetPassword("form.messages.passwordHint")}
+                ? translate("form.messages.passwordStrong")
+                : translate("form.messages.passwordHint")}
             </p>
-            {passwordErrorMessage ? (
+            {passwordMessage ? (
               <p
                 id="reset-password-error"
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {passwordErrorMessage}
+                {passwordMessage}
               </p>
             ) : null}
           </div>
@@ -360,39 +273,24 @@ export function ResetPasswordForm() {
               htmlFor="reset-password-confirmation"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateResetPassword("form.fields.passwordConfirmation.label")}
+              {translate("form.fields.passwordConfirmation.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="reset-password-confirmation"
-                name="passwordConfirmation"
                 type={isPasswordConfirmationVisible ? "text" : "password"}
                 autoComplete="new-password"
-                value={resetPasswordValues.passwordConfirmation}
-                onChange={(changeEvent) => {
-                  setResetPasswordValues((currentValue) => ({
-                    ...currentValue,
-                    passwordConfirmation: changeEvent.target.value,
-                  }))
-                  setTouchedPasswordFields((currentValue) => ({
-                    ...currentValue,
-                    passwordConfirmation: true,
-                  }))
-
-                  if (resetPasswordStatus?.isError) {
-                    setResetPasswordStatus(null)
-                  }
-                }}
                 className="ps-9 pe-11"
-                placeholder={translateResetPassword(
+                placeholder={translate(
                   "form.fields.passwordConfirmation.placeholder",
                 )}
-                aria-invalid={Boolean(passwordConfirmationErrorMessage)}
+                aria-invalid={Boolean(confirmationMessage)}
                 aria-describedby={
-                  passwordConfirmationErrorMessage
+                  confirmationMessage
                     ? "reset-password-confirmation-error"
                     : undefined
                 }
+                {...register("passwordConfirmation")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
@@ -402,13 +300,11 @@ export function ResetPasswordForm() {
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500"
                 aria-label={
                   isPasswordConfirmationVisible
-                    ? translateResetPassword("form.actions.hidePassword")
-                    : translateResetPassword("form.actions.showPassword")
+                    ? translate("form.actions.hidePassword")
+                    : translate("form.actions.showPassword")
                 }
                 onClick={() =>
-                  setIsPasswordConfirmationVisible(
-                    (currentValue) => !currentValue,
-                  )
+                  setIsPasswordConfirmationVisible((v) => !v)
                 }
               >
                 {isPasswordConfirmationVisible ? (
@@ -418,13 +314,13 @@ export function ResetPasswordForm() {
                 )}
               </button>
             </InputGroup>
-            {passwordConfirmationErrorMessage ? (
+            {confirmationMessage ? (
               <p
                 id="reset-password-confirmation-error"
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {passwordConfirmationErrorMessage}
+                {confirmationMessage}
               </p>
             ) : null}
           </div>
@@ -433,10 +329,10 @@ export function ResetPasswordForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                {translateResetPassword("form.actions.submitting")}
+                {translate("form.actions.submitting")}
               </>
             ) : (
-              translateResetPassword("form.actions.submit")
+              translate("form.actions.submit")
             )}
           </Button>
 
@@ -445,7 +341,7 @@ export function ResetPasswordForm() {
               href={forgotPasswordPath}
               className="font-medium text-brand-cta hover:underline"
             >
-              {translateResetPassword("form.actions.requestNewLink")}
+              {translate("form.actions.requestNewLink")}
             </Link>
           </p>
 
@@ -454,13 +350,13 @@ export function ResetPasswordForm() {
               href={signInPath}
               className="font-medium text-brand-cta hover:underline"
             >
-              {translateResetPassword("form.actions.goToSignIn")}
+              {translate("form.actions.goToSignIn")}
             </Link>
           </p>
 
           {effectiveStatus?.isError ? (
             <p className="text-xs text-brand-error" role="alert">
-              {translateResetPassword("form.messages.errorHint")}
+              {translate("form.messages.errorHint")}
             </p>
           ) : null}
         </form>

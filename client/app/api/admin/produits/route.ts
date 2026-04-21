@@ -11,6 +11,13 @@ import {
   slugify,
   toOptionalString,
 } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parseFiniteDecimal,
+  parsePaginationParams,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -83,9 +90,20 @@ type ProductWithDerivedFields = ProductRow & {
   createdAtTimestamp: number;
 };
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 25;
-const MAX_PAGE_SIZE = 200;
+const PRODUCT_PAGE_SIZE_DEFAULT = 25;
+const PRODUCT_PAGE_SIZE_MAX = 200;
+
+const ALLOWED_SORT_KEYS = [
+  'nom',
+  'prix_ht',
+  'prix_ttc',
+  'quantite_stock',
+  'statut',
+  'date_creation',
+] as const;
+
+const ALLOWED_STATUS_VALUES = ['publie', 'brouillon'] as const;
+const ALLOWED_AVAILABILITY_VALUES = ['in_stock', 'out_of_stock'] as const;
 
 const ALLOWED_TVA_VALUES = new Set(['20', '10', '5.5', '0']);
 
@@ -117,34 +135,7 @@ function parseCategoryIds(value: unknown): string[] {
   );
 }
 
-function parseIntegerParam(
-  value: string | null,
-  fallbackValue: number,
-): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
-    return fallbackValue;
-  }
-
-  return parsedValue;
-}
-
-function parseNumberParam(value: string | null): number | null {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return null;
-  }
-
-  const parsedValue = Number.parseFloat(value);
-
-  if (!Number.isFinite(parsedValue)) {
-    return null;
-  }
-
-  return parsedValue;
-}
-
-function parseDateParam(value: string | null, endOfDay: boolean): Date | null {
+function parseDayBoundary(value: string | null, endOfDay: boolean): Date | null {
   if (typeof value !== 'string' || value.trim().length === 0) {
     return null;
   }
@@ -164,58 +155,36 @@ function parseDateParam(value: string | null, endOfDay: boolean): Date | null {
   return parsedDate;
 }
 
-function parseSortBy(value: string | null): ProductSortBy {
-  if (
-    value === 'nom' ||
-    value === 'prix_ht' ||
-    value === 'prix_ttc' ||
-    value === 'quantite_stock' ||
-    value === 'statut' ||
-    value === 'date_creation'
-  ) {
-    return value;
-  }
-
-  return 'nom';
-}
-
-function parseSortDirection(value: string | null): ProductSortDirection {
-  return value === 'asc' ? 'asc' : 'desc';
-}
-
-function parseAvailability(value: string | null): ProductAvailability {
-  if (value === 'in_stock' || value === 'out_of_stock') {
-    return value;
-  }
-
-  return 'all';
-}
-
 function buildQueryFilters(searchParams: URLSearchParams): ProductListFilters {
-  const page = parseIntegerParam(searchParams.get('page'), DEFAULT_PAGE);
-  const rawPageSize = parseIntegerParam(
-    searchParams.get('pageSize'),
-    DEFAULT_PAGE_SIZE,
+  const { page, pageSize } = parsePaginationParams(
+    searchParams,
+    PRODUCT_PAGE_SIZE_MAX,
+  );
+  const { sortBy, sortDirection } = parseSortParams(
+    searchParams,
+    ALLOWED_SORT_KEYS,
+    'nom',
+    'desc',
   );
 
   return {
-    search: normalizeString(searchParams.get('search')),
-    status:
-      searchParams.get('status') === 'publie'
-        ? 'publie'
-        : searchParams.get('status') === 'brouillon'
-          ? 'brouillon'
-          : 'all',
-    categoryId: normalizeString(searchParams.get('categoryId')),
-    availability: parseAvailability(searchParams.get('availability')),
-    createdFrom: parseDateParam(searchParams.get('createdFrom'), false),
-    createdTo: parseDateParam(searchParams.get('createdTo'), true),
-    priceMin: parseNumberParam(searchParams.get('priceMin')),
-    priceMax: parseNumberParam(searchParams.get('priceMax')),
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    sortDirection: parseSortDirection(searchParams.get('sortDirection')),
+    search: parseStringFilter(searchParams, 'search'),
+    status: parseEnumFilter(searchParams, 'status', ALLOWED_STATUS_VALUES, 'all'),
+    categoryId: parseStringFilter(searchParams, 'categoryId'),
+    availability: parseEnumFilter(
+      searchParams,
+      'availability',
+      ALLOWED_AVAILABILITY_VALUES,
+      'all',
+    ),
+    createdFrom: parseDayBoundary(searchParams.get('createdFrom'), false),
+    createdTo: parseDayBoundary(searchParams.get('createdTo'), true),
+    priceMin: parseFiniteDecimal(searchParams.get('priceMin')),
+    priceMax: parseFiniteDecimal(searchParams.get('priceMax')),
+    sortBy,
+    sortDirection,
     page,
-    pageSize: Math.min(rawPageSize, MAX_PAGE_SIZE),
+    pageSize: pageSize > 0 ? pageSize : PRODUCT_PAGE_SIZE_DEFAULT,
   };
 }
 

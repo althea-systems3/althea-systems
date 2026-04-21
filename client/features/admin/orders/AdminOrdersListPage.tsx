@@ -1,14 +1,6 @@
 "use client"
 
-import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  Eye,
-  Filter,
-  RefreshCw,
-  Search,
-} from "lucide-react"
+import { Eye, Filter, Search } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import {
   type FormEvent,
@@ -33,6 +25,11 @@ import {
   mapOrderStatusClassName,
   mapOrderStatusLabel,
 } from "@/features/admin/adminUtils"
+import {
+  AdminListErrorAlert,
+  AdminListPagination,
+  AdminSortButton,
+} from "@/features/admin/shared"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 
 import { fetchAdminOrders } from "./adminOrdersApi"
@@ -192,15 +189,7 @@ export function AdminOrdersListPage() {
         </p>
       </header>
 
-      {errorMessage ? (
-        <div
-          className="flex items-start gap-2 rounded-xl border border-brand-error/20 bg-red-50 p-4 text-sm text-brand-error"
-          role="alert"
-        >
-          <AlertCircle className="mt-0.5 size-4" aria-hidden="true" />
-          <p>{errorMessage}</p>
-        </div>
-      ) : null}
+      <AdminListErrorAlert message={errorMessage} />
 
       <Card>
         <CardHeader>
@@ -433,95 +422,55 @@ export function AdminOrdersListPage() {
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("numero_commande")
-                      }}
+                    <AdminSortButton
+                      column="numero_commande"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       N de commande
-                      {filters.sortBy === "numero_commande" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("date_commande")
-                      }}
+                    <AdminSortButton
+                      column="date_commande"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Date et heure
-                      {filters.sortBy === "date_commande" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("client")
-                      }}
+                    <AdminSortButton
+                      column="client"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Client
-                      {filters.sortBy === "client" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("montant_ttc")
-                      }}
+                    <AdminSortButton
+                      column="montant_ttc"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Montant TTC
-                      {filters.sortBy === "montant_ttc" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Statut</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("mode_paiement")
-                      }}
+                    <AdminSortButton
+                      column="mode_paiement"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Mode paiement
-                      {filters.sortBy === "mode_paiement" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Statut paiement</th>
                   <th className="px-2 py-3">Actions</th>
@@ -603,49 +552,14 @@ export function AdminOrdersListPage() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <p className="text-sm text-slate-600">
-              Page {page} / {totalPages} · Tri:{" "}
-              {ADMIN_ORDER_SORT_LABELS[filters.sortBy]} ({filters.sortDirection}
-              )
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.max(1, page - 1))
-                }}
-                disabled={page <= 1 || isLoading}
-              >
-                Precedent
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.min(totalPages, page + 1))
-                }}
-                disabled={page >= totalPages || isLoading}
-              >
-                Suivant
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  void loadOrders()
-                }}
-                disabled={isLoading}
-              >
-                <RefreshCw className="size-3.5" aria-hidden="true" />
-                Rafraichir
-              </Button>
-            </div>
-          </div>
+          <AdminListPagination
+            page={page}
+            totalPages={totalPages}
+            isLoading={isLoading}
+            summaryText={`Page ${page} / ${totalPages} · Tri: ${ADMIN_ORDER_SORT_LABELS[filters.sortBy]} (${filters.sortDirection})`}
+            onPageChange={handlePageChange}
+            onRefresh={() => void loadOrders()}
+          />
         </CardContent>
       </Card>
     </section>

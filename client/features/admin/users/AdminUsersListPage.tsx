@@ -1,16 +1,6 @@
 "use client"
 
-import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  Eye,
-  Filter,
-  Pencil,
-  Power,
-  RefreshCw,
-  Search,
-} from "lucide-react"
+import { Eye, Filter, Pencil, Power, Search } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import {
   type FormEvent,
@@ -29,8 +19,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { formatCurrency, formatDate } from "@/features/admin/adminUtils"
+import {
+  AdminListErrorAlert,
+  AdminListHeader,
+  AdminListPagination,
+  AdminSortButton,
+} from "@/features/admin/shared"
+import { Link, usePathname, useRouter } from "@/i18n/navigation"
 
 import { fetchAdminUsers, updateAdminUserStatus } from "./adminUsersApi"
 import type {
@@ -48,15 +44,58 @@ import {
 } from "./adminUsersUtils"
 
 function getProblematicRowClassName(user: AdminUserListItem): string {
-  if (user.statut === "inactif") {
-    return "bg-red-50/50"
-  }
-
-  if (user.statut === "en_attente") {
-    return "bg-amber-50/60"
-  }
-
+  if (user.statut === "inactif") return "bg-red-50/50"
+  if (user.statut === "en_attente") return "bg-amber-50/60"
   return ""
+}
+
+type UserActionsProps = {
+  user: AdminUserListItem
+  togglingUserId: string | null
+  onToggleStatus: (user: AdminUserListItem) => void
+}
+
+function UserActions({
+  user,
+  togglingUserId,
+  onToggleStatus,
+}: UserActionsProps) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button asChild size="sm" variant="outline">
+        <Link href={`/admin/utilisateurs/${user.id_utilisateur}`}>
+          <Eye className="size-3.5" aria-hidden="true" />
+          Voir
+        </Link>
+      </Button>
+      <Button asChild size="sm" variant="outline">
+        <Link href={`/admin/utilisateurs/${user.id_utilisateur}/edition`}>
+          <Pencil className="size-3.5" aria-hidden="true" />
+          Éditer
+        </Link>
+      </Button>
+      {!user.est_admin ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => onToggleStatus(user)}
+          disabled={
+            togglingUserId === user.id_utilisateur ||
+            user.statut === "en_attente"
+          }
+          aria-label={
+            user.statut === "actif"
+              ? "Désactiver le compte"
+              : "Activer le compte"
+          }
+        >
+          <Power className="size-3.5" aria-hidden="true" />
+          {user.statut === "actif" ? "Désactiver" : "Activer"}
+        </Button>
+      ) : null}
+    </div>
+  )
 }
 
 export function AdminUsersListPage() {
@@ -123,7 +162,6 @@ export function AdminUsersListPage() {
 
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
     replaceFiltersInUrl({
       ...filters,
       searchName: searchNameDraft,
@@ -158,10 +196,7 @@ export function AdminUsersListPage() {
   }
 
   function handlePageChange(nextPage: number) {
-    replaceFiltersInUrl({
-      ...filters,
-      page: nextPage,
-    })
+    replaceFiltersInUrl({ ...filters, page: nextPage })
   }
 
   async function handleToggleStatus(user: AdminUserListItem) {
@@ -185,28 +220,13 @@ export function AdminUsersListPage() {
 
   return (
     <section className="space-y-6" aria-labelledby="admin-users-list-title">
-      <header className="space-y-1">
-        <h1
-          id="admin-users-list-title"
-          className="heading-font text-2xl text-brand-nav sm:text-3xl"
-        >
-          Gestion des utilisateurs
-        </h1>
-        <p className="text-sm text-slate-600 sm:text-base">
-          Vue de suivi des comptes utilisateurs, de leur activité commerciale et
-          de leurs statuts.
-        </p>
-      </header>
+      <AdminListHeader
+        titleId="admin-users-list-title"
+        title="Gestion des utilisateurs"
+        description="Vue de suivi des comptes utilisateurs, de leur activité commerciale et de leurs statuts."
+      />
 
-      {errorMessage ? (
-        <div
-          className="flex items-start gap-2 rounded-xl border border-brand-error/20 bg-red-50 p-4 text-sm text-brand-error"
-          role="alert"
-        >
-          <AlertCircle className="mt-0.5 size-4" aria-hidden="true" />
-          <p>{errorMessage}</p>
-        </div>
-      ) : null}
+      <AdminListErrorAlert message={errorMessage} />
 
       <Card>
         <CardHeader>
@@ -230,9 +250,7 @@ export function AdminUsersListPage() {
                 <input
                   type="search"
                   value={searchNameDraft}
-                  onChange={(event) => {
-                    setSearchNameDraft(event.target.value)
-                  }}
+                  onChange={(event) => setSearchNameDraft(event.target.value)}
                   placeholder="Nom complet"
                   className="h-10 w-full rounded-md border border-border pl-9 pr-3"
                 />
@@ -246,9 +264,7 @@ export function AdminUsersListPage() {
                 <input
                   type="search"
                   value={searchEmailDraft}
-                  onChange={(event) => {
-                    setSearchEmailDraft(event.target.value)
-                  }}
+                  onChange={(event) => setSearchEmailDraft(event.target.value)}
                   placeholder="client@domaine.com"
                   className="h-10 w-full rounded-md border border-border pl-9 pr-3"
                 />
@@ -279,13 +295,13 @@ export function AdminUsersListPage() {
               <span>Statut</span>
               <select
                 value={filters.status}
-                onChange={(event) => {
+                onChange={(event) =>
                   replaceFiltersInUrl({
                     ...filters,
                     status: event.target.value as AdminUsersFilters["status"],
                     page: 1,
                   })
-                }}
+                }
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value="all">Tous</option>
@@ -299,13 +315,13 @@ export function AdminUsersListPage() {
               <span>Trier par</span>
               <select
                 value={filters.sortBy}
-                onChange={(event) => {
+                onChange={(event) =>
                   replaceFiltersInUrl({
                     ...filters,
                     sortBy: event.target.value as AdminUsersFilters["sortBy"],
                     page: 1,
                   })
-                }}
+                }
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value="nom">Nom</option>
@@ -322,14 +338,14 @@ export function AdminUsersListPage() {
               <span>Direction</span>
               <select
                 value={filters.sortDirection}
-                onChange={(event) => {
+                onChange={(event) =>
                   replaceFiltersInUrl({
                     ...filters,
                     sortDirection: event.target
                       .value as AdminUsersFilters["sortDirection"],
                     page: 1,
                   })
-                }}
+                }
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value="asc">Ascendant</option>
@@ -341,13 +357,13 @@ export function AdminUsersListPage() {
               <span>Taille page</span>
               <select
                 value={filters.pageSize}
-                onChange={(event) => {
+                onChange={(event) =>
                   replaceFiltersInUrl({
                     ...filters,
                     pageSize: Number(event.target.value),
                     page: 1,
                   })
-                }}
+                }
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value={20}>20</option>
@@ -374,96 +390,56 @@ export function AdminUsersListPage() {
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("nom")
-                      }}
+                    <AdminSortButton
+                      column="nom"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Nom complet
-                      {filters.sortBy === "nom" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">E-mail</th>
                   <th className="px-2 py-3">Statut</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("nombre_commandes")
-                      }}
+                    <AdminSortButton
+                      column="nombre_commandes"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Nb commandes
-                      {filters.sortBy === "nombre_commandes" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("ca_total")
-                      }}
+                    <AdminSortButton
+                      column="ca_total"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       CA total
-                      {filters.sortBy === "ca_total" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("derniere_connexion")
-                      }}
+                    <AdminSortButton
+                      column="derniere_connexion"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Dernière connexion
-                      {filters.sortBy === "derniere_connexion" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("date_inscription")
-                      }}
+                    <AdminSortButton
+                      column="date_inscription"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Date inscription
-                      {filters.sortBy === "date_inscription" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Adresses facturation</th>
                   <th className="px-2 py-3">Actions</th>
@@ -490,9 +466,7 @@ export function AdminUsersListPage() {
                   return (
                     <tr
                       key={user.id_utilisateur}
-                      className={`border-b border-border/60 align-top ${getProblematicRowClassName(
-                        user,
-                      )}`}
+                      className={`border-b border-border/60 align-top ${getProblematicRowClassName(user)}`}
                     >
                       <td className="px-2 py-3">
                         <p className="font-medium text-brand-nav">
@@ -533,7 +507,9 @@ export function AdminUsersListPage() {
                         ) : (
                           <div className="space-y-1">
                             {billingAddresses.preview.map((addressLabel) => (
-                              <p key={`${user.id_utilisateur}-${addressLabel}`}>
+                              <p
+                                key={`${user.id_utilisateur}-${addressLabel}`}
+                              >
                                 {addressLabel}
                               </p>
                             ))}
@@ -546,49 +522,11 @@ export function AdminUsersListPage() {
                         )}
                       </td>
                       <td className="px-2 py-3">
-                        <div className="flex flex-wrap gap-2">
-                          <Button asChild size="sm" variant="outline">
-                            <Link
-                              href={`/admin/utilisateurs/${user.id_utilisateur}`}
-                            >
-                              <Eye className="size-3.5" aria-hidden="true" />
-                              Voir
-                            </Link>
-                          </Button>
-                          <Button asChild size="sm" variant="outline">
-                            <Link
-                              href={`/admin/utilisateurs/${user.id_utilisateur}/edition`}
-                            >
-                              <Pencil className="size-3.5" aria-hidden="true" />
-                              Éditer
-                            </Link>
-                          </Button>
-                          {!user.est_admin ? (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="outline"
-                              onClick={() => void handleToggleStatus(user)}
-                              disabled={
-                                togglingUserId === user.id_utilisateur ||
-                                user.statut === "en_attente"
-                              }
-                              aria-label={
-                                user.statut === "actif"
-                                  ? "Désactiver le compte"
-                                  : "Activer le compte"
-                              }
-                            >
-                              <Power
-                                className="size-3.5"
-                                aria-hidden="true"
-                              />
-                              {user.statut === "actif"
-                                ? "Désactiver"
-                                : "Activer"}
-                            </Button>
-                          ) : null}
-                        </div>
+                        <UserActions
+                          user={user}
+                          togglingUserId={togglingUserId}
+                          onToggleStatus={handleToggleStatus}
+                        />
                       </td>
                     </tr>
                   )
@@ -639,85 +577,26 @@ export function AdminUsersListPage() {
                     </div>
                   </dl>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Button asChild size="sm" variant="outline">
-                      <Link href={`/admin/utilisateurs/${user.id_utilisateur}`}>
-                        <Eye className="size-3.5" aria-hidden="true" />
-                        Voir
-                      </Link>
-                    </Button>
-                    <Button asChild size="sm" variant="outline">
-                      <Link
-                        href={`/admin/utilisateurs/${user.id_utilisateur}/edition`}
-                      >
-                        <Pencil className="size-3.5" aria-hidden="true" />
-                        Éditer
-                      </Link>
-                    </Button>
-                    {!user.est_admin ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void handleToggleStatus(user)}
-                        disabled={
-                          togglingUserId === user.id_utilisateur ||
-                          user.statut === "en_attente"
-                        }
-                      >
-                        <Power className="size-3.5" aria-hidden="true" />
-                        {user.statut === "actif" ? "Désactiver" : "Activer"}
-                      </Button>
-                    ) : null}
+                  <div className="mt-3">
+                    <UserActions
+                      user={user}
+                      togglingUserId={togglingUserId}
+                      onToggleStatus={handleToggleStatus}
+                    />
                   </div>
                 </article>
               )
             })}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <p className="text-sm text-slate-600">
-              Page {page} / {totalPages} · Tri:{" "}
-              {ADMIN_USERS_SORT_LABELS[filters.sortBy]} ({filters.sortDirection}
-              )
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.max(1, page - 1))
-                }}
-                disabled={page <= 1 || isLoading}
-              >
-                Précédent
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.min(totalPages, page + 1))
-                }}
-                disabled={page >= totalPages || isLoading}
-              >
-                Suivant
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  void loadUsers()
-                }}
-                disabled={isLoading}
-              >
-                <RefreshCw className="size-3.5" aria-hidden="true" />
-                Rafraîchir
-              </Button>
-            </div>
-          </div>
+          <AdminListPagination
+            page={page}
+            totalPages={totalPages}
+            isLoading={isLoading}
+            summaryText={`Page ${page} / ${totalPages} · Tri: ${ADMIN_USERS_SORT_LABELS[filters.sortBy]} (${filters.sortDirection})`}
+            onPageChange={handlePageChange}
+            onRefresh={() => void loadUsers()}
+          />
         </CardContent>
       </Card>
     </section>

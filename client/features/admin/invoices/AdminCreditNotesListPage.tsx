@@ -1,15 +1,6 @@
 "use client"
 
-import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
-  Download,
-  Eye,
-  Filter,
-  RefreshCw,
-  Search,
-} from "lucide-react"
+import { Download, Eye, Filter, Search } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import {
   type FormEvent,
@@ -28,6 +19,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AdminListErrorAlert,
+  AdminListPagination,
+  AdminSortButton,
+} from "@/features/admin/shared"
 import { formatCurrency, formatDate } from "@/features/admin/adminUtils"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 
@@ -183,15 +179,7 @@ export function AdminCreditNotesListPage() {
         </p>
       </header>
 
-      {errorMessage ? (
-        <div
-          className="flex items-start gap-2 rounded-xl border border-brand-error/20 bg-red-50 p-4 text-sm text-brand-error"
-          role="alert"
-        >
-          <AlertCircle className="mt-0.5 size-4" aria-hidden="true" />
-          <p>{errorMessage}</p>
-        </div>
-      ) : null}
+      <AdminListErrorAlert message={errorMessage} />
 
       <Card>
         <CardHeader>
@@ -395,96 +383,56 @@ export function AdminCreditNotesListPage() {
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("numero_avoir")
-                      }}
+                    <AdminSortButton
+                      column="numero_avoir"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       N avoir
-                      {filters.sortBy === "numero_avoir" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Facture liee</th>
                   <th className="px-2 py-3">Commande</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("date_emission")
-                      }}
+                    <AdminSortButton
+                      column="date_emission"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Date emission
-                      {filters.sortBy === "date_emission" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("client")
-                      }}
+                    <AdminSortButton
+                      column="client"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Client
-                      {filters.sortBy === "client" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("montant")
-                      }}
+                    <AdminSortButton
+                      column="montant"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Montant
-                      {filters.sortBy === "montant" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("motif")
-                      }}
+                    <AdminSortButton
+                      column="motif"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Motif
-                      {filters.sortBy === "motif" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">PDF</th>
                   <th className="px-2 py-3">Actions</th>
@@ -597,49 +545,14 @@ export function AdminCreditNotesListPage() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
-            <p className="text-sm text-slate-600">
-              Page {page} / {totalPages} · Tri:{" "}
-              {ADMIN_CREDIT_NOTES_SORT_LABELS[filters.sortBy]} (
-              {filters.sortDirection})
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.max(1, page - 1))
-                }}
-                disabled={page <= 1 || isLoading}
-              >
-                Precedent
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  handlePageChange(Math.min(totalPages, page + 1))
-                }}
-                disabled={page >= totalPages || isLoading}
-              >
-                Suivant
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  void loadCreditNotes()
-                }}
-                disabled={isLoading}
-              >
-                <RefreshCw className="size-3.5" aria-hidden="true" />
-                Rafraichir
-              </Button>
-            </div>
-          </div>
+          <AdminListPagination
+            page={page}
+            totalPages={totalPages}
+            isLoading={isLoading}
+            summaryText={`Page ${page} / ${totalPages} · Tri: ${ADMIN_CREDIT_NOTES_SORT_LABELS[filters.sortBy]} (${filters.sortDirection})`}
+            onPageChange={handlePageChange}
+            onRefresh={() => void loadCreditNotes()}
+          />
         </CardContent>
       </Card>
     </section>
