@@ -70,7 +70,7 @@ export function AdminCarouselDetailPage({
 
     const confirmed = await confirmCriticalAction({
       title: "Supprimer ce slide ?",
-      description: `Le slide « ${slide.titre} » sera définitivement supprimé.`,
+      message: `Le slide « ${slide.titre} » sera définitivement supprimé.`,
       confirmLabel: "Supprimer",
     })
 

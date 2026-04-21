@@ -187,7 +187,7 @@ export function AdminCarouselsListPage() {
   async function handleDelete(slide: AdminCarousel) {
     const confirmed = await confirmCriticalAction({
       title: "Supprimer ce slide ?",
-      description: `Le slide « ${slide.titre} » sera définitivement supprimé.`,
+      message: `Le slide « ${slide.titre} » sera définitivement supprimé.`,
       confirmLabel: "Supprimer",
     })
 

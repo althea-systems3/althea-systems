@@ -7,6 +7,7 @@ import {
   Eye,
   Filter,
   Pencil,
+  Power,
   RefreshCw,
   Search,
 } from "lucide-react"
@@ -31,7 +32,7 @@ import {
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import { formatCurrency, formatDate } from "@/features/admin/adminUtils"
 
-import { fetchAdminUsers } from "./adminUsersApi"
+import { fetchAdminUsers, updateAdminUserStatus } from "./adminUsersApi"
 import type {
   AdminUserListItem,
   AdminUsersFilters,
@@ -78,6 +79,7 @@ export function AdminUsersListPage() {
     useState<AdminUsersListPayload | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [togglingUserId, setTogglingUserId] = useState<string | null>(null)
 
   useEffect(() => {
     setSearchNameDraft(filters.searchName)
@@ -160,6 +162,25 @@ export function AdminUsersListPage() {
       ...filters,
       page: nextPage,
     })
+  }
+
+  async function handleToggleStatus(user: AdminUserListItem) {
+    const nextStatus = user.statut === "actif" ? "inactif" : "actif"
+    setTogglingUserId(user.id_utilisateur)
+    setErrorMessage(null)
+
+    try {
+      await updateAdminUserStatus(user.id_utilisateur, nextStatus)
+      await loadUsers()
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible de modifier le statut.",
+      )
+    } finally {
+      setTogglingUserId(null)
+    }
   }
 
   return (
@@ -542,6 +563,31 @@ export function AdminUsersListPage() {
                               Éditer
                             </Link>
                           </Button>
+                          {!user.est_admin ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              onClick={() => void handleToggleStatus(user)}
+                              disabled={
+                                togglingUserId === user.id_utilisateur ||
+                                user.statut === "en_attente"
+                              }
+                              aria-label={
+                                user.statut === "actif"
+                                  ? "Désactiver le compte"
+                                  : "Activer le compte"
+                              }
+                            >
+                              <Power
+                                className="size-3.5"
+                                aria-hidden="true"
+                              />
+                              {user.statut === "actif"
+                                ? "Désactiver"
+                                : "Activer"}
+                            </Button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>
@@ -608,6 +654,21 @@ export function AdminUsersListPage() {
                         Éditer
                       </Link>
                     </Button>
+                    {!user.est_admin ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => void handleToggleStatus(user)}
+                        disabled={
+                          togglingUserId === user.id_utilisateur ||
+                          user.statut === "en_attente"
+                        }
+                      >
+                        <Power className="size-3.5" aria-hidden="true" />
+                        {user.statut === "actif" ? "Désactiver" : "Activer"}
+                      </Button>
+                    ) : null}
                   </div>
                 </article>
               )
