@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
@@ -26,6 +27,7 @@
     "pdfkit": "^0.18.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hook-form": "^7.73.1",
     "resend": "^6.10.0",
     "stripe": "^22.0.0",
     "swagger-ui-react": "^5.32.0",
