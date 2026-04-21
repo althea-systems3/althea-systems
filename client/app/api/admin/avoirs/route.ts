@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { normalizeString } from '@/lib/admin/common';
 import {
   parseEnumFilter,
+  parseIsoDateFilter,
   parsePaginationParams,
   parseSortParams,
   parseStringFilter,
@@ -128,19 +129,6 @@ function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-function parseDateFilter(value: string | null): string | null {
-  const normalizedValue = normalizeString(value);
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedValue)) {
-    return null;
-  }
-
-  return normalizedValue;
-}
 
 function parseFilters(searchParams: URLSearchParams): CreditNotesListFilters {
   const { page, pageSize } = parsePaginationParams(
@@ -163,8 +151,8 @@ function parseFilters(searchParams: URLSearchParams): CreditNotesListFilters {
       CREDIT_NOTE_REASON_VALUES,
       'all',
     ) as CreditNoteReasonFilter,
-    dateFrom: parseDateFilter(searchParams.get('dateFrom')),
-    dateTo: parseDateFilter(searchParams.get('dateTo')),
+    dateFrom: parseIsoDateFilter(searchParams.get('dateFrom')),
+    dateTo: parseIsoDateFilter(searchParams.get('dateTo')),
     sortBy,
     sortDirection,
     page,

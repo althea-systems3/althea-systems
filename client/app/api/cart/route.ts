@@ -8,10 +8,8 @@ import { getCartSessionId } from "@/lib/auth/cartSession"
 import { FIRESTORE_IMAGES_PRODUITS } from "@/lib/top-produits/constants"
 import {
   CART_API_ENV_KEYS,
-  createConfigurationMissingApiPayload,
-  isMissingRuntimeConfigError,
-  logMissingRuntimeConfig,
-  validateRuntimeConfig,
+  ensureRuntimeConfig,
+  handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
 import type { Panier } from "@/lib/supabase/types"
 
@@ -193,16 +191,12 @@ const EMPTY_CART_RESPONSE = {
 // --- Handler ---
 
 export async function GET() {
-  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig("api.cart.get", configValidation.missingKeys)
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Service panier"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.cart.get",
+    "Service panier",
+    CART_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const cookieStore = await cookies()
@@ -251,14 +245,12 @@ export async function GET() {
       ...totals,
     })
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.cart.get", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Service panier"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.cart.get",
+      "Service panier",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue lecture panier", { error })
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

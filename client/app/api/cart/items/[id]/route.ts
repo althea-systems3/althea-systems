@@ -7,10 +7,8 @@ import { getCartSessionId } from "@/lib/auth/cartSession"
 import { MAX_QUANTITY_PER_LINE } from "@/lib/products/constants"
 import {
   CART_API_ENV_KEYS,
-  createConfigurationMissingApiPayload,
-  isMissingRuntimeConfigError,
-  logMissingRuntimeConfig,
-  validateRuntimeConfig,
+  ensureRuntimeConfig,
+  handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
 import type { Panier, LignePanier, Produit } from "@/lib/supabase/types"
 
@@ -92,19 +90,12 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig(
-      "api.cart.items.id.patch",
-      configValidation.missingKeys,
-    )
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Service panier"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.cart.items.id.patch",
+    "Service panier",
+    CART_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const { id: lineId } = await params
@@ -195,14 +186,12 @@ export async function PATCH(
 
     return NextResponse.json({ cartLine: updatedLine })
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.cart.items.id.patch", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Service panier"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.cart.items.id.patch",
+      "Service panier",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue modification ligne panier", { error })
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
@@ -215,19 +204,12 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig(
-      "api.cart.items.id.delete",
-      configValidation.missingKeys,
-    )
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Service panier"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.cart.items.id.delete",
+    "Service panier",
+    CART_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const { id: lineId } = await params
@@ -261,14 +243,12 @@ export async function DELETE(
 
     return NextResponse.json({ deleted: true })
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.cart.items.id.delete", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Service panier"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.cart.items.id.delete",
+      "Service panier",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue suppression ligne panier", { error })
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { normalizeString } from '@/lib/admin/common';
+import { parseCategoryIds } from '@/lib/admin/productValidators';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -19,16 +19,6 @@ function parseBulkAction(value: unknown): BulkAction | null {
   }
 
   return null;
-}
-
-function parseCategoryIds(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return Array.from(
-    new Set(value.map((item) => normalizeString(item)).filter(Boolean)),
-  );
 }
 
 export async function POST(request: NextRequest) {

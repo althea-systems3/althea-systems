@@ -47,6 +47,43 @@ export function parseDate(value: string | null): Date | null {
   return Number.isFinite(parsed.getTime()) ? parsed : null;
 }
 
+export function parseDayBoundary(
+  value: string | null,
+  endOfDay: boolean,
+): Date | null {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return null;
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  if (endOfDay) {
+    parsedDate.setHours(23, 59, 59, 999);
+  } else {
+    parsedDate.setHours(0, 0, 0, 0);
+  }
+
+  return parsedDate;
+}
+
+export function parseIsoDateFilter(value: string | null): string | null {
+  const normalizedValue = normalizeString(value);
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedValue)) {
+    return null;
+  }
+
+  return normalizedValue;
+}
+
 export function parsePaginationParams(
   searchParams: URLSearchParams,
   maxPageSize: number = MAX_PAGE_SIZE,

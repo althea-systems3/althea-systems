@@ -12,12 +12,21 @@ import {
   toOptionalString,
 } from '@/lib/admin/common';
 import {
+  parseDayBoundary,
   parseEnumFilter,
   parseFiniteDecimal,
   parsePaginationParams,
   parseSortParams,
   parseStringFilter,
 } from '@/lib/admin/queryBuilders';
+import {
+  computePrices,
+  parseCategoryIds,
+  parseProductStatus,
+  parseTechnicalCharacteristics,
+  parseTva,
+  roundToTwoDecimals,
+} from '@/lib/admin/productValidators';
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -105,56 +114,6 @@ const ALLOWED_SORT_KEYS = [
 const ALLOWED_STATUS_VALUES = ['publie', 'brouillon'] as const;
 const ALLOWED_AVAILABILITY_VALUES = ['in_stock', 'out_of_stock'] as const;
 
-const ALLOWED_TVA_VALUES = new Set(['20', '10', '5.5', '0']);
-
-function roundToTwoDecimals(value: number): number {
-  return Math.round(value * 100) / 100;
-}
-
-function parseStatus(value: unknown): ProductStatus {
-  return value === 'publie' ? 'publie' : 'brouillon';
-}
-
-function parseTva(value: unknown, fallbackValue = '20'): string {
-  const normalizedValue = normalizeString(value);
-
-  if (ALLOWED_TVA_VALUES.has(normalizedValue)) {
-    return normalizedValue;
-  }
-
-  return fallbackValue;
-}
-
-function parseCategoryIds(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return Array.from(
-    new Set(value.map((item) => normalizeString(item)).filter(Boolean)),
-  );
-}
-
-function parseDayBoundary(value: string | null, endOfDay: boolean): Date | null {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return null;
-  }
-
-  const parsedDate = new Date(value);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return null;
-  }
-
-  if (endOfDay) {
-    parsedDate.setHours(23, 59, 59, 999);
-  } else {
-    parsedDate.setHours(0, 0, 0, 0);
-  }
-
-  return parsedDate;
-}
-
 function buildQueryFilters(searchParams: URLSearchParams): ProductListFilters {
   const { page, pageSize } = parsePaginationParams(
     searchParams,
@@ -185,113 +144,6 @@ function buildQueryFilters(searchParams: URLSearchParams): ProductListFilters {
     sortDirection,
     page,
     pageSize: pageSize > 0 ? pageSize : PRODUCT_PAGE_SIZE_DEFAULT,
-  };
-}
-
-function computeVatRate(tva: string): number {
-  return Number.parseFloat(tva.replace(',', '.'));
-}
-
-function computePrices(
-  priceHtInput: number | null,
-  priceTtcInput: number | null,
-  tva: string,
-): {
-  priceHt: number;
-  priceTtc: number;
-} | null {
-  const vatRate = computeVatRate(tva);
-
-  if (!Number.isFinite(vatRate) || vatRate < 0) {
-    return null;
-  }
-
-  const vatMultiplier = 1 + vatRate / 100;
-
-  if (priceHtInput !== null) {
-    if (priceHtInput < 0) {
-      return null;
-    }
-
-    const priceHt = roundToTwoDecimals(priceHtInput);
-    return {
-      priceHt,
-      priceTtc: roundToTwoDecimals(priceHt * vatMultiplier),
-    };
-  }
-
-  if (priceTtcInput !== null) {
-    if (priceTtcInput < 0) {
-      return null;
-    }
-
-    const priceTtc = roundToTwoDecimals(priceTtcInput);
-    return {
-      priceHt: roundToTwoDecimals(priceTtc / vatMultiplier),
-      priceTtc,
-    };
-  }
-
-  return null;
-}
-
-function parseTechnicalCharacteristics(value: unknown): {
-  technicalCharacteristics: Record<string, unknown> | null;
-  hasInvalidFormat: boolean;
-} {
-  if (value === null || value === undefined) {
-    return {
-      technicalCharacteristics: null,
-      hasInvalidFormat: false,
-    };
-  }
-
-  if (typeof value === 'string') {
-    const normalizedValue = value.trim();
-
-    if (!normalizedValue) {
-      return {
-        technicalCharacteristics: null,
-        hasInvalidFormat: false,
-      };
-    }
-
-    try {
-      const parsedValue = JSON.parse(normalizedValue) as unknown;
-
-      if (
-        parsedValue &&
-        typeof parsedValue === 'object' &&
-        !Array.isArray(parsedValue)
-      ) {
-        return {
-          technicalCharacteristics: parsedValue as Record<string, unknown>,
-          hasInvalidFormat: false,
-        };
-      }
-
-      return {
-        technicalCharacteristics: null,
-        hasInvalidFormat: true,
-      };
-    } catch {
-      return {
-        technicalCharacteristics: null,
-        hasInvalidFormat: true,
-      };
-    }
-  }
-
-  if (typeof value === 'object' && !Array.isArray(value)) {
-    return {
-      technicalCharacteristics: value as Record<string, unknown>,
-      hasInvalidFormat: false,
-    };
-  }
-
-  return {
-    technicalCharacteristics: null,
-    hasInvalidFormat: true,
   };
 }
 
@@ -633,7 +485,7 @@ export async function POST(request: Request) {
     const priceHtInput = parseFiniteNumber(body?.prix_ht);
     const priceTtcInput = parseFiniteNumber(body?.prix_ttc);
     const stockQuantity = parseFiniteNumber(body?.quantite_stock);
-    const status = parseStatus(body?.statut);
+    const status = parseProductStatus(body?.statut);
     const customSlug = normalizeString(body?.slug);
     const categoryIds = parseCategoryIds(body?.categoryIds);
     const technicalCharacteristicsResult = parseTechnicalCharacteristics(
