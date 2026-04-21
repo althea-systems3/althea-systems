@@ -6,6 +6,7 @@ import {
   FileText,
   FolderTree,
   ClipboardList,
+  Images,
   Mail,
   Users,
   type LucideIcon,
@@ -32,6 +33,11 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     label: "Catégories",
     href: "/admin/categories",
     icon: FolderTree,
+  },
+  {
+    label: "Carrousel",
+    href: "/admin/carousel",
+    icon: Images,
   },
   {
     label: "Commandes",
