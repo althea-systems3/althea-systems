@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { normalizeString } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parsePaginationParams,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { UserStatus } from '@/lib/supabase/types';
@@ -63,12 +69,21 @@ type UserListItem = UserBaseRow & {
   adresses_facturation_count: number;
 };
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
+const USER_PAGE_SIZE_DEFAULT = 20;
+const USER_PAGE_SIZE_MAX = 100;
 const IN_QUERY_CHUNK_SIZE = 100;
 const MAX_AUTH_PAGES = 20;
 const AUTH_PAGE_SIZE = 1000;
+
+const USER_SORT_KEYS = [
+  'nom',
+  'date_inscription',
+  'nombre_commandes',
+  'ca_total',
+  'derniere_connexion',
+] as const;
+
+const USER_STATUS_VALUES = ['actif', 'inactif', 'en_attente'] as const;
 
 function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
@@ -80,61 +95,31 @@ function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-function parsePage(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE;
-  }
-
-  return parsedValue;
-}
-
-function parsePageSize(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE_SIZE;
-  }
-
-  return Math.min(parsedValue, MAX_PAGE_SIZE);
-}
-
-function parseStatusFilter(value: string | null): StatusFilter {
-  if (value === 'actif' || value === 'inactif' || value === 'en_attente') {
-    return value;
-  }
-
-  return 'all';
-}
-
-function parseSortBy(value: string | null): UserSortBy {
-  if (
-    value === 'nom' ||
-    value === 'date_inscription' ||
-    value === 'nombre_commandes' ||
-    value === 'ca_total' ||
-    value === 'derniere_connexion'
-  ) {
-    return value;
-  }
-
-  return 'date_inscription';
-}
-
-function parseSortDirection(value: string | null): SortDirection {
-  return value === 'asc' ? 'asc' : 'desc';
-}
-
 function parseFilters(searchParams: URLSearchParams): UserListFilters {
+  const { page, pageSize } = parsePaginationParams(
+    searchParams,
+    USER_PAGE_SIZE_MAX,
+  );
+  const { sortBy, sortDirection } = parseSortParams(
+    searchParams,
+    USER_SORT_KEYS,
+    'date_inscription',
+    'desc',
+  );
+
   return {
-    searchName: normalizeString(searchParams.get('searchName')),
-    searchEmail: normalizeString(searchParams.get('searchEmail')),
-    status: parseStatusFilter(searchParams.get('status')),
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    sortDirection: parseSortDirection(searchParams.get('sortDirection')),
-    page: parsePage(searchParams.get('page')),
-    pageSize: parsePageSize(searchParams.get('pageSize')),
+    searchName: parseStringFilter(searchParams, 'searchName'),
+    searchEmail: parseStringFilter(searchParams, 'searchEmail'),
+    status: parseEnumFilter(
+      searchParams,
+      'status',
+      USER_STATUS_VALUES,
+      'all',
+    ) as StatusFilter,
+    sortBy,
+    sortDirection,
+    page,
+    pageSize: pageSize > 0 ? pageSize : USER_PAGE_SIZE_DEFAULT,
   };
 }
 

@@ -1,9 +1,6 @@
 "use client"
 
 import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
   Eye,
   Filter,
   GripVertical,
@@ -32,6 +29,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AdminListErrorAlert,
+  AdminListNoticeAlert,
+  AdminSortButton,
+} from "@/features/admin/shared"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 
 import {
@@ -440,25 +442,8 @@ export function AdminCategoriesListPage() {
         </Button>
       </header>
 
-      {errorMessage ? (
-        <div
-          className="flex items-start gap-2 rounded-lg border border-brand-error/20 bg-red-50 p-4 text-sm text-brand-error"
-          role="alert"
-        >
-          <AlertCircle className="mt-0.5 size-4" aria-hidden="true" />
-          <p>{errorMessage}</p>
-        </div>
-      ) : null}
-
-      {noticeMessage ? (
-        <div
-          className="rounded-lg border border-brand-success/20 bg-emerald-50 p-4 text-sm text-brand-success"
-          role="status"
-          aria-live="polite"
-        >
-          {noticeMessage}
-        </div>
-      ) : null}
+      <AdminListErrorAlert message={errorMessage} />
+      <AdminListNoticeAlert message={noticeMessage} />
 
       <Card>
         <CardHeader>
@@ -631,59 +616,35 @@ export function AdminCategoriesListPage() {
                   <th className="px-2 py-3">Réorganisation</th>
                   <th className="px-2 py-3">Miniature</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("nom")
-                      }}
+                    <AdminSortButton
+                      column="nom"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Nom
-                      {filters.sortBy === "nom" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Description</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("nombre_produits")
-                      }}
+                    <AdminSortButton
+                      column="nombre_produits"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Nombre de produits
-                      {filters.sortBy === "nombre_produits" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("ordre_affiche")
-                      }}
+                    <AdminSortButton
+                      column="ordre_affiche"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Ordre d&apos;affichage
-                      {filters.sortBy === "ordre_affiche" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Statut</th>
                   <th className="px-2 py-3">Actions rapides</th>

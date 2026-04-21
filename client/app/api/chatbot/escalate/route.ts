@@ -1,13 +1,13 @@
 import crypto from "node:crypto"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 import { createServerClient } from "@/lib/supabase/server"
 import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
 import { persistEscalation, getConversation } from "@/lib/chatbot/firestore"
 import { logChatbotActivity } from "@/lib/chatbot/logger"
+import { sendEscalationNotificationEmail } from "@/lib/checkout/email"
 import { toAppLocale } from "@/lib/i18n"
-import { headers } from "next/headers"
 
 type EscalationReason = "bot_fallback" | "user_request" | "timeout"
 
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 
     if (conversation) {
       const isOwner =
-        (user && conversation.user_id === user.id) ||
+        user?.id === conversation.user_id ||
         conversation.session_id === sessionId ||
         !conversation.session_id
 
@@ -87,6 +87,14 @@ export async function POST(request: Request) {
 
     // ── Persist escalation ───────────────────────────────────────────────────
     await persistEscalation({ conversationId, reason })
+
+    // ── Notify support by email (best-effort) ────────────────────────────────
+    await sendEscalationNotificationEmail({
+      conversationId,
+      userEmail: conversation?.metadata?.email ?? user?.email ?? null,
+      reason,
+      messages: (conversation?.message ?? []).map((m) => ({ role: m.role, content: m.content })),
+    }).catch((err) => console.error("Erreur envoi email escalade", err))
 
     // ── Log ──────────────────────────────────────────────────────────────────
     await logChatbotActivity("chatbot_escalation", {

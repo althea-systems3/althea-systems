@@ -1,27 +1,30 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Mail } from "lucide-react"
-import { type FormEvent, useMemo, useState } from "react"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useLocale, useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 
-import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
-import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { Link } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordInput,
+} from "@/lib/validation/authSchemas"
+
 import {
   AuthFormCard,
   AuthPageSection,
   AuthStatusMessage,
 } from "./authFormShared"
-import {
-  getInitialForgotPasswordFormValues,
-  validateForgotPasswordForm,
-} from "./passwordResetValidation"
 
 type ForgotPasswordStatus = {
   message: string
@@ -29,17 +32,10 @@ type ForgotPasswordStatus = {
 }
 
 function getSafeNextPath(nextPath: string | null): string | null {
-  if (!nextPath) {
-    return null
-  }
-
-  const normalizedPath = nextPath.trim()
-
-  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
-    return null
-  }
-
-  return normalizedPath
+  if (!nextPath) return null
+  const normalized = nextPath.trim()
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return null
+  return normalized
 }
 
 function buildPathWithContext(
@@ -47,39 +43,24 @@ function buildPathWithContext(
   nextPath: string | null,
   source: string | null,
 ): string {
-  const searchParams = new URLSearchParams()
+  const params = new URLSearchParams()
+  if (nextPath) params.set("next", nextPath)
+  if (source) params.set("source", source)
+  const query = params.toString()
+  return query ? `${basePath}?${query}` : basePath
+}
 
-  if (nextPath) {
-    searchParams.set("next", nextPath)
-  }
-
-  if (source) {
-    searchParams.set("source", source)
-  }
-
-  const queryString = searchParams.toString()
-
-  if (!queryString) {
-    return basePath
-  }
-
-  return `${basePath}?${queryString}`
+const API_ERROR_KEYS: Record<string, string> = {
+  rate_limited: "rateLimited",
+  server_error: "serverError",
 }
 
 function getApiErrorMessageKey(errorCode: string): string {
-  if (errorCode === "rate_limited") {
-    return "rateLimited"
-  }
-
-  if (errorCode === "server_error") {
-    return "serverError"
-  }
-
-  return "requestFailed"
+  return API_ERROR_KEYS[errorCode] ?? "requestFailed"
 }
 
 export function ForgotPasswordForm() {
-  const translateForgotPassword = useTranslations("Pages.forgotPassword")
+  const translate = useTranslations("Pages.forgotPassword")
   const locale = useLocale()
   const searchParams = useSearchParams()
 
@@ -89,38 +70,28 @@ export function ForgotPasswordForm() {
     source === "checkout" ||
     safeNextPath === "/checkout" ||
     Boolean(safeNextPath?.startsWith("/checkout?"))
-
   const sourceContext = isCheckoutEntry ? "checkout" : null
-  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mon-compte"
-  const nextPath = safeNextPath ?? fallbackNextPath
+  const nextPath =
+    safeNextPath ?? (isCheckoutEntry ? "/checkout" : "/mon-compte")
 
-  const [forgotPasswordValues, setForgotPasswordValues] = useState(
-    getInitialForgotPasswordFormValues(),
-  )
-  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [forgotPasswordStatus, setForgotPasswordStatus] =
-    useState<ForgotPasswordStatus | null>(null)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
+    mode: "onTouched",
+  })
 
-  const forgotPasswordErrors = useMemo(() => {
-    return validateForgotPasswordForm(forgotPasswordValues)
-  }, [forgotPasswordValues])
+  const [status, setStatus] = useState<ForgotPasswordStatus | null>(null)
 
-  const emailErrorMessage = useMemo(() => {
-    if (!isSubmitAttempted) {
-      return null
-    }
-
-    if (forgotPasswordErrors.email === "required") {
-      return translateForgotPassword("form.validation.emailRequired")
-    }
-
-    if (forgotPasswordErrors.email === "invalid") {
-      return translateForgotPassword("form.validation.emailInvalid")
-    }
-
-    return null
-  }, [forgotPasswordErrors.email, isSubmitAttempted, translateForgotPassword])
+  const emailError = errors.email?.message
+  const emailMessage = emailError
+    ? emailError === "Email requis."
+      ? translate("form.validation.emailRequired")
+      : translate("form.validation.emailInvalid")
+    : null
 
   const signInPath = buildPathWithContext(
     "/connexion",
@@ -134,90 +105,68 @@ export function ForgotPasswordForm() {
   )
   const checkoutPath = "/checkout?source=forgot_password"
 
-  async function handleForgotPasswordSubmit(
-    formSubmitEvent: FormEvent<HTMLFormElement>,
-  ) {
-    formSubmitEvent.preventDefault()
-    setIsSubmitAttempted(true)
-
-    if (forgotPasswordErrors.email) {
-      setForgotPasswordStatus({
-        isError: true,
-        message: translateForgotPassword("form.messages.errorHint"),
-      })
-      return
-    }
-
-    setIsSubmitting(true)
-    setForgotPasswordStatus(null)
+  async function onSubmit(values: ForgotPasswordInput) {
+    setStatus(null)
 
     try {
       const callbackUrl = new URL("/auth/reset", window.location.origin)
       callbackUrl.searchParams.set("locale", locale)
       callbackUrl.searchParams.set("next", nextPath)
-
-      if (sourceContext) {
-        callbackUrl.searchParams.set("source", sourceContext)
-      }
+      if (sourceContext) callbackUrl.searchParams.set("source", sourceContext)
 
       const response = await secureFetch("/api/auth/forgot-password", {
         method: "POST",
         body: JSON.stringify({
-          email: forgotPasswordValues.email,
+          email: values.email,
           redirectTo: callbackUrl.toString(),
         }),
       })
 
-      const responsePayload = await response.json().catch(() => null)
+      const payload = await response.json().catch(() => null)
 
-      if (!response.ok || !responsePayload) {
-        const responseCode =
-          typeof responsePayload?.code === "string"
-            ? responsePayload.code
-            : "request_failed"
-
-        setForgotPasswordStatus({
+      if (!response.ok || !payload) {
+        const code =
+          typeof payload?.code === "string" ? payload.code : "request_failed"
+        setStatus({
           isError: true,
-          message: translateForgotPassword(
-            `form.messages.${getApiErrorMessageKey(responseCode)}`,
+          message: translate(
+            `form.messages.${getApiErrorMessageKey(code)}`,
           ),
         })
         return
       }
 
-      setForgotPasswordStatus({
+      setStatus({
         isError: false,
-        message: translateForgotPassword("form.messages.emailSentNeutral"),
+        message: translate("form.messages.emailSentNeutral"),
       })
     } catch (error) {
       console.error("Erreur demande reset password", { error })
-      setForgotPasswordStatus({
+      setStatus({
         isError: true,
-        message: translateForgotPassword("form.messages.serverError"),
+        message: translate("form.messages.serverError"),
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   return (
     <AuthPageSection
-      title={translateForgotPassword("title")}
-      description={translateForgotPassword("description")}
+      title={translate("title")}
+      description={translate("description")}
     >
       <AuthFormCard
-        title={translateForgotPassword("form.title")}
-        description={translateForgotPassword("form.description")}
+        title={translate("form.title")}
+        description={translate("form.description")}
         footer={
           <AuthStatusMessage
-            message={forgotPasswordStatus?.message ?? null}
-            isError={forgotPasswordStatus?.isError ?? false}
+            message={status?.message ?? null}
+            isError={status?.isError ?? false}
           />
         }
       >
         <form
           className="space-y-4"
-          onSubmit={handleForgotPasswordSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
           <div className="space-y-1.5">
@@ -225,44 +174,32 @@ export function ForgotPasswordForm() {
               htmlFor="forgot-password-email"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateForgotPassword("form.fields.email.label")}
+              {translate("form.fields.email.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="forgot-password-email"
-                name="email"
                 type="email"
                 autoComplete="email"
-                value={forgotPasswordValues.email}
-                onChange={(changeEvent) => {
-                  setForgotPasswordValues({
-                    email: changeEvent.target.value,
-                  })
-
-                  if (forgotPasswordStatus?.isError) {
-                    setForgotPasswordStatus(null)
-                  }
-                }}
                 className="ps-9"
-                placeholder={translateForgotPassword(
-                  "form.fields.email.placeholder",
-                )}
-                aria-invalid={Boolean(emailErrorMessage)}
+                placeholder={translate("form.fields.email.placeholder")}
+                aria-invalid={Boolean(emailMessage)}
                 aria-describedby={
-                  emailErrorMessage ? "forgot-password-email-error" : undefined
+                  emailMessage ? "forgot-password-email-error" : undefined
                 }
+                {...register("email")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Mail className="size-4" aria-hidden="true" />
               </InputGroupAddon>
             </InputGroup>
-            {emailErrorMessage ? (
+            {emailMessage ? (
               <p
                 id="forgot-password-email-error"
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {emailErrorMessage}
+                {emailMessage}
               </p>
             ) : null}
           </div>
@@ -271,30 +208,30 @@ export function ForgotPasswordForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                {translateForgotPassword("form.actions.submitting")}
+                {translate("form.actions.submitting")}
               </>
             ) : (
-              translateForgotPassword("form.actions.submit")
+              translate("form.actions.submit")
             )}
           </Button>
 
           <p className="text-center text-sm text-slate-600">
-            {translateForgotPassword("form.actions.hasAccount")}{" "}
+            {translate("form.actions.hasAccount")}{" "}
             <Link
               href={signInPath}
               className="font-medium text-brand-cta hover:underline"
             >
-              {translateForgotPassword("form.actions.goToSignIn")}
+              {translate("form.actions.goToSignIn")}
             </Link>
           </p>
 
           <p className="text-center text-sm text-slate-600">
-            {translateForgotPassword("form.actions.noAccount")}{" "}
+            {translate("form.actions.noAccount")}{" "}
             <Link
               href={signUpPath}
               className="font-medium text-brand-cta hover:underline"
             >
-              {translateForgotPassword("form.actions.goToSignUp")}
+              {translate("form.actions.goToSignUp")}
             </Link>
           </p>
 
@@ -304,14 +241,14 @@ export function ForgotPasswordForm() {
                 href={checkoutPath}
                 className="font-medium text-brand-cta hover:underline"
               >
-                {translateForgotPassword("form.actions.goToCheckout")}
+                {translate("form.actions.goToCheckout")}
               </Link>
             </p>
           ) : null}
 
-          {forgotPasswordStatus && !forgotPasswordStatus.isError ? (
+          {status && !status.isError ? (
             <p className="text-xs text-slate-600" aria-live="polite">
-              {translateForgotPassword("form.messages.nextStepHint")}
+              {translate("form.messages.nextStepHint")}
             </p>
           ) : null}
         </form>

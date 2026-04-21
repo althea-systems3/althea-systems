@@ -229,6 +229,130 @@ export async function sendInvoiceResendEmail(
   }
 }
 
+// --- Notification escalade chatbot ---
+
+export type EscalationNotificationEmailData = {
+  conversationId: string
+  userEmail: string | null
+  reason: string
+  messages: { role: "user" | "bot"; content: string }[]
+}
+
+function buildEscalationNotificationHtml(data: EscalationNotificationEmailData): string {
+  const safeConversationId = escapeHtml(data.conversationId)
+  const safeEmail = data.userEmail ? escapeHtml(data.userEmail) : "Invité (non renseigné)"
+  const safeReason = escapeHtml(data.reason)
+  const date = new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })
+
+  const messagesHtml = data.messages.map((m) => {
+    const isUser = m.role === "user"
+    const bg = isUser ? "#e0f2fe" : "#f1f5f9"
+    const label = isUser ? "Utilisateur" : "Bot"
+    return `<div style="margin-bottom:8px;padding:10px 12px;border-radius:8px;background:${bg}">
+      <strong style="font-size:11px;text-transform:uppercase;color:#64748b">${label}</strong>
+      <p style="margin:4px 0 0">${escapeHtml(m.content)}</p>
+    </div>`
+  }).join("")
+
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+      <h1 style="color:#1a1a1a;font-size:22px">🔔 Nouvelle demande de transfert agent</h1>
+      <p>Un utilisateur a demandé à être mis en contact avec un agent humain via le chatbot.</p>
+
+      <div style="margin:20px 0;border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#f8fafc">
+        <p style="margin:0 0 8px"><strong>Date :</strong> ${date}</p>
+        <p style="margin:0 0 8px"><strong>Email utilisateur :</strong> ${safeEmail}</p>
+        <p style="margin:0 0 8px"><strong>Raison :</strong> ${safeReason}</p>
+        <p style="margin:0"><strong>ID conversation :</strong> ${safeConversationId}</p>
+      </div>
+
+      <h2 style="font-size:16px;color:#1a1a1a;margin-top:24px">Historique de la conversation</h2>
+      <div style="margin-top:12px">${messagesHtml}</div>
+
+      <p style="margin-top:24px">Connectez-vous au panel admin pour traiter cette demande.</p>
+
+      <p style="color:#666;font-size:12px;margin-top:30px">
+        Althea Systems — Notification automatique chatbot.
+      </p>
+    </div>
+  `
+}
+
+export async function sendEscalationNotificationEmail(
+  data: EscalationNotificationEmailData,
+): Promise<void> {
+  const supportEmail = process.env.SUPPORT_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? "commandes@althea-systems.fr"
+  const resend = getResendClient()
+  const fromEmail = getFromEmail()
+  const htmlContent = buildEscalationNotificationHtml(data)
+
+  const { error } = await resend.emails.send({
+    from: fromEmail,
+    to: supportEmail,
+    subject: `[Chatbot] Demande agent humain — ${data.userEmail ?? "Invité"}`,
+    html: htmlContent,
+  })
+
+  if (error) {
+    console.error("Erreur envoi email notification escalade", { error })
+  }
+}
+
+// --- Notification nouveau message contact ---
+
+export type ContactFormNotificationEmailData = {
+  email: string
+  subject: string
+  message: string
+}
+
+function buildContactFormNotificationHtml(data: ContactFormNotificationEmailData): string {
+  const safeEmail = escapeHtml(data.email)
+  const safeSubject = escapeHtml(data.subject)
+  const safeMessage = escapeHtml(data.message)
+  const date = new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })
+
+  return `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+      <h1 style="color:#1a1a1a;font-size:22px">📩 Nouveau message de contact</h1>
+      <p>Un utilisateur a soumis le formulaire de contact.</p>
+
+      <div style="margin:20px 0;border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#f8fafc">
+        <p style="margin:0 0 8px"><strong>Date :</strong> ${date}</p>
+        <p style="margin:0 0 8px"><strong>Email :</strong> ${safeEmail}</p>
+        <p style="margin:0 0 8px"><strong>Sujet :</strong> ${safeSubject}</p>
+      </div>
+
+      <h2 style="font-size:16px;color:#1a1a1a;margin-top:24px">Message</h2>
+      <div style="margin-top:12px;padding:16px;border-radius:8px;background:#f1f5f9;white-space:pre-wrap">${safeMessage}</div>
+
+      <p style="color:#666;font-size:12px;margin-top:30px">
+        Althea Systems — Notification automatique formulaire de contact.
+      </p>
+    </div>
+  `
+}
+
+export async function sendContactFormNotificationEmail(
+  data: ContactFormNotificationEmailData,
+): Promise<void> {
+  const supportEmail = process.env.SUPPORT_EMAIL ?? process.env.RESEND_FROM_EMAIL ?? "commandes@althea-systems.fr"
+  const resend = getResendClient()
+  const fromEmail = getFromEmail()
+  const htmlContent = buildContactFormNotificationHtml(data)
+
+  const { error } = await resend.emails.send({
+    from: fromEmail,
+    to: supportEmail,
+    subject: `[Contact] ${data.subject} — ${data.email}`,
+    html: htmlContent,
+  })
+
+  if (error) {
+    console.error("Erreur envoi email notification contact", { error })
+  }
+}
+
 export async function sendCreditNoteResendEmail(
   emailData: CreditNoteResendEmailData,
 ): Promise<void> {

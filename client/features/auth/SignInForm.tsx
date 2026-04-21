@@ -1,12 +1,13 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
-import { type FormEvent, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
-import { Link, useRouter } from "@/i18n/navigation"
+
 import { Button } from "@/components/ui/button"
-import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -16,18 +17,18 @@ import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
 } from "@/features/layout/layoutConstants"
+import { Link, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import {
+  signInSchema,
+  type SignInInput,
+} from "@/lib/validation/authSchemas"
+
 import {
   AuthFormCard,
   AuthPageSection,
   AuthStatusMessage,
 } from "./authFormShared"
-import {
-  getInitialSignInFormValues,
-  hasSignInFormErrors,
-  type SignInFieldErrorCode,
-  type SignInFieldName,
-  validateSignInForm,
-} from "./signInValidation"
 
 type SignInStatus = {
   message: string
@@ -35,17 +36,10 @@ type SignInStatus = {
 }
 
 function getSafeNextPath(nextPath: string | null): string | null {
-  if (!nextPath) {
-    return null
-  }
-
-  const normalizedPath = nextPath.trim()
-
-  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
-    return null
-  }
-
-  return normalizedPath
+  if (!nextPath) return null
+  const normalized = nextPath.trim()
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return null
+  return normalized
 }
 
 function buildPathWithContext(
@@ -53,77 +47,29 @@ function buildPathWithContext(
   nextPath: string | null,
   source: string | null,
 ): string {
-  const searchParams = new URLSearchParams()
-
-  if (nextPath) {
-    searchParams.set("next", nextPath)
-  }
-
-  if (source) {
-    searchParams.set("source", source)
-  }
-
-  const queryString = searchParams.toString()
-
-  if (!queryString) {
-    return basePath
-  }
-
-  return `${basePath}?${queryString}`
+  const params = new URLSearchParams()
+  if (nextPath) params.set("next", nextPath)
+  if (source) params.set("source", source)
+  const query = params.toString()
+  return query ? `${basePath}?${query}` : basePath
 }
 
-function getValidationMessageKey(
-  fieldName: SignInFieldName,
-  errorCode: SignInFieldErrorCode,
-): string {
-  if (fieldName === "email" && errorCode === "required") {
-    return "emailRequired"
-  }
-
-  if (fieldName === "email" && errorCode === "invalid") {
-    return "emailInvalid"
-  }
-
-  return "passwordRequired"
+const API_ERROR_KEYS: Record<string, string> = {
+  invalid_credentials: "invalidCredentials",
+  account_not_found: "accountNotFound",
+  incorrect_password: "incorrectPassword",
+  email_not_verified: "accountNotVerified",
+  session_expired: "sessionExpired",
+  server_error: "serverError",
+  challenge_unavailable: "adminTwoFactorUnavailable",
 }
 
 function getApiErrorMessageKey(errorCode: string): string {
-  if (errorCode === "invalid_credentials") {
-    return "invalidCredentials"
-  }
-
-  if (errorCode === "account_not_found") {
-    return "accountNotFound"
-  }
-
-  if (errorCode === "incorrect_password") {
-    return "incorrectPassword"
-  }
-
-  if (errorCode === "email_not_verified") {
-    return "accountNotVerified"
-  }
-
-  if (errorCode === "session_expired") {
-    return "sessionExpired"
-  }
-
-  if (errorCode === "server_error") {
-    return "serverError"
-  }
-
-  if (errorCode === "challenge_unavailable") {
-    return "adminTwoFactorUnavailable"
-  }
-
-  return "signInFailed"
+  return API_ERROR_KEYS[errorCode] ?? "signInFailed"
 }
 
 function setAuthenticatedLayoutState(): void {
-  if (typeof window === "undefined") {
-    return
-  }
-
+  if (typeof window === "undefined") return
   window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "true")
   window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
 }
@@ -142,27 +88,22 @@ export function SignInForm() {
     source === "checkout" ||
     safeNextPath === "/checkout" ||
     Boolean(safeNextPath?.startsWith("/checkout?"))
-
   const sourceContext = isCheckoutEntry ? "checkout" : null
-  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mon-compte"
-  const nextPath = safeNextPath ?? fallbackNextPath
+  const nextPath = safeNextPath ?? (isCheckoutEntry ? "/checkout" : "/mon-compte")
 
-  const [signInFormValues, setSignInFormValues] = useState(
-    getInitialSignInFormValues(),
-  )
-  const [touchedFields, setTouchedFields] = useState<
-    Partial<Record<SignInFieldName, boolean>>
-  >({})
-  const [hasSubmitBeenAttempted, setHasSubmitBeenAttempted] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    clearErrors,
+  } = useForm<SignInInput>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: { email: "", password: "", rememberSession: false },
+    mode: "onTouched",
+  })
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-  const [isSignInSubmitting, setIsSignInSubmitting] = useState(false)
   const [signInStatus, setSignInStatus] = useState<SignInStatus | null>(null)
-
-  const signInFormErrors = useMemo(() => {
-    return validateSignInForm(signInFormValues)
-  }, [signInFormValues])
-
-  const hasSignInErrors = hasSignInFormErrors(signInFormErrors)
 
   const queryFeedback = useMemo<SignInStatus | null>(() => {
     if (resetStatus === "success") {
@@ -171,131 +112,51 @@ export function SignInForm() {
         message: translateSignIn("form.messages.passwordResetSuccess"),
       }
     }
-
     if (verificationStatus === "success") {
       return {
         isError: false,
         message: translateSignIn("form.messages.verificationSuccess"),
       }
     }
-
     if (reason === "session_expired") {
       return {
         isError: true,
         message: translateSignIn("form.messages.sessionExpired"),
       }
     }
-
     return null
   }, [reason, resetStatus, translateSignIn, verificationStatus])
 
-  function getFieldErrorMessage(fieldName: SignInFieldName): string | null {
-    const shouldShowError =
-      hasSubmitBeenAttempted || Boolean(touchedFields[fieldName])
-
-    if (!shouldShowError) {
-      return null
-    }
-
-    const fieldErrorCode = signInFormErrors[fieldName]
-
-    if (!fieldErrorCode) {
-      return null
-    }
-
-    return translateSignIn(
-      `form.validation.${getValidationMessageKey(fieldName, fieldErrorCode)}`,
-    )
-  }
-
-  function getFieldErrorId(fieldName: SignInFieldName): string {
-    return `sign-in-${fieldName}-error`
-  }
-
-  function handleFieldChange(
-    fieldName: Exclude<SignInFieldName, never>,
-    fieldValue: string,
-  ) {
-    setSignInFormValues((currentValue) => ({
-      ...currentValue,
-      [fieldName]: fieldValue,
-    }))
-    setTouchedFields((currentValue) => ({
-      ...currentValue,
-      [fieldName]: true,
-    }))
-
-    if (signInStatus?.isError) {
-      setSignInStatus(null)
-    }
-  }
-
-  function handleRememberSessionChange(rememberSession: boolean) {
-    setSignInFormValues((currentValue) => ({
-      ...currentValue,
-      rememberSession,
-    }))
-  }
-
-  function markAllFieldsAsTouched() {
-    setTouchedFields({
-      email: true,
-      password: true,
-    })
-  }
-
-  async function handleSignInFormSubmit(
-    formSubmitEvent: FormEvent<HTMLFormElement>,
-  ) {
-    formSubmitEvent.preventDefault()
-    setHasSubmitBeenAttempted(true)
-    markAllFieldsAsTouched()
-
-    if (hasSignInErrors) {
-      setSignInStatus({
-        isError: true,
-        message: translateSignIn("form.messages.errorHint"),
-      })
-      return
-    }
-
-    setIsSignInSubmitting(true)
+  async function onSubmit(values: SignInInput) {
+    clearErrors("root")
     setSignInStatus(null)
 
     try {
       const response = await secureFetch("/api/auth/signin", {
         method: "POST",
-        body: JSON.stringify({
-          email: signInFormValues.email,
-          password: signInFormValues.password,
-          rememberSession: signInFormValues.rememberSession,
-        }),
+        body: JSON.stringify(values),
       })
 
-      const responsePayload = await response.json().catch(() => null)
+      const payload = await response.json().catch(() => null)
 
-      if (!response.ok || !responsePayload) {
-        const responseCode =
-          typeof responsePayload?.code === "string"
-            ? responsePayload.code
-            : "signin_failed"
-
+      if (!response.ok || !payload) {
+        const code =
+          typeof payload?.code === "string" ? payload.code : "signin_failed"
         setSignInStatus({
           isError: true,
           message: translateSignIn(
-            `form.messages.${getApiErrorMessageKey(responseCode)}`,
+            `form.messages.${getApiErrorMessageKey(code)}`,
           ),
         })
         return
       }
 
-      if (responsePayload.requiresAdminTwoFactor === true) {
+      if (payload.requiresAdminTwoFactor === true) {
         const adminVerificationPath = buildPathWithContext(
           "/connexion/admin-verification",
           nextPath,
           null,
         )
-
         setAuthenticatedLayoutState()
         router.replace(adminVerificationPath)
         return
@@ -309,8 +170,6 @@ export function SignInForm() {
         isError: true,
         message: translateSignIn("form.messages.serverError"),
       })
-    } finally {
-      setIsSignInSubmitting(false)
     }
   }
 
@@ -327,28 +186,28 @@ export function SignInForm() {
   const checkoutPath = "/checkout?source=signin"
 
   const effectiveStatus = signInStatus ?? queryFeedback
-
-  const submitLabel = isSignInSubmitting
+  const submitLabel = isSubmitting
     ? translateSignIn("form.actions.submitting")
     : translateSignIn("form.actions.submit")
 
-  const emailErrorMessage = getFieldErrorMessage("email")
-  const passwordErrorMessage = getFieldErrorMessage("password")
-
-  const showGlobalErrorHint =
-    hasSubmitBeenAttempted && hasSignInErrors && !signInStatus
-
-  const canSubmit = !isSignInSubmitting
-
-  function getFieldDescribedBy(fieldName: SignInFieldName): string | undefined {
-    const fieldErrorMessage = getFieldErrorMessage(fieldName)
-
-    if (!fieldErrorMessage) {
-      return undefined
-    }
-
-    return getFieldErrorId(fieldName)
+  function fieldErrorId(name: string) {
+    return `sign-in-${name}-error`
   }
+
+  const emailError = errors.email?.message
+  const passwordError = errors.password?.message
+
+  // Override des messages Zod par les traductions
+  const emailMessage = emailError
+    ? emailError === "Email requis."
+      ? translateSignIn("form.validation.emailRequired")
+      : translateSignIn("form.validation.emailInvalid")
+    : null
+  const passwordMessage = passwordError
+    ? translateSignIn("form.validation.passwordRequired")
+    : null
+
+  const hasErrors = Boolean(emailMessage || passwordMessage)
 
   return (
     <AuthPageSection
@@ -367,7 +226,7 @@ export function SignInForm() {
       >
         <form
           className="space-y-4"
-          onSubmit={handleSignInFormSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
           <div className="space-y-1.5">
@@ -380,29 +239,25 @@ export function SignInForm() {
             <InputGroup>
               <InputGroupInput
                 id="sign-in-email"
-                name="email"
                 type="email"
                 autoComplete="email"
-                value={signInFormValues.email}
-                onChange={(changeEvent) => {
-                  handleFieldChange("email", changeEvent.target.value)
-                }}
                 className="ps-9"
                 placeholder={translateSignIn("form.fields.email.placeholder")}
-                aria-invalid={Boolean(emailErrorMessage)}
-                aria-describedby={getFieldDescribedBy("email")}
+                aria-invalid={Boolean(emailMessage)}
+                aria-describedby={emailMessage ? fieldErrorId("email") : undefined}
+                {...register("email")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Mail className="size-4" aria-hidden="true" />
               </InputGroupAddon>
             </InputGroup>
-            {emailErrorMessage ? (
+            {emailMessage ? (
               <p
-                id={getFieldErrorId("email")}
+                id={fieldErrorId("email")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {emailErrorMessage}
+                {emailMessage}
               </p>
             ) : null}
           </div>
@@ -417,19 +272,17 @@ export function SignInForm() {
             <InputGroup>
               <InputGroupInput
                 id="sign-in-password"
-                name="password"
                 type={isPasswordVisible ? "text" : "password"}
                 autoComplete="current-password"
-                value={signInFormValues.password}
-                onChange={(changeEvent) => {
-                  handleFieldChange("password", changeEvent.target.value)
-                }}
                 className="ps-9 pe-11"
                 placeholder={translateSignIn(
                   "form.fields.password.placeholder",
                 )}
-                aria-invalid={Boolean(passwordErrorMessage)}
-                aria-describedby={getFieldDescribedBy("password")}
+                aria-invalid={Boolean(passwordMessage)}
+                aria-describedby={
+                  passwordMessage ? fieldErrorId("password") : undefined
+                }
+                {...register("password")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
@@ -442,9 +295,7 @@ export function SignInForm() {
                     ? translateSignIn("form.actions.hidePassword")
                     : translateSignIn("form.actions.showPassword")
                 }
-                onClick={() =>
-                  setIsPasswordVisible((currentValue) => !currentValue)
-                }
+                onClick={() => setIsPasswordVisible((v) => !v)}
               >
                 {isPasswordVisible ? (
                   <EyeOff className="size-4" aria-hidden="true" />
@@ -453,13 +304,13 @@ export function SignInForm() {
                 )}
               </button>
             </InputGroup>
-            {passwordErrorMessage ? (
+            {passwordMessage ? (
               <p
-                id={getFieldErrorId("password")}
+                id={fieldErrorId("password")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {passwordErrorMessage}
+                {passwordMessage}
               </p>
             ) : null}
             <p className="text-end text-sm">
@@ -478,23 +329,15 @@ export function SignInForm() {
           >
             <input
               id="remember-session"
-              name="remember-session"
               type="checkbox"
-              checked={signInFormValues.rememberSession}
-              onChange={(changeEvent) => {
-                handleRememberSessionChange(changeEvent.target.checked)
-              }}
               className="mt-0.5 h-4 w-4 rounded border-border text-brand-cta"
+              {...register("rememberSession")}
             />
             <span>{translateSignIn("form.fields.rememberSession")}</span>
           </label>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={!canSubmit || isSignInSubmitting}
-          >
-            {isSignInSubmitting ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                 {submitLabel}
@@ -525,7 +368,7 @@ export function SignInForm() {
             </p>
           ) : null}
 
-          {showGlobalErrorHint ? (
+          {hasErrors && !signInStatus ? (
             <p className="text-xs text-brand-error">
               {translateSignIn("form.messages.errorHint")}
             </p>

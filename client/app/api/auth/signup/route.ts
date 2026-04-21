@@ -4,10 +4,8 @@ import { cookies } from "next/headers"
 import { createServerClient } from "@/lib/supabase/server"
 import {
   SIGNUP_API_ENV_KEYS,
-  createConfigurationMissingApiPayload,
-  isMissingRuntimeConfigError,
-  logMissingRuntimeConfig,
-  validateRuntimeConfig,
+  ensureRuntimeConfig,
+  handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -134,19 +132,12 @@ function mapSupabaseSignUpError(errorMessage: string): {
 }
 
 export async function POST(request: Request) {
-  const configValidation = validateRuntimeConfig(SIGNUP_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig(
-      "api.auth.signup.post",
-      configValidation.missingKeys,
-    )
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Inscription"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.auth.signup.post",
+    "Inscription",
+    SIGNUP_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const body = (await request
@@ -224,14 +215,12 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.auth.signup.post", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Inscription"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.auth.signup.post",
+      "Inscription",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue inscription", { error })
     return NextResponse.json(

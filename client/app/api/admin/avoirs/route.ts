@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { normalizeString } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parseIsoDateFilter,
+  parsePaginationParams,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { CreditNoteReason } from '@/lib/supabase/types';
@@ -92,13 +99,25 @@ type FilterableCreditNotesQuery = {
   in: (column: string, values: string[]) => unknown;
 };
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
+const CREDIT_NOTE_PAGE_SIZE_DEFAULT = 20;
+const CREDIT_NOTE_PAGE_SIZE_MAX = 100;
 const IN_QUERY_CHUNK_SIZE = 100;
 const MAX_MATCHED_USERS = 5000;
 const MAX_MATCHED_ORDERS = 10000;
 const MAX_MATCHED_INVOICES = 10000;
+
+const CREDIT_NOTE_REASON_VALUES = [
+  'annulation',
+  'remboursement',
+  'erreur',
+] as const;
+const CREDIT_NOTE_SORT_KEYS = [
+  'numero_avoir',
+  'date_emission',
+  'client',
+  'montant',
+  'motif',
+] as const;
 
 function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
@@ -110,81 +129,34 @@ function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-function parsePage(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE;
-  }
-
-  return parsedValue;
-}
-
-function parsePageSize(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE_SIZE;
-  }
-
-  return Math.min(parsedValue, MAX_PAGE_SIZE);
-}
-
-function parseMotif(value: string | null): CreditNoteReasonFilter {
-  if (
-    value === 'annulation' ||
-    value === 'remboursement' ||
-    value === 'erreur'
-  ) {
-    return value;
-  }
-
-  return 'all';
-}
-
-function parseSortBy(value: string | null): CreditNoteSortBy {
-  if (
-    value === 'numero_avoir' ||
-    value === 'date_emission' ||
-    value === 'client' ||
-    value === 'montant' ||
-    value === 'motif'
-  ) {
-    return value;
-  }
-
-  return 'date_emission';
-}
-
-function parseSortDirection(value: string | null): SortDirection {
-  return value === 'asc' ? 'asc' : 'desc';
-}
-
-function parseDateFilter(value: string | null): string | null {
-  const normalizedValue = normalizeString(value);
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedValue)) {
-    return null;
-  }
-
-  return normalizedValue;
-}
 
 function parseFilters(searchParams: URLSearchParams): CreditNotesListFilters {
+  const { page, pageSize } = parsePaginationParams(
+    searchParams,
+    CREDIT_NOTE_PAGE_SIZE_MAX,
+  );
+  const { sortBy, sortDirection } = parseSortParams(
+    searchParams,
+    CREDIT_NOTE_SORT_KEYS,
+    'date_emission',
+    'desc',
+  );
+
   return {
-    searchNumero: normalizeString(searchParams.get('searchNumero')),
-    searchClient: normalizeString(searchParams.get('searchClient')),
-    motif: parseMotif(searchParams.get('motif')),
-    dateFrom: parseDateFilter(searchParams.get('dateFrom')),
-    dateTo: parseDateFilter(searchParams.get('dateTo')),
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    sortDirection: parseSortDirection(searchParams.get('sortDirection')),
-    page: parsePage(searchParams.get('page')),
-    pageSize: parsePageSize(searchParams.get('pageSize')),
+    searchNumero: parseStringFilter(searchParams, 'searchNumero'),
+    searchClient: parseStringFilter(searchParams, 'searchClient'),
+    motif: parseEnumFilter(
+      searchParams,
+      'motif',
+      CREDIT_NOTE_REASON_VALUES,
+      'all',
+    ) as CreditNoteReasonFilter,
+    dateFrom: parseIsoDateFilter(searchParams.get('dateFrom')),
+    dateTo: parseIsoDateFilter(searchParams.get('dateTo')),
+    sortBy,
+    sortDirection,
+    page,
+    pageSize: pageSize > 0 ? pageSize : CREDIT_NOTE_PAGE_SIZE_DEFAULT,
   };
 }
 

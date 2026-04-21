@@ -1,6 +1,10 @@
-import { PASSWORD_MIN_LENGTH } from '@/lib/auth/constants';
-
-// --- Types ---
+import {
+  cguAcceptationSchema,
+  emailSchema,
+  nomCompletSchema,
+  passwordSchema,
+  registrationSchema,
+} from '@/lib/validation/authSchemas';
 
 type RegistrationData = {
   email: string;
@@ -13,125 +17,67 @@ type ValidationSuccess = { data: RegistrationData };
 type ValidationFailure = { errors: string[] };
 type ValidationResult = ValidationSuccess | ValidationFailure;
 
-// --- Helpers ---
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const UPPERCASE_REGEX = /[A-Z]/;
-const LOWERCASE_REGEX = /[a-z]/;
-const DIGIT_REGEX = /\d/;
-const NOM_COMPLET_MAX_LENGTH = 200;
-
-function normalizeString(value: unknown): string {
-  if (typeof value !== 'string') {
-    return '';
-  }
-
-  return value.trim();
+function firstError(result: {
+  success: false;
+  error: { issues: Array<{ message: string }> };
+}): string {
+  return result.error.issues[0]?.message ?? 'Valeur invalide.';
 }
 
-// --- Validateurs unitaires ---
-
 export function validateEmail(email: unknown): string | null {
-  const normalized = normalizeString(email);
-
-  if (!normalized) {
-    return 'Email requis.';
-  }
-
-  if (!EMAIL_REGEX.test(normalized)) {
-    return 'Format email invalide.';
-  }
-
-  return null;
+  const result = emailSchema.safeParse(email);
+  return result.success ? null : firstError(result);
 }
 
 export function validatePassword(password: unknown): string | null {
-  if (typeof password !== 'string' || !password) {
-    return 'Mot de passe requis.';
-  }
-
-  if (password.length < PASSWORD_MIN_LENGTH) {
-    return `Le mot de passe doit contenir au moins ${PASSWORD_MIN_LENGTH} caractères.`;
-  }
-
-  if (!UPPERCASE_REGEX.test(password)) {
-    return 'Le mot de passe doit contenir au moins une majuscule.';
-  }
-
-  if (!LOWERCASE_REGEX.test(password)) {
-    return 'Le mot de passe doit contenir au moins une minuscule.';
-  }
-
-  if (!DIGIT_REGEX.test(password)) {
-    return 'Le mot de passe doit contenir au moins un chiffre.';
-  }
-
-  return null;
+  const result = passwordSchema.safeParse(password);
+  return result.success ? null : firstError(result);
 }
 
 export function validateNomComplet(nom: unknown): string | null {
-  const normalized = normalizeString(nom);
-
-  if (!normalized) {
-    return 'Nom complet requis.';
-  }
-
-  if (normalized.length > NOM_COMPLET_MAX_LENGTH) {
-    return `Le nom ne doit pas dépasser ${NOM_COMPLET_MAX_LENGTH} caractères.`;
-  }
-
-  return null;
+  const result = nomCompletSchema.safeParse(nom);
+  return result.success ? null : firstError(result);
 }
 
 export function validateCguAcceptation(accepted: unknown): string | null {
-  if (accepted !== true) {
-    return 'Vous devez accepter les conditions générales.';
-  }
-
-  return null;
+  const result = cguAcceptationSchema.safeParse(accepted);
+  return result.success ? null : firstError(result);
 }
 
-// --- Validateur agrégé ---
-
-export function validateRegistrationPayload(
-  body: unknown,
-): ValidationResult {
-  const parsed = body as Record<string, unknown> | null;
-
-  if (!parsed || typeof parsed !== 'object') {
+export function validateRegistrationPayload(body: unknown): ValidationResult {
+  if (!body || typeof body !== 'object') {
     return { errors: ['Payload invalide.'] };
   }
 
-  const errors: string[] = [];
+  const result = registrationSchema.safeParse(body);
 
-  const emailError = validateEmail(parsed.email);
-  const passwordError = validatePassword(parsed.mot_de_passe);
-  const nomError = validateNomComplet(parsed.nom_complet);
-  const cguError = validateCguAcceptation(parsed.cgu_acceptee);
-
-  if (emailError) errors.push(emailError);
-  if (passwordError) errors.push(passwordError);
-  if (nomError) errors.push(nomError);
-  if (cguError) errors.push(cguError);
-
-  // NOTE: Vérification confirmation mot de passe
-  if (
-    !passwordError &&
-    parsed.mot_de_passe !== parsed.mot_de_passe_confirmation
-  ) {
-    errors.push('Les mots de passe ne correspondent pas.');
+  if (result.success) {
+    return {
+      data: {
+        email: result.data.email,
+        password: result.data.mot_de_passe,
+        nomComplet: result.data.nom_complet,
+        cguAcceptee: true,
+      },
+    };
   }
 
-  if (errors.length > 0) {
-    return { errors };
-  }
+  const passwordHasOwnIssue = result.error.issues.some(
+    (issue) => issue.path[0] === 'mot_de_passe',
+  );
 
-  return {
-    data: {
-      email: normalizeString(parsed.email),
-      password: parsed.mot_de_passe as string,
-      nomComplet: normalizeString(parsed.nom_complet),
-      cguAcceptee: true,
-    },
-  };
+  const errors = result.error.issues
+    .filter((issue) => {
+      if (
+        passwordHasOwnIssue &&
+        issue.path[0] === 'mot_de_passe_confirmation' &&
+        issue.message === 'Les mots de passe ne correspondent pas.'
+      ) {
+        return false;
+      }
+      return true;
+    })
+    .map((issue) => issue.message);
+
+  return { errors };
 }

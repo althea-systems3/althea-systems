@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 
 import { normalizeString } from '@/lib/admin/common';
+import { parseDayBoundary } from '@/lib/admin/queryBuilders';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
@@ -87,26 +88,6 @@ function parseNumberParam(value: string | null): number | null {
   return parsedValue;
 }
 
-function parseDateParam(value: string | null, endOfDay: boolean): Date | null {
-  if (typeof value !== 'string' || value.trim().length === 0) {
-    return null;
-  }
-
-  const parsedDate = new Date(value);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return null;
-  }
-
-  if (endOfDay) {
-    parsedDate.setHours(23, 59, 59, 999);
-  } else {
-    parsedDate.setHours(0, 0, 0, 0);
-  }
-
-  return parsedDate;
-}
-
 function parseSortBy(value: string | null): ProductSortBy {
   if (
     value === 'nom' ||
@@ -145,8 +126,8 @@ function buildExportFilters(searchParams: URLSearchParams): ExportFilters {
           : 'all',
     categoryId: normalizeString(searchParams.get('categoryId')),
     availability: parseAvailability(searchParams.get('availability')),
-    createdFrom: parseDateParam(searchParams.get('createdFrom'), false),
-    createdTo: parseDateParam(searchParams.get('createdTo'), true),
+    createdFrom: parseDayBoundary(searchParams.get('createdFrom'), false),
+    createdTo: parseDayBoundary(searchParams.get('createdTo'), true),
     priceMin: parseNumberParam(searchParams.get('priceMin')),
     priceMax: parseNumberParam(searchParams.get('priceMax')),
     sortBy: parseSortBy(searchParams.get('sortBy')),

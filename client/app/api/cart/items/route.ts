@@ -7,10 +7,8 @@ import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
 import { MAX_QUANTITY_PER_LINE } from "@/lib/products/constants"
 import {
   CART_API_ENV_KEYS,
-  createConfigurationMissingApiPayload,
-  isMissingRuntimeConfigError,
-  logMissingRuntimeConfig,
-  validateRuntimeConfig,
+  ensureRuntimeConfig,
+  handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
 import type { Produit, Panier, LignePanier } from "@/lib/supabase/types"
 
@@ -168,16 +166,12 @@ async function createCartLine(
 }
 
 export async function POST(request: Request) {
-  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig("api.cart.items.post", configValidation.missingKeys)
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Service panier"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.cart.items.post",
+    "Service panier",
+    CART_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const body = await request.json()
@@ -280,14 +274,12 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.cart.items.post", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Service panier"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.cart.items.post",
+      "Service panier",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue ajout au panier", { error })
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

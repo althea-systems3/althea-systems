@@ -1,9 +1,6 @@
 "use client"
 
 import {
-  AlertCircle,
-  ArrowDown,
-  ArrowUp,
   Download,
   Eye,
   Filter,
@@ -23,6 +20,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AdminListErrorAlert,
+  AdminListNoticeAlert,
+  AdminSortButton,
+} from "@/features/admin/shared"
 import { Link } from "@/i18n/navigation"
 
 import {
@@ -440,25 +442,8 @@ export function AdminProductsListPage() {
         </div>
       </header>
 
-      {errorMessage ? (
-        <div
-          className="flex items-start gap-2 rounded-lg border border-brand-error/20 bg-red-50 p-4 text-sm text-brand-error"
-          role="alert"
-        >
-          <AlertCircle className="mt-0.5 size-4" aria-hidden="true" />
-          <p>{errorMessage}</p>
-        </div>
-      ) : null}
-
-      {noticeMessage ? (
-        <div
-          className="rounded-lg border border-brand-success/20 bg-emerald-50 p-4 text-sm text-brand-success"
-          role="status"
-          aria-live="polite"
-        >
-          {noticeMessage}
-        </div>
-      ) : null}
+      <AdminListErrorAlert message={errorMessage} />
+      <AdminListNoticeAlert message={noticeMessage} />
 
       <Card>
         <CardHeader>
@@ -782,116 +767,68 @@ export function AdminProductsListPage() {
                   </th>
                   <th className="px-2 py-3">Miniature</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("nom")
-                      }}
+                    <AdminSortButton
+                      column="nom"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Nom
-                      {filters.sortBy === "nom" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Description</th>
                   <th className="px-2 py-3">Catégorie(s)</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("prix_ht")
-                      }}
+                    <AdminSortButton
+                      column="prix_ht"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Prix HT
-                      {filters.sortBy === "prix_ht" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">TVA</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("prix_ttc")
-                      }}
+                    <AdminSortButton
+                      column="prix_ttc"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Prix TTC
-                      {filters.sortBy === "prix_ttc" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Stock</th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("statut")
-                      }}
+                    <AdminSortButton
+                      column="statut"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Statut
-                      {filters.sortBy === "statut" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("date_creation")
-                      }}
+                    <AdminSortButton
+                      column="date_creation"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Date création
-                      {filters.sortBy === "date_creation" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1"
-                      onClick={() => {
-                        handleSort("quantite_stock")
-                      }}
+                    <AdminSortButton
+                      column="quantite_stock"
+                      currentSortBy={filters.sortBy}
+                      currentDirection={filters.sortDirection}
+                      onSort={handleSort}
                     >
                       Qté stock
-                      {filters.sortBy === "quantite_stock" ? (
-                        filters.sortDirection === "asc" ? (
-                          <ArrowUp className="size-3.5" aria-hidden="true" />
-                        ) : (
-                          <ArrowDown className="size-3.5" aria-hidden="true" />
-                        )
-                      ) : null}
-                    </button>
+                    </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">Actions rapides</th>
                 </tr>

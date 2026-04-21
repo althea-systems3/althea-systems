@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { normalizeString } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFirestoreClient } from '@/lib/firebase/admin';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
@@ -32,6 +36,13 @@ type CategoryWithStats = Categorie & {
 
 const PRODUCT_COUNT_CHUNK_SIZE = 100;
 
+const CATEGORY_STATUS_VALUES = ['active', 'inactive'] as const;
+const CATEGORY_SORT_KEYS = [
+  'nom',
+  'nombre_produits',
+  'ordre_affiche',
+] as const;
+
 function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
 
@@ -42,38 +53,27 @@ function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-function parseStatusFilter(value: unknown): CategoryStatusFilter {
-  if (value === 'active' || value === 'inactive') {
-    return value;
-  }
-
-  return 'all';
-}
-
-function parseSortBy(value: unknown): CategorySortBy {
-  if (
-    value === 'nom' ||
-    value === 'nombre_produits' ||
-    value === 'ordre_affiche'
-  ) {
-    return value;
-  }
-
-  return 'ordre_affiche';
-}
-
-function parseSortDirection(value: unknown): CategorySortDirection {
-  return value === 'desc' ? 'desc' : 'asc';
-}
-
 function buildQueryFilters(
   searchParams?: URLSearchParams,
 ): CategoryListFilters {
+  const params = searchParams ?? new URLSearchParams();
+  const { sortBy, sortDirection } = parseSortParams(
+    params,
+    CATEGORY_SORT_KEYS,
+    'ordre_affiche',
+    'asc',
+  );
+
   return {
-    search: normalizeString(searchParams?.get('search')),
-    status: parseStatusFilter(searchParams?.get('status')),
-    sortBy: parseSortBy(searchParams?.get('sortBy')),
-    sortDirection: parseSortDirection(searchParams?.get('sortDirection')),
+    search: parseStringFilter(params, 'search'),
+    status: parseEnumFilter(
+      params,
+      'status',
+      CATEGORY_STATUS_VALUES,
+      'all',
+    ) as CategoryStatusFilter,
+    sortBy,
+    sortDirection,
   };
 }
 

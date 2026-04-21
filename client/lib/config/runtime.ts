@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server"
+
 export const SUPABASE_ADMIN_ENV_KEYS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
@@ -111,4 +113,38 @@ export function createConfigurationMissingApiPayload(
     error: `${featureLabel} temporairement indisponible: configuration serveur manquante.`,
     code: CONFIGURATION_MISSING_ERROR_CODE,
   }
+}
+
+export function ensureRuntimeConfig(
+  feature: string,
+  featureLabel: string,
+  requiredKeys: readonly RuntimeConfigKey[],
+): NextResponse<ConfigurationMissingApiPayload> | null {
+  const validation = validateRuntimeConfig(requiredKeys)
+
+  if (validation.isValid) {
+    return null
+  }
+
+  logMissingRuntimeConfig(feature, validation.missingKeys)
+
+  return NextResponse.json(createConfigurationMissingApiPayload(featureLabel), {
+    status: 503,
+  })
+}
+
+export function handleMissingRuntimeConfigError(
+  error: unknown,
+  feature: string,
+  featureLabel: string,
+): NextResponse<ConfigurationMissingApiPayload> | null {
+  if (!isMissingRuntimeConfigError(error)) {
+    return null
+  }
+
+  logMissingRuntimeConfig(feature, error.missingKeys)
+
+  return NextResponse.json(createConfigurationMissingApiPayload(featureLabel), {
+    status: 503,
+  })
 }

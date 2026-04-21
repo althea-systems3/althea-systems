@@ -6,10 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { getCartSessionId } from "@/lib/auth/cartSession"
 import {
   CART_API_ENV_KEYS,
-  createConfigurationMissingApiPayload,
-  isMissingRuntimeConfigError,
-  logMissingRuntimeConfig,
-  validateRuntimeConfig,
+  ensureRuntimeConfig,
+  handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
 
 export const dynamic = "force-dynamic"
@@ -26,16 +24,12 @@ interface CartLineRow {
 const EMPTY_CART_RESPONSE = { count: 0, total: 0 }
 
 export async function GET() {
-  const configValidation = validateRuntimeConfig(CART_API_ENV_KEYS)
-
-  if (!configValidation.isValid) {
-    logMissingRuntimeConfig("api.cart.count.get", configValidation.missingKeys)
-
-    return NextResponse.json(
-      createConfigurationMissingApiPayload("Service panier"),
-      { status: 503 },
-    )
-  }
+  const configError = ensureRuntimeConfig(
+    "api.cart.count.get",
+    "Service panier",
+    CART_API_ENV_KEYS,
+  )
+  if (configError) return configError
 
   try {
     const cookieStore = await cookies()
@@ -58,14 +52,12 @@ export async function GET() {
 
     return NextResponse.json(cartTotals)
   } catch (error) {
-    if (isMissingRuntimeConfigError(error)) {
-      logMissingRuntimeConfig("api.cart.count.get", error.missingKeys)
-
-      return NextResponse.json(
-        createConfigurationMissingApiPayload("Service panier"),
-        { status: 503 },
-      )
-    }
+    const configError = handleMissingRuntimeConfigError(
+      error,
+      "api.cart.count.get",
+      "Service panier",
+    )
+    if (configError) return configError
 
     console.error("Erreur inattendue compteur panier", { error })
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })

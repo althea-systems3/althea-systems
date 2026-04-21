@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { normalizeString } from '@/lib/admin/common';
+import {
+  parseEnumFilter,
+  parseIsoDateFilter,
+  parsePaginationParams,
+  parseSortParams,
+  parseStringFilter,
+} from '@/lib/admin/queryBuilders';
 import { verifyAdminAccess } from '@/lib/auth/adminGuard';
 import { createAdminClient } from '@/lib/supabase/admin';
 import type { InvoiceStatus } from '@/lib/supabase/types';
@@ -82,12 +89,20 @@ type FilterableInvoicesQuery = {
   in: (column: string, values: string[]) => unknown;
 };
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 20;
-const MAX_PAGE_SIZE = 100;
+const INVOICE_PAGE_SIZE_DEFAULT = 20;
+const INVOICE_PAGE_SIZE_MAX = 100;
 const IN_QUERY_CHUNK_SIZE = 100;
 const MAX_MATCHED_USERS = 5000;
 const MAX_MATCHED_ORDERS = 10000;
+
+const INVOICE_STATUS_VALUES = ['payee', 'en_attente', 'annule'] as const;
+const INVOICE_SORT_KEYS = [
+  'numero_facture',
+  'date_emission',
+  'client',
+  'montant_ttc',
+  'statut',
+] as const;
 
 function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
@@ -99,77 +114,34 @@ function splitArrayIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-function parsePage(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE;
-  }
-
-  return parsedValue;
-}
-
-function parsePageSize(value: string | null): number {
-  const parsedValue = Number.parseInt(value ?? '', 10);
-
-  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
-    return DEFAULT_PAGE_SIZE;
-  }
-
-  return Math.min(parsedValue, MAX_PAGE_SIZE);
-}
-
-function parseStatus(value: string | null): InvoiceStatusFilter {
-  if (value === 'payee' || value === 'en_attente' || value === 'annule') {
-    return value;
-  }
-
-  return 'all';
-}
-
-function parseSortBy(value: string | null): InvoiceSortBy {
-  if (
-    value === 'numero_facture' ||
-    value === 'date_emission' ||
-    value === 'client' ||
-    value === 'montant_ttc' ||
-    value === 'statut'
-  ) {
-    return value;
-  }
-
-  return 'date_emission';
-}
-
-function parseSortDirection(value: string | null): SortDirection {
-  return value === 'asc' ? 'asc' : 'desc';
-}
-
-function parseDateFilter(value: string | null): string | null {
-  const normalizedValue = normalizeString(value);
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedValue)) {
-    return null;
-  }
-
-  return normalizedValue;
-}
 
 function parseFilters(searchParams: URLSearchParams): InvoiceListFilters {
+  const { page, pageSize } = parsePaginationParams(
+    searchParams,
+    INVOICE_PAGE_SIZE_MAX,
+  );
+  const { sortBy, sortDirection } = parseSortParams(
+    searchParams,
+    INVOICE_SORT_KEYS,
+    'date_emission',
+    'desc',
+  );
+
   return {
-    searchNumero: normalizeString(searchParams.get('searchNumero')),
-    searchClient: normalizeString(searchParams.get('searchClient')),
-    status: parseStatus(searchParams.get('status')),
-    dateFrom: parseDateFilter(searchParams.get('dateFrom')),
-    dateTo: parseDateFilter(searchParams.get('dateTo')),
-    sortBy: parseSortBy(searchParams.get('sortBy')),
-    sortDirection: parseSortDirection(searchParams.get('sortDirection')),
-    page: parsePage(searchParams.get('page')),
-    pageSize: parsePageSize(searchParams.get('pageSize')),
+    searchNumero: parseStringFilter(searchParams, 'searchNumero'),
+    searchClient: parseStringFilter(searchParams, 'searchClient'),
+    status: parseEnumFilter(
+      searchParams,
+      'status',
+      INVOICE_STATUS_VALUES,
+      'all',
+    ) as InvoiceStatusFilter,
+    dateFrom: parseIsoDateFilter(searchParams.get('dateFrom')),
+    dateTo: parseIsoDateFilter(searchParams.get('dateTo')),
+    sortBy,
+    sortDirection,
+    page,
+    pageSize: pageSize > 0 ? pageSize : INVOICE_PAGE_SIZE_DEFAULT,
   };
 }
 

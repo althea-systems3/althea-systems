@@ -1,5 +1,6 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Eye,
   EyeOff,
@@ -9,12 +10,12 @@ import {
   Phone,
   UserRound,
 } from "lucide-react"
-import { type FormEvent, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
+import { type FieldPath, useForm } from "react-hook-form"
 import { useLocale, useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
-import { Link, useRouter } from "@/i18n/navigation"
+
 import { Button } from "@/components/ui/button"
-import { secureFetch } from "@/lib/http/secureFetch"
 import {
   InputGroup,
   InputGroupAddon,
@@ -24,19 +25,19 @@ import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
 } from "@/features/layout/layoutConstants"
+import { Link, useRouter } from "@/i18n/navigation"
+import { secureFetch } from "@/lib/http/secureFetch"
+import {
+  signUpFormSchema,
+  type SignUpFormInput,
+} from "@/lib/validation/authSchemas"
+
 import {
   AuthFormCard,
   AuthPageSection,
   AuthStatusMessage,
 } from "./authFormShared"
-import {
-  getInitialSignUpFormValues,
-  hasSignUpFormErrors,
-  isStrongPassword,
-  type SignUpFieldErrorCode,
-  type SignUpFieldName,
-  validateSignUpForm,
-} from "./signUpValidation"
+import { isStrongPassword } from "./signUpValidation"
 
 type SignUpStatus = {
   message: string
@@ -44,93 +45,42 @@ type SignUpStatus = {
 }
 
 function getSafeNextPath(nextPath: string | null): string | null {
-  if (!nextPath) {
-    return null
-  }
-
-  const normalizedPath = nextPath.trim()
-
-  if (!normalizedPath.startsWith("/") || normalizedPath.startsWith("//")) {
-    return null
-  }
-
-  return normalizedPath
+  if (!nextPath) return null
+  const normalized = nextPath.trim()
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return null
+  return normalized
 }
 
-function getValidationMessageKey(
-  fieldName: SignUpFieldName,
-  errorCode: SignUpFieldErrorCode,
-): string {
-  if (fieldName === "firstName" && errorCode === "required") {
-    return "firstNameRequired"
-  }
-
-  if (fieldName === "lastName" && errorCode === "required") {
-    return "lastNameRequired"
-  }
-
-  if (fieldName === "email" && errorCode === "required") {
-    return "emailRequired"
-  }
-
-  if (fieldName === "email" && errorCode === "invalid") {
-    return "emailInvalid"
-  }
-
-  if (fieldName === "phone" && errorCode === "invalid") {
-    return "phoneInvalid"
-  }
-
-  if (fieldName === "password" && errorCode === "required") {
-    return "passwordRequired"
-  }
-
-  if (fieldName === "password" && errorCode === "weak") {
-    return "passwordWeak"
-  }
-
-  if (fieldName === "passwordConfirmation" && errorCode === "required") {
-    return "passwordConfirmationRequired"
-  }
-
-  if (fieldName === "passwordConfirmation" && errorCode === "mismatch") {
-    return "passwordsMismatch"
-  }
-
-  return "termsRequired"
+const API_ERROR_KEYS: Record<string, string> = {
+  email_already_used: "emailAlreadyUsed",
+  password_too_weak: "passwordTooWeak",
+  configuration_missing: "configurationUnavailable",
+  server_error: "serverError",
 }
 
 function getApiErrorMessageKey(errorCode: string): string {
-  if (errorCode === "email_already_used") {
-    return "emailAlreadyUsed"
-  }
-
-  if (errorCode === "password_too_weak") {
-    return "passwordTooWeak"
-  }
-
-  if (errorCode === "configuration_missing") {
-    return "configurationUnavailable"
-  }
-
-  if (errorCode === "server_error") {
-    return "serverError"
-  }
-
-  return "signupFailed"
+  return API_ERROR_KEYS[errorCode] ?? "signupFailed"
 }
 
 function setAuthenticatedLayoutState(): void {
-  if (typeof window === "undefined") {
-    return
-  }
-
+  if (typeof window === "undefined") return
   window.localStorage.setItem(AUTHENTICATION_STORAGE_KEY, "true")
   window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
 }
 
+const VALIDATION_MESSAGE_MAP: Record<string, string> = {
+  "Prénom requis.": "firstNameRequired",
+  "Nom requis.": "lastNameRequired",
+  "Email requis.": "emailRequired",
+  "Format email invalide.": "emailInvalid",
+  "Format téléphone invalide.": "phoneInvalid",
+  "Mot de passe requis.": "passwordRequired",
+  "Les mots de passe ne correspondent pas.": "passwordsMismatch",
+  "Vous devez accepter les conditions générales.": "termsRequired",
+}
+
 export function SignUpForm() {
-  const translateSignUp = useTranslations("Pages.signUp")
+  const translate = useTranslations("Pages.signUp")
   const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -142,140 +92,79 @@ export function SignUpForm() {
     source === "checkout" ||
     safeNextPath === "/checkout" ||
     Boolean(safeNextPath?.startsWith("/checkout?"))
+  const nextPath = safeNextPath ?? (isCheckoutEntry ? "/checkout" : "/mon-compte")
 
-  const fallbackNextPath = isCheckoutEntry ? "/checkout" : "/mon-compte"
-  const nextPath = safeNextPath ?? fallbackNextPath
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting, submitCount },
+  } = useForm<SignUpFormInput>({
+    resolver: zodResolver(signUpFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      password: "",
+      passwordConfirmation: "",
+      acceptTerms: false as unknown as true,
+    },
+    mode: "onTouched",
+  })
 
-  const [signUpFormValues, setSignUpFormValues] = useState(
-    getInitialSignUpFormValues(),
-  )
-  const [touchedFields, setTouchedFields] = useState<
-    Partial<Record<SignUpFieldName, boolean>>
-  >({})
-  const [hasSubmitBeenAttempted, setHasSubmitBeenAttempted] = useState(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordConfirmationVisible, setIsPasswordConfirmationVisible] =
     useState(false)
-  const [isSignUpSubmitting, setIsSignUpSubmitting] = useState(false)
-  const [signUpStatus, setSignUpStatus] = useState<SignUpStatus | null>(null)
+  const [status, setStatus] = useState<SignUpStatus | null>(null)
 
-  const signUpFormErrors = useMemo(() => {
-    return validateSignUpForm(signUpFormValues)
-  }, [signUpFormValues])
-
-  const hasStrongPassword = isStrongPassword(signUpFormValues.password)
-  const hasSignUpErrors = hasSignUpFormErrors(signUpFormErrors)
+  const passwordValue = watch("password")
+  const hasStrongPassword = isStrongPassword(passwordValue ?? "")
 
   const verificationFeedback = useMemo<SignUpStatus | null>(() => {
     if (verificationStatus === "success") {
       return {
         isError: false,
-        message: translateSignUp("form.messages.verificationSuccess"),
+        message: translate("form.messages.verificationSuccess"),
       }
     }
-
     if (verificationStatus === "expired") {
       return {
         isError: true,
-        message: translateSignUp("form.messages.verificationExpired"),
+        message: translate("form.messages.verificationExpired"),
       }
     }
-
     if (verificationStatus === "invalid") {
       return {
         isError: true,
-        message: translateSignUp("form.messages.verificationInvalid"),
+        message: translate("form.messages.verificationInvalid"),
       }
     }
-
     return null
-  }, [translateSignUp, verificationStatus])
+  }, [translate, verificationStatus])
 
-  function getFieldErrorMessage(fieldName: SignUpFieldName): string | null {
-    const shouldShowError =
-      hasSubmitBeenAttempted || Boolean(touchedFields[fieldName])
-
-    if (!shouldShowError) {
-      return null
+  function translateError(
+    field: FieldPath<SignUpFormInput>,
+  ): string | null {
+    const error = errors[field]?.message
+    if (!error) return null
+    const key = VALIDATION_MESSAGE_MAP[error]
+    if (key) return translate(`form.validation.${key}`)
+    // Password weak fallback for password-specific messages
+    if (field === "password") {
+      return translate("form.validation.passwordWeak")
     }
-
-    const fieldErrorCode = signUpFormErrors[fieldName]
-
-    if (!fieldErrorCode) {
-      return null
+    if (field === "passwordConfirmation") {
+      if (!watch("passwordConfirmation")) {
+        return translate("form.validation.passwordConfirmationRequired")
+      }
+      return translate("form.validation.passwordsMismatch")
     }
-
-    return translateSignUp(
-      `form.validation.${getValidationMessageKey(fieldName, fieldErrorCode)}`,
-    )
+    return error
   }
 
-  function getFieldErrorId(fieldName: SignUpFieldName): string {
-    return `sign-up-${fieldName}-error`
-  }
-
-  function handleFieldChange(
-    fieldName: Exclude<SignUpFieldName, "acceptTerms">,
-    fieldValue: string,
-  ) {
-    setSignUpFormValues((currentValue) => ({
-      ...currentValue,
-      [fieldName]: fieldValue,
-    }))
-    setTouchedFields((currentValue) => ({
-      ...currentValue,
-      [fieldName]: true,
-    }))
-
-    if (signUpStatus?.isError) {
-      setSignUpStatus(null)
-    }
-  }
-
-  function handleTermsChange(isAccepted: boolean) {
-    setSignUpFormValues((currentValue) => ({
-      ...currentValue,
-      acceptTerms: isAccepted,
-    }))
-    setTouchedFields((currentValue) => ({
-      ...currentValue,
-      acceptTerms: true,
-    }))
-
-    if (signUpStatus?.isError) {
-      setSignUpStatus(null)
-    }
-  }
-
-  function markAllFieldsAsTouched() {
-    setTouchedFields({
-      firstName: true,
-      lastName: true,
-      email: true,
-      phone: true,
-      password: true,
-      passwordConfirmation: true,
-      acceptTerms: true,
-    })
-  }
-
-  async function handleSignUpFormSubmit(
-    formSubmitEvent: FormEvent<HTMLFormElement>,
-  ) {
-    formSubmitEvent.preventDefault()
-    setHasSubmitBeenAttempted(true)
-    markAllFieldsAsTouched()
-
-    if (hasSignUpErrors) {
-      setSignUpStatus({
-        isError: true,
-        message: translateSignUp("form.messages.errorHint"),
-      })
-      return
-    }
-
-    setIsSignUpSubmitting(true)
-    setSignUpStatus(null)
+  async function onSubmit(values: SignUpFormInput) {
+    setStatus(null)
 
     try {
       const callbackUrl = new URL("/auth/confirm", window.location.origin)
@@ -289,37 +178,31 @@ export function SignUpForm() {
       const response = await secureFetch("/api/auth/signup", {
         method: "POST",
         body: JSON.stringify({
-          firstName: signUpFormValues.firstName,
-          lastName: signUpFormValues.lastName,
-          email: signUpFormValues.email,
-          phone: signUpFormValues.phone,
-          password: signUpFormValues.password,
-          acceptTerms: signUpFormValues.acceptTerms,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phone: values.phone,
+          password: values.password,
+          acceptTerms: values.acceptTerms,
           redirectTo: callbackUrl.toString(),
           source: isCheckoutEntry ? "checkout" : "sign_up_page",
         }),
       })
 
-      const responsePayload = await response.json().catch(() => null)
+      const payload = await response.json().catch(() => null)
 
-      if (!response.ok || !responsePayload) {
-        const responseCode =
-          typeof responsePayload?.code === "string"
-            ? responsePayload.code
-            : "signup_failed"
-
-        setSignUpStatus({
+      if (!response.ok || !payload) {
+        const code =
+          typeof payload?.code === "string" ? payload.code : "signup_failed"
+        setStatus({
           isError: true,
-          message: translateSignUp(
-            `form.messages.${getApiErrorMessageKey(responseCode)}`,
-          ),
+          message: translate(`form.messages.${getApiErrorMessageKey(code)}`),
         })
         return
       }
 
-      const isAuthenticated = responsePayload.isAuthenticated === true
-      const requiresEmailVerification =
-        responsePayload.requiresEmailVerification === true
+      const isAuthenticated = payload.isAuthenticated === true
+      const requiresEmailVerification = payload.requiresEmailVerification === true
 
       if (isAuthenticated && !requiresEmailVerification) {
         setAuthenticatedLayoutState()
@@ -327,9 +210,9 @@ export function SignUpForm() {
         return
       }
 
-      setSignUpStatus({
+      setStatus({
         isError: false,
-        message: translateSignUp(
+        message: translate(
           isCheckoutEntry
             ? "form.messages.verificationEmailSentCheckout"
             : "form.messages.verificationEmailSent",
@@ -341,82 +224,51 @@ export function SignUpForm() {
       }, 2000)
     } catch (error) {
       console.error("Erreur inscription utilisateur", { error })
-      setSignUpStatus({
+      setStatus({
         isError: true,
-        message: translateSignUp("form.messages.serverError"),
+        message: translate("form.messages.serverError"),
       })
-    } finally {
-      setIsSignUpSubmitting(false)
     }
   }
 
   const signInPath = safeNextPath
     ? `/connexion?next=${encodeURIComponent(safeNextPath)}`
     : "/connexion"
-
   const checkoutPath = "/checkout?source=signup"
 
-  const effectiveStatus = signUpStatus ?? verificationFeedback
+  const effectiveStatus = status ?? verificationFeedback
 
-  const submitLabel = isSignUpSubmitting
-    ? translateSignUp("form.actions.submitting")
-    : translateSignUp("form.actions.submit")
+  const firstNameMessage = translateError("firstName")
+  const lastNameMessage = translateError("lastName")
+  const emailMessage = translateError("email")
+  const phoneMessage = translateError("phone")
+  const passwordMessage = translateError("password")
+  const passwordConfirmationMessage = translateError("passwordConfirmation")
+  const termsMessage = translateError("acceptTerms")
 
-  const firstNameErrorMessage = getFieldErrorMessage("firstName")
-  const lastNameErrorMessage = getFieldErrorMessage("lastName")
-  const emailErrorMessage = getFieldErrorMessage("email")
-  const phoneErrorMessage = getFieldErrorMessage("phone")
-  const passwordErrorMessage = getFieldErrorMessage("password")
-  const passwordConfirmationErrorMessage = getFieldErrorMessage(
-    "passwordConfirmation",
-  )
-  const termsErrorMessage = getFieldErrorMessage("acceptTerms")
-
-  const showGlobalErrorHint =
-    hasSubmitBeenAttempted && hasSignUpErrors && !signUpStatus
+  const hasErrors = Object.keys(errors).length > 0
+  const showGlobalErrorHint = submitCount > 0 && hasErrors && !status
 
   const hasEmailSentFeedback =
     effectiveStatus?.message ===
-      translateSignUp("form.messages.verificationEmailSent") ||
+      translate("form.messages.verificationEmailSent") ||
     effectiveStatus?.message ===
-      translateSignUp("form.messages.verificationEmailSentCheckout")
-
+      translate("form.messages.verificationEmailSentCheckout")
   const hasVerificationSuccessFeedback =
-    effectiveStatus?.message ===
-    translateSignUp("form.messages.verificationSuccess")
+    effectiveStatus?.message === translate("form.messages.verificationSuccess")
 
-  const canSubmit = !isSignUpSubmitting
-
-  function getFieldDescribedBy(
-    fieldName: SignUpFieldName,
-    hasAdditionalHint?: boolean,
-    hintId?: string,
-  ): string | undefined {
-    const ids: string[] = []
-
-    if (getFieldErrorMessage(fieldName)) {
-      ids.push(getFieldErrorId(fieldName))
-    }
-
-    if (hasAdditionalHint && hintId) {
-      ids.push(hintId)
-    }
-
-    if (ids.length === 0) {
-      return undefined
-    }
-
-    return ids.join(" ")
+  function fieldErrorId(name: string) {
+    return `sign-up-${name}-error`
   }
 
   return (
     <AuthPageSection
-      title={translateSignUp("title")}
-      description={translateSignUp("description")}
+      title={translate("title")}
+      description={translate("description")}
     >
       <AuthFormCard
-        title={translateSignUp("form.title")}
-        description={translateSignUp("form.description")}
+        title={translate("form.title")}
+        description={translate("form.description")}
         footer={
           <AuthStatusMessage
             message={effectiveStatus?.message ?? null}
@@ -426,7 +278,7 @@ export function SignUpForm() {
       >
         <form
           className="space-y-4"
-          onSubmit={handleSignUpFormSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
         >
           <div className="grid gap-4 sm:grid-cols-2">
@@ -435,24 +287,20 @@ export function SignUpForm() {
                 htmlFor="sign-up-first-name"
                 className="text-sm font-medium text-brand-nav"
               >
-                {translateSignUp("form.fields.firstName.label")}
+                {translate("form.fields.firstName.label")}
               </label>
               <InputGroup>
                 <InputGroupInput
                   id="sign-up-first-name"
-                  name="firstName"
                   type="text"
                   autoComplete="given-name"
-                  value={signUpFormValues.firstName}
-                  onChange={(changeEvent) => {
-                    handleFieldChange("firstName", changeEvent.target.value)
-                  }}
                   className="ps-9"
-                  placeholder={translateSignUp(
-                    "form.fields.firstName.placeholder",
-                  )}
-                  aria-invalid={Boolean(firstNameErrorMessage)}
-                  aria-describedby={getFieldDescribedBy("firstName")}
+                  placeholder={translate("form.fields.firstName.placeholder")}
+                  aria-invalid={Boolean(firstNameMessage)}
+                  aria-describedby={
+                    firstNameMessage ? fieldErrorId("firstName") : undefined
+                  }
+                  {...register("firstName")}
                 />
                 <InputGroupAddon
                   align="inline-start"
@@ -461,13 +309,13 @@ export function SignUpForm() {
                   <UserRound className="size-4" aria-hidden="true" />
                 </InputGroupAddon>
               </InputGroup>
-              {firstNameErrorMessage ? (
+              {firstNameMessage ? (
                 <p
-                  id={getFieldErrorId("firstName")}
+                  id={fieldErrorId("firstName")}
                   className="text-xs text-brand-error"
                   role="alert"
                 >
-                  {firstNameErrorMessage}
+                  {firstNameMessage}
                 </p>
               ) : null}
             </div>
@@ -477,24 +325,20 @@ export function SignUpForm() {
                 htmlFor="sign-up-last-name"
                 className="text-sm font-medium text-brand-nav"
               >
-                {translateSignUp("form.fields.lastName.label")}
+                {translate("form.fields.lastName.label")}
               </label>
               <InputGroup>
                 <InputGroupInput
                   id="sign-up-last-name"
-                  name="lastName"
                   type="text"
                   autoComplete="family-name"
-                  value={signUpFormValues.lastName}
-                  onChange={(changeEvent) => {
-                    handleFieldChange("lastName", changeEvent.target.value)
-                  }}
                   className="ps-9"
-                  placeholder={translateSignUp(
-                    "form.fields.lastName.placeholder",
-                  )}
-                  aria-invalid={Boolean(lastNameErrorMessage)}
-                  aria-describedby={getFieldDescribedBy("lastName")}
+                  placeholder={translate("form.fields.lastName.placeholder")}
+                  aria-invalid={Boolean(lastNameMessage)}
+                  aria-describedby={
+                    lastNameMessage ? fieldErrorId("lastName") : undefined
+                  }
+                  {...register("lastName")}
                 />
                 <InputGroupAddon
                   align="inline-start"
@@ -503,13 +347,13 @@ export function SignUpForm() {
                   <UserRound className="size-4" aria-hidden="true" />
                 </InputGroupAddon>
               </InputGroup>
-              {lastNameErrorMessage ? (
+              {lastNameMessage ? (
                 <p
-                  id={getFieldErrorId("lastName")}
+                  id={fieldErrorId("lastName")}
                   className="text-xs text-brand-error"
                   role="alert"
                 >
-                  {lastNameErrorMessage}
+                  {lastNameMessage}
                 </p>
               ) : null}
             </div>
@@ -520,34 +364,32 @@ export function SignUpForm() {
               htmlFor="sign-up-email"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateSignUp("form.fields.email.label")}
+              {translate("form.fields.email.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="sign-up-email"
-                name="email"
                 type="email"
                 autoComplete="email"
-                value={signUpFormValues.email}
-                onChange={(changeEvent) => {
-                  handleFieldChange("email", changeEvent.target.value)
-                }}
                 className="ps-9"
-                placeholder={translateSignUp("form.fields.email.placeholder")}
-                aria-invalid={Boolean(emailErrorMessage)}
-                aria-describedby={getFieldDescribedBy("email")}
+                placeholder={translate("form.fields.email.placeholder")}
+                aria-invalid={Boolean(emailMessage)}
+                aria-describedby={
+                  emailMessage ? fieldErrorId("email") : undefined
+                }
+                {...register("email")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Mail className="size-4" aria-hidden="true" />
               </InputGroupAddon>
             </InputGroup>
-            {emailErrorMessage ? (
+            {emailMessage ? (
               <p
-                id={getFieldErrorId("email")}
+                id={fieldErrorId("email")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {emailErrorMessage}
+                {emailMessage}
               </p>
             ) : null}
           </div>
@@ -557,34 +399,32 @@ export function SignUpForm() {
               htmlFor="sign-up-phone"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateSignUp("form.fields.phone.label")}
+              {translate("form.fields.phone.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="sign-up-phone"
-                name="phone"
                 type="tel"
                 autoComplete="tel"
-                value={signUpFormValues.phone}
-                onChange={(changeEvent) => {
-                  handleFieldChange("phone", changeEvent.target.value)
-                }}
                 className="ps-9"
-                placeholder={translateSignUp("form.fields.phone.placeholder")}
-                aria-invalid={Boolean(phoneErrorMessage)}
-                aria-describedby={getFieldDescribedBy("phone")}
+                placeholder={translate("form.fields.phone.placeholder")}
+                aria-invalid={Boolean(phoneMessage)}
+                aria-describedby={
+                  phoneMessage ? fieldErrorId("phone") : undefined
+                }
+                {...register("phone")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Phone className="size-4" aria-hidden="true" />
               </InputGroupAddon>
             </InputGroup>
-            {phoneErrorMessage ? (
+            {phoneMessage ? (
               <p
-                id={getFieldErrorId("phone")}
+                id={fieldErrorId("phone")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {phoneErrorMessage}
+                {phoneMessage}
               </p>
             ) : null}
           </div>
@@ -594,28 +434,25 @@ export function SignUpForm() {
               htmlFor="sign-up-password"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateSignUp("form.fields.password.label")}
+              {translate("form.fields.password.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="sign-up-password"
-                name="password"
                 type={isPasswordVisible ? "text" : "password"}
                 autoComplete="new-password"
-                value={signUpFormValues.password}
-                onChange={(changeEvent) => {
-                  handleFieldChange("password", changeEvent.target.value)
-                }}
                 className="ps-9 pe-11"
-                placeholder={translateSignUp(
-                  "form.fields.password.placeholder",
-                )}
-                aria-invalid={Boolean(passwordErrorMessage)}
-                aria-describedby={getFieldDescribedBy(
-                  "password",
-                  true,
-                  "sign-up-password-hint",
-                )}
+                placeholder={translate("form.fields.password.placeholder")}
+                aria-invalid={Boolean(passwordMessage)}
+                aria-describedby={
+                  [
+                    passwordMessage ? fieldErrorId("password") : null,
+                    "sign-up-password-hint",
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || undefined
+                }
+                {...register("password")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
@@ -625,12 +462,10 @@ export function SignUpForm() {
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500"
                 aria-label={
                   isPasswordVisible
-                    ? translateSignUp("form.actions.hidePassword")
-                    : translateSignUp("form.actions.showPassword")
+                    ? translate("form.actions.hidePassword")
+                    : translate("form.actions.showPassword")
                 }
-                onClick={() =>
-                  setIsPasswordVisible((currentValue) => !currentValue)
-                }
+                onClick={() => setIsPasswordVisible((v) => !v)}
               >
                 {isPasswordVisible ? (
                   <EyeOff className="size-4" aria-hidden="true" />
@@ -641,16 +476,16 @@ export function SignUpForm() {
             </InputGroup>
             <p id="sign-up-password-hint" className="text-xs text-slate-600">
               {hasStrongPassword
-                ? translateSignUp("form.messages.passwordStrong")
-                : translateSignUp("form.messages.passwordHint")}
+                ? translate("form.messages.passwordStrong")
+                : translate("form.messages.passwordHint")}
             </p>
-            {passwordErrorMessage ? (
+            {passwordMessage ? (
               <p
-                id={getFieldErrorId("password")}
+                id={fieldErrorId("password")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {passwordErrorMessage}
+                {passwordMessage}
               </p>
             ) : null}
           </div>
@@ -660,27 +495,24 @@ export function SignUpForm() {
               htmlFor="sign-up-password-confirmation"
               className="text-sm font-medium text-brand-nav"
             >
-              {translateSignUp("form.fields.passwordConfirmation.label")}
+              {translate("form.fields.passwordConfirmation.label")}
             </label>
             <InputGroup>
               <InputGroupInput
                 id="sign-up-password-confirmation"
-                name="passwordConfirmation"
                 type={isPasswordConfirmationVisible ? "text" : "password"}
                 autoComplete="new-password"
-                value={signUpFormValues.passwordConfirmation}
-                onChange={(changeEvent) => {
-                  handleFieldChange(
-                    "passwordConfirmation",
-                    changeEvent.target.value,
-                  )
-                }}
                 className="ps-9 pe-11"
-                placeholder={translateSignUp(
+                placeholder={translate(
                   "form.fields.passwordConfirmation.placeholder",
                 )}
-                aria-invalid={Boolean(passwordConfirmationErrorMessage)}
-                aria-describedby={getFieldDescribedBy("passwordConfirmation")}
+                aria-invalid={Boolean(passwordConfirmationMessage)}
+                aria-describedby={
+                  passwordConfirmationMessage
+                    ? fieldErrorId("passwordConfirmation")
+                    : undefined
+                }
+                {...register("passwordConfirmation")}
               />
               <InputGroupAddon align="inline-start" className="text-slate-500">
                 <Lock className="size-4" aria-hidden="true" />
@@ -690,14 +522,10 @@ export function SignUpForm() {
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-500"
                 aria-label={
                   isPasswordConfirmationVisible
-                    ? translateSignUp("form.actions.hidePassword")
-                    : translateSignUp("form.actions.showPassword")
+                    ? translate("form.actions.hidePassword")
+                    : translate("form.actions.showPassword")
                 }
-                onClick={() =>
-                  setIsPasswordConfirmationVisible(
-                    (currentValue) => !currentValue,
-                  )
-                }
+                onClick={() => setIsPasswordConfirmationVisible((v) => !v)}
               >
                 {isPasswordConfirmationVisible ? (
                   <EyeOff className="size-4" aria-hidden="true" />
@@ -706,13 +534,13 @@ export function SignUpForm() {
                 )}
               </button>
             </InputGroup>
-            {passwordConfirmationErrorMessage ? (
+            {passwordConfirmationMessage ? (
               <p
-                id={getFieldErrorId("passwordConfirmation")}
+                id={fieldErrorId("passwordConfirmation")}
                 className="text-xs text-brand-error"
                 role="alert"
               >
-                {passwordConfirmationErrorMessage}
+                {passwordConfirmationMessage}
               </p>
             ) : null}
           </div>
@@ -723,52 +551,44 @@ export function SignUpForm() {
           >
             <input
               id="accept-terms"
-              name="acceptTerms"
               type="checkbox"
-              checked={signUpFormValues.acceptTerms}
-              onChange={(changeEvent) => {
-                handleTermsChange(changeEvent.target.checked)
-              }}
               className="mt-0.5 h-4 w-4 rounded border-border text-brand-cta"
-              aria-invalid={Boolean(termsErrorMessage)}
+              aria-invalid={Boolean(termsMessage)}
               aria-describedby={
-                termsErrorMessage ? getFieldErrorId("acceptTerms") : undefined
+                termsMessage ? fieldErrorId("acceptTerms") : undefined
               }
+              {...register("acceptTerms")}
             />
-            <span>{translateSignUp("form.fields.acceptTerms")}</span>
+            <span>{translate("form.fields.acceptTerms")}</span>
           </label>
-          {termsErrorMessage ? (
+          {termsMessage ? (
             <p
-              id={getFieldErrorId("acceptTerms")}
+              id={fieldErrorId("acceptTerms")}
               className="text-xs text-brand-error"
               role="alert"
             >
-              {termsErrorMessage}
+              {termsMessage}
             </p>
           ) : null}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={!canSubmit || isSignUpSubmitting}
-          >
-            {isSignUpSubmitting ? (
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
               <>
                 <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                {submitLabel}
+                {translate("form.actions.submitting")}
               </>
             ) : (
-              submitLabel
+              translate("form.actions.submit")
             )}
           </Button>
 
           <p className="text-center text-sm text-slate-600">
-            {translateSignUp("form.actions.hasAccount")}{" "}
+            {translate("form.actions.hasAccount")}{" "}
             <Link
               href={signInPath}
               className="font-medium text-brand-cta hover:underline"
             >
-              {translateSignUp("form.actions.goToSignIn")}
+              {translate("form.actions.goToSignIn")}
             </Link>
           </p>
 
@@ -778,20 +598,20 @@ export function SignUpForm() {
                 href={checkoutPath}
                 className="font-medium text-brand-cta hover:underline"
               >
-                {translateSignUp("form.actions.goToCheckout")}
+                {translate("form.actions.goToCheckout")}
               </Link>
             </p>
           ) : null}
 
           {showGlobalErrorHint ? (
             <p className="text-xs text-brand-error">
-              {translateSignUp("form.messages.errorHint")}
+              {translate("form.messages.errorHint")}
             </p>
           ) : null}
 
           {hasEmailSentFeedback || hasVerificationSuccessFeedback ? (
             <p className="text-xs text-slate-600" aria-live="polite">
-              {translateSignUp("form.messages.nextStepHint")}
+              {translate("form.messages.nextStepHint")}
             </p>
           ) : null}
         </form>

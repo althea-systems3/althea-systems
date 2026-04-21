@@ -135,12 +135,6 @@ export function ContactToolsPage({
       content: content.chat.welcome,
       actions: [],
     },
-    {
-      id: createClientMessageId("bot"),
-      role: "bot",
-      content: content.chat.askEmail,
-      actions: [],
-    },
   ])
   const [chatConversationId, setChatConversationId] = useState<string | null>(
     null,
@@ -364,6 +358,7 @@ export function ContactToolsPage({
     try {
       const response = await secureFetch("/api/chatbot", {
         method: "POST",
+        headers: { "x-locale": locale },
         body: JSON.stringify({
           conversationId: chatConversationId,
           message: safeMessage,
@@ -456,6 +451,7 @@ export function ContactToolsPage({
     try {
       const response = await secureFetch("/api/chatbot/escalate", {
         method: "POST",
+        headers: { "x-locale": locale },
         body: JSON.stringify({
           conversation_id: chatConversationId,
           email: chatCapturedEmail || formValues.email,
@@ -804,7 +800,8 @@ export function ContactToolsPage({
                           ) : null}
 
                           {message.actions.includes("escalate_human") &&
-                          !isEscalated ? (
+                          !isEscalated &&
+                          chatMessages.filter((m) => m.role === "user").length >= 8 ? (
                             <button
                               type="button"
                               className="mt-2 rounded-md border border-brand-alert px-2.5 py-1 text-xs font-medium text-brand-nav hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cta"
@@ -872,7 +869,8 @@ export function ContactToolsPage({
                   type="button"
                   variant="outline"
                   onClick={handleEscalateToHuman}
-                  disabled={isEscalating || isEscalated}
+                  disabled={isEscalating || isEscalated || chatMessages.filter((m) => m.role === "user").length < 8}
+                  title={chatMessages.filter((m) => m.role === "user").length < 8 ? "Envoyez au moins 8 messages avant de contacter un agent" : undefined}
                   className="text-xs"
                 >
                   {isEscalating
