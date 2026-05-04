@@ -41,7 +41,7 @@ export async function fetchAdminOrderById(
 
   return parseApiResponse<AdminOrderDetailPayload>(
     response,
-    "Impossible de charger le detail commande.",
+    "Impossible de charger le détail commande.",
   )
 }
 

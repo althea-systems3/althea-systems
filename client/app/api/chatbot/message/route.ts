@@ -24,6 +24,7 @@ import {
 } from "@/lib/chatbot/firestore"
 import { logChatbotActivity } from "@/lib/chatbot/logger"
 import type { UserContext } from "@/lib/chatbot/types"
+import { logServerError } from "@/lib/errors/serverError"
 
 type MessageRequestBody = {
   conversation_id?: unknown
@@ -252,9 +253,12 @@ export async function POST(request: Request) {
       },
     })
   } catch (error) {
-    console.error("Erreur inattendue endpoint chatbot/message", { error })
+    const errorId = logServerError({
+      feature: "api.chatbot.message",
+      error,
+    })
     return NextResponse.json(
-      { error: "Erreur serveur", code: "server_error" },
+      { error: "Erreur serveur", code: "server_error", errorId },
       { status: 500 },
     )
   }

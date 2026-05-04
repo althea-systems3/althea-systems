@@ -28,7 +28,7 @@ type AdminOrderDetailPageProps = {
 
 function formatHistoryActor(historyEntry: AdminOrderStatusHistoryItem): string {
   if (!historyEntry.admin) {
-    return "Systeme"
+    return "Système"
   }
 
   if (historyEntry.admin.nom_complet?.trim()) {
@@ -96,7 +96,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
     }
 
     if (statusDraft === payload.order.statut) {
-      setNoticeMessage("Le statut selectionne est deja le statut actuel.")
+      setNoticeMessage("Le statut sélectionné est déjà le statut actuel.")
       return
     }
 
@@ -137,7 +137,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
           id="admin-order-detail-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Detail commande
+          Détail commande
         </h1>
         <Card>
           <CardContent className="p-6 text-sm text-slate-600">
@@ -155,7 +155,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
           id="admin-order-detail-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Detail commande
+          Détail commande
         </h1>
         <Card>
           <CardContent className="p-6 text-sm text-brand-error">
@@ -232,7 +232,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Numero</p>
+              <p className="text-xs text-slate-500">Numéro</p>
               <p className="mt-1 font-medium text-brand-nav">
                 {order.numero_commande}
               </p>
@@ -298,8 +298,8 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
               >
                 <option value="en_attente">En attente</option>
                 <option value="en_cours">En cours</option>
-                <option value="terminee">Terminee</option>
-                <option value="annulee">Annulee</option>
+                <option value="terminee">Terminée</option>
+                <option value="annulee">Annulée</option>
               </select>
             </label>
             <Button
@@ -369,7 +369,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
               <p>{order.client?.email || "-"}</p>
             </div>
             <div className="rounded-md border border-border p-3">
-              <p className="text-xs text-slate-500">Adresse associee</p>
+              <p className="text-xs text-slate-500">Adresse associée</p>
               {address ? (
                 <div className="mt-1 space-y-1">
                   <p className="font-medium text-brand-nav">
@@ -384,7 +384,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
                   {address.telephone ? <p>{address.telephone}</p> : null}
                 </div>
               ) : (
-                <p className="mt-1 text-slate-600">Aucune adresse associee.</p>
+                <p className="mt-1 text-slate-600">Aucune adresse associée.</p>
               )}
             </div>
           </CardContent>
@@ -509,13 +509,13 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
             <>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-md border border-border p-3">
-                  <p className="text-xs text-slate-500">Numero facture</p>
+                  <p className="text-xs text-slate-500">Numéro facture</p>
                   <p className="mt-1 font-medium text-brand-nav">
                     {invoice.numero_facture}
                   </p>
                 </div>
                 <div className="rounded-md border border-border p-3">
-                  <p className="text-xs text-slate-500">Date emission</p>
+                  <p className="text-xs text-slate-500">Date émission</p>
                   <p className="mt-1 font-medium text-brand-nav">
                     {formatDate(invoice.date_emission)}
                   </p>
@@ -538,7 +538,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
                 <Button asChild>
                   <a href={invoice.pdf_url} target="_blank" rel="noreferrer">
                     <FileDown className="size-4" aria-hidden="true" />
-                    Telecharger PDF facture
+                    Télécharger PDF facture
                   </a>
                 </Button>
               ) : (
@@ -548,7 +548,7 @@ export function AdminOrderDetailPage({ orderId }: AdminOrderDetailPageProps) {
               )}
             </>
           ) : (
-            <p className="text-slate-600">Aucune facture associee.</p>
+            <p className="text-slate-600">Aucune facture associée.</p>
           )}
         </CardContent>
       </Card>

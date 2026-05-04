@@ -20,7 +20,7 @@ export const DEFAULT_ADMIN_ORDERS_FILTERS: AdminOrdersFilters = {
 }
 
 export const ADMIN_ORDER_SORT_LABELS: Record<AdminOrderSortBy, string> = {
-  numero_commande: "Numero commande",
+  numero_commande: "Numéro commande",
   date_commande: "Date et heure",
   client: "Client",
   montant_ttc: "Montant TTC",
@@ -142,7 +142,7 @@ export function getNextSortDirection(
 
 export function mapPaymentStatusLabel(status: string): string {
   if (status === "valide") {
-    return "Valide"
+    return "Validé"
   }
 
   if (status === "en_attente") {
@@ -150,11 +150,11 @@ export function mapPaymentStatusLabel(status: string): string {
   }
 
   if (status === "echoue") {
-    return "Echoue"
+    return "Échoué"
   }
 
   if (status === "rembourse") {
-    return "Rembourse"
+    return "Remboursé"
   }
 
   return status || "-"

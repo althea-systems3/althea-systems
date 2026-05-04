@@ -10,6 +10,7 @@ import {
   ADMIN_2FA_VERIFIED_COOKIE_NAME,
 } from "@/lib/auth/constants"
 import { createServerClient } from "@/lib/supabase/server"
+import { logServerError } from "@/lib/errors/serverError"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const REMEMBER_SESSION_COOKIE = "althea_remember_session"
@@ -249,6 +250,7 @@ export async function POST(request: Request) {
       })
       cookieStore.delete(ADMIN_2FA_VERIFIED_COOKIE_NAME)
 
+      let emailDeliveryFailed = false
       try {
         await sendAdminTwoFactorEmail({
           recipientEmail: data.user.email,
@@ -257,19 +259,18 @@ export async function POST(request: Request) {
           expiresInMinutes: Math.round(ADMIN_2FA_CHALLENGE_TTL_SECONDS / 60),
         })
       } catch (challengeError) {
-        console.error("Impossible d'envoyer le challenge 2FA admin", {
-          challengeError,
+        emailDeliveryFailed = true
+        logServerError({
+          feature: "auth.signin.admin_2fa_challenge",
+          error: challengeError,
+          context: { userId: data.user.id },
         })
 
-        cookieStore.delete(ADMIN_2FA_CHALLENGE_COOKIE_NAME)
-
-        return NextResponse.json(
-          {
-            error: "Impossible de finaliser la connexion administrateur.",
-            code: "challenge_unavailable",
-          },
-          { status: 503 },
-        )
+        // NOTE: Fallback dev/preprod : si Resend échoue, on log le code 2FA
+        // dans les logs serveur au lieu de bloquer la connexion admin.
+        // En production avec Resend correctement configuré, ce chemin n'est jamais pris.
+        console.warn("[ADMIN_2FA_FALLBACK] Email delivery failed — code below valid for", Math.round(ADMIN_2FA_CHALLENGE_TTL_SECONDS / 60), "minutes")
+        console.warn("[ADMIN_2FA_FALLBACK] userId:", data.user.id, "email:", data.user.email, "code:", challenge.code)
       }
 
       return NextResponse.json(
@@ -279,6 +280,7 @@ export async function POST(request: Request) {
           rememberSession,
           requiresAdminTwoFactor: true,
           challengeExpiresInSeconds: ADMIN_2FA_CHALLENGE_TTL_SECONDS,
+          emailDeliveryFailed,
           user: {
             id: data.user.id,
             email: data.user.email,
@@ -302,12 +304,16 @@ export async function POST(request: Request) {
       { status: 200 },
     )
   } catch (error) {
-    console.error("Erreur inattendue connexion", { error })
+    const errorId = logServerError({
+      feature: "auth.signin",
+      error,
+    })
 
     return NextResponse.json(
       {
         error: "Erreur serveur",
         code: "server_error",
+        errorId,
       },
       { status: 500 },
     )

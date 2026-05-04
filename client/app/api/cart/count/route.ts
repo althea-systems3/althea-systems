@@ -9,6 +9,10 @@ import {
   ensureRuntimeConfig,
   handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 
 export const dynamic = "force-dynamic"
 
@@ -59,8 +63,11 @@ export async function GET() {
     )
     if (configError) return configError
 
-    console.error("Erreur inattendue compteur panier", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.cart.count.get",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }
 

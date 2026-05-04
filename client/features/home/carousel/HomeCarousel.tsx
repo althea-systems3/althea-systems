@@ -141,7 +141,7 @@ export function HomeCarousel() {
                     className="rounded-full bg-brand-cta px-6 hover:bg-brand-cta/90"
                   >
                     <Link href={carouselSlide.redirectUrl}>
-                      {carouselSlide.ctaLabel}
+                      {translateCarousel("discoverButton")}
                     </Link>
                   </Button>
                 </div>

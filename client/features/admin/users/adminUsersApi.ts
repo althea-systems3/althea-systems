@@ -43,7 +43,7 @@ export async function fetchAdminUserById(
 
   return parseApiResponse<AdminUserDetailPayload>(
     response,
-    "Impossible de charger le detail utilisateur.",
+    "Impossible de charger le détail utilisateur.",
   )
 }
 
@@ -61,7 +61,7 @@ export async function updateAdminUserStatus(
 
   await parseApiResponse<UpdatedUserPayload>(
     response,
-    "Impossible de mettre a jour le statut utilisateur.",
+    "Impossible de mettre à jour le statut utilisateur.",
   )
 }
 
@@ -79,7 +79,7 @@ export async function sendAdminUserMail(
 
   await parseApiResponse<SuccessPayload>(
     response,
-    "Impossible d envoyer le mail administrateur.",
+    "Impossible d'envoyer le mail administrateur.",
   )
 }
 
@@ -93,7 +93,7 @@ export async function resetAdminUserPassword(userId: string): Promise<void> {
 
   await parseApiResponse<SuccessPayload>(
     response,
-    "Impossible de declencher la reinitialisation du mot de passe.",
+    "Impossible de déclencher la réinitialisation du mot de passe.",
   )
 }
 

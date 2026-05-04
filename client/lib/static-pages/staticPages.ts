@@ -18,19 +18,19 @@ export const STATIC_PAGE_DEFAULTS: Record<
   StaticPageDefaultContent
 > = {
   cgu: {
-    title: "Conditions Generales d'Utilisation",
+    title: "Conditions Générales d'Utilisation",
     description:
-      "Ces CGU precisent les regles d'acces, de commande et de responsabilite applicables a la plateforme Althea Systems.",
+      "Ces CGU précisent les règles d'accès, de commande et de responsabilité applicables à la plateforme Althea Systems.",
   },
   "mentions-legales": {
-    title: "Mentions legales",
+    title: "Mentions légales",
     description:
-      "Consultez les informations juridiques, techniques et editoriales encadrant l'exploitation du site Althea Systems.",
+      "Informations juridiques, techniques et éditoriales encadrant l'exploitation du site Althea Systems.",
   },
   "a-propos": {
-    title: "A propos de Althea Systems",
+    title: "À propos d'Althea Systems",
     description:
-      "Althea Systems accompagne les professionnels avec une plateforme e-commerce fiable, claire et orientee resultats.",
+      "Althea Systems accompagne les professionnels de santé avec une plateforme e-commerce fiable, claire et orientée résultats.",
   },
 }
 

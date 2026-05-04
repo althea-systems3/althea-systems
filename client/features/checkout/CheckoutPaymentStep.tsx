@@ -121,8 +121,9 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
             </label>
             <input
               id="checkout-payment-card-number"
-              type="password"
+              type="text"
               inputMode="numeric"
+              autoComplete="cc-number"
               value={flow.paymentForm.cardNumber}
               onChange={(event) =>
                 flow.setPaymentForm((current) => ({
@@ -131,7 +132,7 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
                 }))
               }
               className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
-              placeholder="************1234"
+              placeholder="1234 5678 9012 3456"
             />
             {flow.paymentErrors.cardNumber ? (
               <p className="text-xs text-brand-error">
@@ -173,8 +174,9 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
             </label>
             <input
               id="checkout-payment-cvc"
-              type="password"
+              type="text"
               inputMode="numeric"
+              autoComplete="cc-csc"
               value={flow.paymentForm.cvc}
               onChange={(event) =>
                 flow.setPaymentForm((current) => ({
@@ -183,7 +185,7 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
                 }))
               }
               className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
-              placeholder="***"
+              placeholder="123"
             />
             {flow.paymentErrors.cvc ? (
               <p className="text-xs text-brand-error">

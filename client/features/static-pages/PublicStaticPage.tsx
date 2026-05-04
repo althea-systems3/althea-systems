@@ -18,7 +18,7 @@ type StaticPageStatusText = {
 
 const STATUS_TEXT_BY_LOCALE: Record<string, StaticPageStatusText> = {
   fr: {
-    empty: "Cette page ne contient pas encore de contenu publie.",
+    empty: "Cette page ne contient pas encore de contenu publié.",
   },
   en: {
     empty: "This page does not contain any published content yet.",

@@ -173,7 +173,7 @@ export function AdminInvoicesListPage() {
           Gestion des factures
         </h1>
         <p className="text-sm text-slate-600 sm:text-base">
-          Vue operationnelle des factures avec navigation croisee commande,
+          Vue opérationnelle des factures avec navigation croisée commande,
           client et avoirs.
         </p>
       </header>
@@ -186,7 +186,7 @@ export function AdminInvoicesListPage() {
             Recherche, filtres et tri
           </CardTitle>
           <CardDescription>
-            Recherche par numero/client, filtre statut/date, tri ascendant et
+            Recherche par numéro/client, filtre statut/date, tri ascendant et
             descendant.
           </CardDescription>
         </CardHeader>
@@ -196,7 +196,7 @@ export function AdminInvoicesListPage() {
             onSubmit={handleSearchSubmit}
           >
             <label className="space-y-1 text-sm text-slate-700">
-              <span>Recherche numero facture</span>
+              <span>Recherche numéro facture</span>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -262,9 +262,9 @@ export function AdminInvoicesListPage() {
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value="all">Tous</option>
-                <option value="payee">Payee</option>
+                <option value="payee">Payée</option>
                 <option value="en_attente">En attente</option>
-                <option value="annule">Annulee</option>
+                <option value="annule">Annulée</option>
               </select>
             </label>
 
@@ -400,7 +400,7 @@ export function AdminInvoicesListPage() {
                       currentDirection={filters.sortDirection}
                       onSort={handleSort}
                     >
-                      Date emission
+                      Date émission
                     </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">
@@ -413,7 +413,7 @@ export function AdminInvoicesListPage() {
                       Client
                     </AdminSortButton>
                   </th>
-                  <th className="px-2 py-3">Commande associee</th>
+                  <th className="px-2 py-3">Commande associée</th>
                   <th className="px-2 py-3">
                     <AdminSortButton
                       column="montant_ttc"

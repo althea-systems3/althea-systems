@@ -13,6 +13,10 @@ import {
   REMEMBER_ME_COOKIE_NAME,
   REMEMBER_ME_COOKIE_MAX_AGE_SECONDS,
 } from '@/lib/auth/constants';
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from '@/lib/errors/serverError';
 
 // --- Types ---
 
@@ -157,10 +161,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error('Erreur inattendue connexion', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 },
-    );
+    const errorId = logServerError({
+      feature: 'auth.login',
+      error,
+    });
+    return buildServerErrorResponse(errorId);
   }
 }

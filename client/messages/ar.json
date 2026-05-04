@@ -20,7 +20,8 @@
     "pauseAutoSlide": "إيقاف التحريك التلقائي",
     "resumeAutoSlide": "استئناف التحريك التلقائي",
     "fallbackTitle": "العروض ستتوفر قريبا",
-    "fallbackDescription": "لا توجد شرائح متاحة حاليا. يرجى المحاولة بعد قليل."
+    "fallbackDescription": "لا توجد شرائح متاحة حاليا. يرجى المحاولة بعد قليل.",
+    "discoverButton": "اكتشف"
   },
   "HomeCategoryGrid": {
     "title": "تصفح الفئات",
@@ -398,7 +399,10 @@
       "priceUnavailable": "السعر غير متاح",
       "availabilityAvailable": "متوفر",
       "availabilityOutOfStock": "نفد المخزون"
-    }
+    },
+    "quantityLabel": "الكمية",
+    "quantityDecrease": "تقليل الكمية",
+    "quantityIncrease": "زيادة الكمية"
   },
   "SearchPage": {
     "title": "بحث متقدم",

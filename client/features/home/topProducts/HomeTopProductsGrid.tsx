@@ -56,7 +56,16 @@ export function HomeTopProductsGrid() {
       {!isHomeTopProductsGridLoading &&
       !hasHomeTopProductsGridError &&
       homeTopProducts.length > 0 ? (
-        <ul className="grid grid-cols-1 gap-4 xs:grid-cols-2 md:grid-cols-3 md:gap-5 lg:grid-cols-4">
+        <ul
+          className="
+            -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2
+            [scrollbar-width:thin]
+            md:mx-0 md:grid md:snap-none md:overflow-visible md:px-0 md:pb-0 md:gap-5
+            md:grid-cols-3 lg:grid-cols-4
+            [&>li]:w-[80%] [&>li]:shrink-0 [&>li]:snap-start
+            md:[&>li]:w-auto md:[&>li]:shrink
+          "
+        >
           {homeTopProducts.map((homeTopProduct, cardIndex) => (
             <HomeTopProductCard
               key={homeTopProduct.id}

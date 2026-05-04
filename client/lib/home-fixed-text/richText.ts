@@ -22,13 +22,19 @@ export type HomeFixedTextInlineNode =
 const INLINE_MARKDOWN_PATTERN =
   /(\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\*([^*]+)\*)/g
 
+function normalizeLineBreaks(input: string): string {
+  return input
+    .replaceAll("\\r\\n", "\n")
+    .replaceAll("\\n", "\n")
+    .replaceAll("\r\n", "\n")
+}
+
 export function splitHomeFixedTextParagraphs(markdown: string): string[] {
   if (!markdown.trim()) {
     return []
   }
 
-  return markdown
-    .replaceAll("\r\n", "\n")
+  return normalizeLineBreaks(markdown)
     .split(/\n\s*\n/g)
     .map((paragraph) => paragraph.trim())
     .filter((paragraph) => paragraph.length > 0)

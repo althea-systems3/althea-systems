@@ -142,7 +142,7 @@ export function AdminHomeFixedTextSection() {
 
       setUpdatedAt(typedPayload.updatedAt)
       setStatus({
-        message: "Texte fixe home enregistre avec succes.",
+        message: "Texte fixe home enregistré avec succès.",
         isError: false,
       })
     } catch (error) {
@@ -173,16 +173,16 @@ export function AdminHomeFixedTextSection() {
           Contenu editorial home
         </h1>
         <p className="text-sm text-slate-600 sm:text-base">
-          Modifiez le texte fixe affiche sous le carrousel de la page
+          Modifiez le texte fixe affiché sous le carrousel de la page
           d&apos;accueil.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-brand-nav">Parametres du texte</CardTitle>
+          <CardTitle className="text-brand-nav">Paramètres du texte</CardTitle>
           <CardDescription>
-            Choisissez la locale et mettez a jour le titre ainsi que le contenu.
+            Choisissez la locale et mettez à jour le titre ainsi que le contenu.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

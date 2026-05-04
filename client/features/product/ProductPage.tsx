@@ -40,6 +40,7 @@ export function ProductPage({ slug }: ProductPageProps) {
 
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [cartFeedback, setCartFeedback] = useState<CartFeedback | null>(null)
+  const [selectedQuantity, setSelectedQuantity] = useState(1)
 
   const characteristicRows = useMemo(() => {
     return normalizeProductCharacteristics(product?.characteristics ?? null)
@@ -61,7 +62,7 @@ export function ProductPage({ slug }: ProductPageProps) {
         },
         body: JSON.stringify({
           id_produit: product.id,
-          quantite: 1,
+          quantite: selectedQuantity,
         }),
       })
 
@@ -166,6 +167,64 @@ export function ProductPage({ slug }: ProductPageProps) {
           </p>
 
           <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            {!isOutOfStock ? (
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="product-quantity"
+                  className="text-sm font-medium text-slate-700"
+                >
+                  {t("quantityLabel")}
+                </label>
+                <div className="inline-flex items-center rounded-md border border-slate-300">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedQuantity((current) => Math.max(1, current - 1))
+                    }}
+                    disabled={selectedQuantity <= 1 || isAddingToCart}
+                    className="h-9 w-9 rounded-l-md text-lg text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label={t("quantityDecrease")}
+                  >
+                    −
+                  </button>
+                  <input
+                    id="product-quantity"
+                    type="number"
+                    min={1}
+                    max={product.stockQuantity}
+                    value={selectedQuantity}
+                    onChange={(event) => {
+                      const next = Number(event.target.value)
+                      if (Number.isFinite(next) && next >= 1) {
+                        setSelectedQuantity(
+                          Math.min(product.stockQuantity, Math.floor(next)),
+                        )
+                      }
+                    }}
+                    disabled={isAddingToCart}
+                    className="h-9 w-14 border-x border-slate-300 bg-white text-center text-sm text-slate-700 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    aria-label={t("quantityLabel")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedQuantity((current) =>
+                        Math.min(product.stockQuantity, current + 1),
+                      )
+                    }}
+                    disabled={
+                      selectedQuantity >= product.stockQuantity ||
+                      isAddingToCart
+                    }
+                    className="h-9 w-9 rounded-r-md text-lg text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label={t("quantityIncrease")}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
             <Button
               type="button"
               className={cn(

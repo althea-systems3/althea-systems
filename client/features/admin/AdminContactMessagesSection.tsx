@@ -135,7 +135,7 @@ export function AdminContactMessagesSection() {
           Messages de contact
         </h1>
         <p className="text-sm text-slate-600 sm:text-base">
-          Attribuez et traitez les demandes envoyees depuis le formulaire
+          Attribuez et traitez les demandes envoyées depuis le formulaire
           contact.
         </p>
       </header>

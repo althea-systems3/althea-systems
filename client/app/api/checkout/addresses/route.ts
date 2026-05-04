@@ -3,6 +3,10 @@ import { cookies } from "next/headers"
 
 import { createServerClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 
 type AddressPayload = {
   id: string
@@ -110,8 +114,11 @@ export async function GET() {
 
     return NextResponse.json({ addresses })
   } catch (error) {
-    console.error("Erreur inattendue adresses checkout", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.checkout.addresses.get",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }
 
@@ -175,7 +182,10 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    console.error("Erreur inattendue creation adresse checkout", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.checkout.addresses.post",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }

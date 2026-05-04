@@ -118,6 +118,7 @@ export function ForgotPasswordForm() {
         method: "POST",
         body: JSON.stringify({
           email: values.email,
+          locale,
           redirectTo: callbackUrl.toString(),
         }),
       })

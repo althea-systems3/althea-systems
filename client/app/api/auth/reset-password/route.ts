@@ -10,6 +10,11 @@ import {
 } from '@/lib/auth/rateLimiter';
 import { logAuthActivity } from '@/lib/auth/logAuthActivity';
 import { INVALID_TOKEN_MESSAGE } from '@/lib/auth/constants';
+import {
+  buildServerErrorResponse,
+  logServerError,
+  logSupabaseAuthError,
+} from '@/lib/errors/serverError';
 
 // --- Types ---
 
@@ -145,13 +150,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
 
     if (updateError) {
-      console.error('Erreur mise à jour mot de passe', {
-        error: updateError.message,
+      const errorId = logSupabaseAuthError({
+        feature: 'auth.reset_password.update',
+        error: updateError,
+        context: { userId: token.id_utilisateur },
       });
-      return NextResponse.json(
-        { error: 'Erreur serveur' },
-        { status: 500 },
-      );
+      return buildServerErrorResponse(errorId);
     }
 
     // NOTE: Marquer le token comme utilisé
@@ -170,10 +174,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: PASSWORD_RESET_SUCCESS_MESSAGE,
     });
   } catch (error) {
-    console.error('Erreur inattendue reset-password', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 },
-    );
+    const errorId = logServerError({
+      feature: 'auth.reset_password',
+      error,
+    });
+    return buildServerErrorResponse(errorId);
   }
 }

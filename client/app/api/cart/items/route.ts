@@ -10,6 +10,10 @@ import {
   ensureRuntimeConfig,
   handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 import type { Produit, Panier, LignePanier } from "@/lib/supabase/types"
 
 const MIN_QUANTITY = 1
@@ -281,7 +285,10 @@ export async function POST(request: Request) {
     )
     if (configError) return configError
 
-    console.error("Erreur inattendue ajout au panier", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.cart.items.post",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }

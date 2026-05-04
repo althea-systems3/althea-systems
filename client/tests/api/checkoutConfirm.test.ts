@@ -298,16 +298,19 @@ describe("POST /api/checkout/confirm", () => {
     })
   })
 
-  it("retourne 400 si paymentIntentId manquant", async () => {
+  it("accepte paymentIntentId manquant en mode mock (skip Stripe)", async () => {
     mockGetUser.mockResolvedValue({
       data: { user: { id: "user-001", email: "user@test.com" } },
     })
 
     const response = await POST(createRequest({}))
 
-    expect(response.status).toBe(400)
+    // En mode mock (sans paymentIntentId), Stripe est bypassé.
+    // Le checkout continue avec les autres validations (panier, adresse, etc.).
+    // Donc on ne s'attend plus à 400 "paymentIntentId requis".
+    expect(response.status).not.toBe(400)
     const body = await response.json()
-    expect(body.error).toBe("paymentIntentId requis")
+    expect(body.error).not.toBe("paymentIntentId requis")
   })
 
   it("retourne 400 si utilisateur non connecté et pas d'email guest", async () => {

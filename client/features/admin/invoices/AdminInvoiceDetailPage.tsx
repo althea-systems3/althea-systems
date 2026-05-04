@@ -99,7 +99,7 @@ export function AdminInvoiceDetailPage({
 
     try {
       await sendAdminInvoiceEmail(invoiceId)
-      setNoticeMessage("Facture renvoyee par email avec succes.")
+      setNoticeMessage("Facture renvoyée par email avec succès.")
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -115,7 +115,7 @@ export function AdminInvoiceDetailPage({
     const confirmed = await confirmCriticalAction({
       title: "Supprimer la facture",
       message:
-        "Cette action va annuler la facture et creer automatiquement un avoir. Confirmer ?",
+        "Cette action va annuler la facture et créer automatiquement un avoir. Confirmer ?",
       confirmLabel: "Supprimer",
       tone: "danger",
     })
@@ -131,7 +131,7 @@ export function AdminInvoiceDetailPage({
     try {
       const result = await deleteAdminInvoiceById(invoiceId)
       setNoticeMessage(
-        `Suppression traitee: ${result.message}. Avoir genere: ${result.creditNote.number}.`,
+        `Suppression traitée: ${result.message}. Avoir généré: ${result.creditNote.number}.`,
       )
       await loadDetail({ silent: true })
     } catch (error) {
@@ -155,7 +155,7 @@ export function AdminInvoiceDetailPage({
           id="admin-invoice-detail-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Detail facture
+          Détail facture
         </h1>
         <Card>
           <CardContent className="p-6 text-sm text-slate-600">
@@ -176,7 +176,7 @@ export function AdminInvoiceDetailPage({
           id="admin-invoice-detail-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Detail facture
+          Détail facture
         </h1>
         <Card>
           <CardContent className="p-6 text-sm text-brand-error">
@@ -263,7 +263,7 @@ export function AdminInvoiceDetailPage({
             <Button asChild>
               <a href={invoice.pdf_url} target="_blank" rel="noreferrer">
                 <Download className="size-4" aria-hidden="true" />
-                Telecharger PDF
+                Télécharger PDF
               </a>
             </Button>
           ) : (
@@ -293,7 +293,7 @@ export function AdminInvoiceDetailPage({
             <Trash2 className="size-4" aria-hidden="true" />
             {isDeleting
               ? "Suppression en cours..."
-              : "Supprimer (creer un avoir)"}
+              : "Supprimer (créer un avoir)"}
           </Button>
         </CardContent>
       </Card>
@@ -307,13 +307,13 @@ export function AdminInvoiceDetailPage({
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Numero facture</p>
+              <p className="text-xs text-slate-500">Numéro facture</p>
               <p className="mt-1 font-medium text-brand-nav">
                 {invoice.numero_facture}
               </p>
             </div>
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Date emission</p>
+              <p className="text-xs text-slate-500">Date émission</p>
               <p className="mt-1 font-medium text-brand-nav">
                 {formatDate(invoice.date_emission)}
               </p>
@@ -331,7 +331,7 @@ export function AdminInvoiceDetailPage({
               </p>
             </div>
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Commande associee</p>
+              <p className="text-xs text-slate-500">Commande associée</p>
               {invoice.commande ? (
                 <Link
                   href={`/admin/commandes/${invoice.commande.id_commande}`}
@@ -383,20 +383,20 @@ export function AdminInvoiceDetailPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl text-brand-nav">Avoir genere</CardTitle>
+          <CardTitle className="text-xl text-brand-nav">Avoir généré</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-slate-700">
           {invoice.creditNote ? (
             <>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-md border border-border p-3">
-                  <p className="text-xs text-slate-500">Numero avoir</p>
+                  <p className="text-xs text-slate-500">Numéro avoir</p>
                   <p className="mt-1 font-medium text-brand-nav">
                     {invoice.creditNote.numero_avoir}
                   </p>
                 </div>
                 <div className="rounded-md border border-border p-3">
-                  <p className="text-xs text-slate-500">Date emission</p>
+                  <p className="text-xs text-slate-500">Date émission</p>
                   <p className="mt-1 font-medium text-brand-nav">
                     {formatDate(invoice.creditNote.date_emission)}
                   </p>
@@ -431,7 +431,7 @@ export function AdminInvoiceDetailPage({
                       rel="noreferrer"
                     >
                       <Download className="size-4" aria-hidden="true" />
-                      Telecharger PDF avoir
+                      Télécharger PDF avoir
                     </a>
                   </Button>
                 ) : null}

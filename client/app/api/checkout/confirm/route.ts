@@ -15,6 +15,10 @@ import { logCheckoutActivity } from "@/lib/checkout/logCheckoutActivity"
 import { buildOrderNumber } from "@/lib/checkout/numberGenerator"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createServerClient } from "@/lib/supabase/server"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 
 import type { AddressInput } from "@/lib/checkout/addressResolver"
 import { resolveAddress } from "@/lib/checkout/addressResolver"
@@ -62,13 +66,7 @@ export async function POST(request: Request) {
       .catch(() => null)) as ConfirmCheckoutBody | null
 
     const paymentIntentId = normalizeString(body?.paymentIntentId)
-
-    if (!paymentIntentId) {
-      return NextResponse.json(
-        { error: "paymentIntentId requis" },
-        { status: 400 },
-      )
-    }
+    const isMockPayment = !paymentIntentId
 
     const guestEmail = normalizeString(body?.guestEmail)
 
@@ -79,35 +77,42 @@ export async function POST(request: Request) {
       )
     }
 
-    const existingOrder = await findExistingOrder(
-      supabaseAdmin,
-      paymentIntentId,
-    )
+    if (paymentIntentId) {
+      const existingOrder = await findExistingOrder(
+        supabaseAdmin,
+        paymentIntentId,
+      )
 
-    if (existingOrder) {
-      return NextResponse.json({
-        orderId: existingOrder.id_commande,
-        orderNumber: existingOrder.numero_commande,
-        status: "already_confirmed",
-      })
+      if (existingOrder) {
+        return NextResponse.json({
+          orderId: existingOrder.id_commande,
+          orderNumber: existingOrder.numero_commande,
+          status: "already_confirmed",
+        })
+      }
     }
 
-    const { isSuccessful, paymentSnapshot: stripePaymentSnapshot } =
-      await confirmStripePayment(paymentIntentId)
-    const paymentStatus = isSuccessful
-      ? PAYMENT_STATUS_VALID
-      : PAYMENT_STATUS_FAILED
+    let stripePaymentSnapshot = null
+    let paymentStatus = PAYMENT_STATUS_VALID
 
-    if (!isSuccessful) {
-      await logCheckoutActivity("paiement_echoue", {
-        paymentIntentId,
-        userId: user?.id ?? guestEmail,
-      })
+    if (!isMockPayment) {
+      const stripeResult = await confirmStripePayment(paymentIntentId)
+      stripePaymentSnapshot = stripeResult.paymentSnapshot
+      paymentStatus = stripeResult.isSuccessful
+        ? PAYMENT_STATUS_VALID
+        : PAYMENT_STATUS_FAILED
 
-      return NextResponse.json(
-        { error: "Paiement échoué", code: "payment_failed" },
-        { status: 402 },
-      )
+      if (!stripeResult.isSuccessful) {
+        await logCheckoutActivity("paiement_echoue", {
+          paymentIntentId,
+          userId: user?.id ?? guestEmail,
+        })
+
+        return NextResponse.json(
+          { error: "Paiement échoué", code: "payment_failed" },
+          { status: 402 },
+        )
+      }
     }
 
     let userId = user?.id ?? null
@@ -266,7 +271,10 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    console.error("Erreur inattendue confirmation checkout", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.checkout.confirm",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }

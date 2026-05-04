@@ -14,6 +14,10 @@ import {
 import { sendPasswordResetEmail } from '@/lib/auth/email';
 import { logAuthActivity } from '@/lib/auth/logAuthActivity';
 import { ANTI_ENUMERATION_RESET_MESSAGE } from '@/lib/auth/constants';
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from '@/lib/errors/serverError';
 
 // --- Types ---
 
@@ -24,10 +28,10 @@ type UtilisateurResetRow = {
 
 // --- Helpers ---
 
-function buildResetUrl(rawToken: string): string {
+function buildResetUrl(rawToken: string, locale: string): string {
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  return `${baseUrl}/reinitialisation?token=${rawToken}`;
+  return `${baseUrl}/${locale}/reinitialisation-mot-de-passe?token=${rawToken}&recovery=ready`;
 }
 
 // --- Handler ---
@@ -65,6 +69,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const email =
       typeof parsed.email === 'string' ? parsed.email.trim() : '';
+    const localeRaw =
+      typeof parsed.locale === 'string' ? parsed.locale.trim() : '';
+    const locale = ['fr', 'en', 'es', 'ar'].includes(localeRaw)
+      ? localeRaw
+      : 'fr';
     const emailError = validateEmail(email);
 
     if (emailError) {
@@ -106,14 +115,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } as never);
 
     // NOTE: Envoyer l'email (non bloquant)
-    const resetUrl = buildResetUrl(rawToken);
+    const resetUrl = buildResetUrl(rawToken, locale);
 
     sendPasswordResetEmail({
       recipientEmail: email,
       customerName: user.nom_complet,
       resetUrl,
     }).catch((emailError) => {
-      console.error('Erreur envoi email réinitialisation', { emailError });
+      logServerError({
+        feature: 'auth.forgot_password.email',
+        error: emailError,
+        context: { userId: user.id_utilisateur },
+      });
     });
 
     // NOTE: Journalisation (non bloquant)
@@ -126,10 +139,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: ANTI_ENUMERATION_RESET_MESSAGE,
     });
   } catch (error) {
-    console.error('Erreur inattendue forgot-password', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 },
-    );
+    const errorId = logServerError({
+      feature: 'auth.forgot_password',
+      error,
+    });
+    return buildServerErrorResponse(errorId);
   }
 }
