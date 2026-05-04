@@ -14,6 +14,10 @@ import {
 import { sendPasswordResetEmail } from '@/lib/auth/email';
 import { logAuthActivity } from '@/lib/auth/logAuthActivity';
 import { ANTI_ENUMERATION_RESET_MESSAGE } from '@/lib/auth/constants';
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from '@/lib/errors/serverError';
 
 // --- Types ---
 
@@ -113,7 +117,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       customerName: user.nom_complet,
       resetUrl,
     }).catch((emailError) => {
-      console.error('Erreur envoi email réinitialisation', { emailError });
+      logServerError({
+        feature: 'auth.forgot_password.email',
+        error: emailError,
+        context: { userId: user.id_utilisateur },
+      });
     });
 
     // NOTE: Journalisation (non bloquant)
@@ -126,10 +134,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: ANTI_ENUMERATION_RESET_MESSAGE,
     });
   } catch (error) {
-    console.error('Erreur inattendue forgot-password', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 },
-    );
+    const errorId = logServerError({
+      feature: 'auth.forgot_password',
+      error,
+    });
+    return buildServerErrorResponse(errorId);
   }
 }

@@ -6,6 +6,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
 import { getOrCreateConversation } from "@/lib/chatbot/firestore"
 import { logChatbotActivity } from "@/lib/chatbot/logger"
+import { logServerError } from "@/lib/errors/serverError"
 
 type SessionRequestBody = {
   session_id?: unknown
@@ -53,9 +54,12 @@ export async function POST(request: Request) {
       historique: messages,
     })
   } catch (error) {
-    console.error("Erreur création session chatbot", { error })
+    const errorId = logServerError({
+      feature: "api.chatbot.session",
+      error,
+    })
     return NextResponse.json(
-      { error: "Erreur serveur", code: "server_error" },
+      { error: "Erreur serveur", code: "server_error", errorId },
       { status: 500 },
     )
   }

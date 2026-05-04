@@ -5,6 +5,7 @@ import { NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
 import { getConversation } from "@/lib/chatbot/firestore"
+import { logServerError } from "@/lib/errors/serverError"
 
 type RouteContext = {
   params: Promise<{ conversation_id: string }>
@@ -61,9 +62,12 @@ export async function GET(_request: Request, { params }: RouteContext) {
       metadata: conversation.metadata,
     })
   } catch (error) {
-    console.error("Erreur lecture conversation chatbot", { error })
+    const errorId = logServerError({
+      feature: "api.chatbot.conversation.get",
+      error,
+    })
     return NextResponse.json(
-      { error: "Erreur serveur", code: "server_error" },
+      { error: "Erreur serveur", code: "server_error", errorId },
       { status: 500 },
     )
   }

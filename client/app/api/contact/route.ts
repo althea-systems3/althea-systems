@@ -8,6 +8,7 @@ import {
   validateContactForm,
 } from "@/lib/contact/validation"
 import { sendContactFormNotificationEmail } from "@/lib/checkout/email"
+import { logServerError } from "@/lib/errors/serverError"
 
 type ContactRequestBody = {
   email?: unknown
@@ -53,12 +54,16 @@ export async function POST(request: Request) {
       .single()
 
     if (error || !data) {
-      console.error("Erreur insertion message_contact", { error })
+      const errorId = logServerError({
+        feature: "api.contact.insert",
+        error,
+      })
 
       return NextResponse.json(
         {
           error: "Impossible d envoyer votre message pour le moment.",
           code: "contact_insert_failed",
+          errorId,
         },
         { status: 500 },
       )
@@ -68,7 +73,12 @@ export async function POST(request: Request) {
       email: values.email,
       subject: sanitizeText(values.subject, 200),
       message: sanitizeText(values.message, 5000),
-    }).catch((err) => console.error("Erreur envoi email notification contact", err))
+    }).catch((err) => {
+      logServerError({
+        feature: "api.contact.email",
+        error: err,
+      })
+    })
 
     return NextResponse.json(
       {
@@ -78,12 +88,16 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    console.error("Erreur inattendue endpoint contact", { error })
+    const errorId = logServerError({
+      feature: "api.contact",
+      error,
+    })
 
     return NextResponse.json(
       {
         error: "Erreur serveur",
         code: "server_error",
+        errorId,
       },
       { status: 500 },
     )

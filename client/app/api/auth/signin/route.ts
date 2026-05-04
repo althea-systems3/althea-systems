@@ -10,6 +10,7 @@ import {
   ADMIN_2FA_VERIFIED_COOKIE_NAME,
 } from "@/lib/auth/constants"
 import { createServerClient } from "@/lib/supabase/server"
+import { logServerError } from "@/lib/errors/serverError"
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const REMEMBER_SESSION_COOKIE = "althea_remember_session"
@@ -257,8 +258,10 @@ export async function POST(request: Request) {
           expiresInMinutes: Math.round(ADMIN_2FA_CHALLENGE_TTL_SECONDS / 60),
         })
       } catch (challengeError) {
-        console.error("Impossible d'envoyer le challenge 2FA admin", {
-          challengeError,
+        logServerError({
+          feature: "auth.signin.admin_2fa_challenge",
+          error: challengeError,
+          context: { userId: data.user.id },
         })
 
         cookieStore.delete(ADMIN_2FA_CHALLENGE_COOKIE_NAME)
@@ -302,12 +305,16 @@ export async function POST(request: Request) {
       { status: 200 },
     )
   } catch (error) {
-    console.error("Erreur inattendue connexion", { error })
+    const errorId = logServerError({
+      feature: "auth.signin",
+      error,
+    })
 
     return NextResponse.json(
       {
         error: "Erreur serveur",
         code: "server_error",
+        errorId,
       },
       { status: 500 },
     )

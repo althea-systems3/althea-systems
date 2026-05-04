@@ -7,6 +7,7 @@ import { getOrCreateCartSessionId } from "@/lib/auth/cartSession"
 import { persistEscalation, getConversation } from "@/lib/chatbot/firestore"
 import { logChatbotActivity } from "@/lib/chatbot/logger"
 import { sendEscalationNotificationEmail } from "@/lib/checkout/email"
+import { logServerError } from "@/lib/errors/serverError"
 import { toAppLocale } from "@/lib/i18n"
 
 type EscalationReason = "bot_fallback" | "user_request" | "timeout"
@@ -109,9 +110,12 @@ export async function POST(request: Request) {
       message: SUCCESS_MESSAGES[locale],
     })
   } catch (error) {
-    console.error("Erreur endpoint chatbot/escalate", { error })
+    const errorId = logServerError({
+      feature: "api.chatbot.escalate",
+      error,
+    })
     return NextResponse.json(
-      { error: "Erreur serveur", code: "server_error" },
+      { error: "Erreur serveur", code: "server_error", errorId },
       { status: 500 },
     )
   }

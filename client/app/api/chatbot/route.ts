@@ -34,6 +34,7 @@ import {
 } from "@/lib/chatbot/firestore"
 import { logChatbotActivity } from "@/lib/chatbot/logger"
 import type { UserContext } from "@/lib/chatbot/types"
+import { logServerError } from "@/lib/errors/serverError"
 
 type LegacyRequestBody = {
   conversationId?: unknown
@@ -216,9 +217,12 @@ export async function POST(request: Request) {
       actions: analyzed.escalationRequired ? ["escalate_human"] : [],
     })
   } catch (error) {
-    console.error("Erreur inattendue endpoint chatbot (legacy)", { error })
+    const errorId = logServerError({
+      feature: "api.chatbot.legacy",
+      error,
+    })
     return NextResponse.json(
-      { error: "Erreur serveur", code: "server_error" },
+      { error: "Erreur serveur", code: "server_error", errorId },
       { status: 500 },
     )
   }

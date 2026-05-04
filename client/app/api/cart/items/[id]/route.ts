@@ -10,6 +10,10 @@ import {
   ensureRuntimeConfig,
   handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 import type { Panier, LignePanier, Produit } from "@/lib/supabase/types"
 
 const MIN_QUANTITY = 0
@@ -193,8 +197,11 @@ export async function PATCH(
     )
     if (configError) return configError
 
-    console.error("Erreur inattendue modification ligne panier", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.cart.items.id.patch",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }
 
@@ -250,7 +257,10 @@ export async function DELETE(
     )
     if (configError) return configError
 
-    console.error("Erreur inattendue suppression ligne panier", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.cart.items.id.delete",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }

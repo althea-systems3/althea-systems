@@ -11,6 +11,10 @@ import {
   ensureRuntimeConfig,
   handleMissingRuntimeConfigError,
 } from "@/lib/config/runtime"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 import type { Panier } from "@/lib/supabase/types"
 
 const FIRESTORE_IN_QUERY_LIMIT = 30
@@ -252,7 +256,10 @@ export async function GET() {
     )
     if (configError) return configError
 
-    console.error("Erreur inattendue lecture panier", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.cart.get",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }

@@ -15,6 +15,10 @@ import { logCheckoutActivity } from "@/lib/checkout/logCheckoutActivity"
 import { buildOrderNumber } from "@/lib/checkout/numberGenerator"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createServerClient } from "@/lib/supabase/server"
+import {
+  buildServerErrorResponse,
+  logServerError,
+} from "@/lib/errors/serverError"
 
 import type { AddressInput } from "@/lib/checkout/addressResolver"
 import { resolveAddress } from "@/lib/checkout/addressResolver"
@@ -266,7 +270,10 @@ export async function POST(request: Request) {
       { status: 201 },
     )
   } catch (error) {
-    console.error("Erreur inattendue confirmation checkout", { error })
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 })
+    const errorId = logServerError({
+      feature: "api.checkout.confirm",
+      error,
+    })
+    return buildServerErrorResponse(errorId)
   }
 }
