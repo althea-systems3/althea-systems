@@ -33,8 +33,8 @@ export const DEFAULT_ADMIN_CREDIT_NOTES_FILTERS: AdminCreditNotesFilters = {
 }
 
 export const ADMIN_INVOICES_SORT_LABELS: Record<AdminInvoicesSortBy, string> = {
-  numero_facture: "Numero facture",
-  date_emission: "Date emission",
+  numero_facture: "Numéro facture",
+  date_emission: "Date émission",
   client: "Client",
   montant_ttc: "Montant TTC",
   statut: "Statut",
@@ -44,8 +44,8 @@ export const ADMIN_CREDIT_NOTES_SORT_LABELS: Record<
   AdminCreditNotesSortBy,
   string
 > = {
-  numero_avoir: "Numero avoir",
-  date_emission: "Date emission",
+  numero_avoir: "Numéro avoir",
+  date_emission: "Date émission",
   client: "Client",
   montant: "Montant",
   motif: "Motif",
@@ -237,7 +237,7 @@ export function getNextSortDirection(
 
 export function mapInvoiceStatusLabel(status: string): string {
   if (status === "payee") {
-    return "Payee"
+    return "Payée"
   }
 
   if (status === "en_attente") {
@@ -245,7 +245,7 @@ export function mapInvoiceStatusLabel(status: string): string {
   }
 
   if (status === "annule") {
-    return "Annulee"
+    return "Annulée"
   }
 
   return status || "-"

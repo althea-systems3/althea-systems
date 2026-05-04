@@ -6,9 +6,9 @@ export const CART_UPDATED_EVENT_NAME = "althea:cart-updated"
 
 export const MOBILE_MENU_DIALOG_ID = "mobile-main-menu"
 
-export const LINKEDIN_SOCIAL_URL = "https://www.linkedin.com"
-export const INSTAGRAM_SOCIAL_URL = "https://www.instagram.com"
-export const X_SOCIAL_URL = "https://x.com"
+export const LINKEDIN_SOCIAL_URL = "https://www.linkedin.com/in/althea-systems/"
+export const INSTAGRAM_SOCIAL_URL = "https://www.instagram.com/althea.systems/"
+export const X_SOCIAL_URL = "https://x.com/altheasys"
 
 export type LayoutMenuItemKey =
   | "settings"

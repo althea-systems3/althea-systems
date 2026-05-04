@@ -28,10 +28,10 @@ type UtilisateurResetRow = {
 
 // --- Helpers ---
 
-function buildResetUrl(rawToken: string): string {
+function buildResetUrl(rawToken: string, locale: string): string {
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
-  return `${baseUrl}/reinitialisation?token=${rawToken}`;
+  return `${baseUrl}/${locale}/reinitialisation-mot-de-passe?token=${rawToken}&recovery=ready`;
 }
 
 // --- Handler ---
@@ -69,6 +69,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const email =
       typeof parsed.email === 'string' ? parsed.email.trim() : '';
+    const localeRaw =
+      typeof parsed.locale === 'string' ? parsed.locale.trim() : '';
+    const locale = ['fr', 'en', 'es', 'ar'].includes(localeRaw)
+      ? localeRaw
+      : 'fr';
     const emailError = validateEmail(email);
 
     if (emailError) {
@@ -110,7 +115,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } as never);
 
     // NOTE: Envoyer l'email (non bloquant)
-    const resetUrl = buildResetUrl(rawToken);
+    const resetUrl = buildResetUrl(rawToken, locale);
 
     sendPasswordResetEmail({
       recipientEmail: email,

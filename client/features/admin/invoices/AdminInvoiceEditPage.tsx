@@ -116,7 +116,7 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
           id="admin-invoice-edit-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Edition facture
+          Édition facture
         </h1>
         <Card>
           <CardContent className="p-6 text-sm text-slate-600">
@@ -134,7 +134,7 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
           id="admin-invoice-edit-title"
           className="heading-font text-2xl text-brand-nav"
         >
-          Edition facture
+          Édition facture
         </h1>
 
         <Card>
@@ -159,7 +159,7 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
             id="admin-invoice-edit-title"
             className="heading-font text-2xl text-brand-nav sm:text-3xl"
           >
-            Edition facture {invoice.numero_facture}
+            Édition facture {invoice.numero_facture}
           </h1>
           <p className="text-sm text-slate-600">{invoice.id_facture}</p>
         </div>
@@ -204,19 +204,19 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
               Champs non modifiables
             </CardTitle>
             <CardDescription>
-              Les donnees legales et de liaison restent fixes pour garantir la
-              coherence comptable.
+              Les données légales et de liaison restent fixes pour garantir la
+              cohérence comptable.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Numero facture</p>
+              <p className="text-xs text-slate-500">Numéro facture</p>
               <p className="mt-1 font-medium text-brand-nav">
                 {invoice.numero_facture}
               </p>
             </div>
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Date emission</p>
+              <p className="text-xs text-slate-500">Date émission</p>
               <p className="mt-1 font-medium text-brand-nav">
                 {formatDate(invoice.date_emission)}
               </p>
@@ -228,7 +228,7 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
               </p>
             </div>
             <div className="rounded-md border border-border p-3 text-sm">
-              <p className="text-xs text-slate-500">Commande associee</p>
+              <p className="text-xs text-slate-500">Commande associée</p>
               {invoice.commande ? (
                 <Link
                   href={`/admin/commandes/${invoice.commande.id_commande}`}
@@ -262,8 +262,8 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
               Champs modifiables
             </CardTitle>
             <CardDescription>
-              Le statut et l&apos;URL PDF peuvent etre ajustes selon les regles
-              metier.
+              Le statut et l&apos;URL PDF peuvent être ajustés selon les règles
+              métier.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -278,18 +278,18 @@ export function AdminInvoiceEditPage({ invoiceId }: AdminInvoiceEditPageProps) {
                 }}
                 className="h-10 w-full rounded-md border border-border px-3"
               >
-                <option value="payee">Payee</option>
+                <option value="payee">Payée</option>
                 <option value="en_attente">En attente</option>
                 <option value="annule" disabled={!canSelectCancelled}>
-                  Annulee (via avoir)
+                  Annulée (via avoir)
                 </option>
               </select>
             </label>
 
             {!canSelectCancelled ? (
               <p className="text-xs text-slate-500">
-                Pour passer a Annulee, utilisez l&apos;action de suppression
-                depuis le detail facture: un avoir sera cree automatiquement.
+                Pour passer à Annulée, utilisez l&apos;action de suppression
+                depuis le détail facture: un avoir sera créé automatiquement.
               </p>
             ) : null}
 

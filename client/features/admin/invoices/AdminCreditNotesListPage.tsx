@@ -187,7 +187,7 @@ export function AdminCreditNotesListPage() {
             Recherche, filtres et tri
           </CardTitle>
           <CardDescription>
-            Recherche par numero/client, filtre motif/date, tri ascendant et
+            Recherche par numéro/client, filtre motif/date, tri ascendant et
             descendant.
           </CardDescription>
         </CardHeader>
@@ -197,7 +197,7 @@ export function AdminCreditNotesListPage() {
             onSubmit={handleSearchSubmit}
           >
             <label className="space-y-1 text-sm text-slate-700">
-              <span>Recherche numero avoir</span>
+              <span>Recherche numéro avoir</span>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -401,7 +401,7 @@ export function AdminCreditNotesListPage() {
                       currentDirection={filters.sortDirection}
                       onSort={handleSort}
                     >
-                      Date emission
+                      Date émission
                     </AdminSortButton>
                   </th>
                   <th className="px-2 py-3">

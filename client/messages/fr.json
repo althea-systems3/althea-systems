@@ -1,52 +1,53 @@
 {
   "Home": {
     "valueTitle": "La plateforme e-commerce Althea Systems",
-    "valueDescription": "Un front performant pour accompagner vos achats professionnels: catalogue produit, disponibilite en temps reel et parcours de commande fluide.",
-    "valueCardOperationsTitle": "Pilotage operationnel",
-    "valueCardOperationsDescription": "Centralisez categories, mises en avant et contenus editoriaux depuis votre backoffice sans degrader l'experience client.",
-    "valueCardAvailabilityTitle": "Disponibilite maitrisee",
-    "valueCardAvailabilityDescription": "Affichez des stocks fiables, des prix clairs et des informations produit exploitables pour accelerer la decision d'achat.",
+    "valueDescription": "Un front performant pour accompagner vos achats professionnels: catalogue produit, disponibilité en temps réel et parcours de commande fluide.",
+    "valueCardOperationsTitle": "Pilotage opérationnel",
+    "valueCardOperationsDescription": "Centralisez catégories, mises en avant et contenus éditoriaux depuis votre backoffice sans dégrader l'expérience client.",
+    "valueCardAvailabilityTitle": "Disponibilité maîtrisée",
+    "valueCardAvailabilityDescription": "Affichez des stocks fiables, des prix clairs et des informations produit exploitables pour accélérer la décision d'achat.",
     "valueCardSupportTitle": "Accompagnement continu",
-    "valueCardSupportDescription": "Offrez un suivi avant et apres commande avec un support reactif, une recherche efficace et un panier toujours synchronise.",
+    "valueCardSupportDescription": "Offrez un suivi avant et après commande avec un support réactif, une recherche efficace et un panier toujours synchronisé.",
     "valueCta": "Explorer le catalogue"
   },
   "HomeCarousel": {
     "badgeLabel": "Promotion",
     "ariaLabel": "Carrousel promotionnel de la page d'accueil",
     "slideCounter": "Slide {current} sur {total}",
-    "previous": "Slide precedente",
+    "previous": "Slide précédente",
     "next": "Slide suivante",
-    "goToSlide": "Aller a la slide {index}",
-    "pauseAutoSlide": "Mettre en pause le defilement automatique",
-    "resumeAutoSlide": "Reprendre le defilement automatique",
-    "fallbackTitle": "Promotions bientot disponibles",
-    "fallbackDescription": "Aucune slide n'est disponible pour le moment. Revenez dans quelques instants."
+    "goToSlide": "Aller à la slide {index}",
+    "pauseAutoSlide": "Mettre en pause le défilement automatique",
+    "resumeAutoSlide": "Reprendre le défilement automatique",
+    "fallbackTitle": "Promotions bientôt disponibles",
+    "fallbackDescription": "Aucune slide n'est disponible pour le moment. Revenez dans quelques instants.",
+    "discoverButton": "Découvrir"
   },
   "HomeCategoryGrid": {
-    "title": "Nos categories",
-    "description": "Explorez nos univers produits et trouvez rapidement la gamme adaptee a votre besoin.",
-    "loadingLabel": "Chargement des categories",
-    "errorTitle": "Categories temporairement indisponibles",
-    "errorDescription": "Impossible de charger les categories pour le moment. Veuillez reessayer plus tard.",
-    "fallbackDataTitle": "Categories recommandees",
-    "fallbackDataDescription": "Certaines categories affichees sont issues de notre selection de continuite.",
-    "emptyTitle": "Aucune categorie disponible",
-    "emptyDescription": "Les categories actives n'ont pas encore ete publiees.",
-    "categoryImageAlt": "Image representative de la categorie {categoryName}",
-    "categoryLinkLabel": "Voir la categorie {categoryName}"
+    "title": "Nos catégories",
+    "description": "Explorez nos univers produits et trouvez rapidement la gamme adaptée à votre besoin.",
+    "loadingLabel": "Chargement des catégories",
+    "errorTitle": "Catégories temporairement indisponibles",
+    "errorDescription": "Impossible de charger les catégories pour le moment. Veuillez réessayer plus tard.",
+    "fallbackDataTitle": "Catégories recommandées",
+    "fallbackDataDescription": "Certaines catégories affichées sont issues de notre sélection de continuité.",
+    "emptyTitle": "Aucune catégorie disponible",
+    "emptyDescription": "Les catégories actives n'ont pas encore été publiées.",
+    "categoryImageAlt": "Image représentative de la catégorie {categoryName}",
+    "categoryLinkLabel": "Voir la catégorie {categoryName}"
   },
   "HomeTopProductsGrid": {
     "title": "Les Top Produits du moment",
-    "description": "Decouvrez les produits vedettes mis en avant et ordonnes depuis le backoffice.",
+    "description": "Découvrez les produits vedettes mis en avant et ordonnés depuis le backoffice.",
     "loadingLabel": "Chargement des top produits",
     "errorTitle": "Top produits temporairement indisponibles",
-    "errorDescription": "Impossible de charger les top produits pour le moment. Veuillez reessayer plus tard.",
-    "fallbackDataTitle": "Selection du moment",
-    "fallbackDataDescription": "Certains produits affiches proviennent de notre selection de continuite.",
+    "errorDescription": "Impossible de charger les top produits pour le moment. Veuillez réessayer plus tard.",
+    "fallbackDataTitle": "Sélection du moment",
+    "fallbackDataDescription": "Certains produits affichés proviennent de notre sélection de continuité.",
     "emptyTitle": "Aucun top produit disponible",
-    "emptyDescription": "Aucun produit vedette actif n'a encore ete publie.",
+    "emptyDescription": "Aucun produit vedette actif n'a encore été publié.",
     "productImageAlt": "Image principale du produit {productName}",
-    "missingImageLabel": "Image produit bientot disponible",
+    "missingImageLabel": "Image produit bientôt disponible",
     "productLinkLabel": "Voir la fiche produit {productName}",
     "availabilityAvailable": "Disponible",
     "availabilityOutOfStock": "Rupture",
@@ -57,54 +58,54 @@
   },
   "Layout": {
     "search": "Recherche",
-    "searchPlaceholder": "Rechercher un produit, une categorie...",
+    "searchPlaceholder": "Rechercher un produit, une catégorie...",
     "cart": "Voir le panier",
     "menu": "Menu",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu",
     "footer": "Pied de page",
-    "socials": "Reseaux sociaux",
+    "socials": "Réseaux sociaux",
     "languageLabel": "Choix de langue",
-    "menuHint": "Le menu s'adapte selon l'etat de connexion.",
+    "menuHint": "Le menu s'adapte selon l'état de connexion.",
     "menuItems": {
-      "settings": "Mes parametres",
+      "settings": "Mes paramètres",
       "orders": "Mes commandes",
       "terms": "CGU",
-      "legal": "Mentions legales",
+      "legal": "Mentions légales",
       "contact": "Contact",
-      "about": "A propos de Althea Systems",
-      "logout": "Se deconnecter",
+      "about": "À propos de Althea Systems",
+      "logout": "Se déconnecter",
       "signIn": "Se connecter",
       "signUp": "S'inscrire"
     }
   },
   "Pages": {
     "terms": {
-      "title": "Conditions Generales d'Utilisation",
-      "description": "Consultez ici l'ensemble des conditions applicables a l'utilisation du site Althea Systems."
+      "title": "Conditions Générales d'Utilisation",
+      "description": "Consultez ici l'ensemble des conditions applicables à l'utilisation du site Althea Systems."
     },
     "legal": {
-      "title": "Mentions legales",
-      "description": "Retrouvez les informations juridiques et editoriales du site e-commerce."
+      "title": "Mentions légales",
+      "description": "Retrouvez les informations juridiques et éditoriales du site e-commerce."
     },
     "contact": {
       "title": "Contact",
-      "description": "Notre equipe est disponible pour repondre a vos questions commerciales et techniques."
+      "description": "Notre équipe est disponible pour répondre à vos questions commerciales et techniques."
     },
     "about": {
-      "title": "A propos",
-      "description": "Althea Systems accompagne les entreprises avec une plateforme e-commerce performante et evolutive."
+      "title": "À propos",
+      "description": "Althea Systems accompagne les entreprises avec une plateforme e-commerce performante et évolutive."
     },
     "catalogue": {
       "title": "Catalogue",
-      "description": "Parcourez les univers produits et accedez rapidement a la categorie adaptee a votre besoin."
+      "description": "Parcourez les univers produits et accédez rapidement à la catégorie adaptée à votre besoin."
     },
     "signIn": {
       "title": "Se connecter",
-      "description": "Accedez a votre espace client pour suivre vos commandes et gerer vos informations.",
+      "description": "Accédez à votre espace client pour suivre vos commandes et gérer vos informations.",
       "form": {
         "title": "Connexion client",
-        "description": "Renseignez vos identifiants pour acceder a votre compte.",
+        "description": "Renseignez vos identifiants pour accéder à votre compte.",
         "fields": {
           "email": {
             "label": "Adresse e-mail",
@@ -120,8 +121,8 @@
           "submit": "Se connecter",
           "submitting": "Connexion...",
           "noAccount": "Vous n'avez pas encore de compte ?",
-          "goToSignUp": "Creer un compte",
-          "goToForgotPassword": "Mot de passe oublie ?",
+          "goToSignUp": "Créer un compte",
+          "goToForgotPassword": "Mot de passe oublié ?",
           "showPassword": "Afficher le mot de passe",
           "hidePassword": "Masquer le mot de passe",
           "goToCheckout": "Revenir au checkout"
@@ -132,29 +133,29 @@
           "passwordRequired": "Le mot de passe est obligatoire."
         },
         "messages": {
-          "errorHint": "Corrigez les champs signales puis reessayez.",
+          "errorHint": "Corrigez les champs signalés puis réessayez.",
           "invalidCredentials": "Compte inexistant ou mot de passe incorrect.",
-          "accountNotFound": "Aucun compte correspondant a cette adresse e-mail.",
+          "accountNotFound": "Aucun compte correspondant à cette adresse e-mail.",
           "incorrectPassword": "Mot de passe incorrect.",
-          "accountNotVerified": "Ce compte n'est pas encore verifie. Verifiez votre e-mail.",
-          "sessionExpired": "Votre session a expire. Connectez-vous pour continuer.",
-          "adminTwoFactorUnavailable": "Connexion admin impossible pour le moment. Reessayez.",
-          "serverError": "Une erreur serveur temporaire est survenue. Reessayez.",
-          "signInFailed": "Connexion impossible pour le moment. Reessayez.",
-          "passwordResetSuccess": "Mot de passe reinitialise avec succes. Connectez-vous.",
-          "verificationSuccess": "Adresse e-mail verifiee. Vous pouvez vous connecter."
+          "accountNotVerified": "Ce compte n'est pas encore vérifié. Vérifiez votre e-mail.",
+          "sessionExpired": "Votre session a expiré. Connectez-vous pour continuer.",
+          "adminTwoFactorUnavailable": "Connexion admin impossible pour le moment. Réessayez.",
+          "serverError": "Une erreur serveur temporaire est survenue. Réessayez.",
+          "signInFailed": "Connexion impossible pour le moment. Réessayez.",
+          "passwordResetSuccess": "Mot de passe réinitialisé avec succès. Connectez-vous.",
+          "verificationSuccess": "Adresse e-mail vérifiée. Vous pouvez vous connecter."
         }
       }
     },
     "adminTwoFactor": {
-      "title": "Verification administrateur",
-      "description": "Un code de verification est requis pour acceder au backoffice.",
+      "title": "Vérification administrateur",
+      "description": "Un code de vérification est requis pour accéder au backoffice.",
       "form": {
         "title": "Validation 2FA",
-        "description": "Entrez le code a 6 chiffres recu par e-mail.",
+        "description": "Entrez le code à 6 chiffres reçu par e-mail.",
         "fields": {
           "code": {
-            "label": "Code de verification",
+            "label": "Code de vérification",
             "placeholder": "000000"
           }
         },
@@ -164,32 +165,32 @@
           "resendCode": "Renvoyer un code",
           "resendIn": "Renvoyer dans {seconds}s",
           "sending": "Envoi...",
-          "backToSignIn": "Revenir a la connexion"
+          "backToSignIn": "Revenir à la connexion"
         },
         "hints": {
           "expiry": "Le code expire rapidement pour limiter les risques de compromission."
         },
         "messages": {
-          "codeSent": "Un nouveau code a ete envoye.",
-          "verifiedRedirecting": "Verification reussie. Redirection en cours...",
+          "codeSent": "Un nouveau code a été envoyé.",
+          "verifiedRedirecting": "Vérification réussie. Redirection en cours...",
           "invalidCodeFormat": "Le code doit contenir 6 chiffres.",
-          "invalidCode": "Code invalide ou expire.",
-          "challengeExpired": "Le code a expire. Demandez-en un nouveau.",
+          "invalidCode": "Code invalide ou expiré.",
+          "challengeExpired": "Le code a expiré. Demandez-en un nouveau.",
           "tooManyAttempts": "Trop de tentatives. Reconnectez-vous pour recommencer.",
-          "sessionExpired": "Session expiree. Reconnectez-vous.",
-          "adminRequired": "Acces reserve aux administrateurs.",
+          "sessionExpired": "Session expirée. Reconnectez-vous.",
+          "adminRequired": "Accès réservé aux administrateurs.",
           "challengeUnavailable": "Impossible d'envoyer le code pour le moment.",
-          "verifyFailed": "Verification impossible pour le moment.",
-          "serverError": "Erreur serveur temporaire. Reessayez."
+          "verifyFailed": "Vérification impossible pour le moment.",
+          "serverError": "Erreur serveur temporaire. Réessayez."
         }
       }
     },
     "forgotPassword": {
-      "title": "Mot de passe oublie",
-      "description": "Recevez un lien de reinitialisation pour definir un nouveau mot de passe en toute securite.",
+      "title": "Mot de passe oublié",
+      "description": "Recevez un lien de réinitialisation pour définir un nouveau mot de passe en toute sécurité.",
       "form": {
-        "title": "Reinitialiser le mot de passe",
-        "description": "Saisissez l'adresse e-mail associee a votre compte.",
+        "title": "Réinitialiser le mot de passe",
+        "description": "Saisissez l'adresse e-mail associée à votre compte.",
         "fields": {
           "email": {
             "label": "Adresse e-mail",
@@ -202,7 +203,7 @@
           "hasAccount": "Vous vous souvenez de votre mot de passe ?",
           "goToSignIn": "Se connecter",
           "noAccount": "Vous n'avez pas encore de compte ?",
-          "goToSignUp": "Creer un compte",
+          "goToSignUp": "Créer un compte",
           "goToCheckout": "Revenir au checkout"
         },
         "validation": {
@@ -210,20 +211,20 @@
           "emailInvalid": "Veuillez saisir une adresse e-mail valide."
         },
         "messages": {
-          "errorHint": "Corrigez les champs signales puis reessayez.",
-          "requestFailed": "Impossible d'envoyer le lien de reinitialisation pour le moment.",
-          "rateLimited": "Trop de demandes. Patientez avant de reessayer.",
-          "serverError": "Une erreur serveur temporaire est survenue. Reessayez plus tard.",
-          "emailSentNeutral": "Si cette adresse e-mail existe, un lien de reinitialisation a ete envoye.",
+          "errorHint": "Corrigez les champs signalés puis réessayez.",
+          "requestFailed": "Impossible d'envoyer le lien de réinitialisation pour le moment.",
+          "rateLimited": "Trop de demandes. Patientez avant de réessayer.",
+          "serverError": "Une erreur serveur temporaire est survenue. Réessayez plus tard.",
+          "emailSentNeutral": "Si cette adresse e-mail existe, un lien de réinitialisation a été envoyé.",
           "nextStepHint": "Consultez aussi vos spams ou promotions si vous ne voyez pas l'e-mail."
         }
       }
     },
     "resetPassword": {
       "title": "Nouveau mot de passe",
-      "description": "Choisissez un nouveau mot de passe robuste pour securiser votre compte.",
+      "description": "Choisissez un nouveau mot de passe robuste pour sécuriser votre compte.",
       "form": {
-        "title": "Definir un nouveau mot de passe",
+        "title": "Définir un nouveau mot de passe",
         "description": "Renseignez puis confirmez votre nouveau mot de passe.",
         "fields": {
           "password": {
@@ -236,44 +237,44 @@
           }
         },
         "actions": {
-          "submit": "Mettre a jour le mot de passe",
-          "submitting": "Mise a jour...",
+          "submit": "Mettre à jour le mot de passe",
+          "submitting": "Mise à jour...",
           "showPassword": "Afficher le mot de passe",
           "hidePassword": "Masquer le mot de passe",
           "requestNewLink": "Demander un nouveau lien",
-          "goToSignIn": "Retour a la connexion"
+          "goToSignIn": "Retour à la connexion"
         },
         "validation": {
           "passwordRequired": "Le mot de passe est obligatoire.",
-          "passwordWeak": "Le mot de passe doit contenir au moins 8 caracteres avec une majuscule, une minuscule et un chiffre.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 8 caractères avec une majuscule, une minuscule et un chiffre.",
           "passwordConfirmationRequired": "La confirmation du mot de passe est obligatoire.",
           "passwordsMismatch": "Les mots de passe ne correspondent pas."
         },
         "messages": {
-          "passwordHint": "Utilisez 8 caracteres minimum avec majuscule, minuscule et chiffre.",
-          "passwordStrong": "Mot de passe robuste detecte.",
-          "tokenExpired": "Le lien de reinitialisation a expire.",
-          "tokenInvalid": "Le lien de reinitialisation est invalide.",
-          "requestNewLink": "Demandez un nouveau lien de reinitialisation pour continuer.",
-          "sessionExpired": "Votre session de reinitialisation a expire. Demandez un nouveau lien.",
-          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de securite.",
-          "resetFailed": "Impossible de reinitialiser le mot de passe pour le moment.",
-          "serverError": "Une erreur serveur temporaire est survenue. Reessayez plus tard.",
-          "errorHint": "Corrigez les champs signales puis reessayez.",
-          "passwordResetSuccess": "Mot de passe mis a jour avec succes."
+          "passwordHint": "Utilisez 8 caractères minimum avec majuscule, minuscule et chiffre.",
+          "passwordStrong": "Mot de passe robuste détecté.",
+          "tokenExpired": "Le lien de réinitialisation a expiré.",
+          "tokenInvalid": "Le lien de réinitialisation est invalide.",
+          "requestNewLink": "Demandez un nouveau lien de réinitialisation pour continuer.",
+          "sessionExpired": "Votre session de réinitialisation a expiré. Demandez un nouveau lien.",
+          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de sécurité.",
+          "resetFailed": "Impossible de réinitialiser le mot de passe pour le moment.",
+          "serverError": "Une erreur serveur temporaire est survenue. Réessayez plus tard.",
+          "errorHint": "Corrigez les champs signalés puis réessayez.",
+          "passwordResetSuccess": "Mot de passe mis à jour avec succès."
         }
       }
     },
     "signUp": {
       "title": "S'inscrire",
-      "description": "Creez un compte pour beneficier d'un suivi de commande et d'une experience personnalisee.",
+      "description": "Créez un compte pour bénéficier d'un suivi de commande et d'une expérience personnalisée.",
       "form": {
-        "title": "Creation de compte",
-        "description": "Creez votre espace professionnel en quelques etapes.",
+        "title": "Création de compte",
+        "description": "Créez votre espace professionnel en quelques étapes.",
         "fields": {
           "firstName": {
-            "label": "Prenom",
-            "placeholder": "Votre prenom"
+            "label": "Prénom",
+            "placeholder": "Votre prénom"
           },
           "lastName": {
             "label": "Nom",
@@ -284,7 +285,7 @@
             "placeholder": "vous@entreprise.com"
           },
           "phone": {
-            "label": "Telephone (optionnel)",
+            "label": "Téléphone (optionnel)",
             "placeholder": "+33 6 12 34 56 78"
           },
           "password": {
@@ -295,98 +296,98 @@
             "label": "Confirmer le mot de passe",
             "placeholder": "Retapez votre mot de passe"
           },
-          "acceptTerms": "J'accepte les conditions d'utilisation et la politique de confidentialite."
+          "acceptTerms": "J'accepte les conditions d'utilisation et la politique de confidentialité."
         },
         "actions": {
-          "submit": "Creer mon compte",
-          "submitting": "Creation...",
-          "hasAccount": "Vous avez deja un compte ?",
+          "submit": "Créer mon compte",
+          "submitting": "Création...",
+          "hasAccount": "Vous avez déjà un compte ?",
           "goToSignIn": "Se connecter",
           "showPassword": "Afficher le mot de passe",
           "hidePassword": "Masquer le mot de passe",
           "goToCheckout": "Revenir au checkout"
         },
         "validation": {
-          "firstNameRequired": "Le prenom est obligatoire.",
+          "firstNameRequired": "Le prénom est obligatoire.",
           "lastNameRequired": "Le nom est obligatoire.",
           "emailRequired": "L'adresse e-mail est obligatoire.",
           "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
-          "phoneInvalid": "Veuillez saisir un numero de telephone valide.",
+          "phoneInvalid": "Veuillez saisir un numéro de téléphone valide.",
           "passwordRequired": "Le mot de passe est obligatoire.",
-          "passwordWeak": "Le mot de passe doit contenir au moins 8 caracteres avec une majuscule, une minuscule et un chiffre.",
+          "passwordWeak": "Le mot de passe doit contenir au moins 8 caractères avec une majuscule, une minuscule et un chiffre.",
           "passwordConfirmationRequired": "La confirmation du mot de passe est obligatoire.",
           "passwordsMismatch": "Les mots de passe ne correspondent pas.",
           "termsRequired": "Vous devez accepter les conditions pour continuer."
         },
         "messages": {
-          "passwordHint": "Utilisez 8 caracteres minimum avec majuscule, minuscule et chiffre.",
-          "passwordStrong": "Mot de passe robuste detecte.",
-          "errorHint": "Corrigez les champs signales puis reessayez.",
-          "verificationEmailSent": "Compte cree. Verifiez votre e-mail pour activer votre compte.",
-          "verificationEmailSentCheckout": "Compte cree. Verifiez votre e-mail, puis revenez finaliser votre commande.",
-          "verificationSuccess": "Adresse e-mail verifiee. Vous pouvez maintenant vous connecter.",
-          "verificationExpired": "Lien de verification expire. Demandez un nouvel e-mail de confirmation.",
-          "verificationInvalid": "Lien de verification invalide. Demandez un nouvel e-mail de confirmation.",
-          "emailAlreadyUsed": "Cette adresse e-mail est deja utilisee.",
-          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de securite.",
-          "configurationUnavailable": "Le service d'inscription est momentanement indisponible. Veuillez reessayer plus tard.",
-          "signupFailed": "Impossible de creer le compte pour le moment. Reessayez.",
-          "serverError": "Une erreur serveur est survenue. Reessayez plus tard.",
-          "nextStepHint": "Si vous ne voyez pas l'e-mail, verifiez vos spams ou promotions."
+          "passwordHint": "Utilisez 8 caractères minimum avec majuscule, minuscule et chiffre.",
+          "passwordStrong": "Mot de passe robuste détecté.",
+          "errorHint": "Corrigez les champs signalés puis réessayez.",
+          "verificationEmailSent": "Compte créé. Vérifiez votre e-mail pour activer votre compte.",
+          "verificationEmailSentCheckout": "Compte créé. Vérifiez votre e-mail, puis revenez finaliser votre commande.",
+          "verificationSuccess": "Adresse e-mail vérifiée. Vous pouvez maintenant vous connecter.",
+          "verificationExpired": "Lien de vérification expiré. Demandez un nouvel e-mail de confirmation.",
+          "verificationInvalid": "Lien de vérification invalide. Demandez un nouvel e-mail de confirmation.",
+          "emailAlreadyUsed": "Cette adresse e-mail est déjà utilisée.",
+          "passwordTooWeak": "Le mot de passe ne respecte pas les exigences de sécurité.",
+          "configurationUnavailable": "Le service d'inscription est momentanément indisponible. Veuillez réessayer plus tard.",
+          "signupFailed": "Impossible de créer le compte pour le moment. Réessayez.",
+          "serverError": "Une erreur serveur est survenue. Réessayez plus tard.",
+          "nextStepHint": "Si vous ne voyez pas l'e-mail, vérifiez vos spams ou promotions."
         }
       }
     },
     "settings": {
-      "title": "Mes parametres",
-      "description": "Mettez a jour vos informations de profil, de securite et de preferences personnelles."
+      "title": "Mes paramètres",
+      "description": "Mettez à jour vos informations de profil, de sécurité et de préférences personnelles."
     },
     "orders": {
       "title": "Mes commandes",
-      "description": "Consultez l'historique de vos commandes et l'etat de traitement en temps reel."
+      "description": "Consultez l'historique de vos commandes et l'état de traitement en temps réel."
     },
     "cart": {
       "title": "Panier",
-      "description": "Revoyez vos articles, ajustez les quantites et preparez votre validation de commande."
+      "description": "Revoyez vos articles, ajustez les quantités et préparez votre validation de commande."
     },
     "checkout": {
       "title": "Checkout",
-      "description": "Finalisez votre commande en verifiant vos informations de livraison et de paiement."
+      "description": "Finalisez votre commande en vérifiant vos informations de livraison et de paiement."
     },
     "chatbot": {
       "title": "Chatbot support",
-      "description": "Discutez en temps reel avec notre assistant. Vous pouvez demander un transfert vers un agent humain."
+      "description": "Discutez en temps réel avec notre assistant. Vous pouvez demander un transfert vers un agent humain."
     },
     "category": {
-      "title": "Categorie : {categorySlug}",
-      "description": "Retrouvez les produits disponibles pour la categorie {categorySlug}, avec stock et prix actualises."
+      "title": "Catégorie : {categorySlug}",
+      "description": "Retrouvez les produits disponibles pour la catégorie {categorySlug}, avec stock et prix actualisés."
     }
   },
   "CataloguePage": {
     "hero": {
-      "imageAlt": "Image de la categorie {categoryName}",
-      "notFoundTitle": "Categorie introuvable",
-      "notFoundDescription": "La categorie demandee n'existe pas ou n'est plus disponible.",
-      "errorTitle": "Categorie temporairement indisponible",
-      "errorDescription": "Impossible de charger les informations de cette categorie. Veuillez reessayer plus tard."
+      "imageAlt": "Image de la catégorie {categoryName}",
+      "notFoundTitle": "Catégorie introuvable",
+      "notFoundDescription": "La catégorie demandée n'existe pas ou n'est plus disponible.",
+      "errorTitle": "Catégorie temporairement indisponible",
+      "errorDescription": "Impossible de charger les informations de cette catégorie. Veuillez réessayer plus tard."
     },
     "products": {
-      "sectionTitle": "Produits de la categorie",
+      "sectionTitle": "Produits de la catégorie",
       "gridLabel": "Liste des produits",
       "loadingLabel": "Chargement des produits",
       "errorTitle": "Produits temporairement indisponibles",
-      "errorDescription": "Impossible de charger les produits pour le moment. Veuillez reessayer plus tard.",
+      "errorDescription": "Impossible de charger les produits pour le moment. Veuillez réessayer plus tard.",
       "emptyTitle": "Aucun produit disponible",
-      "emptyDescription": "Cette categorie ne contient pas encore de produits publies.",
+      "emptyDescription": "Cette catégorie ne contient pas encore de produits publiés.",
       "productImageAlt": "Image principale du produit {productName}",
-      "missingImageLabel": "Image produit bientot disponible",
+      "missingImageLabel": "Image produit bientôt disponible",
       "productLinkLabel": "Voir la fiche produit {productName}",
       "availabilityAvailable": "Disponible",
       "availabilityOutOfStock": "En rupture de stock",
       "priceUnavailable": "Prix non disponible",
       "paginationLabel": "Navigation dans la liste des produits",
-      "previousPage": "Page precedente",
+      "previousPage": "Page précédente",
       "nextPage": "Page suivante",
-      "previous": "Precedent",
+      "previous": "Précédent",
       "next": "Suivant",
       "pageCounter": "Page {page} sur {totalPages} — {total} produits"
     }
@@ -394,9 +395,9 @@
   "ProductPage": {
     "loadingLabel": "Chargement de la fiche produit",
     "errorTitle": "Produit temporairement indisponible",
-    "errorDescription": "Impossible de charger cette fiche produit pour le moment. Veuillez reessayer plus tard.",
+    "errorDescription": "Impossible de charger cette fiche produit pour le moment. Veuillez réessayer plus tard.",
     "notFoundTitle": "Produit introuvable",
-    "notFoundDescription": "Le produit demande n'existe pas ou n'est plus disponible.",
+    "notFoundDescription": "Le produit demandé n'existe pas ou n'est plus disponible.",
     "priceUnavailable": "Prix non disponible",
     "descriptionFallback": "Aucune description n'est disponible pour ce produit.",
     "availabilityAvailable": "Disponible",
@@ -405,43 +406,46 @@
     "gallery": {
       "sectionLabel": "Galerie d'images du produit",
       "imageAlt": "Image {index} du produit {productName}",
-      "fallbackLabel": "Image produit bientot disponible",
-      "previousImage": "Image precedente",
+      "fallbackLabel": "Image produit bientôt disponible",
+      "previousImage": "Image précédente",
       "nextImage": "Image suivante",
-      "goToImage": "Aller a l'image {index}",
+      "goToImage": "Aller à l'image {index}",
       "imageCounter": "Image {current} sur {total}"
     },
     "characteristics": {
-      "title": "Caracteristiques techniques",
-      "empty": "Aucune caracteristique technique n'est renseignee pour ce produit."
+      "title": "Caractéristiques techniques",
+      "empty": "Aucune caractéristique technique n'est renseignée pour ce produit."
     },
     "cta": {
       "addToCart": "Ajouter au panier",
       "adding": "Ajout en cours...",
       "outOfStock": "Indisponible",
-      "success": "Produit ajoute au panier.",
+      "success": "Produit ajouté au panier.",
       "error": "Impossible d'ajouter ce produit au panier.",
       "errorWithReason": "Impossible d'ajouter ce produit : {reason}"
     },
     "similar": {
       "title": "Produits similaires",
-      "description": "Poursuivez votre navigation avec des references proches de ce produit.",
+      "description": "Poursuivez votre navigation avec des références proches de ce produit.",
       "loadingLabel": "Chargement des produits similaires",
       "errorTitle": "Produits similaires temporairement indisponibles",
       "errorDescription": "Impossible de charger les produits similaires pour le moment.",
       "emptyTitle": "Aucun produit similaire",
       "emptyDescription": "Aucune suggestion n'est disponible pour ce produit.",
       "productImageAlt": "Image principale du produit {productName}",
-      "missingImageLabel": "Image produit bientot disponible",
+      "missingImageLabel": "Image produit bientôt disponible",
       "productLinkLabel": "Voir la fiche produit {productName}",
       "priceUnavailable": "Prix non disponible",
       "availabilityAvailable": "Disponible",
       "availabilityOutOfStock": "En rupture de stock"
-    }
+    },
+    "quantityLabel": "Quantité",
+    "quantityDecrease": "Diminuer la quantité",
+    "quantityIncrease": "Augmenter la quantité"
   },
   "SearchPage": {
-    "title": "Recherche avancee",
-    "description": "Affinez votre recherche avec des facettes combinees pour trouver rapidement les produits les plus pertinents.",
+    "title": "Recherche avancée",
+    "description": "Affinez votre recherche avec des facettes combinées pour trouver rapidement les produits les plus pertinents.",
     "filters": {
       "title": "Filtres",
       "openMobile": "Afficher les filtres",
@@ -452,28 +456,28 @@
       "titlePlaceholder": "Filtrer sur le titre",
       "descriptionLabel": "Texte de la description",
       "descriptionPlaceholder": "Filtrer sur la description",
-      "characteristicsLabel": "Caracteristiques techniques",
+      "characteristicsLabel": "Caractéristiques techniques",
       "characteristicsPlaceholder": "Ex: Modbus, 24 canaux, IP67...",
       "priceTitle": "Prix TTC",
       "priceMinLabel": "Prix minimum",
       "priceMinPlaceholder": "Min",
       "priceMaxLabel": "Prix maximum",
       "priceMaxPlaceholder": "Max",
-      "priceRangeHint": "Plage catalogue: {min} a {max}",
-      "categoriesTitle": "Categories",
-      "categoriesLoadingLabel": "Chargement des categories de filtre",
-      "categoriesError": "Impossible de charger les categories.",
-      "categoriesEmpty": "Aucune categorie disponible.",
+      "priceRangeHint": "Plage catalogue: {min} à {max}",
+      "categoriesTitle": "Catégories",
+      "categoriesLoadingLabel": "Chargement des catégories de filtre",
+      "categoriesError": "Impossible de charger les catégories.",
+      "categoriesEmpty": "Aucune catégorie disponible.",
       "availableOnlyLabel": "Disponible uniquement",
-      "resetAll": "Reinitialiser les filtres"
+      "resetAll": "Réinitialiser les filtres"
     },
     "sort": {
       "criteriaLabel": "Trier par",
       "orderLabel": "Ordre",
       "criteriaOptions": {
         "price": "Prix",
-        "newness": "Nouveaute",
-        "availability": "Disponibilite"
+        "newness": "Nouveauté",
+        "availability": "Disponibilité"
       },
       "orderOptions": {
         "asc": "Ascendant",
@@ -481,11 +485,11 @@
       }
     },
     "results": {
-      "title": "Resultats",
+      "title": "Résultats",
       "count": "{count} produit(s)",
-      "refreshing": "Mise a jour des resultats...",
-      "paginationLabel": "Navigation des resultats de recherche",
-      "previousPage": "Precedent",
+      "refreshing": "Mise à jour des résultats...",
+      "paginationLabel": "Navigation des résultats de recherche",
+      "previousPage": "Précédent",
       "nextPage": "Suivant",
       "pageCounter": "Page {page} sur {totalPages}"
     },
@@ -494,42 +498,42 @@
       "quickText": "Texte: {value}",
       "titleFilter": "Titre: {value}",
       "description": "Description: {value}",
-      "characteristics": "Caracteristiques: {value}",
+      "characteristics": "Caractéristiques: {value}",
       "priceMin": "Prix min: {value}",
       "priceMax": "Prix max: {value}",
-      "category": "Categorie: {categoryName}",
+      "category": "Catégorie: {categoryName}",
       "availableOnly": "Disponible uniquement",
       "removeLabel": "Retirer le filtre {filterLabel}",
       "resetAll": "Tout effacer"
     },
     "states": {
       "noCriteriaTitle": "Commencez votre recherche",
-      "noCriteriaDescription": "Aucun critere n'est encore saisi.",
-      "noCriteriaHint": "Renseignez un ou plusieurs filtres pour afficher des resultats.",
-      "loadingLabel": "Chargement des resultats de recherche",
-      "emptyTitle": "Aucun resultat",
-      "emptyDescription": "Aucun produit ne correspond aux filtres selectionnes.",
+      "noCriteriaDescription": "Aucun critère n'est encore saisi.",
+      "noCriteriaHint": "Renseignez un ou plusieurs filtres pour afficher des résultats.",
+      "loadingLabel": "Chargement des résultats de recherche",
+      "emptyTitle": "Aucun résultat",
+      "emptyDescription": "Aucun produit ne correspond aux filtres sélectionnés.",
       "errorTitle": "Erreur de recherche",
-      "errorDescription": "Impossible de charger les resultats pour le moment. Veuillez reessayer.",
-      "partialDataNotice": "Certains resultats sont affiches avec des donnees secondaires manquantes."
+      "errorDescription": "Impossible de charger les résultats pour le moment. Veuillez réessayer.",
+      "partialDataNotice": "Certains résultats sont affichés avec des données secondaires manquantes."
     },
     "announcements": {
-      "noCriteria": "Aucun critere de recherche saisi.",
-      "loading": "Chargement des resultats en cours.",
+      "noCriteria": "Aucun critère de recherche saisi.",
+      "loading": "Chargement des résultats en cours.",
       "error": "Une erreur est survenue pendant la recherche.",
-      "empty": "Aucun resultat trouve.",
-      "results": "{count} resultats trouves."
+      "empty": "Aucun résultat trouvé.",
+      "results": "{count} résultats trouvés."
     }
   },
   "CartPage": {
     "title": "Votre panier",
-    "description": "Ajustez les quantites, retirez des produits et verifiez votre total avant de passer en caisse.",
+    "description": "Ajustez les quantités, retirez des produits et vérifiez votre total avant de passer en caisse.",
     "states": {
       "loadingLabel": "Chargement du panier",
       "errorTitle": "Panier temporairement indisponible",
-      "errorDescription": "Impossible de charger votre panier pour le moment. Veuillez reessayer.",
-      "configErrorDescription": "Le panier est momentanement indisponible en raison d'une configuration serveur incomplete.",
-      "retry": "Reessayer",
+      "errorDescription": "Impossible de charger votre panier pour le moment. Veuillez réessayer.",
+      "configErrorDescription": "Le panier est momentanément indisponible en raison d'une configuration serveur incomplète.",
+      "retry": "Réessayer",
       "emptyTitle": "Votre panier est vide",
       "emptyDescription": "Ajoutez des produits pour commencer votre commande.",
       "emptyCta": "Explorer les produits"
@@ -537,46 +541,46 @@
     "line": {
       "sectionLabel": "Lignes du panier",
       "imageAlt": "Image principale du produit {productName}",
-      "missingImageLabel": "Image produit bientot disponible",
+      "missingImageLabel": "Image produit bientôt disponible",
       "unitPrice": "Prix unitaire : {price}",
       "statusAvailable": "Disponible",
       "statusOutOfStock": "Rupture",
-      "statusStockConflict": "Stock a corriger",
-      "quantityLabel": "Quantite",
-      "decreaseQuantity": "Diminuer la quantite de {productName}",
-      "quantityInputLabel": "Quantite pour {productName}",
-      "increaseQuantity": "Augmenter la quantite de {productName}",
-      "stockConflictDescription": "Stock restant : {stock}. Reduisez la quantite pour continuer.",
+      "statusStockConflict": "Stock à corriger",
+      "quantityLabel": "Quantité",
+      "decreaseQuantity": "Diminuer la quantité de {productName}",
+      "quantityInputLabel": "Quantité pour {productName}",
+      "increaseQuantity": "Augmenter la quantité de {productName}",
+      "stockConflictDescription": "Stock restant : {stock}. Réduisez la quantité pour continuer.",
       "outOfStockDescription": "Ce produit est actuellement en rupture.",
-      "updatingLabel": "Mise a jour en cours...",
+      "updatingLabel": "Mise à jour en cours...",
       "subtotalLabel": "Sous-total",
       "removeLine": "Supprimer {productName} du panier",
       "removeAction": "Supprimer"
     },
     "summary": {
-      "title": "Recapitulatif",
+      "title": "Récapitulatif",
       "totalItems": "Total articles",
       "totalItemsValue": "{count} article(s)",
       "totalTtc": "Total TTC",
-      "checkoutAction": "Passer a la caisse",
+      "checkoutAction": "Passer à la caisse",
       "checkoutBlockedStock": "Corrigez les lignes en rupture ou en conflit de stock pour continuer.",
-      "checkoutBlockedUpdating": "Patientez pendant la mise a jour du panier."
+      "checkoutBlockedUpdating": "Patientez pendant la mise à jour du panier."
     },
     "feedback": {
       "refreshing": "Synchronisation du panier...",
-      "lineRemoved": "Produit supprime du panier.",
-      "quantityUpdated": "Quantite mise a jour."
+      "lineRemoved": "Produit supprimé du panier.",
+      "quantityUpdated": "Quantité mise à jour."
     },
     "errors": {
-      "stockInsufficient": "Stock insuffisant. Quantite disponible : {availableStock}.",
-      "updateLineFallback": "Impossible de mettre a jour cette ligne.",
-      "refreshFallback": "Le panier a ete modifie, mais la synchronisation complete a echoue."
+      "stockInsufficient": "Stock insuffisant. Quantité disponible : {availableStock}.",
+      "updateLineFallback": "Impossible de mettre à jour cette ligne.",
+      "refreshFallback": "Le panier a été modifié, mais la synchronisation complète a échoué."
     }
   },
   "Account": {
     "dashboard": {
       "title": "Mon compte",
-      "description": "Gerez votre profil, vos commandes, vos adresses et vos paiements.",
+      "description": "Gérez votre profil, vos commandes, vos adresses et vos paiements.",
       "navigationAriaLabel": "Navigation du compte",
       "navigation": {
         "overview": "Vue d'ensemble",
@@ -588,69 +592,69 @@
     },
     "overview": {
       "loading": "Chargement de la vue d'ensemble...",
-      "retry": "Reessayer",
+      "retry": "Réessayer",
       "greetingTitle": "Bonjour",
       "anonymousUser": "Client",
       "emailUnavailable": "Adresse e-mail indisponible",
-      "profileComplete": "Profil complete",
-      "profileIncomplete": "Profil a completer",
+      "profileComplete": "Profil complété",
+      "profileIncomplete": "Profil à compléter",
       "latestOrder": {
-        "title": "Derniere commande",
-        "numberLabel": "Numero",
+        "title": "Dernière commande",
+        "numberLabel": "Numéro",
         "dateLabel": "Date",
         "amountLabel": "Montant",
-        "viewDetail": "Voir le detail",
-        "empty": "Aucune commande recente."
+        "viewDetail": "Voir le détail",
+        "empty": "Aucune commande récente."
       },
       "errors": {
-        "summaryLoadFailed": "Impossible de charger votre resume de compte.",
+        "summaryLoadFailed": "Impossible de charger votre résumé de compte.",
         "temporaryError": "Une erreur temporaire est survenue."
       }
     },
     "profile": {
       "loading": "Chargement du profil...",
       "title": "Profil",
-      "description": "Mettez a jour vos informations personnelles.",
+      "description": "Mettez à jour vos informations personnelles.",
       "fields": {
-        "firstName": "Prenom",
+        "firstName": "Prénom",
         "lastName": "Nom",
         "email": "Adresse e-mail",
-        "phoneOptional": "Telephone (optionnel)"
+        "phoneOptional": "Téléphone (optionnel)"
       },
       "validation": {
         "required": "Champ requis.",
         "emailInvalid": "Adresse e-mail invalide.",
-        "phoneInvalid": "Numero de telephone invalide."
+        "phoneInvalid": "Numéro de téléphone invalide."
       },
       "actions": {
         "save": "Enregistrer",
         "saving": "Enregistrement..."
       },
       "success": {
-        "saved": "Profil mis a jour avec succes."
+        "saved": "Profil mis à jour avec succès."
       },
       "errors": {
         "loadFailed": "Impossible de charger le profil.",
         "temporaryLoadError": "Une erreur temporaire est survenue pendant le chargement.",
         "validationBeforeSave": "Corrigez les champs avant de sauvegarder.",
-        "emailConflict": "Cette adresse e-mail est deja utilisee.",
+        "emailConflict": "Cette adresse e-mail est déjà utilisée.",
         "saveFailed": "Impossible d'enregistrer le profil.",
         "serverError": "Une erreur serveur est survenue."
       }
     },
     "addresses": {
       "title": "Adresses",
-      "description": "Gerez vos adresses de facturation et de livraison.",
+      "description": "Gérez vos adresses de facturation et de livraison.",
       "confirmDelete": "Voulez-vous vraiment supprimer cette adresse ?",
       "fields": {
-        "firstName": "Prenom",
+        "firstName": "Prénom",
         "lastName": "Nom",
         "address1": "Adresse 1",
         "address2Optional": "Adresse 2 (optionnel)",
         "city": "Ville",
         "postalCode": "Code postal",
         "country": "Pays",
-        "phone": "Telephone"
+        "phone": "Téléphone"
       },
       "validation": {
         "required": "Champ requis."
@@ -661,42 +665,42 @@
       },
       "actions": {
         "add": "Ajouter",
-        "update": "Mettre a jour",
+        "update": "Mettre à jour",
         "saving": "Enregistrement...",
         "cancel": "Annuler",
         "edit": "Modifier",
         "delete": "Supprimer"
       },
       "list": {
-        "title": "Adresses enregistrees",
+        "title": "Adresses enregistrées",
         "loading": "Chargement des adresses...",
-        "empty": "Aucune adresse enregistree.",
+        "empty": "Aucune adresse enregistrée.",
         "itemLabel": "Adresse {index}"
       },
       "success": {
-        "created": "Adresse ajoutee avec succes.",
-        "updated": "Adresse mise a jour avec succes.",
-        "deleted": "Adresse supprimee avec succes."
+        "created": "Adresse ajoutée avec succès.",
+        "updated": "Adresse mise à jour avec succès.",
+        "deleted": "Adresse supprimée avec succès."
       },
       "errors": {
         "loadFailed": "Impossible de charger les adresses.",
-        "validationBeforeSave": "Completez les champs obligatoires avant de sauvegarder.",
+        "validationBeforeSave": "Complétez les champs obligatoires avant de sauvegarder.",
         "createFailed": "Impossible d'ajouter cette adresse.",
-        "updateFailed": "Impossible de mettre a jour cette adresse.",
+        "updateFailed": "Impossible de mettre à jour cette adresse.",
         "deleteFailed": "Impossible de supprimer cette adresse.",
         "serverError": "Une erreur serveur est survenue."
       }
     },
     "payments": {
       "title": "Moyens de paiement",
-      "description": "Gerez vos cartes enregistrees pour un checkout plus rapide.",
+      "description": "Gérez vos cartes enregistrées pour un checkout plus rapide.",
       "confirmDelete": "Voulez-vous vraiment supprimer ce moyen de paiement ?",
       "fields": {
         "stripePaymentId": "ID paiement Stripe",
         "cardHolder": "Nom du titulaire",
         "last4": "4 derniers chiffres",
         "expiry": "Expiration (MM/AA)",
-        "isDefault": "Definir comme moyen de paiement par defaut",
+        "isDefault": "Définir comme moyen de paiement par défaut",
         "label": "Carte"
       },
       "validation": {
@@ -711,26 +715,26 @@
         "add": "Ajouter",
         "save": "Enregistrer",
         "saving": "Enregistrement...",
-        "reset": "Reinitialiser",
+        "reset": "Réinitialiser",
         "cancel": "Annuler",
         "edit": "Modifier",
         "delete": "Supprimer"
       },
       "list": {
-        "title": "Moyens de paiement enregistres",
+        "title": "Moyens de paiement enregistrés",
         "loading": "Chargement des moyens de paiement...",
-        "empty": "Aucun moyen de paiement enregistre.",
+        "empty": "Aucun moyen de paiement enregistré.",
         "expLabel": "Exp.",
-        "defaultBadge": "Par defaut"
+        "defaultBadge": "Par défaut"
       },
       "success": {
-        "created": "Moyen de paiement ajoute avec succes.",
-        "updated": "Moyen de paiement mis a jour avec succes.",
-        "deleted": "Moyen de paiement supprime avec succes."
+        "created": "Moyen de paiement ajouté avec succès.",
+        "updated": "Moyen de paiement mis à jour avec succès.",
+        "deleted": "Moyen de paiement supprimé avec succès."
       },
       "errors": {
         "loadFailed": "Impossible de charger les moyens de paiement.",
-        "validationBeforeCreate": "Completez les champs obligatoires avant d'ajouter ce moyen de paiement.",
+        "validationBeforeCreate": "Complétez les champs obligatoires avant d'ajouter ce moyen de paiement.",
         "createFailed": "Impossible d'ajouter ce moyen de paiement.",
         "updateFailed": "Impossible de modifier ce moyen de paiement.",
         "deleteFailed": "Impossible de supprimer ce moyen de paiement.",
@@ -739,11 +743,11 @@
     },
     "orders": {
       "loading": "Chargement des commandes...",
-      "retry": "Reessayer",
+      "retry": "Réessayer",
       "title": "Mes commandes",
-      "empty": "Aucune commande n'a encore ete enregistree sur votre compte.",
-      "description": "Retrouvez le statut de vos commandes et accedez a vos documents.",
-      "noProductLabel": "Produit non renseigne",
+      "empty": "Aucune commande n'a encore été enregistrée sur votre compte.",
+      "description": "Retrouvez le statut de vos commandes et accédez à vos documents.",
+      "noProductLabel": "Produit non renseigné",
       "count": "{count} commande(s)",
       "errors": {
         "loadFailed": "Impossible de charger les commandes.",
@@ -752,53 +756,53 @@
       "filters": {
         "ariaLabel": "Recherche et filtres commandes",
         "searchLabel": "Recherche",
-        "searchPlaceholder": "Produit, numero, date...",
-        "yearLabel": "Annee",
+        "searchPlaceholder": "Produit, numéro, date...",
+        "yearLabel": "Année",
         "allYears": "Toutes",
         "typeLabel": "Type de commande",
         "allTypes": "Tous",
         "statusLabel": "Statut",
         "allStatuses": "Tous",
-        "reset": "Reinitialiser les filtres"
+        "reset": "Réinitialiser les filtres"
       },
       "orderType": {
         "mono_produit": "Mono-produit",
         "multi_produits": "Multi-produits"
       },
       "status": {
-        "terminee": "Terminee",
+        "terminee": "Terminée",
         "en_cours": "En cours",
-        "annulee": "Annulee",
+        "annulee": "Annulée",
         "en_attente": "En attente"
       },
       "paymentStatus": {
-        "valide": "Valide",
-        "echoue": "Echoue",
-        "rembourse": "Rembourse",
+        "valide": "Validé",
+        "echoue": "Échoué",
+        "rembourse": "Remboursé",
         "en_attente": "En attente"
       },
       "noResults": {
-        "title": "Aucun resultat pour cette recherche",
-        "description": "Essayez un autre produit, une autre annee ou ajustez les filtres.",
-        "resetToHistory": "Revenir a l'historique complet"
+        "title": "Aucun résultat pour cette recherche",
+        "description": "Essayez un autre produit, une autre année ou ajustez les filtres.",
+        "resetToHistory": "Revenir à l'historique complet"
       },
       "actions": {
-        "viewDetails": "Voir le detail",
-        "downloadInvoice": "Telecharger la facture",
+        "viewDetails": "Voir le détail",
+        "downloadInvoice": "Télécharger la facture",
         "invoiceUnavailable": "Facture indisponible"
       }
     },
     "orderDetail": {
-      "loading": "Chargement du detail commande...",
+      "loading": "Chargement du détail commande...",
       "title": "Commande {orderNumber}",
       "actions": {
         "backToOrders": "Retour aux commandes",
         "back": "Retour"
       },
       "errors": {
-        "forbidden": "Acces refuse a cette commande.",
+        "forbidden": "Accès refusé à cette commande.",
         "notFound": "Commande introuvable.",
-        "loadFailed": "Impossible de charger le detail de la commande.",
+        "loadFailed": "Impossible de charger le détail de la commande.",
         "server": "Une erreur serveur est survenue.",
         "unavailable": "Commande indisponible."
       },
@@ -822,58 +826,58 @@
       },
       "products": {
         "title": "Produits",
-        "quantity": "Quantite: {quantity}",
+        "quantity": "Quantité: {quantity}",
         "lineTotal": "Total ligne",
         "viewProduct": "Voir le produit"
       },
       "invoice": {
-        "title": "Document associe",
-        "download": "Telecharger la facture {invoiceNumber}",
+        "title": "Document associé",
+        "download": "Télécharger la facture {invoiceNumber}",
         "unavailable": "Aucune facture disponible."
       }
     }
   },
   "CheckoutPage": {
     "header": {
-      "title": "Checkout multi-etapes",
-      "description": "Finalisez votre commande en 4 etapes: compte, adresse, paiement et confirmation."
+      "title": "Checkout multi-étapes",
+      "description": "Finalisez votre commande en 4 étapes: compte, adresse, paiement et confirmation."
     },
     "stockConflictMessage": "Votre panier contient des produits indisponibles ou en conflit de stock. Corrigez-les avant de finaliser l'achat.",
     "progress": {
       "ariaLabel": "Progression checkout",
-      "stepLabel": "Etape {step}: {label}"
+      "stepLabel": "Étape {step}: {label}"
     },
     "steps": {
       "connection": "Connexion",
       "address": "Adresse",
       "payment": "Paiement",
       "confirmation": "Confirmation",
-      "step1Title": "Etape 1 — Connexion / Inscription / Invite",
-      "step2Title": "Etape 2 — Adresse de livraison/facturation",
-      "step3Title": "Etape 3 — Informations de paiement",
-      "step4Title": "Etape 4 — Confirmation"
+      "step1Title": "Étape 1 — Connexion / Inscription / Invité",
+      "step2Title": "Étape 2 — Adresse de livraison/facturation",
+      "step3Title": "Étape 3 — Informations de paiement",
+      "step4Title": "Étape 4 — Confirmation"
     },
     "auth": {
-      "ariaLabel": "Etape connexion checkout",
+      "ariaLabel": "Étape connexion checkout",
       "connected": {
-        "title": "Session connectee",
-        "description": "Vous etes connecte en tant que {email}. Vous pouvez poursuivre le checkout.",
+        "title": "Session connectée",
+        "description": "Vous êtes connecté en tant que {email}. Vous pouvez poursuivre le checkout.",
         "continueToAddress": "Continuer vers l'adresse"
       },
       "modes": {
-        "guest": "Invite",
+        "guest": "Invité",
         "signIn": "Connexion",
         "signUp": "Inscription rapide"
       },
       "guest": {
         "description": "Continuez sans compte en renseignant un e-mail de contact.",
-        "emailLabel": "E-mail invite",
-        "continue": "Continuer en invite"
+        "emailLabel": "E-mail invité",
+        "continue": "Continuer en invité"
       },
       "signIn": {
         "emailLabel": "E-mail",
         "passwordLabel": "Mot de passe",
-        "forgotPassword": "Mot de passe oublie ?",
+        "forgotPassword": "Mot de passe oublié ?",
         "submitting": "Connexion...",
         "continue": "Se connecter et continuer",
         "openPage": "Ouvrir la page connexion"
@@ -888,95 +892,95 @@
         "openPage": "Ouvrir la page inscription"
       },
       "errors": {
-        "guestEmailInvalid": "Veuillez saisir un e-mail invite valide.",
+        "guestEmailInvalid": "Veuillez saisir un e-mail invité valide.",
         "signInEmailInvalid": "Adresse e-mail de connexion invalide.",
         "passwordRequired": "Le mot de passe est obligatoire pour la connexion.",
         "authConfigUnavailableSignIn": "Configuration d'authentification indisponible. Utilisez la page connexion.",
-        "sessionUnavailableAfterSignIn": "Connexion effectuee mais session utilisateur indisponible. Reessayez.",
+        "sessionUnavailableAfterSignIn": "Connexion effectuée mais session utilisateur indisponible. Réessayez.",
         "signInFailed": "Impossible de vous connecter pour le moment.",
         "fullNameRequired": "Le nom complet est obligatoire.",
         "signUpEmailInvalid": "Adresse e-mail d'inscription invalide.",
-        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caracteres.",
+        "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
         "passwordMismatch": "Les mots de passe ne correspondent pas.",
         "authConfigUnavailableSignUp": "Configuration d'authentification indisponible. Utilisez la page inscription.",
-        "signUpFailed": "Impossible de creer le compte pour le moment."
+        "signUpFailed": "Impossible de créer le compte pour le moment."
       },
       "success": {
-        "guestModeActive": "Mode invite active pour ce checkout.",
-        "signIn": "Connexion reussie.",
-        "signUp": "Inscription reussie.",
-        "signUpContinueAsGuest": "Compte cree. Continuez en invite et validez ensuite votre email."
+        "guestModeActive": "Mode invité activé pour ce checkout.",
+        "signIn": "Connexion réussie.",
+        "signUp": "Inscription réussie.",
+        "signUpContinueAsGuest": "Compte créé. Continuez en invité et validez ensuite votre email."
       }
     },
     "address": {
-      "ariaLabel": "Etape adresse checkout",
+      "ariaLabel": "Étape adresse checkout",
       "modes": {
-        "saved": "Adresse enregistree",
+        "saved": "Adresse enregistrée",
         "new": "Nouvelle adresse"
       },
-      "savedSelectionAriaLabel": "Selection adresse enregistree",
+      "savedSelectionAriaLabel": "Sélection adresse enregistrée",
       "fields": {
-        "firstName": "Prenom",
+        "firstName": "Prénom",
         "lastName": "Nom",
         "address1": "Adresse 1",
         "address2Optional": "Adresse 2 (optionnel)",
         "city": "Ville",
-        "region": "Region",
+        "region": "Région",
         "postalCode": "Code postal",
         "country": "Pays",
-        "phone": "Telephone mobile"
+        "phone": "Téléphone mobile"
       },
       "errors": {
-        "selectSavedAddress": "Selectionnez une adresse enregistree.",
-        "completeRequiredFields": "Completez tous les champs obligatoires de l'adresse."
+        "selectSavedAddress": "Sélectionnez une adresse enregistrée.",
+        "completeRequiredFields": "Complétez tous les champs obligatoires de l'adresse."
       },
       "continueToPayment": "Continuer vers le paiement"
     },
     "payment": {
-      "ariaLabel": "Etape paiement checkout",
+      "ariaLabel": "Étape paiement checkout",
       "modes": {
-        "saved": "Carte enregistree",
+        "saved": "Carte enregistrée",
         "new": "Nouvelle carte"
       },
-      "savedSelectionAriaLabel": "Selection carte enregistree",
+      "savedSelectionAriaLabel": "Sélection carte enregistrée",
       "fields": {
         "cardHolder": "Nom sur la carte",
-        "cardNumber": "Numero de carte",
+        "cardNumber": "Numéro de carte",
         "expiry": "Expiration (MM/AA)"
       },
       "validation": {
-        "cardNumberInvalid": "Numero de carte invalide.",
+        "cardNumberInvalid": "Numéro de carte invalide.",
         "expiryInvalid": "Expiration invalide.",
         "cvcInvalid": "CVC invalide."
       },
       "errors": {
-        "selectSavedMethod": "Selectionnez un moyen de paiement enregistre.",
-        "invalidCardInformation": "Verifiez les informations de carte bancaire."
+        "selectSavedMethod": "Sélectionnez un moyen de paiement enregistré.",
+        "invalidCardInformation": "Vérifiez les informations de carte bancaire."
       },
       "continueToConfirmation": "Continuer vers la confirmation"
     },
     "confirm": {
-      "ariaLabel": "Etape confirmation checkout",
-      "productSummaryTitle": "Recapitulatif des produits",
-      "selectedAddressTitle": "Adresse selectionnee",
+      "ariaLabel": "Étape confirmation checkout",
+      "productSummaryTitle": "Récapitulatif des produits",
+      "selectedAddressTitle": "Adresse sélectionnée",
       "paymentMethodTitle": "Moyen de paiement",
       "cardFallback": "Carte",
       "submitting": "Confirmation en cours...",
       "submit": "Confirmer l'achat",
       "errors": {
-        "stockConflict": "Finalisation bloquee: certains produits ne sont plus disponibles.",
-        "confirmationFailed": "La confirmation de commande a echoue. Veuillez reessayer.",
+        "stockConflict": "Finalisation bloquée: certains produits ne sont plus disponibles.",
+        "confirmationFailed": "La confirmation de commande a échoué. Veuillez réessayer.",
         "finalizeFailed": "Impossible de finaliser votre commande actuellement."
       }
     },
     "cartSummary": {
-      "title": "Recapitulatif panier",
-      "quantity": "Quantite: {quantity}",
+      "title": "Récapitulatif panier",
+      "quantity": "Quantité: {quantity}",
       "available": "Disponible",
       "stockConflict": "Conflit stock",
       "items": "Articles",
-      "totalHtEstimate": "Total HT (estime)",
-      "vatEstimate": "TVA (estimee)",
+      "totalHtEstimate": "Total HT (estimé)",
+      "vatEstimate": "TVA (estimée)",
       "totalTtc": "Total TTC",
       "refresh": "Actualiser le panier",
       "backToCart": "Retour au panier"
@@ -993,8 +997,8 @@
     },
     "error": {
       "title": "Checkout indisponible",
-      "description": "Impossible de charger le checkout pour le moment. Veuillez reessayer.",
-      "retry": "Reessayer"
+      "description": "Impossible de charger le checkout pour le moment. Veuillez réessayer.",
+      "retry": "Réessayer"
     },
     "blocked": {
       "title": "Checkout non accessible",
@@ -1003,10 +1007,10 @@
     }
   },
   "CheckoutConfirmationPage": {
-    "title": "Achat confirme",
-    "description": "Merci pour votre commande. Votre paiement a bien ete pris en compte et votre commande est en cours de traitement.",
-    "orderReference": "Reference commande : {orderNumber}",
-    "orderReferenceUnavailable": "Reference commande indisponible",
+    "title": "Achat confirmé",
+    "description": "Merci pour votre commande. Votre paiement a bien été pris en compte et votre commande est en cours de traitement.",
+    "orderReference": "Référence commande : {orderNumber}",
+    "orderReferenceUnavailable": "Référence commande indisponible",
     "viewOrders": "Voir mes commandes",
     "continueShopping": "Continuer mes achats"
   },

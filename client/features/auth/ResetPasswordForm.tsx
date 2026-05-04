@@ -70,6 +70,7 @@ export function ResetPasswordForm() {
   const searchParams = useSearchParams()
 
   const recoveryStatus = searchParams.get("recovery")
+  const recoveryToken = searchParams.get("token")?.trim() ?? ""
   const safeNextPath = getSafeNextPath(searchParams.get("next"))
 
   const {
@@ -143,12 +144,21 @@ export function ResetPasswordForm() {
       return
     }
 
+    if (!recoveryToken) {
+      setStatus({
+        isError: true,
+        message: translate("form.messages.tokenInvalid"),
+      })
+      return
+    }
+
     try {
       const response = await secureFetch("/api/auth/reset-password", {
         method: "POST",
         body: JSON.stringify({
-          password: values.password,
-          passwordConfirmation: values.passwordConfirmation,
+          token: recoveryToken,
+          mot_de_passe: values.password,
+          mot_de_passe_confirmation: values.passwordConfirmation,
         }),
       })
 

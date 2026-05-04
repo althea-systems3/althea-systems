@@ -20,7 +20,8 @@
     "pauseAutoSlide": "Pause automatic slide rotation",
     "resumeAutoSlide": "Resume automatic slide rotation",
     "fallbackTitle": "Promotions coming soon",
-    "fallbackDescription": "No slide is available right now. Please check back in a moment."
+    "fallbackDescription": "No slide is available right now. Please check back in a moment.",
+    "discoverButton": "Discover"
   },
   "HomeCategoryGrid": {
     "title": "Browse categories",
@@ -398,7 +399,10 @@
       "priceUnavailable": "Price unavailable",
       "availabilityAvailable": "Available",
       "availabilityOutOfStock": "Out of stock"
-    }
+    },
+    "quantityLabel": "Quantity",
+    "quantityDecrease": "Decrease quantity",
+    "quantityIncrease": "Increase quantity"
   },
   "SearchPage": {
     "title": "Advanced search",

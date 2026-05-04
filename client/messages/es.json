@@ -1,81 +1,82 @@
 {
   "Home": {
     "valueTitle": "La plataforma e-commerce de Althea Systems",
-    "valueDescription": "Un frontend listo para produccion para compras profesionales: disponibilidad en tiempo real, informacion clara del producto y checkout fluido.",
-    "valueCardOperationsTitle": "Control operativo",
-    "valueCardOperationsDescription": "Gestione categorias, productos destacados y contenido editorial desde el backoffice sin degradar la experiencia del cliente.",
-    "valueCardAvailabilityTitle": "Disponibilidad fiable",
-    "valueCardAvailabilityDescription": "Muestre stock preciso, precios claros y datos de producto accionables para acelerar la decision de compra.",
-    "valueCardSupportTitle": "Soporte continuo",
-    "valueCardSupportDescription": "Ofrezca soporte rapido antes y despues de la compra con busqueda eficaz y carrito siempre sincronizado.",
+    "valueDescription": "Un frontend de alto rendimiento para acompanar sus compras profesionales: catalogo de productos, disponibilidad en tiempo real y un proceso de pedido fluido.",
+    "valueCardOperationsTitle": "Gestion operativa",
+    "valueCardOperationsDescription": "Centralice categorias, destacados y contenidos editoriales desde su backoffice sin afectar la experiencia del cliente.",
+    "valueCardAvailabilityTitle": "Disponibilidad controlada",
+    "valueCardAvailabilityDescription": "Muestre stocks fiables, precios claros e informacion de producto util para acelerar la decision de compra.",
+    "valueCardSupportTitle": "Acompanamiento continuo",
+    "valueCardSupportDescription": "Ofrezca un seguimiento antes y despues del pedido con un soporte reactivo, una busqueda eficaz y un carrito siempre sincronizado.",
     "valueCta": "Explorar el catalogo"
   },
   "HomeCarousel": {
-    "badgeLabel": "Promotion",
-    "ariaLabel": "Homepage promotional carousel",
-    "slideCounter": "Slide {current} of {total}",
-    "previous": "Previous slide",
-    "next": "Next slide",
-    "goToSlide": "Go to slide {index}",
-    "pauseAutoSlide": "Pause automatic slide rotation",
-    "resumeAutoSlide": "Resume automatic slide rotation",
-    "fallbackTitle": "Promotions coming soon",
-    "fallbackDescription": "No slide is available right now. Please check back in a moment."
+    "badgeLabel": "Promocion",
+    "ariaLabel": "Carrusel promocional de la pagina de inicio",
+    "slideCounter": "Diapositiva {current} de {total}",
+    "previous": "Diapositiva anterior",
+    "next": "Diapositiva siguiente",
+    "goToSlide": "Ir a la diapositiva {index}",
+    "pauseAutoSlide": "Pausar el desplazamiento automatico",
+    "resumeAutoSlide": "Reanudar el desplazamiento automatico",
+    "fallbackTitle": "Promociones disponibles proximamente",
+    "fallbackDescription": "No hay ninguna diapositiva disponible en este momento. Vuelva en unos instantes.",
+    "discoverButton": "Descubrir"
   },
   "HomeCategoryGrid": {
-    "title": "Browse categories",
-    "description": "Explore our product families and quickly access the right catalog section.",
-    "loadingLabel": "Loading categories",
-    "errorTitle": "Categories are temporarily unavailable",
-    "errorDescription": "We cannot load categories right now. Please try again later.",
+    "title": "Nuestras categorias",
+    "description": "Explore nuestros universos de productos y encuentre rapidamente la gama adaptada a su necesidad.",
+    "loadingLabel": "Cargando categorias",
+    "errorTitle": "Categorias temporalmente no disponibles",
+    "errorDescription": "No es posible cargar las categorias en este momento. Intentelo de nuevo mas tarde.",
     "fallbackDataTitle": "Categorias recomendadas",
-    "fallbackDataDescription": "Algunas categorias provienen temporalmente de nuestra seleccion de continuidad.",
-    "emptyTitle": "No category available",
-    "emptyDescription": "Active categories have not been published yet.",
-    "categoryImageAlt": "Representative image for category {categoryName}",
-    "categoryLinkLabel": "Open category {categoryName}"
+    "fallbackDataDescription": "Algunas categorias mostradas provienen de nuestra seleccion de continuidad.",
+    "emptyTitle": "Ninguna categoria disponible",
+    "emptyDescription": "Las categorias activas aun no se han publicado.",
+    "categoryImageAlt": "Imagen representativa de la categoria {categoryName}",
+    "categoryLinkLabel": "Ver la categoria {categoryName}"
   },
   "HomeTopProductsGrid": {
-    "title": "Top Products Right Now",
-    "description": "Discover featured products curated and ordered from the backoffice.",
-    "loadingLabel": "Loading top products",
-    "errorTitle": "Top products are temporarily unavailable",
-    "errorDescription": "We cannot load top products right now. Please try again later.",
-    "fallbackDataTitle": "Seleccion actual",
-    "fallbackDataDescription": "Algunos productos provienen temporalmente de nuestra seleccion de continuidad.",
-    "emptyTitle": "No top product available",
-    "emptyDescription": "No active featured product has been published yet.",
-    "productImageAlt": "Main image for product {productName}",
-    "missingImageLabel": "Product image coming soon",
-    "productLinkLabel": "Open product page for {productName}",
-    "availabilityAvailable": "Available",
-    "availabilityOutOfStock": "Out of stock",
-    "priceUnavailable": "Price unavailable"
+    "title": "Los Top Productos del momento",
+    "description": "Descubra los productos destacados ordenados desde el backoffice.",
+    "loadingLabel": "Cargando los top productos",
+    "errorTitle": "Top productos temporalmente no disponibles",
+    "errorDescription": "No es posible cargar los top productos en este momento. Intentelo de nuevo mas tarde.",
+    "fallbackDataTitle": "Seleccion del momento",
+    "fallbackDataDescription": "Algunos productos mostrados provienen de nuestra seleccion de continuidad.",
+    "emptyTitle": "Ningun top producto disponible",
+    "emptyDescription": "Aun no se ha publicado ningun producto destacado activo.",
+    "productImageAlt": "Imagen principal del producto {productName}",
+    "missingImageLabel": "Imagen del producto disponible proximamente",
+    "productLinkLabel": "Ver la ficha del producto {productName}",
+    "availabilityAvailable": "Disponible",
+    "availabilityOutOfStock": "Agotado",
+    "priceUnavailable": "Precio no disponible"
   },
   "HomeFixedText": {
     "loading": "Loading fixed text..."
   },
   "Layout": {
-    "search": "Search",
-    "searchPlaceholder": "Search for a product or category...",
-    "cart": "Open cart",
+    "search": "Buscar",
+    "searchPlaceholder": "Buscar un producto, una categoria...",
+    "cart": "Ver el carrito",
     "menu": "Menu",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "footer": "Footer",
-    "socials": "Social media",
-    "languageLabel": "Language selection",
-    "menuHint": "The menu adapts to the current authentication state.",
+    "openMenu": "Abrir el menu",
+    "closeMenu": "Cerrar el menu",
+    "footer": "Pie de pagina",
+    "socials": "Redes sociales",
+    "languageLabel": "Seleccion de idioma",
+    "menuHint": "El menu se adapta segun el estado de conexion.",
     "menuItems": {
-      "settings": "My settings",
-      "orders": "My orders",
-      "terms": "Terms of use",
-      "legal": "Legal notice",
-      "contact": "Contact",
-      "about": "About Althea Systems",
-      "logout": "Sign out",
-      "signIn": "Sign in",
-      "signUp": "Sign up"
+      "settings": "Mis ajustes",
+      "orders": "Mis pedidos",
+      "terms": "CGU",
+      "legal": "Aviso legal",
+      "contact": "Contacto",
+      "about": "Acerca de Althea Systems",
+      "logout": "Cerrar sesion",
+      "signIn": "Iniciar sesion",
+      "signUp": "Registrarse"
     }
   },
   "Pages": {
@@ -324,214 +325,217 @@
   },
   "CataloguePage": {
     "hero": {
-      "imageAlt": "Image for category {categoryName}",
-      "notFoundTitle": "Category not found",
-      "notFoundDescription": "The requested category does not exist or is no longer available.",
-      "errorTitle": "Category temporarily unavailable",
-      "errorDescription": "We cannot load the information for this category. Please try again later."
+      "imageAlt": "Imagen de la categoria {categoryName}",
+      "notFoundTitle": "Categoria no encontrada",
+      "notFoundDescription": "La categoria solicitada no existe o ya no esta disponible.",
+      "errorTitle": "Categoria temporalmente no disponible",
+      "errorDescription": "No es posible cargar la informacion de esta categoria. Intentelo de nuevo mas tarde."
     },
     "products": {
-      "sectionTitle": "Products in this category",
-      "gridLabel": "Product list",
-      "loadingLabel": "Loading products",
-      "errorTitle": "Products temporarily unavailable",
-      "errorDescription": "We cannot load products right now. Please try again later.",
-      "emptyTitle": "No products available",
-      "emptyDescription": "This category does not have any published products yet.",
-      "productImageAlt": "Main image for product {productName}",
-      "missingImageLabel": "Product image coming soon",
-      "productLinkLabel": "Open product page for {productName}",
-      "availabilityAvailable": "Available",
-      "availabilityOutOfStock": "Out of stock",
-      "priceUnavailable": "Price unavailable",
-      "paginationLabel": "Product list navigation",
-      "previousPage": "Previous page",
-      "nextPage": "Next page",
-      "previous": "Previous",
-      "next": "Next",
-      "pageCounter": "Page {page} of {totalPages} — {total} products"
+      "sectionTitle": "Productos de la categoria",
+      "gridLabel": "Lista de productos",
+      "loadingLabel": "Cargando productos",
+      "errorTitle": "Productos temporalmente no disponibles",
+      "errorDescription": "No es posible cargar los productos en este momento. Intentelo de nuevo mas tarde.",
+      "emptyTitle": "Ningun producto disponible",
+      "emptyDescription": "Esta categoria aun no contiene productos publicados.",
+      "productImageAlt": "Imagen principal del producto {productName}",
+      "missingImageLabel": "Imagen del producto disponible proximamente",
+      "productLinkLabel": "Ver la ficha del producto {productName}",
+      "availabilityAvailable": "Disponible",
+      "availabilityOutOfStock": "Agotado",
+      "priceUnavailable": "Precio no disponible",
+      "paginationLabel": "Navegacion en la lista de productos",
+      "previousPage": "Pagina anterior",
+      "nextPage": "Pagina siguiente",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageCounter": "Pagina {page} de {totalPages} — {total} productos"
     }
   },
   "ProductPage": {
-    "loadingLabel": "Loading product page",
-    "errorTitle": "Product temporarily unavailable",
-    "errorDescription": "We cannot load this product page right now. Please try again later.",
-    "notFoundTitle": "Product not found",
-    "notFoundDescription": "The requested product does not exist or is no longer available.",
-    "priceUnavailable": "Price unavailable",
-    "descriptionFallback": "No description is available for this product.",
-    "availabilityAvailable": "Available",
-    "availabilityOutOfStock": "Out of stock",
+    "loadingLabel": "Cargando la ficha del producto",
+    "errorTitle": "Producto temporalmente no disponible",
+    "errorDescription": "No es posible cargar esta ficha de producto en este momento. Intentelo de nuevo mas tarde.",
+    "notFoundTitle": "Producto no encontrado",
+    "notFoundDescription": "El producto solicitado no existe o ya no esta disponible.",
+    "priceUnavailable": "Precio no disponible",
+    "descriptionFallback": "No hay descripcion disponible para este producto.",
+    "availabilityAvailable": "Disponible",
+    "availabilityOutOfStock": "Agotado",
     "stockLabel": "Stock: {stock}",
     "gallery": {
-      "sectionLabel": "Product image gallery",
-      "imageAlt": "Image {index} of product {productName}",
-      "fallbackLabel": "Product image coming soon",
-      "previousImage": "Previous image",
-      "nextImage": "Next image",
-      "goToImage": "Go to image {index}",
-      "imageCounter": "Image {current} of {total}"
+      "sectionLabel": "Galeria de imagenes del producto",
+      "imageAlt": "Imagen {index} del producto {productName}",
+      "fallbackLabel": "Imagen del producto disponible proximamente",
+      "previousImage": "Imagen anterior",
+      "nextImage": "Imagen siguiente",
+      "goToImage": "Ir a la imagen {index}",
+      "imageCounter": "Imagen {current} de {total}"
     },
     "characteristics": {
-      "title": "Technical specifications",
-      "empty": "No technical specification is available for this product."
+      "title": "Caracteristicas tecnicas",
+      "empty": "No hay ninguna caracteristica tecnica indicada para este producto."
     },
     "cta": {
-      "addToCart": "Add to cart",
-      "adding": "Adding...",
-      "outOfStock": "Unavailable",
-      "success": "Product added to cart.",
-      "error": "Unable to add this product to cart.",
-      "errorWithReason": "Unable to add this product: {reason}"
+      "addToCart": "Anadir al carrito",
+      "adding": "Anadiendo...",
+      "outOfStock": "No disponible",
+      "success": "Producto anadido al carrito.",
+      "error": "No es posible anadir este producto al carrito.",
+      "errorWithReason": "No es posible anadir este producto: {reason}"
     },
     "similar": {
-      "title": "Similar products",
-      "description": "Continue browsing with products related to this item.",
-      "loadingLabel": "Loading similar products",
-      "errorTitle": "Similar products temporarily unavailable",
-      "errorDescription": "We cannot load similar products right now.",
-      "emptyTitle": "No similar product",
-      "emptyDescription": "No recommendation is available for this product.",
-      "productImageAlt": "Main image for product {productName}",
-      "missingImageLabel": "Product image coming soon",
-      "productLinkLabel": "Open product page for {productName}",
-      "priceUnavailable": "Price unavailable",
-      "availabilityAvailable": "Available",
-      "availabilityOutOfStock": "Out of stock"
-    }
+      "title": "Productos similares",
+      "description": "Continue su navegacion con referencias proximas a este producto.",
+      "loadingLabel": "Cargando productos similares",
+      "errorTitle": "Productos similares temporalmente no disponibles",
+      "errorDescription": "No es posible cargar los productos similares en este momento.",
+      "emptyTitle": "Ningun producto similar",
+      "emptyDescription": "No hay sugerencias disponibles para este producto.",
+      "productImageAlt": "Imagen principal del producto {productName}",
+      "missingImageLabel": "Imagen del producto disponible proximamente",
+      "productLinkLabel": "Ver la ficha del producto {productName}",
+      "priceUnavailable": "Precio no disponible",
+      "availabilityAvailable": "Disponible",
+      "availabilityOutOfStock": "Agotado"
+    },
+    "quantityLabel": "Cantidad",
+    "quantityDecrease": "Disminuir cantidad",
+    "quantityIncrease": "Aumentar cantidad"
   },
   "SearchPage": {
-    "title": "Advanced search",
-    "description": "Refine your query with combined facets to surface relevant products faster.",
+    "title": "Busqueda avanzada",
+    "description": "Refine su busqueda con facetas combinadas para encontrar rapidamente los productos mas relevantes.",
     "filters": {
-      "title": "Filters",
-      "openMobile": "Show filters",
-      "closeMobile": "Hide filters",
-      "quickTextLabel": "Global text",
-      "quickTextPlaceholder": "Ex: switch, controller, audio...",
-      "titleLabel": "Title text",
-      "titlePlaceholder": "Filter by title",
-      "descriptionLabel": "Description text",
-      "descriptionPlaceholder": "Filter by description",
-      "characteristicsLabel": "Technical characteristics",
-      "characteristicsPlaceholder": "Ex: Modbus, 24 channels, IP67...",
-      "priceTitle": "Price (incl. tax)",
-      "priceMinLabel": "Minimum price",
+      "title": "Filtros",
+      "openMobile": "Mostrar los filtros",
+      "closeMobile": "Ocultar los filtros",
+      "quickTextLabel": "Texto global",
+      "quickTextPlaceholder": "Ej.: automata, switch, audio...",
+      "titleLabel": "Texto del titulo",
+      "titlePlaceholder": "Filtrar por titulo",
+      "descriptionLabel": "Texto de la descripcion",
+      "descriptionPlaceholder": "Filtrar por descripcion",
+      "characteristicsLabel": "Caracteristicas tecnicas",
+      "characteristicsPlaceholder": "Ej.: Modbus, 24 canales, IP67...",
+      "priceTitle": "Precio con IVA",
+      "priceMinLabel": "Precio minimo",
       "priceMinPlaceholder": "Min",
-      "priceMaxLabel": "Maximum price",
+      "priceMaxLabel": "Precio maximo",
       "priceMaxPlaceholder": "Max",
-      "priceRangeHint": "Catalog range: {min} to {max}",
-      "categoriesTitle": "Categories",
-      "categoriesLoadingLabel": "Loading category filters",
-      "categoriesError": "Unable to load categories.",
-      "categoriesEmpty": "No category available.",
-      "availableOnlyLabel": "Available only",
-      "resetAll": "Reset filters"
+      "priceRangeHint": "Rango del catalogo: {min} a {max}",
+      "categoriesTitle": "Categorias",
+      "categoriesLoadingLabel": "Cargando categorias del filtro",
+      "categoriesError": "No es posible cargar las categorias.",
+      "categoriesEmpty": "Ninguna categoria disponible.",
+      "availableOnlyLabel": "Solo disponibles",
+      "resetAll": "Reiniciar los filtros"
     },
     "sort": {
-      "criteriaLabel": "Sort by",
-      "orderLabel": "Order",
+      "criteriaLabel": "Ordenar por",
+      "orderLabel": "Orden",
       "criteriaOptions": {
-        "price": "Price",
-        "newness": "Newness",
-        "availability": "Availability"
+        "price": "Precio",
+        "newness": "Novedad",
+        "availability": "Disponibilidad"
       },
       "orderOptions": {
-        "asc": "Ascending",
-        "desc": "Descending"
+        "asc": "Ascendente",
+        "desc": "Descendente"
       }
     },
     "results": {
-      "title": "Results",
-      "count": "{count} product(s)",
-      "refreshing": "Refreshing results...",
-      "paginationLabel": "Search results navigation",
-      "previousPage": "Previous",
-      "nextPage": "Next",
-      "pageCounter": "Page {page} of {totalPages}"
+      "title": "Resultados",
+      "count": "{count} producto(s)",
+      "refreshing": "Actualizando los resultados...",
+      "paginationLabel": "Navegacion de los resultados de busqueda",
+      "previousPage": "Anterior",
+      "nextPage": "Siguiente",
+      "pageCounter": "Pagina {page} de {totalPages}"
     },
     "activeFilters": {
-      "heading": "Active filters",
-      "quickText": "Text: {value}",
-      "titleFilter": "Title: {value}",
-      "description": "Description: {value}",
-      "characteristics": "Characteristics: {value}",
-      "priceMin": "Min price: {value}",
-      "priceMax": "Max price: {value}",
-      "category": "Category: {categoryName}",
-      "availableOnly": "Available only",
-      "removeLabel": "Remove filter {filterLabel}",
-      "resetAll": "Clear all"
+      "heading": "Filtros activos",
+      "quickText": "Texto: {value}",
+      "titleFilter": "Titulo: {value}",
+      "description": "Descripcion: {value}",
+      "characteristics": "Caracteristicas: {value}",
+      "priceMin": "Precio min: {value}",
+      "priceMax": "Precio max: {value}",
+      "category": "Categoria: {categoryName}",
+      "availableOnly": "Solo disponibles",
+      "removeLabel": "Quitar el filtro {filterLabel}",
+      "resetAll": "Borrar todo"
     },
     "states": {
-      "noCriteriaTitle": "Start your search",
-      "noCriteriaDescription": "No criteria have been entered yet.",
-      "noCriteriaHint": "Fill one or more filters to display products.",
-      "loadingLabel": "Loading search results",
-      "emptyTitle": "No result",
-      "emptyDescription": "No product matches your selected filters.",
-      "errorTitle": "Search error",
-      "errorDescription": "Unable to load results right now. Please try again.",
-      "partialDataNotice": "Some results are shown with missing secondary data."
+      "noCriteriaTitle": "Comience su busqueda",
+      "noCriteriaDescription": "Aun no se ha introducido ningun criterio.",
+      "noCriteriaHint": "Rellene uno o varios filtros para mostrar resultados.",
+      "loadingLabel": "Cargando los resultados de busqueda",
+      "emptyTitle": "Ningun resultado",
+      "emptyDescription": "Ningun producto coincide con los filtros seleccionados.",
+      "errorTitle": "Error de busqueda",
+      "errorDescription": "No es posible cargar los resultados en este momento. Intentelo de nuevo.",
+      "partialDataNotice": "Algunos resultados se muestran con datos secundarios incompletos."
     },
     "announcements": {
-      "noCriteria": "No search criteria entered.",
-      "loading": "Search results are loading.",
-      "error": "A search error occurred.",
-      "empty": "No result found.",
-      "results": "{count} results found."
+      "noCriteria": "No se ha introducido ningun criterio de busqueda.",
+      "loading": "Cargando los resultados.",
+      "error": "Se ha producido un error durante la busqueda.",
+      "empty": "No se ha encontrado ningun resultado.",
+      "results": "{count} resultados encontrados."
     }
   },
   "CartPage": {
-    "title": "Your cart",
-    "description": "Update quantities, remove products, and review your total before checkout.",
+    "title": "Su carrito",
+    "description": "Ajuste las cantidades, retire productos y verifique su total antes de pasar por caja.",
     "states": {
-      "loadingLabel": "Loading cart",
-      "errorTitle": "Cart temporarily unavailable",
-      "errorDescription": "We cannot load your cart right now. Please try again.",
-      "configErrorDescription": "El carrito esta temporalmente no disponible porque la configuracion del servidor esta incompleta.",
-      "retry": "Try again",
-      "emptyTitle": "Your cart is empty",
-      "emptyDescription": "Add products to start your order.",
-      "emptyCta": "Browse products"
+      "loadingLabel": "Cargando el carrito",
+      "errorTitle": "Carrito temporalmente no disponible",
+      "errorDescription": "No es posible cargar su carrito en este momento. Intentelo de nuevo.",
+      "configErrorDescription": "El carrito esta temporalmente no disponible debido a una configuracion del servidor incompleta.",
+      "retry": "Reintentar",
+      "emptyTitle": "Su carrito esta vacio",
+      "emptyDescription": "Anada productos para iniciar su pedido.",
+      "emptyCta": "Explorar los productos"
     },
     "line": {
-      "sectionLabel": "Cart lines",
-      "imageAlt": "Main image for product {productName}",
-      "missingImageLabel": "Product image coming soon",
-      "unitPrice": "Unit price: {price}",
-      "statusAvailable": "Available",
-      "statusOutOfStock": "Out of stock",
-      "statusStockConflict": "Stock to fix",
-      "quantityLabel": "Quantity",
-      "decreaseQuantity": "Decrease quantity for {productName}",
-      "quantityInputLabel": "Quantity for {productName}",
-      "increaseQuantity": "Increase quantity for {productName}",
-      "stockConflictDescription": "Remaining stock: {stock}. Reduce quantity to continue.",
-      "outOfStockDescription": "This product is currently out of stock.",
-      "updatingLabel": "Updating line...",
-      "subtotalLabel": "Line subtotal",
-      "removeLine": "Remove {productName} from cart",
-      "removeAction": "Remove"
+      "sectionLabel": "Lineas del carrito",
+      "imageAlt": "Imagen principal del producto {productName}",
+      "missingImageLabel": "Imagen del producto disponible proximamente",
+      "unitPrice": "Precio unitario: {price}",
+      "statusAvailable": "Disponible",
+      "statusOutOfStock": "Agotado",
+      "statusStockConflict": "Stock por corregir",
+      "quantityLabel": "Cantidad",
+      "decreaseQuantity": "Disminuir la cantidad de {productName}",
+      "quantityInputLabel": "Cantidad para {productName}",
+      "increaseQuantity": "Aumentar la cantidad de {productName}",
+      "stockConflictDescription": "Stock restante: {stock}. Reduzca la cantidad para continuar.",
+      "outOfStockDescription": "Este producto esta actualmente agotado.",
+      "updatingLabel": "Actualizando...",
+      "subtotalLabel": "Subtotal",
+      "removeLine": "Eliminar {productName} del carrito",
+      "removeAction": "Eliminar"
     },
     "summary": {
-      "title": "Summary",
-      "totalItems": "Total items",
-      "totalItemsValue": "{count} item(s)",
-      "totalTtc": "Total incl. tax",
-      "checkoutAction": "Proceed to checkout",
-      "checkoutBlockedStock": "Fix out-of-stock or invalid quantity lines before checkout.",
-      "checkoutBlockedUpdating": "Please wait while cart updates are in progress."
+      "title": "Resumen",
+      "totalItems": "Total articulos",
+      "totalItemsValue": "{count} articulo(s)",
+      "totalTtc": "Total con IVA",
+      "checkoutAction": "Pasar por caja",
+      "checkoutBlockedStock": "Corrija las lineas agotadas o con conflicto de stock para continuar.",
+      "checkoutBlockedUpdating": "Espere mientras se actualiza el carrito."
     },
     "feedback": {
-      "refreshing": "Synchronizing cart...",
-      "lineRemoved": "Product removed from cart.",
-      "quantityUpdated": "Quantity updated."
+      "refreshing": "Sincronizando el carrito...",
+      "lineRemoved": "Producto eliminado del carrito.",
+      "quantityUpdated": "Cantidad actualizada."
     },
     "errors": {
-      "stockInsufficient": "Insufficient stock. Available quantity: {availableStock}.",
-      "updateLineFallback": "Unable to update this cart line.",
-      "refreshFallback": "Cart changed, but full synchronization failed."
+      "stockInsufficient": "Stock insuficiente. Cantidad disponible: {availableStock}.",
+      "updateLineFallback": "No es posible actualizar esta linea.",
+      "refreshFallback": "El carrito se ha modificado, pero la sincronizacion completa ha fallado."
     }
   },
   "Account": {
@@ -796,180 +800,180 @@
   },
   "CheckoutPage": {
     "header": {
-      "title": "Multi-step checkout",
-      "description": "Complete your order in 4 steps: account, address, payment, and confirmation."
+      "title": "Checkout en varias etapas",
+      "description": "Finalice su pedido en 4 etapas: cuenta, direccion, pago y confirmacion."
     },
-    "stockConflictMessage": "Your cart contains unavailable products or stock conflicts. Fix them before completing your purchase.",
+    "stockConflictMessage": "Su carrito contiene productos no disponibles o con conflicto de stock. Corrijalos antes de finalizar la compra.",
     "progress": {
-      "ariaLabel": "Checkout progress",
-      "stepLabel": "Step {step}: {label}"
+      "ariaLabel": "Progreso del checkout",
+      "stepLabel": "Etapa {step}: {label}"
     },
     "steps": {
-      "connection": "Sign in",
-      "address": "Address",
-      "payment": "Payment",
-      "confirmation": "Confirmation",
-      "step1Title": "Step 1 — Sign in / Sign up / Guest",
-      "step2Title": "Step 2 — Shipping/Billing address",
-      "step3Title": "Step 3 — Payment information",
-      "step4Title": "Step 4 — Confirmation"
+      "connection": "Conexion",
+      "address": "Direccion",
+      "payment": "Pago",
+      "confirmation": "Confirmacion",
+      "step1Title": "Etapa 1 — Iniciar sesion / Registrarse / Invitado",
+      "step2Title": "Etapa 2 — Direccion de envio/facturacion",
+      "step3Title": "Etapa 3 — Informacion de pago",
+      "step4Title": "Etapa 4 — Confirmacion"
     },
     "auth": {
-      "ariaLabel": "Checkout authentication step",
+      "ariaLabel": "Etapa de conexion del checkout",
       "connected": {
-        "title": "Signed-in session",
-        "description": "You are signed in as {email}. You can continue checkout.",
-        "continueToAddress": "Continue to address"
+        "title": "Sesion iniciada",
+        "description": "Ha iniciado sesion como {email}. Puede continuar con el checkout.",
+        "continueToAddress": "Continuar a la direccion"
       },
       "modes": {
-        "guest": "Guest",
-        "signIn": "Sign in",
-        "signUp": "Quick sign up"
+        "guest": "Invitado",
+        "signIn": "Iniciar sesion",
+        "signUp": "Registro rapido"
       },
       "guest": {
-        "description": "Continue without an account by entering a contact email.",
-        "emailLabel": "Guest email",
-        "continue": "Continue as guest"
+        "description": "Continue sin cuenta indicando un correo electronico de contacto.",
+        "emailLabel": "Correo de invitado",
+        "continue": "Continuar como invitado"
       },
       "signIn": {
-        "emailLabel": "Email",
-        "passwordLabel": "Password",
-        "forgotPassword": "Forgot password?",
-        "submitting": "Signing in...",
-        "continue": "Sign in and continue",
-        "openPage": "Open sign-in page"
+        "emailLabel": "Correo electronico",
+        "passwordLabel": "Contrasena",
+        "forgotPassword": "Contrasena olvidada?",
+        "submitting": "Iniciando sesion...",
+        "continue": "Iniciar sesion y continuar",
+        "openPage": "Abrir la pagina de inicio de sesion"
       },
       "signUp": {
-        "fullNameLabel": "Full name",
-        "emailLabel": "Email",
-        "passwordLabel": "Password",
-        "passwordConfirmLabel": "Confirm password",
-        "submitting": "Signing up...",
-        "continue": "Sign up and continue",
-        "openPage": "Open sign-up page"
+        "fullNameLabel": "Nombre completo",
+        "emailLabel": "Correo electronico",
+        "passwordLabel": "Contrasena",
+        "passwordConfirmLabel": "Confirmar contrasena",
+        "submitting": "Registrando...",
+        "continue": "Registrarse y continuar",
+        "openPage": "Abrir la pagina de registro"
       },
       "errors": {
-        "guestEmailInvalid": "Please enter a valid guest email.",
-        "signInEmailInvalid": "Invalid sign-in email.",
-        "passwordRequired": "Password is required to sign in.",
-        "authConfigUnavailableSignIn": "Authentication configuration is unavailable. Use the sign-in page.",
-        "sessionUnavailableAfterSignIn": "Signed in, but user session is unavailable. Please retry.",
-        "signInFailed": "Unable to sign in right now.",
-        "fullNameRequired": "Full name is required.",
-        "signUpEmailInvalid": "Invalid sign-up email.",
-        "passwordTooShort": "Password must contain at least 8 characters.",
-        "passwordMismatch": "Passwords do not match.",
-        "authConfigUnavailableSignUp": "Authentication configuration is unavailable. Use the sign-up page.",
-        "signUpFailed": "Unable to create account right now."
+        "guestEmailInvalid": "Introduzca un correo de invitado valido.",
+        "signInEmailInvalid": "Correo electronico de inicio de sesion no valido.",
+        "passwordRequired": "La contrasena es obligatoria para iniciar sesion.",
+        "authConfigUnavailableSignIn": "Configuracion de autenticacion no disponible. Use la pagina de inicio de sesion.",
+        "sessionUnavailableAfterSignIn": "Sesion iniciada, pero la sesion del usuario no esta disponible. Intentelo de nuevo.",
+        "signInFailed": "No es posible iniciar sesion en este momento.",
+        "fullNameRequired": "El nombre completo es obligatorio.",
+        "signUpEmailInvalid": "Correo electronico de registro no valido.",
+        "passwordTooShort": "La contrasena debe contener al menos 8 caracteres.",
+        "passwordMismatch": "Las contrasenas no coinciden.",
+        "authConfigUnavailableSignUp": "Configuracion de autenticacion no disponible. Use la pagina de registro.",
+        "signUpFailed": "No es posible crear la cuenta en este momento."
       },
       "success": {
-        "guestModeActive": "Guest mode enabled for this checkout.",
-        "signIn": "Sign in successful.",
-        "signUp": "Sign up successful.",
-        "signUpContinueAsGuest": "Account created. Continue as guest and verify your email afterwards."
+        "guestModeActive": "Modo invitado activado para este checkout.",
+        "signIn": "Inicio de sesion exitoso.",
+        "signUp": "Registro exitoso.",
+        "signUpContinueAsGuest": "Cuenta creada. Continue como invitado y verifique su correo despues."
       }
     },
     "address": {
-      "ariaLabel": "Checkout address step",
+      "ariaLabel": "Etapa de direccion del checkout",
       "modes": {
-        "saved": "Saved address",
-        "new": "New address"
+        "saved": "Direccion guardada",
+        "new": "Nueva direccion"
       },
-      "savedSelectionAriaLabel": "Saved address selection",
+      "savedSelectionAriaLabel": "Seleccion de direccion guardada",
       "fields": {
-        "firstName": "First name",
-        "lastName": "Last name",
-        "address1": "Address line 1",
-        "address2Optional": "Address line 2 (optional)",
-        "city": "City",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "address1": "Direccion 1",
+        "address2Optional": "Direccion 2 (opcional)",
+        "city": "Ciudad",
         "region": "Region",
-        "postalCode": "Postal code",
-        "country": "Country",
-        "phone": "Mobile phone"
+        "postalCode": "Codigo postal",
+        "country": "Pais",
+        "phone": "Telefono movil"
       },
       "errors": {
-        "selectSavedAddress": "Select a saved address.",
-        "completeRequiredFields": "Complete all required address fields."
+        "selectSavedAddress": "Seleccione una direccion guardada.",
+        "completeRequiredFields": "Complete todos los campos obligatorios de la direccion."
       },
-      "continueToPayment": "Continue to payment"
+      "continueToPayment": "Continuar al pago"
     },
     "payment": {
-      "ariaLabel": "Checkout payment step",
+      "ariaLabel": "Etapa de pago del checkout",
       "modes": {
-        "saved": "Saved card",
-        "new": "New card"
+        "saved": "Tarjeta guardada",
+        "new": "Nueva tarjeta"
       },
-      "savedSelectionAriaLabel": "Saved card selection",
+      "savedSelectionAriaLabel": "Seleccion de tarjeta guardada",
       "fields": {
-        "cardHolder": "Name on card",
-        "cardNumber": "Card number",
-        "expiry": "Expiry (MM/YY)"
+        "cardHolder": "Nombre en la tarjeta",
+        "cardNumber": "Numero de tarjeta",
+        "expiry": "Caducidad (MM/AA)"
       },
       "validation": {
-        "cardNumberInvalid": "Invalid card number.",
-        "expiryInvalid": "Invalid expiry date.",
-        "cvcInvalid": "Invalid CVC."
+        "cardNumberInvalid": "Numero de tarjeta no valido.",
+        "expiryInvalid": "Caducidad no valida.",
+        "cvcInvalid": "CVC no valido."
       },
       "errors": {
-        "selectSavedMethod": "Select a saved payment method.",
-        "invalidCardInformation": "Check card information."
+        "selectSavedMethod": "Seleccione un metodo de pago guardado.",
+        "invalidCardInformation": "Verifique la informacion de la tarjeta bancaria."
       },
-      "continueToConfirmation": "Continue to confirmation"
+      "continueToConfirmation": "Continuar a la confirmacion"
     },
     "confirm": {
-      "ariaLabel": "Checkout confirmation step",
-      "productSummaryTitle": "Product summary",
-      "selectedAddressTitle": "Selected address",
-      "paymentMethodTitle": "Payment method",
-      "cardFallback": "Card",
-      "submitting": "Confirmation in progress...",
-      "submit": "Confirm purchase",
+      "ariaLabel": "Etapa de confirmacion del checkout",
+      "productSummaryTitle": "Resumen de productos",
+      "selectedAddressTitle": "Direccion seleccionada",
+      "paymentMethodTitle": "Metodo de pago",
+      "cardFallback": "Tarjeta",
+      "submitting": "Confirmando...",
+      "submit": "Confirmar la compra",
       "errors": {
-        "stockConflict": "Finalization blocked: some products are no longer available.",
-        "confirmationFailed": "Order confirmation failed. Please try again.",
-        "finalizeFailed": "Unable to finalize your order right now."
+        "stockConflict": "Finalizacion bloqueada: algunos productos ya no estan disponibles.",
+        "confirmationFailed": "La confirmacion del pedido ha fallado. Intentelo de nuevo.",
+        "finalizeFailed": "No es posible finalizar su pedido en este momento."
       }
     },
     "cartSummary": {
-      "title": "Cart summary",
-      "quantity": "Quantity: {quantity}",
-      "available": "Available",
-      "stockConflict": "Stock conflict",
-      "items": "Items",
-      "totalHtEstimate": "Total excl. tax (estimate)",
-      "vatEstimate": "VAT (estimate)",
-      "totalTtc": "Total incl. tax",
-      "refresh": "Refresh cart",
-      "backToCart": "Back to cart"
+      "title": "Resumen del carrito",
+      "quantity": "Cantidad: {quantity}",
+      "available": "Disponible",
+      "stockConflict": "Conflicto de stock",
+      "items": "Articulos",
+      "totalHtEstimate": "Total sin IVA (estimado)",
+      "vatEstimate": "IVA (estimado)",
+      "totalTtc": "Total con IVA",
+      "refresh": "Actualizar el carrito",
+      "backToCart": "Volver al carrito"
     },
     "common": {
-      "requiredField": "Required field.",
-      "back": "Back",
-      "loading": "Loading..."
+      "requiredField": "Campo obligatorio.",
+      "back": "Atras",
+      "loading": "Cargando..."
     }
   },
   "CheckoutPageStates": {
     "loading": {
-      "ariaLabel": "Loading checkout"
+      "ariaLabel": "Cargando el checkout"
     },
     "error": {
-      "title": "Checkout unavailable",
-      "description": "Unable to load checkout right now. Please try again.",
-      "retry": "Retry"
+      "title": "Checkout no disponible",
+      "description": "No es posible cargar el checkout en este momento. Intentelo de nuevo.",
+      "retry": "Reintentar"
     },
     "blocked": {
-      "title": "Checkout unavailable",
-      "description": "Your cart is empty or no longer payable. Go back to cart to continue.",
-      "backToCart": "Back to cart"
+      "title": "Checkout no accesible",
+      "description": "Su carrito esta vacio o ya no es pagable. Vuelva al carrito para continuar.",
+      "backToCart": "Volver al carrito"
     }
   },
   "CheckoutConfirmationPage": {
-    "title": "Purchase confirmed",
-    "description": "Thank you for your order. Your payment has been processed and your order is being prepared.",
-    "orderReference": "Order reference: {orderNumber}",
-    "orderReferenceUnavailable": "Order reference unavailable",
-    "viewOrders": "View my orders",
-    "continueShopping": "Continue shopping"
+    "title": "Compra confirmada",
+    "description": "Gracias por su pedido. Su pago se ha registrado correctamente y su pedido esta siendo procesado.",
+    "orderReference": "Referencia del pedido: {orderNumber}",
+    "orderReferenceUnavailable": "Referencia del pedido no disponible",
+    "viewOrders": "Ver mis pedidos",
+    "continueShopping": "Seguir comprando"
   },
   "A11y": {
     "skip": "Skip to main content"

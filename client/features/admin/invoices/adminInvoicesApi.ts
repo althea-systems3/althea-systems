@@ -44,7 +44,7 @@ export async function fetchAdminInvoiceById(
 
   return parseApiResponse<AdminInvoiceDetailPayload>(
     response,
-    "Impossible de charger le detail facture.",
+    "Impossible de charger le détail facture.",
   )
 }
 
@@ -62,7 +62,7 @@ export async function updateAdminInvoiceById(
 
   return parseApiResponse<AdminInvoiceDetailPayload>(
     response,
-    "Impossible de mettre a jour la facture.",
+    "Impossible de mettre à jour la facture.",
   )
 }
 
@@ -115,7 +115,7 @@ export async function fetchAdminCreditNoteById(
 
   return parseApiResponse<AdminCreditNoteDetailPayload>(
     response,
-    "Impossible de charger le detail avoir.",
+    "Impossible de charger le détail avoir.",
   )
 }
 

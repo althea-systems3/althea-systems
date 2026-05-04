@@ -197,8 +197,8 @@ export function AdminOrdersListPage() {
             Recherche, filtres et tri
           </CardTitle>
           <CardDescription>
-            Recherchez par numero, client ou email, puis triez selon les besoins
-            support et operations.
+            Recherchez par numéro, client ou email, puis triez selon les besoins
+            support et opérations.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -207,7 +207,7 @@ export function AdminOrdersListPage() {
             onSubmit={handleSearchSubmit}
           >
             <label className="space-y-1 text-sm text-slate-700">
-              <span>Recherche numero commande</span>
+              <span>Recherche numéro commande</span>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -268,7 +268,7 @@ export function AdminOrdersListPage() {
                 className="w-full xl:w-auto"
                 onClick={handleResetFilters}
               >
-                Reinit.
+                Réinit.
               </Button>
             </div>
           </form>
@@ -290,8 +290,8 @@ export function AdminOrdersListPage() {
                 <option value="all">Tous</option>
                 <option value="en_attente">En attente</option>
                 <option value="en_cours">En cours</option>
-                <option value="terminee">Terminee</option>
-                <option value="annulee">Annulee</option>
+                <option value="terminee">Terminée</option>
+                <option value="annulee">Annulée</option>
               </select>
             </label>
 
@@ -310,10 +310,10 @@ export function AdminOrdersListPage() {
                 className="h-10 w-full rounded-md border border-border px-3"
               >
                 <option value="all">Tous</option>
-                <option value="valide">Valide</option>
+                <option value="valide">Validé</option>
                 <option value="en_attente">En attente</option>
-                <option value="echoue">Echoue</option>
-                <option value="rembourse">Rembourse</option>
+                <option value="echoue">Échoué</option>
+                <option value="rembourse">Remboursé</option>
               </select>
             </label>
 

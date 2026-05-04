@@ -25,7 +25,7 @@ function humanizeCharacteristicKey(key: string): string {
   const normalized = key.replace(/[_.-]+/g, " ").trim()
 
   if (!normalized) {
-    return "Caracteristique"
+    return "Caractéristique"
   }
 
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)

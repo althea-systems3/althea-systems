@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { cookies } from "next/headers"
 import { Inter, Noto_Sans_Arabic, Poppins } from "next/font/google"
 import "./globals.css"
@@ -6,7 +6,15 @@ import { isRtlLocale, toAppLocale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Althea Systems",
-  description: "Base front-end e-commerce Next.js avec i18n et accessibilite.",
+  description:
+    "Plateforme e-commerce B2B dédiée aux professionnels de santé : équipements médicaux, dispositifs et consommables.",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#1c4e80",
 }
 
 const inter = Inter({

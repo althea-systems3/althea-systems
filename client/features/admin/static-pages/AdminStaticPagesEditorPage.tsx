@@ -39,19 +39,19 @@ type EditorStatus = {
 
 const PAGE_LABELS: Record<StaticPageSlug, string> = {
   cgu: "CGU",
-  "mentions-legales": "Mentions legales",
-  "a-propos": "A propos",
+  "mentions-legales": "Mentions légales",
+  "a-propos": "À propos",
 }
 
 function formatDateTime(dateValue: string | null): string {
   if (!dateValue) {
-    return "Non renseigne"
+    return "Non renseigné"
   }
 
   const parsedDate = new Date(dateValue)
 
   if (Number.isNaN(parsedDate.getTime())) {
-    return "Non renseigne"
+    return "Non renseigné"
   }
 
   return parsedDate.toLocaleString("fr-FR")
@@ -115,7 +115,7 @@ export function AdminStaticPagesEditorPage({
           if (payload.isFallbackData) {
             setStatus({
               message:
-                "Aucune version enregistree pour cette locale. Valeurs par defaut chargees.",
+                "Aucune version enregistrée pour cette locale. Valeurs par défaut chargées.",
               isError: false,
             })
           } else {
@@ -189,7 +189,7 @@ export function AdminStaticPagesEditorPage({
 
       setUpdatedAt(typedPayload.updatedAt)
       setStatus({
-        message: "Page enregistree avec succes.",
+        message: "Page enregistrée avec succès.",
         isError: false,
       })
     } catch (error) {
@@ -218,15 +218,15 @@ export function AdminStaticPagesEditorPage({
           Pages statiques
         </h1>
         <p className="text-sm text-slate-600 sm:text-base">
-          Editez les contenus publics CGU, Mentions legales et A propos.
+          Éditez les contenus publics CGU, Mentions légales et À propos.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-brand-nav">Selection</CardTitle>
+          <CardTitle className="text-brand-nav">Sélection</CardTitle>
           <CardDescription>
-            Choisissez la page et la langue a mettre a jour.
+            Choisissez la page et la langue à mettre à jour.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">

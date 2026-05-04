@@ -402,7 +402,7 @@ export function AdminChatbotSection() {
                   <th className="px-2 py-3">Maj</th>
                   <th className="px-2 py-3">Apercu</th>
                   <th className="px-2 py-3">Action statut</th>
-                  <th className="px-2 py-3">Detail</th>
+                  <th className="px-2 py-3">Détail</th>
                 </tr>
               </thead>
               <tbody>
@@ -507,12 +507,12 @@ export function AdminChatbotSection() {
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">
-              Detail conversation{" "}
+              Détail conversation{" "}
               {selectedConversationSummary?.conversationId ??
                 selectedConversationId}
             </CardTitle>
             <CardDescription>
-              Historique complet et metadonnees de l escalation.
+              Historique complet et métadonnées de l&apos;escalation.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -586,7 +586,7 @@ export function AdminChatbotSection() {
             ) : null}
 
             {!isDetailLoading && !conversationDetail ? (
-              <p className="text-sm text-slate-600">Aucun detail a afficher.</p>
+              <p className="text-sm text-slate-600">Aucun détail à afficher.</p>
             ) : null}
 
             <div className="flex gap-2">
