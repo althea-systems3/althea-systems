@@ -99,22 +99,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } as never)
       .eq('id_utilisateur', user.id_utilisateur);
 
-    // NOTE: Envoyer email (non bloquant)
+    // NOTE: Envoyer email — AWAITED (sinon Vercel kill le fetch)
     const verificationUrl = buildVerificationUrl(rawToken);
 
-    sendVerificationEmail({
-      recipientEmail: email,
-      customerName: user.nom_complet || 'Utilisateur',
-      verificationUrl,
-    }).catch((emailError) => {
+    try {
+      await sendVerificationEmail({
+        recipientEmail: email,
+        customerName: user.nom_complet || 'Utilisateur',
+        verificationUrl,
+      });
+    } catch (emailError) {
       console.error('Erreur renvoi email vérification', { emailError });
-    });
+    }
 
-    // NOTE: Journalisation (non bloquant)
-    logAuthActivity('auth.resend_verification', {
+    // NOTE: Journalisation Firebase — timeout 3s interne
+    await logAuthActivity('auth.resend_verification', {
       userId: user.id_utilisateur,
       email,
-    }).catch(() => {});
+    });
 
     return NextResponse.json(
       { message: ANTI_ENUMERATION_MESSAGE },

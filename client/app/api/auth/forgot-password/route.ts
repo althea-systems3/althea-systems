@@ -114,26 +114,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       expires_at: tokenExpiry.toISOString(),
     } as never);
 
-    // NOTE: Envoyer l'email (non bloquant)
+    // NOTE: Envoyer l'email — AWAITED pour garantir la livraison avant la fin
+    // de la serverless function (sinon Vercel tue le fetch en cours)
     const resetUrl = buildResetUrl(rawToken, locale);
 
-    sendPasswordResetEmail({
-      recipientEmail: email,
-      customerName: user.nom_complet,
-      resetUrl,
-    }).catch((emailError) => {
+    try {
+      await sendPasswordResetEmail({
+        recipientEmail: email,
+        customerName: user.nom_complet,
+        resetUrl,
+      });
+    } catch (emailError) {
       logServerError({
         feature: 'auth.forgot_password.email',
         error: emailError,
         context: { userId: user.id_utilisateur },
       });
-    });
+      // Ne pas bloquer la réponse user — on reste sur le message anti-enum
+    }
 
-    // NOTE: Journalisation (non bloquant)
-    logAuthActivity('auth.forgot_password', {
+    // NOTE: Journalisation Firebase — non bloquant (timeout 3s interne)
+    await logAuthActivity('auth.forgot_password', {
       userId: user.id_utilisateur,
       email,
-    }).catch(() => {});
+    });
 
     return NextResponse.json({
       message: ANTI_ENUMERATION_RESET_MESSAGE,

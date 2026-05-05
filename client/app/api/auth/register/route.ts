@@ -195,22 +195,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } as never)
       .eq("id_utilisateur", authData.user.id)
 
-    // NOTE: Envoyer l'email de vérification (non bloquant)
+    // NOTE: Envoyer l'email — AWAITED (sinon Vercel kill le fetch en cours)
     const verificationUrl = buildVerificationUrl(rawToken)
 
-    sendVerificationEmail({
-      recipientEmail: email,
-      customerName: nomComplet,
-      verificationUrl,
-    }).catch((emailError) => {
+    try {
+      await sendVerificationEmail({
+        recipientEmail: email,
+        customerName: nomComplet,
+        verificationUrl,
+      })
+    } catch (emailError) {
       console.error("Erreur envoi email vérification", { emailError })
-    })
+    }
 
-    // NOTE: Journalisation (non bloquant)
-    logAuthActivity("auth.register", {
+    // NOTE: Journalisation Firebase — timeout 3s interne
+    await logAuthActivity("auth.register", {
       userId: authData.user.id,
       email,
-    }).catch(() => {})
+    })
 
     return withRegisterDeprecationHeaders(
       NextResponse.json(
