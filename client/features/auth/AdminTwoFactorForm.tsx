@@ -60,6 +60,7 @@ function mapVerifyErrorCode(code: string): string {
 }
 
 export function AdminTwoFactorForm() {
+  const translatePage = useTranslations("Pages.adminTwoFactor")
   const translateForm = useTranslations("Pages.adminTwoFactor.form")
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -216,12 +217,12 @@ export function AdminTwoFactorForm() {
 
   return (
     <AuthPageSection
-      title={translateForm("title")}
-      description={translateForm("description")}
+      title={translatePage("title")}
+      description={translatePage("description")}
     >
       <AuthFormCard
-        title={translateForm("form.title")}
-        description={translateForm("form.description")}
+        title={translateForm("title")}
+        description={translateForm("description")}
         footer={
           <AuthStatusMessage
             message={status?.message ?? null}
