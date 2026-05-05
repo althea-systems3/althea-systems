@@ -149,9 +149,12 @@ export function AdminTwoFactorForm() {
     [nextPath, router, translateForm],
   )
 
+  // NOTE: Pas d'auto-fetch au mount — le code est déjà envoyé par /api/auth/signin.
+  // L'user clique "Renvoyer le code" si nécessaire.
+  // Active le cooldown initial pour éviter le spam.
   useEffect(() => {
-    void requestChallenge(false)
-  }, [requestChallenge])
+    setResendCooldown(RESEND_COOLDOWN_SECONDS)
+  }, [])
 
   async function onSubmit(values: AdminTwoFactorInput) {
     setStatus(null)
@@ -188,6 +191,7 @@ export function AdminTwoFactorForm() {
       })
 
       router.replace(nextPath)
+      router.refresh()
     } catch (error) {
       console.error("Erreur vérification 2FA admin", { error })
       setStatus({
@@ -230,24 +234,24 @@ export function AdminTwoFactorForm() {
             <span className="text-sm font-medium text-brand-nav">
               {translateForm("fields.code.label")}
             </span>
-            <InputGroup>
-              <InputGroupInput
-                id="admin-2fa-code"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="one-time-code"
-                placeholder={translateForm("fields.code.placeholder")}
-                className="tracking-[0.35em]"
-                aria-label={translateForm("fields.code.label")}
-                {...register("code")}
-                onChange={(event) => {
-                  const digitsOnly = event.target.value.replaceAll(/\D/g, "")
-                  setValue("code", digitsOnly.slice(0, 6), {
-                    shouldValidate: false,
-                  })
-                }}
-              />
-            </InputGroup>
+            <input
+              id="admin-2fa-code"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              autoComplete="one-time-code"
+              placeholder="123456"
+              className="h-14 w-full rounded-md border border-border bg-white text-center font-mono text-2xl font-semibold tracking-[0.5em] text-brand-nav focus:border-brand-cta focus:outline-none focus:ring-2 focus:ring-brand-cta/30"
+              aria-label={translateForm("fields.code.label")}
+              {...register("code")}
+              onChange={(event) => {
+                const digitsOnly = event.target.value.replaceAll(/\D/g, "")
+                setValue("code", digitsOnly.slice(0, 6), {
+                  shouldValidate: false,
+                })
+              }}
+            />
           </label>
 
           <div className="rounded-md border border-border/70 bg-slate-50 p-3 text-xs text-slate-600">
@@ -260,38 +264,43 @@ export function AdminTwoFactorForm() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" className="flex-1" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-                  {submitLabel}
-                </>
-              ) : (
-                submitLabel
-              )}
-            </Button>
+          <Button
+            type="submit"
+            className="w-full bg-brand-cta py-6 text-base font-semibold text-white hover:bg-brand-cta/90"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="size-5 animate-spin" aria-hidden="true" />
+                {submitLabel}
+              </>
+            ) : (
+              submitLabel
+            )}
+          </Button>
 
-            <Button
+          <div className="flex items-center justify-center gap-2 pt-2 text-sm text-slate-600">
+            <span>{translateForm("hints.didntReceive")}</span>
+            <button
               type="button"
-              variant="outline"
               onClick={() => {
                 void requestChallenge(true)
               }}
               disabled={isSendingCode || isSubmitting || resendCooldown > 0}
+              className="inline-flex items-center gap-1 font-medium text-brand-cta hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
             >
               {isSendingCode ? (
                 <>
-                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
                   {translateForm("actions.sending")}
                 </>
               ) : (
                 <>
-                  <RefreshCw className="size-4" aria-hidden="true" />
+                  <RefreshCw className="size-3.5" aria-hidden="true" />
                   {resendLabel}
                 </>
               )}
-            </Button>
+            </button>
           </div>
 
           <p className="text-center text-sm text-slate-600">

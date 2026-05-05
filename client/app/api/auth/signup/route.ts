@@ -147,6 +147,18 @@ export async function POST(request: Request) {
     const invalidReason = getInvalidReason(body)
 
     if (invalidReason) {
+      console.warn("Signup 400 — payload invalide", {
+        code: invalidReason,
+        receivedFields: {
+          firstName: typeof body?.firstName === "string" ? body.firstName.length : null,
+          lastName: typeof body?.lastName === "string" ? body.lastName.length : null,
+          email: typeof body?.email === "string" ? body.email : null,
+          phone: typeof body?.phone === "string" ? body.phone.length : null,
+          password: typeof body?.password === "string" ? body.password.length : null,
+          acceptTerms: body?.acceptTerms,
+        },
+      })
+
       return NextResponse.json(
         {
           error: "Payload inscription invalide",

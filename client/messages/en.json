@@ -322,6 +322,13 @@
     "category": {
       "title": "Category: {categorySlug}",
       "description": "Find available products in category {categorySlug}, with up-to-date stock and pricing."
+    },
+    "adminTwoFactor": {
+      "form": {
+        "hints": {
+          "didntReceive": "Didn't receive a code?"
+        }
+      }
     }
   },
   "CataloguePage": {

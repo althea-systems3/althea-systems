@@ -322,6 +322,13 @@
     "category": {
       "title": "الفئة: {categorySlug}",
       "description": "اعثر على المنتجات المتاحة ضمن الفئة {categorySlug} مع مخزون وأسعار محدثة."
+    },
+    "adminTwoFactor": {
+      "form": {
+        "hints": {
+          "didntReceive": "لم تستلم الرمز؟"
+        }
+      }
     }
   },
   "CataloguePage": {
