@@ -53,19 +53,29 @@ export async function PublicStaticPage({
   return (
     <section className="container py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
-        <header className="rounded-2xl border border-border/80 bg-[#d4f4f7]/60 p-5 sm:p-7">
-          <Badge
-            variant="secondary"
-            className="w-fit bg-[#d4f4f7] text-[#0a7490] hover:bg-[#c7edf1]"
-          >
-            Althea Systems
-          </Badge>
-          <h1 className="mt-2 heading-font text-3xl tracking-tight text-brand-nav sm:text-4xl">
-            {pageTitle}
-          </h1>
-          <p className="mt-3 text-sm text-slate-700 sm:text-base">
-            {pageDescription}
-          </p>
+        <header className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-[#f0fbfc] via-white to-[#eaf3fb] p-6 sm:p-10">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            aria-hidden="true"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 95% 10%, rgba(20,184,200,0.18) 0, transparent 50%), radial-gradient(circle at 5% 90%, rgba(28,78,128,0.12) 0, transparent 50%)",
+            }}
+          />
+          <div className="relative space-y-3">
+            <Badge
+              variant="secondary"
+              className="w-fit rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-cta backdrop-blur hover:bg-white/90"
+            >
+              Althea Systems
+            </Badge>
+            <h1 className="heading-font text-3xl leading-tight tracking-tight text-brand-nav sm:text-4xl lg:text-5xl">
+              {pageTitle}
+            </h1>
+            <p className="max-w-2xl text-sm text-slate-700 sm:text-base">
+              {pageDescription}
+            </p>
+          </div>
         </header>
 
         {!hasEditorialContent ? (

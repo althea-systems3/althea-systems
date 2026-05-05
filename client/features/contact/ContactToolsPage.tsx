@@ -498,33 +498,44 @@ export function ContactToolsPage({
   return (
     <section className="container py-10 sm:py-14 lg:py-16">
       <div className="mx-auto grid max-w-6xl gap-6 sm:gap-8">
-        <header className="rounded-2xl border border-border/80 bg-[linear-gradient(130deg,#d5f6f8_0%,#eef8fb_55%,#ffffff_100%)] p-5 sm:p-7">
-          <Badge className="w-fit bg-brand-cta text-white hover:bg-[#0095a0]">
-            {content.badge}
-          </Badge>
+        <header className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-[#f0fbfc] via-white to-[#eaf3fb] p-6 sm:p-10">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            aria-hidden="true"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 95% 10%, rgba(20,184,200,0.18) 0, transparent 50%), radial-gradient(circle at 5% 90%, rgba(28,78,128,0.12) 0, transparent 50%)",
+            }}
+          />
+          <div className="relative space-y-3">
+            <Badge className="w-fit rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-cta backdrop-blur hover:bg-white/90">
+              {content.badge}
+            </Badge>
 
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-brand-nav sm:text-4xl">
-            {title}
-          </h1>
+            <h1 className="heading-font text-3xl leading-tight tracking-tight text-brand-nav sm:text-4xl lg:text-5xl">
+              {title}
+            </h1>
 
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
-            {description}
-          </p>
+            <p className="max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
+              {description}
+            </p>
 
-          <p className="mt-3 text-sm font-medium text-brand-nav">
-            {content.responseTime}
-          </p>
+            <p className="text-sm font-medium text-brand-nav">
+              {content.responseTime}
+            </p>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button
-              type="button"
-              className="bg-brand-cta text-white hover:bg-[#0095a0]"
-              onClick={() => setIsChatOpen(true)}
-              aria-label={content.chat.openLabel}
-            >
-              <MessageCircleMore className="size-4" aria-hidden="true" />
-              {content.contactMeLabel}
-            </Button>
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button
+                type="button"
+                size="lg"
+                className="rounded-full bg-brand-cta px-6 text-white shadow-lg shadow-brand-cta/20 hover:bg-brand-cta/90 hover:shadow-xl"
+                onClick={() => setIsChatOpen(true)}
+                aria-label={content.chat.openLabel}
+              >
+                <MessageCircleMore className="size-4" aria-hidden="true" />
+                {content.contactMeLabel}
+              </Button>
+            </div>
           </div>
         </header>
 
