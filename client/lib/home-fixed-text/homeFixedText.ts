@@ -9,6 +9,7 @@ export type HomeFixedTextPayload = {
   contentMarkdown: string;
   updatedAt: string | null;
   isFallbackData: boolean;
+  actif: boolean;
 };
 
 export function createEmptyHomeFixedTextPayload(
@@ -21,5 +22,6 @@ export function createEmptyHomeFixedTextPayload(
     contentMarkdown: '',
     updatedAt: null,
     isFallbackData: true,
+    actif: false,
   };
 }

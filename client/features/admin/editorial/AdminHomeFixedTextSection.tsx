@@ -42,6 +42,7 @@ export function AdminHomeFixedTextSection() {
   const [title, setTitle] = useState("")
   const [contentMarkdown, setContentMarkdown] = useState("")
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
+  const [isActif, setIsActif] = useState(false)
 
   useEffect(() => {
     let isCancelled = false
@@ -77,6 +78,7 @@ export function AdminHomeFixedTextSection() {
           setTitle(payload.title ?? "")
           setContentMarkdown(payload.contentMarkdown)
           setUpdatedAt(payload.updatedAt)
+          setIsActif(Boolean(payload.actif))
           setStatus(null)
         }
       } catch (error) {
@@ -116,6 +118,7 @@ export function AdminHomeFixedTextSection() {
           locale: selectedLocale,
           title,
           contentMarkdown,
+          actif: isActif,
         }),
       })
 
@@ -227,6 +230,26 @@ export function AdminHomeFixedTextSection() {
               placeholder="Texte avec **gras**, *italique* et [liens](/contact)."
             />
           </label>
+
+          <div className="flex items-start gap-3 rounded-lg border border-border bg-slate-50 p-4">
+            <input
+              id="home-fixed-text-actif"
+              type="checkbox"
+              checked={isActif}
+              onChange={(event) => setIsActif(event.target.checked)}
+              className="mt-0.5 size-5 rounded border-slate-300 text-brand-cta focus:ring-2 focus:ring-brand-cta/30"
+            />
+            <label htmlFor="home-fixed-text-actif" className="flex-1 cursor-pointer">
+              <span className="block text-sm font-semibold text-brand-nav">
+                Afficher ce bloc sur la page d&apos;accueil
+              </span>
+              <span className="mt-1 block text-xs text-slate-600">
+                {isActif
+                  ? "Activé — le bloc sera visible publiquement après enregistrement."
+                  : "Désactivé — le bloc reste invisible côté client, même si du contenu est rédigé."}
+              </span>
+            </label>
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Button

@@ -1,9 +1,8 @@
 "use client"
 
 import { useMemo } from "react"
-import { useLocale, useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "@/i18n/navigation"
 import {
   parseHomeFixedTextInlineNodes,
@@ -86,10 +85,10 @@ function ParagraphLines({ paragraph }: { paragraph: string }) {
 
 export function HomeFixedText() {
   const locale = useLocale()
-  const translateHomeFixedText = useTranslations("HomeFixedText")
   const { homeFixedTextPayload, isHomeFixedTextLoading } =
     useHomeFixedText(locale)
 
+  const isActif = Boolean(homeFixedTextPayload?.actif)
   const hasContent =
     (homeFixedTextPayload?.contentMarkdown?.trim().length ?? 0) > 0
 
@@ -106,24 +105,12 @@ export function HomeFixedText() {
   }, [hasContent, homeFixedTextPayload?.contentMarkdown])
 
   if (isHomeFixedTextLoading) {
-    return (
-      <section className="container pb-10 sm:pb-14">
-        <Card className="border-border/80" aria-live="polite">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg text-brand-nav" role="status">
-              {translateHomeFixedText("loading")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="h-4 w-full animate-pulse rounded bg-slate-200" />
-            <div className="h-4 w-11/12 animate-pulse rounded bg-slate-200" />
-          </CardContent>
-        </Card>
-      </section>
-    )
+    // Pendant le chargement on retourne null pour éviter le clignotement —
+    // le bloc n'apparaît que s'il y a vraiment du contenu actif.
+    return null
   }
 
-  if (!hasContent || paragraphs.length === 0) {
+  if (!isActif || !hasContent || paragraphs.length === 0) {
     return null
   }
 
