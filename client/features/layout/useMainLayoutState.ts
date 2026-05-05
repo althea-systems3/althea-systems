@@ -15,6 +15,7 @@ import {
   GUEST_MENU_ITEMS,
   type LayoutMenuItem,
 } from "./layoutConstants"
+import { useRouter } from "@/i18n/navigation"
 import { secureFetch } from "@/lib/http/secureFetch"
 
 type MainLayoutState = {
@@ -101,6 +102,7 @@ function trapMenuFocus(
 }
 
 export function useMainLayoutState(): MainLayoutState {
+  const router = useRouter()
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(() => {
     return readBooleanStorageValue(AUTHENTICATION_STORAGE_KEY)
   })
@@ -145,7 +147,9 @@ export function useMainLayoutState(): MainLayoutState {
     setCartItemCount(0)
     setIsUserAuthenticated(false)
     setIsMobileMenuOpen(false)
-  }, [])
+
+    router.push("/")
+  }, [router])
 
   useEffect(() => {
     window.addEventListener("storage", handleSynchronizeUserState)

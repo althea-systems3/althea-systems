@@ -1,5 +1,19 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => "/",
+  Link: () => null,
+}))
+
 import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,

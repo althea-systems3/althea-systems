@@ -12,6 +12,8 @@ export type ChatbotLogAction =
   | "chatbot_assigned"
   | "chatbot_knowledge_updated"
 
+const LOG_CHATBOT_ACTIVITY_TIMEOUT_MS = 3000
+
 export async function logChatbotActivity(
   action: ChatbotLogAction,
   details: {
@@ -23,19 +25,32 @@ export async function logChatbotActivity(
   try {
     const firestore = getFirestoreClient()
 
-    await firestore.collection(FIRESTORE_LOGS_ACTIVITE).add({
+    const writePromise = firestore.collection(FIRESTORE_LOGS_ACTIVITE).add({
       action,
       conversation_id: details.conversation_id ?? null,
       user_id: details.user_id ?? null,
       // Never log message content — only metadata
       details: Object.fromEntries(
         Object.entries(details).filter(
-          ([k]) => !["message", "content", "text", "user_id", "conversation_id"].includes(k),
+          ([k]) =>
+            !["message", "content", "text", "user_id", "conversation_id"].includes(k),
         ),
       ),
       timestamp: new Date().toISOString(),
     })
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(
+        () => reject(new Error("logChatbotActivity timeout")),
+        LOG_CHATBOT_ACTIVITY_TIMEOUT_MS,
+      )
+    })
+
+    await Promise.race([writePromise, timeoutPromise])
   } catch (error) {
-    console.error("Erreur journalisation activité chatbot", { action, error })
+    console.error("Erreur journalisation activité chatbot", {
+      action,
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }
