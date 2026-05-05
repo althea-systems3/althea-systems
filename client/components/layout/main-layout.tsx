@@ -11,6 +11,7 @@ import {
   Scale,
   Search,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   UserPlus,
@@ -53,6 +54,7 @@ const MENU_ITEM_ICON_BY_KEY: Record<
   LayoutMenuItemKey | "logout",
   ComponentType<{ className?: string }>
 > = {
+  admin: ShieldCheck,
   settings: Settings,
   orders: ShoppingBag,
   terms: Scale,
