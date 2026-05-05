@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, LogOut, ShieldCheck, X } from "lucide-react"
+import { ExternalLink, Menu, LogOut, ShieldCheck, X } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -31,7 +31,7 @@ export function AdminShell({ adminName, locale, children }: AdminShellProps) {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <div className="mx-auto grid min-h-screen max-w-[1600px] lg:grid-cols-[280px_1fr]">
+      <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
         <aside
           className={`fixed inset-y-0 start-0 z-50 w-72 border-e border-[#003d5c]/15 bg-[#003d5c] p-4 text-white transition-transform duration-200 lg:static lg:w-auto lg:translate-x-0 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -114,6 +114,13 @@ export function AdminShell({ adminName, locale, children }: AdminShellProps) {
                   <ShieldCheck className="size-3.5" aria-hidden="true" />
                   {adminName}
                 </span>
+
+                <Button asChild type="button" variant="outline">
+                  <Link href="/">
+                    <ExternalLink className="size-4" aria-hidden="true" />
+                    <span className="hidden sm:inline">Voir le site</span>
+                  </Link>
+                </Button>
 
                 <Button
                   type="button"

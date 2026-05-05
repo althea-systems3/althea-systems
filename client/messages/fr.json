@@ -169,7 +169,8 @@
           "backToSignIn": "Revenir à la connexion"
         },
         "hints": {
-          "expiry": "Le code expire rapidement pour limiter les risques de compromission."
+          "expiry": "Le code expire rapidement pour limiter les risques de compromission.",
+          "didntReceive": "Vous n'avez pas reçu de code ?"
         },
         "messages": {
           "codeSent": "Un nouveau code a été envoyé.",

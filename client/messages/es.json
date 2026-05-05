@@ -322,6 +322,13 @@
     "category": {
       "title": "Category: {categorySlug}",
       "description": "Encuentre productos disponibles en la categoria {categorySlug}, con stock y precios actualizados."
+    },
+    "adminTwoFactor": {
+      "form": {
+        "hints": {
+          "didntReceive": "¿No recibió el código?"
+        }
+      }
     }
   },
   "CataloguePage": {

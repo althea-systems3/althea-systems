@@ -159,11 +159,13 @@ export function SignInForm() {
         )
         setAuthenticatedLayoutState()
         router.replace(adminVerificationPath)
+        router.refresh()
         return
       }
 
       setAuthenticatedLayoutState()
       router.replace(nextPath)
+      router.refresh()
     } catch (error) {
       console.error("Erreur connexion utilisateur", { error })
       setSignInStatus({

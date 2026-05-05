@@ -602,7 +602,7 @@ export function AdminCategoriesListPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="overflow-x-auto">
-            <table className="min-w-[1300px] w-full text-left text-sm">
+            <table className="min-w-[1000px] w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-slate-500">
                   <th className="px-2 py-3">
