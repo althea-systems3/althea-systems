@@ -16,12 +16,14 @@ type HomeFixedTextRow = {
   titre: string | null;
   contenu_markdown: string | null;
   date_mise_a_jour: string | null;
+  actif: boolean | null;
 };
 
 type AdminHomeFixedTextBody = {
   locale?: string;
   title?: string | null;
   contentMarkdown?: string;
+  actif?: boolean;
 };
 
 type UntypedEditorialClient = {
@@ -33,6 +35,7 @@ type UntypedEditorialClient = {
         titre: string | null;
         contenu_markdown: string;
         date_mise_a_jour: string;
+        actif: boolean;
       },
       options: { onConflict: string },
     ) => {
@@ -78,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from('contenu_editorial')
-      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour')
+      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour, actif')
       .eq('slug', HOME_FIXED_TEXT_SLUG)
       .eq('locale', locale)
       .maybeSingle();
@@ -108,6 +111,7 @@ export async function GET(request: NextRequest) {
       contentMarkdown: row.contenu_markdown ?? '',
       updatedAt: row.date_mise_a_jour,
       isFallbackData: false,
+      actif: row.actif ?? false,
     });
   } catch (error) {
     console.error('Erreur inattendue lecture texte fixe home admin', {
@@ -136,6 +140,7 @@ export async function PUT(request: NextRequest) {
   const locale = toAppLocale(body?.locale);
   const title = normalizeNullableString(body?.title);
   const contentMarkdown = normalizeString(body?.contentMarkdown);
+  const actif = body?.actif === true;
 
   try {
     const supabaseAdmin = createAdminClient();
@@ -146,6 +151,7 @@ export async function PUT(request: NextRequest) {
       titre: title,
       contenu_markdown: contentMarkdown,
       date_mise_a_jour: new Date().toISOString(),
+      actif,
     };
 
     const editorialClient = supabaseAdmin as unknown as UntypedEditorialClient;
@@ -155,7 +161,7 @@ export async function PUT(request: NextRequest) {
       .upsert(payload, {
         onConflict: 'slug,locale',
       })
-      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour')
+      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour, actif')
       .single();
 
     if (error || !data) {
@@ -185,6 +191,7 @@ export async function PUT(request: NextRequest) {
       contentMarkdown: data.contenu_markdown ?? '',
       updatedAt: data.date_mise_a_jour,
       isFallbackData: false,
+      actif: data.actif ?? false,
     });
   } catch (error) {
     console.error('Erreur inattendue sauvegarde texte fixe home admin', {

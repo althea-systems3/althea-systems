@@ -14,6 +14,7 @@ type HomeFixedTextRow = {
   titre: string | null;
   contenu_markdown: string | null;
   date_mise_a_jour: string | null;
+  actif: boolean | null;
 };
 
 function hasRequiredConfig(): boolean {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabaseAdmin
       .from('contenu_editorial')
-      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour')
+      .select('slug, locale, titre, contenu_markdown, date_mise_a_jour, actif')
       .eq('slug', HOME_FIXED_TEXT_SLUG)
       .eq('locale', locale)
       .maybeSingle();
@@ -63,6 +64,7 @@ export async function GET(request: NextRequest) {
       contentMarkdown: row.contenu_markdown ?? '',
       updatedAt: row.date_mise_a_jour,
       isFallbackData: false,
+      actif: row.actif ?? false,
     };
 
     return NextResponse.json(payload);
