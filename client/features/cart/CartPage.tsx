@@ -313,13 +313,26 @@ export function CartPage() {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="heading-font text-2xl text-brand-nav sm:text-3xl md:text-4xl">
-          {t("title")}
-        </h1>
-        <p className="max-w-3xl text-sm text-slate-700 sm:text-base">
-          {t("description")}
-        </p>
+      <header className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[#f0fbfc] via-white to-[#eaf3fb] px-6 py-8 sm:px-8 sm:py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50"
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 90% 0%, rgba(20,184,200,0.15) 0, transparent 50%)",
+          }}
+        />
+        <div className="relative space-y-2">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-cta backdrop-blur">
+            Panier
+          </span>
+          <h1 className="heading-font text-3xl leading-tight text-brand-nav sm:text-4xl">
+            {t("title")}
+          </h1>
+          <p className="max-w-3xl text-sm text-slate-700 sm:text-base">
+            {t("description")}
+          </p>
+        </div>
       </header>
 
       {isCartRefreshing ? (

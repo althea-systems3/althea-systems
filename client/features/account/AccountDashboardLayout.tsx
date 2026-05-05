@@ -67,13 +67,26 @@ export function AccountDashboardLayout({
 
   return (
     <section className="container py-6 sm:py-8 lg:py-10">
-      <div className="mb-5 space-y-1 sm:mb-6">
-        <h1 className="heading-font text-2xl text-brand-nav sm:text-3xl">
-          {t("dashboard.title")}
-        </h1>
-        <p className="max-w-3xl text-sm text-slate-600 sm:text-base">
-          {t("dashboard.description")}
-        </p>
+      <div className="relative mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-[#f0fbfc] via-white to-[#eaf3fb] px-6 py-8 sm:mb-8 sm:px-8 sm:py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50"
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 95% 5%, rgba(20,184,200,0.18) 0, transparent 50%), radial-gradient(circle at 5% 95%, rgba(28,78,128,0.10) 0, transparent 50%)",
+          }}
+        />
+        <div className="relative space-y-2">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-cta backdrop-blur">
+            Espace personnel
+          </span>
+          <h1 className="heading-font text-3xl leading-tight text-brand-nav sm:text-4xl">
+            {t("dashboard.title")}
+          </h1>
+          <p className="max-w-3xl text-sm text-slate-700 sm:text-base">
+            {t("dashboard.description")}
+          </p>
+        </div>
       </div>
 
       <nav

@@ -111,25 +111,32 @@ export function CategoryHero({
     <div>
       <div
         className={cn(
-          "relative h-48 w-full overflow-hidden rounded-xl bg-slate-100 sm:h-64 md:h-72 lg:h-80",
+          "relative h-56 w-full overflow-hidden rounded-2xl bg-slate-100 shadow-lg sm:h-72 md:h-80 lg:h-96",
         )}
       >
         <CategoryHeroImage category={category} />
 
         <div
-          className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#0a7490]/40 via-transparent to-transparent"
           aria-hidden="true"
         />
 
-        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 md:p-8">
-          <h1 className="heading-font text-2xl leading-tight text-white drop-shadow-md sm:text-3xl md:text-4xl">
+        <div className="absolute bottom-0 left-0 right-0 space-y-2 p-6 sm:p-8 md:p-10">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
+            Catégorie
+          </span>
+          <h1 className="heading-font text-3xl leading-tight text-white drop-shadow-md sm:text-4xl md:text-5xl">
             {category.name}
           </h1>
         </div>
       </div>
 
       {category.description ? (
-        <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
+        <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-700 sm:text-base">
           {category.description}
         </p>
       ) : null}
