@@ -8,6 +8,14 @@ export type EditorialInlineNode =
       label: string
       href: string
     }
+  | {
+      type: "strong"
+      value: string
+    }
+  | {
+      type: "italic"
+      value: string
+    }
 
 export type EditorialMarkdownBlock =
   | {
@@ -28,7 +36,9 @@ export type EditorialMarkdownBlock =
       items: string[]
     }
 
-const INLINE_LINK_PATTERN = /\[([^\]]+)\]\(([^)]+)\)/g
+// Matche dans l'ordre : liens [text](url), gras **text**, italique *text*
+const INLINE_MARKDOWN_PATTERN =
+  /(\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*|\*([^*]+)\*)/g
 
 function normalizeEditorialMarkdown(markdown: string): string {
   const normalizedLineBreaks = markdown
@@ -68,10 +78,8 @@ export function parseEditorialInlineNodes(
   const inlineNodes: EditorialInlineNode[] = []
   let previousLastIndex = 0
 
-  for (const match of rawText.matchAll(INLINE_LINK_PATTERN)) {
+  for (const match of rawText.matchAll(INLINE_MARKDOWN_PATTERN)) {
     const fullMatch = match[0]
-    const label = match[1]?.trim() ?? ""
-    const href = match[2]?.trim() ?? ""
     const matchIndex = match.index ?? -1
 
     if (!fullMatch || matchIndex < 0) {
@@ -85,11 +93,34 @@ export function parseEditorialInlineNodes(
       })
     }
 
-    if (label && href && isSafeEditorialHref(href)) {
+    // Groupes du regex : 2 = link label, 3 = link href, 4 = strong content, 5 = italic content
+    const linkLabel = match[2]?.trim()
+    const linkHref = match[3]?.trim()
+    const strongValue = match[4]?.trim()
+    const italicValue = match[5]?.trim()
+
+    if (linkLabel && linkHref) {
+      if (isSafeEditorialHref(linkHref)) {
+        inlineNodes.push({
+          type: "link",
+          label: linkLabel,
+          href: linkHref,
+        })
+      } else {
+        inlineNodes.push({
+          type: "text",
+          value: fullMatch,
+        })
+      }
+    } else if (strongValue) {
       inlineNodes.push({
-        type: "link",
-        label,
-        href,
+        type: "strong",
+        value: strongValue,
+      })
+    } else if (italicValue) {
+      inlineNodes.push({
+        type: "italic",
+        value: italicValue,
       })
     } else {
       inlineNodes.push({
