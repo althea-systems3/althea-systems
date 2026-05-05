@@ -132,17 +132,33 @@ function mapSupabaseSignUpError(errorMessage: string): {
 }
 
 export async function POST(request: Request) {
+  console.warn("[SIGNUP] POST received", {
+    url: request.url,
+    contentType: request.headers.get("content-type"),
+  })
+
   const configError = ensureRuntimeConfig(
     "api.auth.signup.post",
     "Inscription",
     SIGNUP_API_ENV_KEYS,
   )
-  if (configError) return configError
+  if (configError) {
+    console.warn("[SIGNUP] config missing → 503")
+    return configError
+  }
 
   try {
     const body = (await request
       .json()
       .catch(() => null)) as SignUpRequestBody | null
+
+    console.warn("[SIGNUP] body parsed", {
+      hasBody: body !== null,
+      hasEmail: typeof body?.email === "string",
+      hasPassword: typeof body?.password === "string",
+      passwordLength: typeof body?.password === "string" ? body.password.length : 0,
+      acceptTerms: body?.acceptTerms,
+    })
 
     const invalidReason = getInvalidReason(body)
 
@@ -203,6 +219,13 @@ export async function POST(request: Request) {
     if (error) {
       const mappedError = mapSupabaseSignUpError(error.message)
 
+      console.warn("[SIGNUP] Supabase error", {
+        supabaseMessage: error.message,
+        mappedCode: mappedError.code,
+        mappedStatus: mappedError.status,
+        email,
+      })
+
       return NextResponse.json(
         {
           error: error.message,
@@ -211,6 +234,12 @@ export async function POST(request: Request) {
         { status: mappedError.status },
       )
     }
+
+    console.warn("[SIGNUP] success", {
+      email,
+      userId: data.user?.id,
+      hasSession: Boolean(data.session),
+    })
 
     return NextResponse.json(
       {
