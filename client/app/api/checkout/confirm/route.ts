@@ -230,29 +230,29 @@ export async function POST(request: Request) {
     await clearCart(supabaseAdmin, cartId)
     await clearCartSession()
 
-    sendOrderConfirmationEmail({
-      recipientEmail: contactEmail!,
-      customerName: customerName.trim() || GUEST_USER_DEFAULT_NAME,
-      orderNumber,
-      totalTtc: totals.totalTtc,
-      lines: enrichedLines.map((line) => ({
-        productName: line.productName,
-        quantity: line.quantity,
-        subtotalTtc: line.subtotalTtc,
-      })),
-      invoicePdfUrl,
-    }).catch((emailError) => {
+    try {
+      await sendOrderConfirmationEmail({
+        recipientEmail: contactEmail!,
+        customerName: customerName.trim() || GUEST_USER_DEFAULT_NAME,
+        orderNumber,
+        totalTtc: totals.totalTtc,
+        lines: enrichedLines.map((line) => ({
+          productName: line.productName,
+          quantity: line.quantity,
+          subtotalTtc: line.subtotalTtc,
+        })),
+        invoicePdfUrl,
+      })
+    } catch (emailError) {
       console.error("Erreur envoi email confirmation", { emailError })
-    })
+    }
 
-    logCheckoutActivity("commande_creee", {
+    await logCheckoutActivity("commande_creee", {
       orderId,
       orderNumber,
       userId,
       totalTtc: totals.totalTtc,
       paymentIntentId,
-    }).catch((logError) => {
-      console.error("Erreur log commande_creee", { logError })
     })
 
     return NextResponse.json(
