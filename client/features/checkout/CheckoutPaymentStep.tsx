@@ -16,6 +16,23 @@ function maskCard(last4: string): string {
   return `**** **** **** ${last4}`
 }
 
+function formatCardNumber(input: string): string {
+  // Garde uniquement les chiffres, max 19 (Maestro) sinon 16
+  const digits = input.replace(/\D/g, "").slice(0, 19)
+  // Groupe par 4
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim()
+}
+
+function formatExpiry(input: string): string {
+  const digits = input.replace(/\D/g, "").slice(0, 4)
+  if (digits.length < 3) return digits
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`
+}
+
+function formatCvc(input: string): string {
+  return input.replace(/\D/g, "").slice(0, 4)
+}
+
 const PAYMENT_ERROR_KEYS = {
   stockConflict: "stockConflictMessage",
   selectSavedMethod: "payment.errors.selectSavedMethod",
@@ -125,13 +142,14 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
               inputMode="numeric"
               autoComplete="cc-number"
               value={flow.paymentForm.cardNumber}
+              maxLength={23}
               onChange={(event) =>
                 flow.setPaymentForm((current) => ({
                   ...current,
-                  cardNumber: event.target.value,
+                  cardNumber: formatCardNumber(event.target.value),
                 }))
               }
-              className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
+              className="h-10 w-full rounded-md border border-border bg-white px-3 font-mono text-sm tracking-wider text-slate-700"
               placeholder="1234 5678 9012 3456"
             />
             {flow.paymentErrors.cardNumber ? (
@@ -149,14 +167,18 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
             </label>
             <input
               id="checkout-payment-expiry"
+              type="text"
+              inputMode="numeric"
+              autoComplete="cc-exp"
               value={flow.paymentForm.expiry}
+              maxLength={5}
               onChange={(event) =>
                 flow.setPaymentForm((current) => ({
                   ...current,
-                  expiry: event.target.value,
+                  expiry: formatExpiry(event.target.value),
                 }))
               }
-              className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
+              className="h-10 w-full rounded-md border border-border bg-white px-3 font-mono text-sm text-slate-700"
               placeholder="MM/AA"
             />
             {flow.paymentErrors.expiry ? (
@@ -178,13 +200,14 @@ export function CheckoutPaymentStep({ flow }: CheckoutPaymentStepProps) {
               inputMode="numeric"
               autoComplete="cc-csc"
               value={flow.paymentForm.cvc}
+              maxLength={4}
               onChange={(event) =>
                 flow.setPaymentForm((current) => ({
                   ...current,
-                  cvc: event.target.value,
+                  cvc: formatCvc(event.target.value),
                 }))
               }
-              className="h-10 w-full rounded-md border border-border bg-white px-3 text-sm text-slate-700"
+              className="h-10 w-full rounded-md border border-border bg-white px-3 font-mono text-sm text-slate-700"
               placeholder="123"
             />
             {flow.paymentErrors.cvc ? (

@@ -4,11 +4,14 @@ import createNextIntlPlugin from "next-intl/plugin"
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
-  // Bundle les fichiers de fonts pdfkit (.afm) dans la function serverless
+  // Bundle les fichiers de fonts pdfkit (.afm) dans toutes les serverless functions.
   // Sans ça : "ENOENT: no such file or directory, open '.../pdfkit/js/data/Helvetica.afm'"
   outputFileTracingIncludes: {
-    "/api/**/*": ["./node_modules/pdfkit/js/data/**/*"],
+    // Catch-all : on inclut les fonts pdfkit dans toutes les routes API
+    "**/*": ["./node_modules/pdfkit/js/data/**/*"],
   },
+  // Indique à Next.js de pas tree-shake pdfkit (préserver les imports dynamiques)
+  serverExternalPackages: ["pdfkit"],
   images: {
     remotePatterns: [
       {

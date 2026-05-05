@@ -60,7 +60,7 @@ function mapVerifyErrorCode(code: string): string {
 }
 
 export function AdminTwoFactorForm() {
-  const translateForm = useTranslations("Pages.adminTwoFactor")
+  const translateForm = useTranslations("Pages.adminTwoFactor.form")
   const router = useRouter()
   const searchParams = useSearchParams()
 
