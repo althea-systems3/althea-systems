@@ -28,6 +28,18 @@ function InlineContent({ nodes }: { nodes: EditorialInlineNode[] }) {
           return <span key={nodeKey}>{node.value}</span>
         }
 
+        if (node.type === "strong") {
+          return (
+            <strong key={nodeKey} className="font-semibold text-brand-nav">
+              {node.value}
+            </strong>
+          )
+        }
+
+        if (node.type === "italic") {
+          return <em key={nodeKey}>{node.value}</em>
+        }
+
         if (isInternalHref(node.href)) {
           return (
             <Link
