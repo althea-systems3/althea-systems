@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoning — Althea Systems</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 40px 20px;
+      color: #1a1a2e;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      color: #003d5c;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 48px;
+    }
+
+    .pages {
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .page-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #003d5c;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .page {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border: 2px solid #003d5c;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0,61,92,0.10);
+    }
+
+    .zone {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 8px;
+      border-bottom: 1px dashed rgba(255,255,255,0.3);
+    }
+
+    .zone:last-child { border-bottom: none; }
+
+    /* Couleurs par type de zone */
+    .z-header   { background: #003d5c; color: #fff; height: 48px; }
+    .z-hero     { background: #00a8b5; color: #fff; height: 80px; }
+    .z-grid     { background: #e8f6f8; color: #003d5c; height: 100px; border: 1px dashed #00a8b5; }
+    .z-grid-2   { background: #d4eff2; color: #003d5c; height: 100px; border: 1px dashed #00a8b5; }
+    .z-footer   { background: #1a3a4a; color: #aac8d8; height: 44px; }
+
+    .z-breadcrumb { background: #f0f4f6; color: #003d5c; height: 32px; border-bottom: 1px solid #d0dde5; }
+    .z-banner     { background: #00a8b5; color: #fff; height: 90px; }
+    .z-content    { background: #fff; color: #003d5c; height: 200px; border: 1px dashed #b0ccd8; flex-direction: column; gap: 6px; }
+    .z-sidebar    { width: 80px; min-height: 200px; background: #e8f0f4; color: #003d5c; font-size: 10px; border-right: 1px dashed #b0ccd8; flex-shrink: 0; }
+    .z-products   { flex: 1; background: #fff; min-height: 200px; }
+    .z-row        { display: flex; }
+    .z-pagination { background: #f0f4f6; color: #003d5c; height: 36px; border-top: 1px solid #d0dde5; }
+
+    .grid-inner {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px;
+    }
+
+    .col {
+      flex: 1;
+      height: 100%;
+      border: 1px dashed #00a8b5;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #00a8b5;
+      font-weight: 700;
+    }
+
+    .product-grid {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px;
+    }
+
+    .product-card {
+      flex: 1;
+      height: 80%;
+      border: 1px dashed #00a8b5;
+      border-radius: 4px;
+      background: #f5fbfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #00a8b5;
+      font-weight: 700;
+    }
+
+    .filter-label {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 10px;
+      font-weight: 700;
+      color: #003d5c;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .products-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px;
+      height: 100%;
+    }
+
+    .prod-row {
+      display: flex;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .prod-item {
+      flex: 1;
+      height: 36px;
+      border: 1px dashed #b0ccd8;
+      border-radius: 3px;
+      background: #f5f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Zoning — Althea Systems</h1>
+  <p class="subtitle">Structure visuelle des pages principales — étape 1 de la conception</p>
+
+  <div class="pages">
+
+    <!-- PAGE D'ACCUEIL -->
+    <div class="page-container">
+      <div class="page-label">Page d'accueil</div>
+      <div class="page">
+
+        <!-- Header -->
+        <div class="zone z-header">
+          En-tête — Navigation · Langue · Panier · Compte
+        </div>
+
+        <!-- Carrousel -->
+        <div class="zone z-hero">
+          Carrousel éditorial pleine largeur
+        </div>
+
+        <!-- Catégories -->
+        <div class="zone z-grid">
+          <div class="grid-inner">
+            <div style="position:absolute; font-size:10px; color:#003d5c; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; top:4px; width:100%; text-align:center;">Grille Catégories — 4 colonnes</div>
+            <div class="col">Cat. 1</div>
+            <div class="col">Cat. 2</div>
+            <div class="col">Cat. 3</div>
+            <div class="col">Cat. 4</div>
+          </div>
+        </div>
+
+        <!-- Top Produits -->
+        <div class="zone z-grid-2">
+          <div class="grid-inner">
+            <div style="position:absolute; font-size:10px; color:#003d5c; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; top:4px; width:100%; text-align:center;">Grille Top Produits — 4 colonnes</div>
+            <div class="col">Prod. 1</div>
+            <div class="col">Prod. 2</div>
+            <div class="col">Prod. 3</div>
+            <div class="col">Prod. 4</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="zone z-footer">
+          Pied de page — Liens légaux · Contact
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAGE CATALOGUE -->
+    <div class="page-container">
+      <div class="page-label">Page catalogue</div>
+      <div class="page">
+
+        <!-- Header -->
+        <div class="zone z-header">
+          En-tête — Navigation · Langue · Panier · Compte
+        </div>
+
+        <!-- Fil d'ariane -->
+        <div class="zone z-breadcrumb">
+          Fil d'Ariane — Accueil &rsaquo; Catégorie
+        </div>
+
+        <!-- Bannière catégorie -->
+        <div class="zone z-banner">
+          Bannière catégorie — Image · Titre · Description
+        </div>
+
+        <!-- Contenu principal : sidebar + produits -->
+        <div class="z-row">
+          <!-- Sidebar filtres -->
+          <div class="zone z-sidebar">
+            <div class="filter-label">Filtres</div>
+          </div>
+
+          <!-- Grille produits -->
+          <div style="flex:1; padding:8px; background:#fff;">
+            <div class="prod-row">
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+            </div>
+            <div class="prod-row" style="margin-top:4px;">
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+            </div>
+            <div class="prod-row" style="margin-top:4px;">
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+              <div class="prod-item">Prod.</div>
+            </div>
+            <div style="font-size:9px; color:#aaa; text-align:center; margin-top:6px;">12 produits / page</div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="zone z-pagination">
+          Pagination — Page 1 / 2 / 3 ...
+        </div>
+
+        <!-- Footer -->
+        <div class="zone z-footer">
+          Pied de page — Liens légaux · Contact
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
