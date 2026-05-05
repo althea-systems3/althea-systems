@@ -7,6 +7,8 @@ import { useCartData } from "@/features/cart/useCartData"
 import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
+  CART_COUNT_STORAGE_KEY,
+  CART_UPDATED_EVENT_NAME,
 } from "@/features/layout/layoutConstants"
 import { useRouter } from "@/i18n/navigation"
 import { secureFetch } from "@/lib/http/secureFetch"
@@ -52,6 +54,12 @@ function syncAuthenticationInLayout(isAuthenticated: boolean): void {
     isAuthenticated ? "true" : "false",
   )
   window.dispatchEvent(new Event(AUTHENTICATION_UPDATED_EVENT_NAME))
+}
+
+function clearCartCountInLayout(): void {
+  if (typeof window === "undefined") return
+  window.localStorage.setItem(CART_COUNT_STORAGE_KEY, "0")
+  window.dispatchEvent(new Event(CART_UPDATED_EVENT_NAME))
 }
 
 export type CheckoutFlowErrorKeys =
@@ -612,6 +620,7 @@ export function useCheckoutFlow() {
 
       const confirmation = payload as CheckoutConfirmResponse
       syncAuthenticationInLayout(Boolean(authUser))
+      clearCartCountInLayout()
       router.replace(`/checkout/confirmation?order=${confirmation.orderNumber}`)
     } catch (error) {
       console.error("Erreur confirmation checkout", { error })

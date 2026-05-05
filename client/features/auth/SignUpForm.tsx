@@ -7,7 +7,6 @@ import {
   Loader2,
   Lock,
   Mail,
-  Phone,
   UserRound,
 } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -21,6 +20,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { PhoneInputWithCountry } from "@/components/ui/phone-input-with-country"
 import {
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
@@ -97,6 +97,7 @@ export function SignUpForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     watch,
     formState: { errors, isSubmitting, submitCount },
   } = useForm<SignUpFormInput>({
@@ -401,23 +402,21 @@ export function SignUpForm() {
             >
               {translate("form.fields.phone.label")}
             </label>
-            <InputGroup>
-              <InputGroupInput
-                id="sign-up-phone"
-                type="tel"
-                autoComplete="tel"
-                className="ps-9"
-                placeholder={translate("form.fields.phone.placeholder")}
-                aria-invalid={Boolean(phoneMessage)}
-                aria-describedby={
-                  phoneMessage ? fieldErrorId("phone") : undefined
-                }
-                {...register("phone")}
-              />
-              <InputGroupAddon align="inline-start" className="text-slate-500">
-                <Phone className="size-4" aria-hidden="true" />
-              </InputGroupAddon>
-            </InputGroup>
+            <PhoneInputWithCountry
+              id="sign-up-phone"
+              value={watch("phone") ?? ""}
+              onChange={(nextValue) => {
+                setValue("phone", nextValue, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                })
+              }}
+              placeholder={translate("form.fields.phone.placeholder")}
+              ariaInvalid={Boolean(phoneMessage)}
+              ariaDescribedBy={
+                phoneMessage ? fieldErrorId("phone") : undefined
+              }
+            />
             {phoneMessage ? (
               <p
                 id={fieldErrorId("phone")}

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import type { EmailOtpType } from "@supabase/supabase-js"
 
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createServerClient } from "@/lib/supabase/server"
 import { defaultLocale, locales, type AppLocale } from "@/lib/i18n"
 
@@ -124,7 +125,7 @@ export async function GET(request: Request) {
     const cookieStore = await cookies()
     const supabaseClient = createServerClient(cookieStore)
 
-    const { error } = await supabaseClient.auth.verifyOtp({
+    const { data: verifyData, error } = await supabaseClient.auth.verifyOtp({
       token_hash: tokenHash,
       type: otpType as EmailOtpType,
     })
@@ -139,6 +140,30 @@ export async function GET(request: Request) {
       )
 
       return NextResponse.redirect(new URL(errorRedirectPath, request.url))
+    }
+
+    // NOTE: Sync utilisateur.email_verifie + statut après confirmation
+    // verifyOtp() met à jour auth.users.email_confirmed_at mais pas la
+    // table métier utilisateur. On force la sync ici.
+    const verifiedUserId = verifyData?.user?.id
+    if (verifiedUserId) {
+      try {
+        const supabaseAdmin = createAdminClient()
+        await supabaseAdmin
+          .from("utilisateur")
+          .update({
+            email_verifie: true,
+            statut: "actif",
+            date_validation_email: new Date().toISOString(),
+          } as never)
+          .eq("id_utilisateur", verifiedUserId)
+      } catch (syncError) {
+        // Non bloquant : le compte est validé Supabase Auth, juste pas synced en DB métier
+        console.error("Erreur sync utilisateur.email_verifie", {
+          userId: verifiedUserId,
+          error: syncError instanceof Error ? syncError.message : String(syncError),
+        })
+      }
     }
 
     const fallbackPath = source === "checkout" ? "/checkout" : "/mon-compte"
