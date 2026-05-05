@@ -241,6 +241,27 @@ export async function POST(request: Request) {
       hasSession: Boolean(data.session),
     })
 
+    // NOTE: Wire phone + cgu_acceptee_le sur la row utilisateur (créée par trigger)
+    // Le trigger handle_new_user n'a pas accès à ces champs, on les set ici en post-create.
+    if (data.user?.id) {
+      try {
+        const { createAdminClient } = await import("@/lib/supabase/admin")
+        const supabaseAdmin = createAdminClient()
+        await supabaseAdmin
+          .from("utilisateur")
+          .update({
+            telephone: phone || null,
+            cgu_acceptee_le: new Date().toISOString(),
+          } as never)
+          .eq("id_utilisateur", data.user.id)
+      } catch (syncError) {
+        console.error("[SIGNUP] sync utilisateur post-create failed", {
+          userId: data.user.id,
+          error: syncError instanceof Error ? syncError.message : String(syncError),
+        })
+      }
+    }
+
     return NextResponse.json(
       {
         message: "signup_created",
