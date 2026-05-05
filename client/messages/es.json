@@ -76,7 +76,8 @@
       "about": "Acerca de Althea Systems",
       "logout": "Cerrar sesion",
       "signIn": "Iniciar sesion",
-      "signUp": "Registrarse"
+      "signUp": "Registrarse",
+      "admin": "Administración"
     }
   },
   "Pages": {

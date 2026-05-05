@@ -11,6 +11,7 @@ export const INSTAGRAM_SOCIAL_URL = "https://www.instagram.com/althea.systems/"
 export const X_SOCIAL_URL = "https://x.com/altheasys"
 
 export type LayoutMenuItemKey =
+  | "admin"
   | "settings"
   | "orders"
   | "terms"
@@ -26,6 +27,16 @@ export type LayoutMenuItem = {
 }
 
 export const AUTHENTICATED_MENU_ITEMS: LayoutMenuItem[] = [
+  { key: "settings", href: "/mon-compte/profil" },
+  { key: "orders", href: "/mon-compte/commandes" },
+  { key: "terms", href: "/cgu" },
+  { key: "legal", href: "/mentions-legales" },
+  { key: "contact", href: "/contact" },
+  { key: "about", href: "/a-propos" },
+]
+
+export const ADMIN_AUTHENTICATED_MENU_ITEMS: LayoutMenuItem[] = [
+  { key: "admin", href: "/admin/dashboard" },
   { key: "settings", href: "/mon-compte/profil" },
   { key: "orders", href: "/mon-compte/commandes" },
   { key: "terms", href: "/cgu" },

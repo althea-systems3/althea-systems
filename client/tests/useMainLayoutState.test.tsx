@@ -92,7 +92,12 @@ describe("useMainLayoutState", () => {
     })
 
     // Assert
-    expect(fetchSpy).toHaveBeenCalledOnce()
+    // Note : 2 fetch attendus = /api/auth/me (auto au mount si auth) + /api/auth/logout (manuel)
+    const logoutCalls = fetchSpy.mock.calls.filter((call) => {
+      const url = typeof call[0] === "string" ? call[0] : ""
+      return url.includes("/api/auth/logout")
+    })
+    expect(logoutCalls).toHaveLength(1)
     expect(window.localStorage.getItem(AUTHENTICATION_STORAGE_KEY)).toBe(
       "false",
     )

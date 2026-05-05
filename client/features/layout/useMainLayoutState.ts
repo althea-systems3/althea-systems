@@ -7,6 +7,7 @@ import {
   type MutableRefObject,
 } from "react"
 import {
+  ADMIN_AUTHENTICATED_MENU_ITEMS,
   AUTHENTICATED_MENU_ITEMS,
   AUTHENTICATION_STORAGE_KEY,
   AUTHENTICATION_UPDATED_EVENT_NAME,
@@ -110,12 +111,16 @@ export function useMainLayoutState(): MainLayoutState {
     return readPositiveIntegerStorageValue(CART_COUNT_STORAGE_KEY)
   })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAdminUser, setIsAdminUser] = useState(false)
   const menuToggleButtonRef = useRef<HTMLButtonElement | null>(null)
   const menuPanelRef = useRef<HTMLElement | null>(null)
 
   const menuItems = useMemo(() => {
-    return isUserAuthenticated ? AUTHENTICATED_MENU_ITEMS : GUEST_MENU_ITEMS
-  }, [isUserAuthenticated])
+    if (!isUserAuthenticated) return GUEST_MENU_ITEMS
+    return isAdminUser
+      ? ADMIN_AUTHENTICATED_MENU_ITEMS
+      : AUTHENTICATED_MENU_ITEMS
+  }, [isUserAuthenticated, isAdminUser])
 
   const handleSynchronizeUserState = useCallback(() => {
     setIsUserAuthenticated(readBooleanStorageValue(AUTHENTICATION_STORAGE_KEY))
@@ -171,6 +176,41 @@ export function useMainLayoutState(): MainLayoutState {
       )
     }
   }, [handleSynchronizeUserState])
+
+  useEffect(() => {
+    const abortController = new AbortController()
+
+    if (!isUserAuthenticated) {
+      // Reset asynchrone via microtask pour éviter cascading renders
+      queueMicrotask(() => {
+        if (!abortController.signal.aborted) {
+          setIsAdminUser(false)
+        }
+      })
+      return () => {
+        abortController.abort()
+      }
+    }
+
+    fetch("/api/auth/me", {
+      method: "GET",
+      signal: abortController.signal,
+      credentials: "same-origin",
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => {
+        if (!abortController.signal.aborted) {
+          setIsAdminUser(Boolean(payload?.user?.isAdmin))
+        }
+      })
+      .catch(() => {
+        // Ignorer abort + erreurs réseau (admin = false par défaut)
+      })
+
+    return () => {
+      abortController.abort()
+    }
+  }, [isUserAuthenticated])
 
   useEffect(() => {
     if (!isMobileMenuOpen) {
