@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Checkout (3 étapes)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* HEADER */
+    header {
+      background: #d8d8d8;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 2px solid #bbb;
+      gap: 20px;
+    }
+    .logo-box { width: 120px; height: 36px; background: #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    nav { display: flex; gap: 24px; flex: 1; justify-content: center; }
+    .nav-item { width: 80px; height: 14px; background: #bbb; border-radius: 3px; }
+    .header-icons { display: flex; gap: 16px; }
+    .icon-box { width: 32px; height: 32px; background: #bbb; border-radius: 50%; }
+
+    /* STEPS BAR */
+    .steps-bar {
+      background: #e8e8e8;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      border-bottom: 1px solid #ccc;
+    }
+    .step { display: flex; align-items: center; gap: 8px; padding: 0 24px; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+    .step-num.active { background: #888; }
+    .step-num.done { background: #999; }
+    .step-text { height: 10px; background: #ccc; border-radius: 3px; width: 80px; }
+    .step-text.active { background: #999; }
+    .step-text.done { background: #bbb; }
+    .step-arrow { color: #bbb; font-size: 18px; padding: 0 4px; }
+
+    /* 3-STEP PANELS */
+    .steps-panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      padding: 32px 40px;
+      background: #fff;
+      border-bottom: 1px dashed #ccc;
+    }
+
+    .step-panel {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .step-panel.active {
+      border-color: #999;
+      background: #f0f0f0;
+    }
+    .step-panel.inactive {
+      opacity: 0.5;
+    }
+    .panel-header { display: flex; align-items: center; gap: 10px; }
+    .panel-num { width: 32px; height: 32px; border-radius: 50%; background: #bbb; flex-shrink: 0; }
+    .panel-num.active { background: #888; }
+    .panel-title { height: 12px; background: #bbb; border-radius: 3px; width: 80%; }
+    .panel-title.active { background: #999; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { height: 8px; background: #ccc; border-radius: 3px; width: 50%; }
+    .form-input { height: 36px; background: #ddd; border-radius: 4px; border: 1px solid #ccc; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .radio-group { display: flex; flex-direction: column; gap: 10px; }
+    .radio-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #ddd; border-radius: 4px; border: 1.5px dashed #ccc; }
+    .radio-item.selected { border-color: #999; background: #e8e8e8; }
+    .radio-dot { width: 16px; height: 16px; border-radius: 50%; background: #bbb; flex-shrink: 0; }
+    .radio-dot.selected { background: #888; }
+    .radio-label { height: 9px; background: #bbb; border-radius: 3px; flex: 1; }
+    .radio-icon { width: 32px; height: 20px; background: #ccc; border-radius: 3px; flex-shrink: 0; }
+
+    .card-row { display: flex; gap: 8px; align-items: center; }
+    .card-icon { width: 48px; height: 30px; background: #ccc; border-radius: 3px; }
+
+    .confirm-section { display: flex; flex-direction: column; gap: 10px; }
+    .confirm-row { display: flex; justify-content: space-between; }
+    .confirm-key { height: 8px; background: #ccc; border-radius: 3px; width: 80px; }
+    .confirm-val { height: 8px; background: #bbb; border-radius: 3px; width: 60px; }
+    .confirm-divider { height: 1px; background: #ccc; }
+    .confirm-total { height: 14px; background: #aaa; border-radius: 3px; width: 100px; align-self: flex-end; }
+
+    .panel-btn { width: 100%; height: 40px; background: #aaa; border-radius: 5px; margin-top: 4px; }
+    .panel-btn.disabled { background: #d0d0d0; }
+
+    /* FOOTER */
+    footer {
+      background: #c8c8c8;
+      padding: 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-top: 2px solid #bbb;
+    }
+    .footer-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer-line { height: 8px; background: #aaa; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-box"><span class="label">Logo</span></div>
+    <nav>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+    </nav>
+    <div class="header-icons">
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+    </div>
+  </header>
+
+  <div class="steps-bar">
+    <div class="step">
+      <div class="step-num done">✓</div>
+      <div class="step-text done"></div>
+    </div>
+    <div class="step-arrow">›</div>
+    <div class="step">
+      <div class="step-num active">2</div>
+      <div class="step-text active"></div>
+    </div>
+    <div class="step-arrow">›</div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"></div>
+    </div>
+  </div>
+
+  <div class="steps-panels">
+
+    <!-- ÉTAPE 1 : Livraison -->
+    <div class="step-panel">
+      <div class="panel-header">
+        <div class="panel-num active"></div>
+        <div class="panel-title active"></div>
+      </div>
+      <div class="title-label" style="font-size:10px;">Adresse de livraison</div>
+      <div class="form-group">
+        <div class="form-label"></div>
+        <div class="form-input"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"></div>
+        <div class="form-input"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+      </div>
+      <div class="panel-btn"></div>
+    </div>
+
+    <!-- ÉTAPE 2 : Paiement -->
+    <div class="step-panel active">
+      <div class="panel-header">
+        <div class="panel-num active"></div>
+        <div class="panel-title active"></div>
+      </div>
+      <div class="title-label" style="font-size:10px;">Mode de paiement</div>
+      <div class="radio-group">
+        <div class="radio-item selected">
+          <div class="radio-dot selected"></div>
+          <div class="radio-label"></div>
+          <div class="radio-icon"></div>
+        </div>
+        <div class="radio-item">
+          <div class="radio-dot"></div>
+          <div class="radio-label"></div>
+          <div class="radio-icon"></div>
+        </div>
+        <div class="radio-item">
+          <div class="radio-dot"></div>
+          <div class="radio-label"></div>
+          <div class="radio-icon"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"></div>
+        <div class="form-input"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label"></div>
+          <div class="form-input"></div>
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-icon"></div>
+        <div class="card-icon"></div>
+        <div class="card-icon"></div>
+      </div>
+      <div class="panel-btn"></div>
+    </div>
+
+    <!-- ÉTAPE 3 : Confirmation -->
+    <div class="step-panel inactive">
+      <div class="panel-header">
+        <div class="panel-num"></div>
+        <div class="panel-title"></div>
+      </div>
+      <div class="title-label" style="font-size:10px;">Récapitulatif commande</div>
+      <div class="confirm-section">
+        <div class="confirm-row"><div class="confirm-key"></div><div class="confirm-val"></div></div>
+        <div class="confirm-row"><div class="confirm-key" style="width:60px;"></div><div class="confirm-val" style="width:50px;"></div></div>
+        <div class="confirm-row"><div class="confirm-key" style="width:70px;"></div><div class="confirm-val" style="width:55px;"></div></div>
+        <div class="confirm-divider"></div>
+        <div style="display:flex; justify-content:flex-end;">
+          <div class="confirm-total"></div>
+        </div>
+      </div>
+      <div style="height:36px; background:#ddd; border-radius:4px;"></div>
+      <div style="height:36px; background:#ddd; border-radius:4px;"></div>
+      <div class="panel-btn disabled"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-col">
+      <div class="footer-line" style="width:80%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:60%;"></div>
+      <div class="footer-line" style="width:50%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:55%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:50%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:60%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:40%;"></div>
+    </div>
+  </footer>
+
+</body>
+</html>

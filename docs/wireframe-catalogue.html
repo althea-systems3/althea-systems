@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Catalogue</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* HEADER */
+    header {
+      background: #d8d8d8;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 2px solid #bbb;
+      gap: 20px;
+      flex-shrink: 0;
+    }
+    .logo-box { width: 120px; height: 36px; background: #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    nav { display: flex; gap: 24px; flex: 1; justify-content: center; }
+    .nav-item { width: 80px; height: 14px; background: #bbb; border-radius: 3px; }
+    .header-icons { display: flex; gap: 16px; align-items: center; }
+    .icon-box { width: 32px; height: 32px; background: #bbb; border-radius: 50%; }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      background: #e0e0e0;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      gap: 8px;
+      border-bottom: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+    .bc-item { height: 8px; background: #bbb; border-radius: 3px; }
+    .bc-sep { color: #aaa; font-size: 12px; }
+
+    /* BANNER */
+    .cat-banner {
+      background: #ccc;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      gap: 24px;
+      border-bottom: 2px dashed #aaa;
+      flex-shrink: 0;
+    }
+    .banner-img { width: 120px; height: 100px; background: #bbb; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #aaa; }
+    .banner-text { display: flex; flex-direction: column; gap: 8px; }
+    .banner-title { width: 220px; height: 18px; background: #aaa; border-radius: 4px; }
+    .banner-desc { width: 300px; height: 10px; background: #bbb; border-radius: 3px; }
+    .banner-desc2 { width: 240px; height: 10px; background: #bbb; border-radius: 3px; }
+
+    /* MAIN CONTENT */
+    .main-content {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: #e8e8e8;
+      border-right: 2px dashed #ccc;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-title { height: 10px; background: #aaa; border-radius: 3px; width: 60%; }
+    .filter-item { display: flex; align-items: center; gap: 8px; }
+    .checkbox { width: 12px; height: 12px; background: #bbb; border-radius: 2px; flex-shrink: 0; }
+    .filter-label-line { height: 8px; background: #ccc; border-radius: 3px; }
+    .price-range { height: 4px; background: #aaa; border-radius: 2px; margin-top: 4px; position: relative; }
+    .price-handle { width: 12px; height: 12px; background: #888; border-radius: 50%; position: absolute; top: -4px; }
+
+    /* PRODUCTS AREA */
+    .products-area {
+      flex: 1;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 36px;
+    }
+    .sort-label { height: 10px; background: #ccc; border-radius: 3px; width: 80px; }
+    .sort-select { height: 28px; background: #ddd; border-radius: 4px; width: 140px; border: 1px solid #bbb; }
+    .result-count { height: 8px; background: #d0d0d0; border-radius: 3px; width: 100px; margin-left: auto; }
+
+    .prod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .prod-card {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .prod-img { width: 100%; height: 100px; background: #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #aaa; }
+    .prod-badge { height: 16px; width: 50px; background: #bbb; border-radius: 10px; }
+    .prod-title { width: 90%; height: 10px; background: #bbb; border-radius: 3px; }
+    .prod-subtitle { width: 65%; height: 8px; background: #ccc; border-radius: 3px; }
+    .prod-price { width: 50%; height: 12px; background: #aaa; border-radius: 3px; }
+    .prod-btn { width: 100%; height: 28px; background: #aaa; border-radius: 4px; }
+
+    /* PAGINATION */
+    .pagination {
+      background: #e0e0e0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-top: 1px solid #ccc;
+      flex-shrink: 0;
+    }
+    .page-btn { width: 32px; height: 32px; background: #ccc; border-radius: 4px; }
+    .page-btn.active { background: #999; }
+
+    /* FOOTER */
+    footer {
+      background: #c8c8c8;
+      padding: 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-top: 2px solid #bbb;
+      flex-shrink: 0;
+    }
+    .footer-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer-line { height: 8px; background: #aaa; border-radius: 3px; }
+
+    /* PAGE LAYOUT */
+    body { display: flex; flex-direction: column; }
+    .page-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+    .content-wrapper { display: flex; flex: 1; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <header>
+      <div class="logo-box"><span class="label">Logo</span></div>
+      <nav>
+        <div class="nav-item"></div>
+        <div class="nav-item"></div>
+        <div class="nav-item"></div>
+        <div class="nav-item"></div>
+      </nav>
+      <div class="header-icons">
+        <div class="icon-box"></div>
+        <div class="icon-box"></div>
+        <div class="icon-box"></div>
+      </div>
+    </header>
+
+    <div class="breadcrumb">
+      <div class="bc-item" style="width:50px;"></div>
+      <div class="bc-sep">›</div>
+      <div class="bc-item" style="width:80px;"></div>
+      <div class="bc-sep">›</div>
+      <div class="bc-item" style="width:100px; background:#999;"></div>
+    </div>
+
+    <div class="cat-banner">
+      <div class="banner-img">⬜</div>
+      <div class="banner-text">
+        <div class="banner-title"></div>
+        <div class="banner-desc"></div>
+        <div class="banner-desc2"></div>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="sidebar">
+        <div class="title-label">Filtres</div>
+
+        <div class="filter-group">
+          <div class="filter-title"></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:70%;"></div></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:55%;"></div></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:65%;"></div></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:50%;"></div></div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-title"></div>
+          <div class="price-range">
+            <div class="price-handle" style="left:20%;"></div>
+            <div class="price-handle" style="left:75%;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px;">
+            <div style="height:8px; width:40px; background:#ccc; border-radius:3px;"></div>
+            <div style="height:8px; width:40px; background:#ccc; border-radius:3px;"></div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-title"></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:60%;"></div></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:45%;"></div></div>
+          <div class="filter-item"><div class="checkbox"></div><div class="filter-label-line" style="width:70%;"></div></div>
+        </div>
+
+        <div style="height:32px; background:#aaa; border-radius:4px; margin-top:4px;"></div>
+      </div>
+
+      <div class="products-area">
+        <div class="sort-bar">
+          <div class="sort-label"></div>
+          <div class="sort-select"></div>
+          <div class="result-count"></div>
+        </div>
+        <div class="prod-grid">
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+          <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-badge"></div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <div class="page-btn"></div>
+      <div class="page-btn active"></div>
+      <div class="page-btn"></div>
+      <div class="page-btn"></div>
+      <div class="page-btn"></div>
+      <div class="page-btn"></div>
+    </div>
+
+    <footer>
+      <div class="footer-col">
+        <div class="footer-line" style="width:80%; height:12px; background:#999;"></div>
+        <div class="footer-line" style="width:60%;"></div>
+        <div class="footer-line" style="width:55%;"></div>
+        <div class="footer-line" style="width:40%;"></div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+        <div class="footer-line" style="width:60%;"></div>
+        <div class="footer-line" style="width:55%;"></div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+        <div class="footer-line" style="width:65%;"></div>
+        <div class="footer-line" style="width:50%;"></div>
+      </div>
+      <div class="footer-col">
+        <div class="footer-line" style="width:60%; height:12px; background:#999;"></div>
+        <div class="footer-line" style="width:55%;"></div>
+        <div class="footer-line" style="width:35%;"></div>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

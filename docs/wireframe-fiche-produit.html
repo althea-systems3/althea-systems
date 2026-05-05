@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Fiche Produit</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* HEADER */
+    header {
+      background: #d8d8d8;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 2px solid #bbb;
+      gap: 20px;
+    }
+    .logo-box { width: 120px; height: 36px; background: #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    nav { display: flex; gap: 24px; flex: 1; justify-content: center; }
+    .nav-item { width: 80px; height: 14px; background: #bbb; border-radius: 3px; }
+    .header-icons { display: flex; gap: 16px; }
+    .icon-box { width: 32px; height: 32px; background: #bbb; border-radius: 50%; }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      background: #e0e0e0;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      gap: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+    .bc-item { height: 8px; background: #bbb; border-radius: 3px; }
+    .bc-sep { color: #aaa; font-size: 12px; }
+
+    /* PRODUCT SECTION */
+    .product-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      padding: 40px;
+      background: #fff;
+      border-bottom: 1px dashed #ccc;
+    }
+
+    /* IMAGE GALLERY */
+    .gallery { display: flex; flex-direction: column; gap: 12px; }
+    .main-img { width: 100%; height: 340px; background: #d0d0d0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 48px; color: #aaa; border: 2px dashed #bbb; }
+    .thumb-row { display: flex; gap: 10px; }
+    .thumb { width: 64px; height: 64px; background: #ccc; border-radius: 4px; border: 1.5px dashed #bbb; }
+    .thumb.active { border-color: #888; }
+
+    /* PRODUCT INFO */
+    .product-info { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
+    .prod-category { height: 10px; background: #ccc; border-radius: 3px; width: 80px; }
+    .prod-name { height: 24px; background: #bbb; border-radius: 4px; width: 85%; }
+    .prod-name-2 { height: 24px; background: #bbb; border-radius: 4px; width: 60%; }
+    .prod-ref { height: 8px; background: #d0d0d0; border-radius: 3px; width: 120px; }
+    .divider { height: 1px; background: #e0e0e0; }
+    .price-block { display: flex; align-items: baseline; gap: 12px; }
+    .price-main { height: 28px; background: #aaa; border-radius: 4px; width: 100px; }
+    .price-ht { height: 10px; background: #ccc; border-radius: 3px; width: 70px; }
+    .stock-badge { height: 20px; background: #c8c8c8; border-radius: 10px; width: 80px; }
+
+    .qty-row { display: flex; align-items: center; gap: 12px; }
+    .qty-btn { width: 32px; height: 32px; background: #ccc; border-radius: 4px; }
+    .qty-display { width: 48px; height: 32px; background: #e0e0e0; border-radius: 4px; }
+    .add-to-cart { flex: 1; height: 44px; background: #aaa; border-radius: 6px; }
+
+    .spec-list { display: flex; flex-direction: column; gap: 8px; }
+    .spec-row { display: flex; gap: 12px; align-items: center; }
+    .spec-key { height: 8px; background: #ccc; border-radius: 3px; width: 90px; flex-shrink: 0; }
+    .spec-val { height: 8px; background: #d8d8d8; border-radius: 3px; flex: 1; }
+
+    .doc-btn { height: 36px; background: #d8d8d8; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; gap: 10px; }
+    .doc-icon { width: 20px; height: 20px; background: #bbb; border-radius: 3px; flex-shrink: 0; }
+    .doc-label { height: 8px; background: #bbb; border-radius: 3px; width: 120px; }
+
+    /* RELATED PRODUCTS */
+    section { padding: 32px 40px; border-bottom: 1px dashed #ccc; background: #fff; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+    .prod-card {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .prod-img-sm { width: 100%; height: 80px; background: #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; }
+    .prod-title { width: 90%; height: 9px; background: #bbb; border-radius: 3px; }
+    .prod-price-sm { width: 50%; height: 10px; background: #aaa; border-radius: 3px; }
+    .prod-btn-sm { width: 100%; height: 26px; background: #aaa; border-radius: 4px; }
+
+    /* FOOTER */
+    footer {
+      background: #c8c8c8;
+      padding: 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-top: 2px solid #bbb;
+    }
+    .footer-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer-line { height: 8px; background: #aaa; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-box"><span class="label">Logo</span></div>
+    <nav>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+    </nav>
+    <div class="header-icons">
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+    </div>
+  </header>
+
+  <div class="breadcrumb">
+    <div class="bc-item" style="width:50px;"></div>
+    <div class="bc-sep">›</div>
+    <div class="bc-item" style="width:80px;"></div>
+    <div class="bc-sep">›</div>
+    <div class="bc-item" style="width:120px;"></div>
+    <div class="bc-sep">›</div>
+    <div class="bc-item" style="width:140px; background:#999;"></div>
+  </div>
+
+  <div class="product-main">
+
+    <!-- GALLERY -->
+    <div class="gallery">
+      <div class="main-img">⬜</div>
+      <div class="thumb-row">
+        <div class="thumb active"></div>
+        <div class="thumb"></div>
+        <div class="thumb"></div>
+        <div class="thumb"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT INFO -->
+    <div class="product-info">
+      <div class="prod-category"></div>
+      <div>
+        <div class="prod-name" style="margin-bottom:6px;"></div>
+        <div class="prod-name-2"></div>
+      </div>
+      <div class="prod-ref"></div>
+      <div class="divider"></div>
+      <div class="price-block">
+        <div class="price-main"></div>
+        <div class="price-ht"></div>
+      </div>
+      <div class="stock-badge"></div>
+      <div class="divider"></div>
+      <div class="qty-row">
+        <div class="qty-btn"></div>
+        <div class="qty-display"></div>
+        <div class="qty-btn"></div>
+        <div class="add-to-cart"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="title-label" style="margin-bottom:4px;">Caractéristiques</div>
+      <div class="spec-list">
+        <div class="spec-row"><div class="spec-key"></div><div class="spec-val" style="width:50%;"></div></div>
+        <div class="spec-row"><div class="spec-key"></div><div class="spec-val" style="width:70%;"></div></div>
+        <div class="spec-row"><div class="spec-key"></div><div class="spec-val" style="width:40%;"></div></div>
+        <div class="spec-row"><div class="spec-key"></div><div class="spec-val" style="width:60%;"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="title-label" style="margin-bottom:4px;">Documents</div>
+      <div class="doc-btn"><div class="doc-icon"></div><div class="doc-label"></div></div>
+      <div class="doc-btn"><div class="doc-icon"></div><div class="doc-label" style="width:90px;"></div></div>
+    </div>
+
+  </div>
+
+  <section>
+    <div class="title-label">Produits similaires</div>
+    <div class="grid-4">
+      <div class="prod-card"><div class="prod-img-sm">⬜</div><div class="prod-title"></div><div class="prod-price-sm"></div><div class="prod-btn-sm"></div></div>
+      <div class="prod-card"><div class="prod-img-sm">⬜</div><div class="prod-title"></div><div class="prod-price-sm"></div><div class="prod-btn-sm"></div></div>
+      <div class="prod-card"><div class="prod-img-sm">⬜</div><div class="prod-title"></div><div class="prod-price-sm"></div><div class="prod-btn-sm"></div></div>
+      <div class="prod-card"><div class="prod-img-sm">⬜</div><div class="prod-title"></div><div class="prod-price-sm"></div><div class="prod-btn-sm"></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-col">
+      <div class="footer-line" style="width:80%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:60%;"></div>
+      <div class="footer-line" style="width:55%;"></div>
+      <div class="footer-line" style="width:40%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:60%;"></div>
+      <div class="footer-line" style="width:55%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:65%;"></div>
+      <div class="footer-line" style="width:50%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:60%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:55%;"></div>
+      <div class="footer-line" style="width:35%;"></div>
+    </div>
+  </footer>
+
+</body>
+</html>

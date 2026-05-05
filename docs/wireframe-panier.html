@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Panier</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* HEADER */
+    header {
+      background: #d8d8d8;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 2px solid #bbb;
+      gap: 20px;
+    }
+    .logo-box { width: 120px; height: 36px; background: #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    nav { display: flex; gap: 24px; flex: 1; justify-content: center; }
+    .nav-item { width: 80px; height: 14px; background: #bbb; border-radius: 3px; }
+    .header-icons { display: flex; gap: 16px; }
+    .icon-box { width: 32px; height: 32px; background: #bbb; border-radius: 50%; }
+
+    /* STEPS BAR */
+    .steps-bar {
+      background: #e8e8e8;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      border-bottom: 1px solid #ccc;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 24px;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #aaa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .step-num.active { background: #888; }
+    .step-text { height: 10px; background: #bbb; border-radius: 3px; width: 70px; }
+    .step-text.active { background: #999; }
+    .step-arrow { color: #bbb; font-size: 18px; padding: 0 4px; }
+
+    /* MAIN */
+    .cart-main {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 32px;
+      padding: 40px;
+      background: #fff;
+      align-items: start;
+    }
+
+    /* CART ITEMS */
+    .cart-items { display: flex; flex-direction: column; gap: 16px; }
+    .cart-item {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+    .item-img { width: 80px; height: 80px; background: #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #aaa; }
+    .item-info { display: flex; flex-direction: column; gap: 6px; }
+    .item-name { height: 12px; background: #bbb; border-radius: 3px; width: 85%; }
+    .item-ref { height: 8px; background: #ccc; border-radius: 3px; width: 60px; }
+    .item-price { height: 12px; background: #aaa; border-radius: 3px; width: 70px; }
+    .item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .qty-row { display: flex; align-items: center; gap: 8px; }
+    .qty-btn { width: 28px; height: 28px; background: #ccc; border-radius: 4px; }
+    .qty-num { width: 36px; height: 28px; background: #ddd; border-radius: 4px; }
+    .delete-btn { width: 28px; height: 28px; background: #c8c8c8; border-radius: 4px; }
+    .item-total { height: 14px; background: #aaa; border-radius: 3px; width: 80px; }
+
+    /* ORDER SUMMARY */
+    .order-summary {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; }
+    .sum-label { height: 9px; background: #bbb; border-radius: 3px; width: 90px; }
+    .sum-value { height: 9px; background: #aaa; border-radius: 3px; width: 60px; }
+    .sum-divider { height: 1px; background: #ccc; }
+    .sum-total-label { height: 12px; background: #999; border-radius: 3px; width: 70px; }
+    .sum-total-value { height: 14px; background: #888; border-radius: 3px; width: 80px; }
+    .promo-row { display: flex; gap: 8px; }
+    .promo-input { flex: 1; height: 36px; background: #ddd; border-radius: 4px; border: 1px solid #ccc; }
+    .promo-btn { width: 70px; height: 36px; background: #bbb; border-radius: 4px; }
+    .checkout-btn { width: 100%; height: 44px; background: #aaa; border-radius: 6px; }
+
+    /* FOOTER */
+    footer {
+      background: #c8c8c8;
+      padding: 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-top: 2px solid #bbb;
+    }
+    .footer-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer-line { height: 8px; background: #aaa; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-box"><span class="label">Logo</span></div>
+    <nav>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+      <div class="nav-item"></div>
+    </nav>
+    <div class="header-icons">
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+      <div class="icon-box"></div>
+    </div>
+  </header>
+
+  <div class="steps-bar">
+    <div class="step">
+      <div class="step-num active">1</div>
+      <div class="step-text active"></div>
+    </div>
+    <div class="step-arrow">›</div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"></div>
+    </div>
+    <div class="step-arrow">›</div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"></div>
+    </div>
+  </div>
+
+  <div class="cart-main">
+
+    <div class="cart-items">
+      <div class="title-label" style="margin-bottom:4px;">Mon panier</div>
+
+      <div class="cart-item">
+        <div class="item-img">⬜</div>
+        <div class="item-info">
+          <div class="item-name"></div>
+          <div class="item-name" style="width:65%;"></div>
+          <div class="item-ref"></div>
+          <div class="item-price"></div>
+        </div>
+        <div class="item-actions">
+          <div class="delete-btn"></div>
+          <div class="qty-row"><div class="qty-btn"></div><div class="qty-num"></div><div class="qty-btn"></div></div>
+          <div class="item-total"></div>
+        </div>
+      </div>
+
+      <div class="cart-item">
+        <div class="item-img">⬜</div>
+        <div class="item-info">
+          <div class="item-name"></div>
+          <div class="item-name" style="width:55%;"></div>
+          <div class="item-ref"></div>
+          <div class="item-price"></div>
+        </div>
+        <div class="item-actions">
+          <div class="delete-btn"></div>
+          <div class="qty-row"><div class="qty-btn"></div><div class="qty-num"></div><div class="qty-btn"></div></div>
+          <div class="item-total"></div>
+        </div>
+      </div>
+
+      <div class="cart-item">
+        <div class="item-img">⬜</div>
+        <div class="item-info">
+          <div class="item-name" style="width:75%;"></div>
+          <div class="item-ref"></div>
+          <div class="item-price"></div>
+        </div>
+        <div class="item-actions">
+          <div class="delete-btn"></div>
+          <div class="qty-row"><div class="qty-btn"></div><div class="qty-num"></div><div class="qty-btn"></div></div>
+          <div class="item-total"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <div class="title-label">Récapitulatif</div>
+      <div class="summary-row"><div class="sum-label"></div><div class="sum-value"></div></div>
+      <div class="summary-row"><div class="sum-label" style="width:60px;"></div><div class="sum-value" style="width:50px;"></div></div>
+      <div class="summary-row"><div class="sum-label" style="width:70px;"></div><div class="sum-value" style="width:45px;"></div></div>
+      <div class="sum-divider"></div>
+      <div class="summary-row"><div class="sum-total-label"></div><div class="sum-total-value"></div></div>
+      <div class="promo-row">
+        <div class="promo-input"></div>
+        <div class="promo-btn"></div>
+      </div>
+      <div class="checkout-btn"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-col">
+      <div class="footer-line" style="width:80%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:60%;"></div>
+      <div class="footer-line" style="width:50%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:55%;"></div>
+      <div class="footer-line" style="width:60%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:70%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:50%;"></div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-line" style="width:60%; height:12px; background:#999;"></div>
+      <div class="footer-line" style="width:40%;"></div>
+    </div>
+  </footer>
+
+</body>
+</html>

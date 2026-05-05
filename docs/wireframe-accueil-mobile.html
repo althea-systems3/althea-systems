@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Accueil Mobile</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Simulate mobile viewport centered */
+    .mobile-frame {
+      width: 390px;
+      margin: 0 auto;
+      background: #fff;
+      min-height: 100vh;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
+
+    /* HEADER */
+    header {
+      background: #d8d8d8;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 2px solid #bbb;
+      gap: 12px;
+    }
+    .hamburger { width: 28px; height: 28px; background: #bbb; border-radius: 4px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+    .ham-line { width: 16px; height: 2px; background: #888; border-radius: 1px; }
+    .logo-box { flex: 1; height: 28px; background: #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+    .header-icons { display: flex; gap: 10px; align-items: center; }
+    .icon-box { width: 28px; height: 28px; background: #bbb; border-radius: 50%; }
+
+    /* HERO */
+    .hero {
+      background: #ccc;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 2px dashed #aaa;
+      position: relative;
+    }
+    .hero-title { width: 200px; height: 16px; background: #aaa; border-radius: 4px; }
+    .hero-sub { width: 140px; height: 10px; background: #bbb; border-radius: 3px; }
+    .hero-btn { width: 100px; height: 28px; background: #999; border-radius: 4px; }
+    .hero-dots { display: flex; gap: 6px; position: absolute; bottom: 10px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #aaa; }
+    .dot.active { background: #666; }
+
+    /* SECTION */
+    section { padding: 20px 16px; border-bottom: 1px dashed #ccc; }
+
+    /* CATEGORIES — scroll horizontal */
+    .cat-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+    .cat-card {
+      flex-shrink: 0;
+      width: 100px;
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .cat-img { width: 60px; height: 60px; background: #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #aaa; }
+    .cat-label { width: 80%; height: 8px; background: #bbb; border-radius: 3px; }
+
+    /* PRODUCTS — 2 cols */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .prod-card {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .prod-img { width: 100%; height: 90px; background: #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #aaa; }
+    .prod-title { width: 90%; height: 8px; background: #bbb; border-radius: 3px; }
+    .prod-subtitle { width: 60%; height: 7px; background: #ccc; border-radius: 3px; }
+    .prod-price { width: 50%; height: 10px; background: #aaa; border-radius: 3px; }
+    .prod-btn { width: 100%; height: 26px; background: #aaa; border-radius: 4px; }
+
+    /* FOOTER */
+    footer {
+      background: #c8c8c8;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 2px solid #bbb;
+    }
+    .footer-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .footer-line { height: 7px; background: #aaa; border-radius: 3px; }
+    .footer-social { display: flex; gap: 10px; margin-top: 4px; }
+    .social-icon { width: 24px; height: 24px; background: #aaa; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame">
+
+    <header>
+      <div class="hamburger">
+        <div class="ham-line"></div>
+        <div class="ham-line"></div>
+        <div class="ham-line"></div>
+      </div>
+      <div class="logo-box"><span class="label">Logo</span></div>
+      <div class="header-icons">
+        <div class="icon-box"></div>
+        <div class="icon-box"></div>
+      </div>
+    </header>
+
+    <div class="hero">
+      <div class="hero-title"></div>
+      <div class="hero-sub"></div>
+      <div class="hero-btn"></div>
+      <div class="hero-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="title-label" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); color:#777;">Carrousel</div>
+    </div>
+
+    <section>
+      <div class="title-label" style="margin-bottom:12px;">Nos catégories</div>
+      <div class="cat-scroll">
+        <div class="cat-card"><div class="cat-img">⬜</div><div class="cat-label"></div></div>
+        <div class="cat-card"><div class="cat-img">⬜</div><div class="cat-label"></div></div>
+        <div class="cat-card"><div class="cat-img">⬜</div><div class="cat-label"></div></div>
+        <div class="cat-card"><div class="cat-img">⬜</div><div class="cat-label"></div></div>
+        <div class="cat-card"><div class="cat-img">⬜</div><div class="cat-label"></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="title-label" style="margin-bottom:12px;">Top produits</div>
+      <div class="grid-2">
+        <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+        <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+        <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+        <div class="prod-card"><div class="prod-img">⬜</div><div class="prod-title"></div><div class="prod-subtitle"></div><div class="prod-price"></div><div class="prod-btn"></div></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-row">
+        <div class="footer-line" style="width:100px; height:10px; background:#999;"></div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-line" style="width:80px;"></div>
+        <div class="footer-line" style="width:70px;"></div>
+        <div class="footer-line" style="width:60px;"></div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-line" style="width:90px; height:10px; background:#999;"></div>
+      </div>
+      <div class="footer-row">
+        <div class="footer-line" style="width:70px;"></div>
+        <div class="footer-line" style="width:65px;"></div>
+      </div>
+      <div class="footer-social">
+        <div class="social-icon"></div>
+        <div class="social-icon"></div>
+        <div class="social-icon"></div>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

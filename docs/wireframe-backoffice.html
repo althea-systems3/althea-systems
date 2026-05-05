@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wireframe — Back-office Admin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; font-family: 'Segoe UI', sans-serif; background: #f2f2f2; color: #333; }
+
+    .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #888; }
+    .title-label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ADMIN LAYOUT */
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .admin-sidebar {
+      width: 220px;
+      background: #c8c8c8;
+      border-right: 2px solid #bbb;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid #bbb;
+      gap: 10px;
+    }
+    .logo-mark { width: 32px; height: 32px; background: #aaa; border-radius: 6px; }
+    .logo-text { height: 12px; background: #aaa; border-radius: 3px; flex: 1; }
+
+    .sidebar-section { padding: 16px 0; border-bottom: 1px solid #bbb; }
+    .sidebar-section-label { padding: 0 16px; height: 7px; background: #bbb; border-radius: 3px; width: 50%; margin-bottom: 8px; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-link.active { background: #bbb; border-left-color: #888; }
+    .sidebar-icon { width: 16px; height: 16px; background: #aaa; border-radius: 3px; flex-shrink: 0; }
+    .sidebar-icon.active { background: #888; }
+    .sidebar-text { height: 9px; background: #bbb; border-radius: 3px; flex: 1; }
+    .sidebar-text.active { background: #999; }
+    .badge { width: 20px; height: 16px; background: #aaa; border-radius: 8px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid #bbb;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-avatar { width: 32px; height: 32px; background: #aaa; border-radius: 50%; }
+    .admin-name { height: 9px; background: #bbb; border-radius: 3px; flex: 1; }
+    .logout-icon { width: 20px; height: 20px; background: #bbb; border-radius: 3px; }
+
+    /* MAIN */
+    .admin-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* TOP BAR */
+    .admin-topbar {
+      height: 64px;
+      background: #d8d8d8;
+      border-bottom: 2px solid #bbb;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 16px;
+    }
+    .page-title { height: 16px; background: #aaa; border-radius: 4px; width: 140px; }
+    .topbar-spacer { flex: 1; }
+    .search-box { width: 200px; height: 34px; background: #e8e8e8; border-radius: 4px; border: 1px solid #ccc; }
+    .notif-icon { width: 34px; height: 34px; background: #bbb; border-radius: 50%; }
+
+    /* CONTENT */
+    .admin-content { padding: 24px 32px; flex: 1; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .stat-header { display: flex; justify-content: space-between; align-items: center; }
+    .stat-icon { width: 28px; height: 28px; background: #bbb; border-radius: 6px; }
+    .stat-trend { height: 8px; background: #ccc; border-radius: 3px; width: 40px; }
+    .stat-number { height: 22px; background: #aaa; border-radius: 4px; width: 70px; }
+    .stat-label { height: 8px; background: #ccc; border-radius: 3px; width: 80%; }
+
+    /* TABLE */
+    .table-section { background: #e8e8e8; border: 1.5px dashed #bbb; border-radius: 6px; overflow: hidden; }
+    .table-topbar {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #ccc;
+      background: #e0e0e0;
+    }
+    .table-title { height: 12px; background: #aaa; border-radius: 3px; width: 120px; }
+    .table-spacer { flex: 1; }
+    .filter-btn { height: 30px; background: #ccc; border-radius: 4px; width: 80px; }
+    .add-btn { height: 30px; background: #aaa; border-radius: 4px; width: 90px; }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th-row {
+      display: grid;
+      padding: 10px 16px;
+      background: #d8d8d8;
+      gap: 12px;
+    }
+    .thead {
+      display: grid;
+      grid-template-columns: 32px 1fr 1.5fr 1fr 1fr 80px;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #d8d8d8;
+      border-bottom: 1px solid #ccc;
+    }
+    .th { height: 9px; background: #aaa; border-radius: 3px; }
+    .trow {
+      display: grid;
+      grid-template-columns: 32px 1fr 1.5fr 1fr 1fr 80px;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #d8d8d8;
+      align-items: center;
+      background: #f0f0f0;
+    }
+    .trow:nth-child(even) { background: #e8e8e8; }
+    .td { height: 8px; background: #ccc; border-radius: 3px; }
+    .td-checkbox { width: 14px; height: 14px; background: #bbb; border-radius: 3px; }
+    .status-pill { height: 18px; background: #bbb; border-radius: 9px; width: 65px; }
+    .action-row { display: flex; gap: 6px; }
+    .act-btn { width: 24px; height: 24px; background: #ccc; border-radius: 4px; }
+
+    /* BOTTOM PANELS */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel {
+      background: #e8e8e8;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title { height: 11px; background: #aaa; border-radius: 3px; width: 60%; }
+    .chart-placeholder { background: #d8d8d8; border-radius: 4px; height: 100px; display: flex; align-items: flex-end; padding: 8px; gap: 6px; }
+    .bar { background: #bbb; border-radius: 2px 2px 0 0; flex: 1; }
+    .list-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #ccc; }
+    .list-dot { width: 8px; height: 8px; background: #aaa; border-radius: 50%; }
+    .list-text { height: 8px; background: #ccc; border-radius: 3px; flex: 1; }
+    .list-value { height: 8px; background: #bbb; border-radius: 3px; width: 50px; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <div class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark"></div>
+        <div class="logo-text"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label"></div>
+        <div class="sidebar-link active">
+          <div class="sidebar-icon active"></div>
+          <div class="sidebar-text active"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+          <div class="badge"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label"></div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label"></div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+        <div class="sidebar-link">
+          <div class="sidebar-icon"></div>
+          <div class="sidebar-text"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="admin-avatar"></div>
+        <div class="admin-name"></div>
+        <div class="logout-icon"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="admin-main">
+
+      <div class="admin-topbar">
+        <div class="page-title"></div>
+        <div class="topbar-spacer"></div>
+        <div class="search-box"></div>
+        <div class="notif-icon"></div>
+        <div class="notif-icon"></div>
+      </div>
+
+      <div class="admin-content">
+
+        <!-- STATS -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-header"><div class="stat-icon"></div><div class="stat-trend"></div></div>
+            <div class="stat-number"></div>
+            <div class="stat-label"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><div class="stat-icon"></div><div class="stat-trend"></div></div>
+            <div class="stat-number"></div>
+            <div class="stat-label"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><div class="stat-icon"></div><div class="stat-trend"></div></div>
+            <div class="stat-number"></div>
+            <div class="stat-label"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><div class="stat-icon"></div><div class="stat-trend"></div></div>
+            <div class="stat-number"></div>
+            <div class="stat-label"></div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-section">
+          <div class="table-topbar">
+            <div class="table-title"></div>
+            <div class="table-spacer"></div>
+            <div class="filter-btn"></div>
+            <div class="add-btn"></div>
+          </div>
+          <div class="thead">
+            <div class="td-checkbox"></div>
+            <div class="th" style="width:70%;"></div>
+            <div class="th" style="width:80%;"></div>
+            <div class="th" style="width:60%;"></div>
+            <div class="th" style="width:65%;"></div>
+            <div class="th" style="width:50%;"></div>
+          </div>
+          <div class="trow">
+            <div class="td-checkbox"></div>
+            <div class="td" style="width:80%;"></div>
+            <div class="td" style="width:70%;"></div>
+            <div class="td" style="width:55%;"></div>
+            <div class="status-pill"></div>
+            <div class="action-row"><div class="act-btn"></div><div class="act-btn"></div><div class="act-btn"></div></div>
+          </div>
+          <div class="trow">
+            <div class="td-checkbox"></div>
+            <div class="td" style="width:70%;"></div>
+            <div class="td" style="width:60%;"></div>
+            <div class="td" style="width:60%;"></div>
+            <div class="status-pill" style="width:55px;"></div>
+            <div class="action-row"><div class="act-btn"></div><div class="act-btn"></div><div class="act-btn"></div></div>
+          </div>
+          <div class="trow">
+            <div class="td-checkbox"></div>
+            <div class="td" style="width:85%;"></div>
+            <div class="td" style="width:75%;"></div>
+            <div class="td" style="width:50%;"></div>
+            <div class="status-pill" style="width:70px;"></div>
+            <div class="action-row"><div class="act-btn"></div><div class="act-btn"></div><div class="act-btn"></div></div>
+          </div>
+          <div class="trow">
+            <div class="td-checkbox"></div>
+            <div class="td" style="width:65%;"></div>
+            <div class="td" style="width:65%;"></div>
+            <div class="td" style="width:58%;"></div>
+            <div class="status-pill" style="width:60px;"></div>
+            <div class="action-row"><div class="act-btn"></div><div class="act-btn"></div><div class="act-btn"></div></div>
+          </div>
+          <div class="trow">
+            <div class="td-checkbox"></div>
+            <div class="td" style="width:75%;"></div>
+            <div class="td" style="width:70%;"></div>
+            <div class="td" style="width:52%;"></div>
+            <div class="status-pill" style="width:65px;"></div>
+            <div class="action-row"><div class="act-btn"></div><div class="act-btn"></div><div class="act-btn"></div></div>
+          </div>
+        </div>
+
+        <!-- BOTTOM PANELS -->
+        <div class="bottom-grid">
+          <div class="panel">
+            <div class="panel-title"></div>
+            <div class="chart-placeholder">
+              <div class="bar" style="height:60%;"></div>
+              <div class="bar" style="height:80%;"></div>
+              <div class="bar" style="height:45%;"></div>
+              <div class="bar" style="height:90%;"></div>
+              <div class="bar" style="height:65%;"></div>
+              <div class="bar" style="height:70%;"></div>
+              <div class="bar" style="height:55%;"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"></div>
+            <div class="list-item"><div class="list-dot"></div><div class="list-text"></div><div class="list-value"></div></div>
+            <div class="list-item"><div class="list-dot"></div><div class="list-text" style="width:70%;"></div><div class="list-value"></div></div>
+            <div class="list-item"><div class="list-dot"></div><div class="list-text" style="width:60%;"></div><div class="list-value"></div></div>
+            <div class="list-item"><div class="list-dot"></div><div class="list-text" style="width:80%;"></div><div class="list-value"></div></div>
+            <div class="list-item" style="border:none;"><div class="list-dot"></div><div class="list-text" style="width:65%;"></div><div class="list-value"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
