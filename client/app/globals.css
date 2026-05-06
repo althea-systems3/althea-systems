@@ -25,6 +25,18 @@
 body {
   @apply bg-background text-foreground antialiased;
   font-family: var(--font-body), sans-serif;
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(20, 184, 200, 0.06),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 90% 100%,
+      rgba(28, 78, 128, 0.04),
+      transparent 60%
+    );
+  background-attachment: fixed;
 }
 
 html[lang="ar"] body {
@@ -95,7 +107,9 @@ textarea,
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Fond global Althea : cyan très léger pour identité visuelle subtile.
+       Les cards restent blanc pur pour créer du contraste. */
+    --background: 192 35% 97%;
     --foreground: 200 100% 18%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
