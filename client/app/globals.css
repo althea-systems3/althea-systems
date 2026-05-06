@@ -23,20 +23,45 @@
 }
 
 body {
-  @apply bg-background text-foreground antialiased;
+  @apply text-foreground antialiased;
   font-family: var(--font-body), sans-serif;
+  /* Fond branded Althea : dégradé linéaire principal + taches colorées radiales */
+  background-color: hsl(var(--background));
   background-image:
+    /* Tache cyan vive en haut-gauche */
     radial-gradient(
-      ellipse 80% 50% at 50% -10%,
-      rgba(20, 184, 200, 0.06),
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse 60% 40% at 90% 100%,
-      rgba(28, 78, 128, 0.04),
+      ellipse 60% 40% at 10% 0%,
+      rgba(0, 168, 181, 0.18),
       transparent 60%
+    ),
+    /* Tache cyan moyenne en haut-droite */
+    radial-gradient(
+      ellipse 50% 35% at 90% 5%,
+      rgba(20, 184, 200, 0.22),
+      transparent 65%
+    ),
+    /* Tache bleu marine en bas-gauche */
+    radial-gradient(
+      ellipse 50% 40% at 5% 95%,
+      rgba(28, 78, 128, 0.12),
+      transparent 60%
+    ),
+    /* Tache cyan-vert en bas-droite */
+    radial-gradient(
+      ellipse 60% 50% at 95% 90%,
+      rgba(0, 168, 181, 0.14),
+      transparent 65%
+    ),
+    /* Voile cyan général subtle */
+    linear-gradient(
+      135deg,
+      rgba(240, 251, 252, 0.5) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(234, 243, 251, 0.5) 100%
     );
   background-attachment: fixed;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 html[lang="ar"] body {
@@ -107,9 +132,9 @@ textarea,
 
 @layer base {
   :root {
-    /* Fond global Althea : cyan très léger pour identité visuelle subtile.
+    /* Fond global Althea : cyan léger pour identité visuelle marquée.
        Les cards restent blanc pur pour créer du contraste. */
-    --background: 192 35% 97%;
+    --background: 192 50% 95%;
     --foreground: 200 100% 18%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
