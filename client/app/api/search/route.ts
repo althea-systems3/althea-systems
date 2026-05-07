@@ -4,6 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { getFirestoreClient } from "@/lib/firebase/admin"
 import { FIRESTORE_IMAGES_PRODUITS } from "@/lib/top-produits/constants"
 import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
+import type { AppLocale } from "@/lib/i18n"
+import {
   computeProductRelevanceScore,
   computeTextRelevanceScore,
 } from "@/lib/search/scoring"
@@ -425,12 +430,18 @@ function mapToSearchPayload(
   product: Produit,
   relevanceScore: number,
   imageUrl: string | null,
+  locale: AppLocale,
 ): SearchProductPayload {
   return {
     id: product.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, "nom", locale, product.nom),
     slug: product.slug,
-    description: product.description,
+    description: pickLocalizedString(
+      product,
+      "description",
+      locale,
+      product.description,
+    ),
     priceTtc: product.prix_ttc ?? null,
     isAvailable: product.quantite_stock > 0,
     imageUrl,
@@ -457,6 +468,8 @@ export async function GET(request: Request) {
     )
   }
 
+  const locale = getRequestLocale(request)
+
   try {
     const { searchParams } = new URL(request.url)
     const params = parseSearchParams(searchParams)
@@ -467,7 +480,7 @@ export async function GET(request: Request) {
     let supabaseQuery = supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, description, caracteristique_tech, prix_ht, prix_ttc, quantite_stock, statut, slug, priorite, est_top_produit",
+        "id_produit, nom, description, caracteristique_tech, prix_ht, prix_ttc, quantite_stock, statut, slug, priorite, est_top_produit, source_locale, traductions",
       )
       .eq("statut", "publie")
 
@@ -538,6 +551,7 @@ export async function GET(request: Request) {
         item.product,
         item.relevanceScore,
         imageMap.get(item.product.id_produit) ?? null,
+        locale,
       ),
     )
 

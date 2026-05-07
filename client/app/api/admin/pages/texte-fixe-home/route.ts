@@ -9,6 +9,7 @@ import {
   createEmptyHomeFixedTextPayload,
 } from '@/lib/home-fixed-text/homeFixedText';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { persistTranslationsAsPerLocaleRows } from '@/lib/translation/persistTranslations';
 
 type HomeFixedTextRow = {
   slug: string;
@@ -183,6 +184,25 @@ export async function PUT(request: NextRequest) {
         locale,
       }).catch(() => {});
     }
+
+    await persistTranslationsAsPerLocaleRows({
+      table: 'contenu_editorial',
+      slug: HOME_FIXED_TEXT_SLUG,
+      context: 'editorial',
+      fields: [
+        { key: 'titre', value: title, format: 'plain' },
+        {
+          key: 'contenu_markdown',
+          value: contentMarkdown,
+          format: 'markdown',
+        },
+      ],
+      fieldKeysToColumns: {
+        titre: 'titre',
+        contenu_markdown: 'contenu_markdown',
+      },
+      extraColumns: { actif },
+    });
 
     return NextResponse.json({
       slug: HOME_FIXED_TEXT_SLUG,

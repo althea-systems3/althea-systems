@@ -3,6 +3,12 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFirestoreClient } from '@/lib/firebase/admin';
 import { FIRESTORE_IMAGES_PRODUITS } from '@/lib/top-produits/constants';
+import {
+  getRequestLocale,
+  pickLocalizedRecord,
+  pickLocalizedString,
+} from '@/lib/translation/pickLocalized';
+import type { AppLocale } from '@/lib/i18n';
 import type { Produit } from '@/lib/supabase/types';
 
 type ProductImagePayload = {
@@ -84,27 +90,39 @@ async function fetchProductImagesByProductId(
 function mapToDetailPayload(
   product: Produit,
   images: ProductImagePayload[],
+  locale: AppLocale,
 ): ProductDetailPayload {
   return {
     id: product.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, 'nom', locale, product.nom),
     slug: product.slug,
-    description: product.description,
+    description: pickLocalizedString(
+      product,
+      'description',
+      locale,
+      product.description,
+    ),
     priceHt: product.prix_ht,
     tva: product.tva,
     priceTtc: product.prix_ttc,
     stockQuantity: product.quantite_stock,
     isAvailable: product.quantite_stock > 0,
-    characteristics: product.caracteristique_tech ?? null,
+    characteristics: pickLocalizedRecord(
+      product,
+      'caracteristique_tech',
+      locale,
+      (product.caracteristique_tech as Record<string, string> | null) ?? null,
+    ),
     images,
   };
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+  const locale = getRequestLocale(request);
 
   if (!hasRequiredConfig()) {
     return NextResponse.json(
@@ -134,7 +152,7 @@ export async function GET(
     const images = await fetchProductImagesByProductId(product.id_produit);
 
     return NextResponse.json({
-      product: mapToDetailPayload(product, images),
+      product: mapToDetailPayload(product, images, locale),
     });
   } catch (error) {
     console.error('Erreur inattendue endpoint détail produit', {

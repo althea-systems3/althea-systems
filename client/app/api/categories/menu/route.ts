@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFirestoreClient } from '@/lib/firebase/admin';
 import { FIRESTORE_IMAGES_CATEGORIES } from '@/lib/categories/constants';
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from '@/lib/translation/pickLocalized';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +20,11 @@ type MenuCategory = {
   slug: string;
   ordre_affiche: number;
   image_url: string | null;
+  source_locale?: string | null;
+  traductions?: Record<
+    string,
+    Record<string, string | Record<string, string> | null>
+  > | null;
 };
 
 async function fetchCategoryImages(
@@ -46,12 +55,15 @@ async function fetchCategoryImages(
   return imageMap;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const locale = getRequestLocale(request);
   const supabaseAdmin = createAdminClient();
 
   const { data: activeCategories, error: categoriesError } = await supabaseAdmin
     .from('categorie')
-    .select('id_categorie, nom, slug, ordre_affiche, image_url')
+    .select(
+      'id_categorie, nom, slug, ordre_affiche, image_url, source_locale, traductions',
+    )
     .eq('statut', 'active')
     .order('ordre_affiche', { ascending: true });
 
@@ -71,7 +83,7 @@ export async function GET() {
   const enrichedCategories = categories.map((category) => {
     const imageDoc = imageMap.get(category.id_categorie);
     return {
-      nom: category.nom,
+      nom: pickLocalizedString(category, 'nom', locale, category.nom),
       slug: category.slug,
       ordre_affiche: category.ordre_affiche,
       image_url: imageDoc?.image_url ?? category.image_url,

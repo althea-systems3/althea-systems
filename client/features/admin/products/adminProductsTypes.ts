@@ -25,6 +25,11 @@ export type AdminProductImage = {
   alt_text?: string | null
 }
 
+export type AdminEntityTraductions = Record<
+  string,
+  Record<string, string | Record<string, string> | null>
+>
+
 export type AdminProduct = {
   id_produit: string
   nom: string
@@ -40,6 +45,8 @@ export type AdminProduct = {
   image_principale_url: string | null
   categories: AdminCategory[]
   images?: AdminProductImage[]
+  source_locale?: string | null
+  traductions?: AdminEntityTraductions | null
 }
 
 export type AdminProductListFilters = {

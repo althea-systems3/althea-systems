@@ -4,6 +4,11 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getFirestoreClient } from '@/lib/firebase/admin';
 import { FIRESTORE_IMAGES_PRODUITS } from '@/lib/top-produits/constants';
 import { MAX_SIMILAR_PRODUCTS } from '@/lib/products/constants';
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from '@/lib/translation/pickLocalized';
+import type { AppLocale } from '@/lib/i18n';
 import type { Produit, ProduitCategorie } from '@/lib/supabase/types';
 
 type SimilarProductPayload = {
@@ -126,10 +131,11 @@ function sortByAvailabilityFirst(products: Produit[]): Produit[] {
 function mapToSimilarPayload(
   product: Produit,
   imageUrl: string | null,
+  locale: AppLocale,
 ): SimilarProductPayload {
   return {
     id: product.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, 'nom', locale, product.nom),
     slug: product.slug,
     priceTtc: product.prix_ttc ?? null,
     isAvailable: product.quantite_stock > 0,
@@ -138,10 +144,11 @@ function mapToSimilarPayload(
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+  const locale = getRequestLocale(request);
 
   if (!hasRequiredConfig()) {
     return NextResponse.json({ products: [] }, { status: 503 });
@@ -186,7 +193,9 @@ export async function GET(
 
     const { data: rawProducts, error: productsError } = await supabaseAdmin
       .from('produit')
-      .select('id_produit, nom, slug, prix_ttc, quantite_stock, statut')
+      .select(
+        'id_produit, nom, slug, prix_ttc, quantite_stock, statut, source_locale, traductions',
+      )
       .in('id_produit', candidateProductIds)
       .eq('statut', 'publie');
 
@@ -203,7 +212,11 @@ export async function GET(
     const imageMap = await fetchProductImages(productIds);
 
     const payload = limitedProducts.map((product) =>
-      mapToSimilarPayload(product, imageMap.get(product.id_produit) ?? null),
+      mapToSimilarPayload(
+        product,
+        imageMap.get(product.id_produit) ?? null,
+        locale,
+      ),
     );
 
     return NextResponse.json({ products: payload });

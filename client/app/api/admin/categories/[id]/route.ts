@@ -20,6 +20,7 @@ import {
   FIRESTORE_IMAGES_CATEGORIES,
   CATEGORIES_STORAGE_PATH,
 } from '@/lib/categories/constants';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 import type { Categorie } from '@/lib/supabase/types';
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -314,6 +315,26 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     await logAdminActivity(currentUser.user.id, 'categories.update', {
       categoryId: id,
       updatedFields: Object.keys(updateFields),
+    });
+  }
+
+  const textFieldsChanged =
+    'nom' in updateFields || 'description' in updateFields;
+
+  if (textFieldsChanged) {
+    await persistTranslationsForRow({
+      table: 'categorie',
+      idColumn: 'id_categorie',
+      idValue: id,
+      context: 'category',
+      fields: [
+        { key: 'nom', value: category.nom, format: 'plain' },
+        {
+          key: 'description',
+          value: category.description ?? null,
+          format: 'plain',
+        },
+      ],
     });
   }
 

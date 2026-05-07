@@ -5,10 +5,8 @@ import {
   ArrowUp,
   Eye,
   Pencil,
-  Plus,
   Power,
   Search,
-  Trash2,
 } from "lucide-react"
 import Image from "next/image"
 import { type FormEvent, useCallback, useEffect, useState } from "react"
@@ -26,11 +24,8 @@ import {
   AdminListErrorAlert,
   AdminListNoticeAlert,
 } from "@/features/admin/shared"
-import { Link, useRouter } from "@/i18n/navigation"
-import { confirmCriticalAction } from "@/lib/ui/confirmCriticalAction"
-
+import { Link } from "@/i18n/navigation"
 import {
-  deleteAdminCarousel,
   fetchAdminCarousels,
   reorderAdminCarousels,
   updateAdminCarouselStatus,
@@ -42,7 +37,6 @@ import type {
   AdminCarouselsFilters,
 } from "./adminCarouselsTypes"
 import {
-  ADMIN_CAROUSEL_MAX_SLIDES,
   ADMIN_CAROUSEL_SORT_LABELS,
   createDefaultAdminCarouselsFilters,
   filterAndSortCarousels,
@@ -74,8 +68,6 @@ function moveSlide(
 }
 
 export function AdminCarouselsListPage() {
-  const router = useRouter()
-
   const [filters, setFilters] = useState<AdminCarouselsFilters>(
     createDefaultAdminCarouselsFilters(),
   )
@@ -84,7 +76,6 @@ export function AdminCarouselsListPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isReorderLoading, setIsReorderLoading] = useState(false)
   const [togglingSlideId, setTogglingSlideId] = useState<string | null>(null)
-  const [deletingSlideId, setDeletingSlideId] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null)
 
@@ -187,37 +178,7 @@ export function AdminCarouselsListPage() {
     }
   }
 
-  async function handleDelete(slide: AdminCarousel) {
-    const confirmed = await confirmCriticalAction({
-      title: "Supprimer ce slide ?",
-      message: `Le slide « ${slide.titre} » sera définitivement supprimé.`,
-      confirmLabel: "Supprimer",
-    })
-
-    if (!confirmed) return
-
-    setDeletingSlideId(slide.id_slide)
-    setErrorMessage(null)
-
-    try {
-      await deleteAdminCarousel(slide.id_slide)
-      setSlides((current) =>
-        current.filter((item) => item.id_slide !== slide.id_slide),
-      )
-      setNoticeMessage("Slide supprimé.")
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Impossible de supprimer le slide."
-      setErrorMessage(message)
-    } finally {
-      setDeletingSlideId(null)
-    }
-  }
-
   const visibleSlides = filterAndSortCarousels(slides, filters)
-  const canCreateSlide = slides.length < ADMIN_CAROUSEL_MAX_SLIDES
   const canReorder =
     filters.sortBy === "ordre" &&
     filters.sortDirection === "asc" &&
@@ -227,26 +188,12 @@ export function AdminCarouselsListPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
-          <div>
-            <CardTitle>Carrousel page d&apos;accueil</CardTitle>
-            <CardDescription>
-              Gestion des slides promotionnels (max{" "}
-              {ADMIN_CAROUSEL_MAX_SLIDES}). Réordonnez avec les flèches.
-            </CardDescription>
-          </div>
-          <Button
-            onClick={() => router.push("/admin/carousel/nouveau")}
-            disabled={!canCreateSlide}
-            title={
-              canCreateSlide
-                ? "Créer un nouveau slide"
-                : `Maximum ${ADMIN_CAROUSEL_MAX_SLIDES} slides atteint`
-            }
-          >
-            <Plus className="mr-2 size-4" aria-hidden="true" />
-            Nouveau slide
-          </Button>
+        <CardHeader>
+          <CardTitle>Carrousel page d&apos;accueil</CardTitle>
+          <CardDescription>
+            Gestion des slides promotionnels. Réordonnez avec les flèches,
+            modifiez l&apos;image et la visibilité depuis chaque slide.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form
@@ -347,7 +294,6 @@ export function AdminCarouselsListPage() {
                   {visibleSlides.map((slide) => {
                     const statusUi = mapCarouselStatusUi(slide.actif)
                     const isToggling = togglingSlideId === slide.id_slide
-                    const isDeleting = deletingSlideId === slide.id_slide
                     return (
                       <tr key={slide.id_slide} className="border-b">
                         <td className="px-2 py-3">
@@ -449,17 +395,6 @@ export function AdminCarouselsListPage() {
                                 />
                               </Button>
                             </Link>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(slide)}
-                              disabled={isDeleting}
-                              aria-label="Supprimer le slide"
-                              className="text-brand-alert hover:text-brand-alert"
-                            >
-                              <Trash2 className="size-4" aria-hidden="true" />
-                            </Button>
                           </div>
                         </td>
                       </tr>

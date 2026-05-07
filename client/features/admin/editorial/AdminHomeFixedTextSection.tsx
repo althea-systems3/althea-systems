@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { adminFetch } from "@/features/admin/adminApi"
+import { AdminTranslationCard } from "@/features/admin/translation/AdminTranslationCard"
 import { locales, type AppLocale } from "@/lib/i18n"
 import type { HomeFixedTextPayload } from "@/lib/home-fixed-text/homeFixedText"
 
@@ -43,6 +44,22 @@ export function AdminHomeFixedTextSection() {
   const [contentMarkdown, setContentMarkdown] = useState("")
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
   const [isActif, setIsActif] = useState(false)
+
+  const editorialTranslationFields = useMemo(
+    () => [
+      {
+        key: "titre",
+        value: title.length > 0 ? title : null,
+        format: "plain" as const,
+      },
+      {
+        key: "contenu_markdown",
+        value: contentMarkdown,
+        format: "markdown" as const,
+      },
+    ],
+    [title, contentMarkdown],
+  )
 
   useEffect(() => {
     let isCancelled = false
@@ -250,6 +267,12 @@ export function AdminHomeFixedTextSection() {
               </span>
             </label>
           </div>
+
+          <AdminTranslationCard
+            context="editorial"
+            fields={editorialTranslationFields}
+            helperText="A la sauvegarde, les autres langues sont generees automatiquement (1 ligne par locale)."
+          />
 
           <div className="flex flex-wrap items-center gap-3">
             <Button

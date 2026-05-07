@@ -2,7 +2,12 @@
 
 import { AlertCircle, ArrowLeft, ImagePlus, Save } from "lucide-react"
 import Image from "next/image"
-import { type ChangeEvent, type FormEvent, useEffect, useState } from "react"
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useEffect,
+  useState,
+} from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -239,76 +244,40 @@ export function AdminCarouselFormPage({
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="carousel-titre"
-                className="mb-1 block text-sm font-medium"
-              >
-                Titre <span className="text-brand-alert">*</span>
-              </label>
-              <input
-                id="carousel-titre"
-                type="text"
-                value={formValues.titre}
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    titre: event.target.value,
-                  }))
-                }
-                maxLength={ADMIN_CAROUSEL_TITLE_MAX_LENGTH}
-                required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {formValues.titre.length} / {ADMIN_CAROUSEL_TITLE_MAX_LENGTH}{" "}
-                caractères
+            <div className="rounded-md border border-border bg-slate-50 p-3 text-xs text-slate-600">
+              <p className="font-medium text-brand-nav">Slide en lecture</p>
+              <p className="mt-1">
+                Titre, texte et lien de redirection sont fixes. Vous pouvez
+                modifier l&apos;image et la visibilité.
               </p>
             </div>
 
             <div>
-              <label
-                htmlFor="carousel-texte"
-                className="mb-1 block text-sm font-medium"
-              >
-                Texte
-              </label>
-              <textarea
-                id="carousel-texte"
-                value={formValues.texte ?? ""}
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    texte: event.target.value,
-                  }))
-                }
-                rows={3}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              />
+              <p className="mb-1 block text-sm font-medium">Titre</p>
+              <p className="rounded-md border border-border/60 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {formValues.titre || <span className="italic">Aucun titre</span>}
+              </p>
             </div>
 
             <div>
-              <label
-                htmlFor="carousel-lien"
-                className="mb-1 block text-sm font-medium"
-              >
+              <p className="mb-1 block text-sm font-medium">Texte</p>
+              <p className="whitespace-pre-line rounded-md border border-border/60 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {formValues.texte && formValues.texte.length > 0 ? (
+                  formValues.texte
+                ) : (
+                  <span className="italic">Aucun texte</span>
+                )}
+              </p>
+            </div>
+
+            <div>
+              <p className="mb-1 block text-sm font-medium">
                 Lien de redirection
-              </label>
-              <input
-                id="carousel-lien"
-                type="text"
-                value={formValues.lien_redirection ?? ""}
-                onChange={(event) =>
-                  setFormValues((current) => ({
-                    ...current,
-                    lien_redirection: event.target.value,
-                  }))
-                }
-                placeholder="/catalogue/audio-professionnel"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Doit être un lien interne commençant par /
+              </p>
+              <p className="rounded-md border border-border/60 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {formValues.lien_redirection ?? (
+                  <span className="italic">Aucun lien</span>
+                )}
               </p>
             </div>
 

@@ -18,6 +18,8 @@ import {
 } from "./AdminProductMainInfoSection"
 import { AdminProductPendingImagesSection } from "./AdminProductPendingImagesSection"
 import { AdminProductTechnicalAttributesSection } from "./AdminProductTechnicalAttributesSection"
+import { AdminTranslationCard } from "@/features/admin/translation/AdminTranslationCard"
+import { isAppLocale, type AppLocale } from "@/lib/i18n"
 import {
   createAdminProduct,
   fetchAdminCategories,
@@ -65,6 +67,12 @@ export function AdminProductFormPage({
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<AdminProductFieldErrors>({})
   const [uploadedImageCount, setUploadedImageCount] = useState(0)
+  const [productSourceLocale, setProductSourceLocale] = useState<AppLocale | null>(
+    null,
+  )
+  const [productTranslations, setProductTranslations] = useState<
+    Record<string, Record<string, string | Record<string, string> | null>>
+  >({})
 
   const {
     pendingImages,
@@ -90,6 +98,39 @@ export function AdminProductFormPage({
     return calculateProductPriceTtc(parsedPriceHt, formValues.tva).toFixed(2)
   }, [formValues.tva, parsedPriceHt])
 
+  const translationFields = useMemo(() => {
+    const techMap: Record<string, string> = {}
+    for (const attribute of formValues.technicalAttributes) {
+      const trimmedKey = attribute.key.trim()
+      const trimmedValue = attribute.value.trim()
+      if (trimmedKey.length > 0 && trimmedValue.length > 0) {
+        techMap[trimmedKey] = trimmedValue
+      }
+    }
+
+    return [
+      {
+        key: "nom",
+        value: formValues.nom,
+        format: "plain" as const,
+      },
+      {
+        key: "description",
+        value: formValues.description.length > 0 ? formValues.description : null,
+        format: "plain" as const,
+      },
+      {
+        key: "caracteristique_tech",
+        value: Object.keys(techMap).length > 0 ? techMap : null,
+        format: "key-value-map" as const,
+      },
+    ]
+  }, [
+    formValues.nom,
+    formValues.description,
+    formValues.technicalAttributes,
+  ])
+
   useEffect(() => {
     let isCancelled = false
 
@@ -113,6 +154,13 @@ export function AdminProductFormPage({
 
         if (fetchedProduct) {
           setFormValues(mapProductToFormValues(fetchedProduct))
+          if (
+            fetchedProduct.source_locale &&
+            isAppLocale(fetchedProduct.source_locale)
+          ) {
+            setProductSourceLocale(fetchedProduct.source_locale)
+          }
+          setProductTranslations(fetchedProduct.traductions ?? {})
         }
       } catch (error) {
         if (isCancelled) {
@@ -427,6 +475,18 @@ export function AdminProductFormPage({
           onAttributeChange={handleTechnicalAttributeChange}
           onAddAttribute={handleAddTechnicalAttribute}
           onRemoveAttribute={handleRemoveTechnicalAttribute}
+        />
+
+        <AdminTranslationCard
+          context="product"
+          fields={translationFields}
+          initialSourceLocale={productSourceLocale}
+          initialTranslations={productTranslations}
+          helperText="A la sauvegarde, les autres langues sont generees automatiquement par IA. Utilisez « Re-traduire » pour rafraichir manuellement."
+          onTranslated={({ detectedSourceLocale, translations }) => {
+            setProductSourceLocale(detectedSourceLocale)
+            setProductTranslations(translations)
+          }}
         />
 
         {isEditMode && productId ? (

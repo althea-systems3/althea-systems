@@ -13,6 +13,7 @@ import {
   MAX_CAROUSEL_SLIDES,
   FIRESTORE_IMAGES_CARROUSEL,
 } from '@/lib/carousel/constants';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 import type { Carrousel } from '@/lib/supabase/types';
 
 async function fetchAllSlides(): Promise<Carrousel[] | null> {
@@ -165,6 +166,17 @@ export async function POST(request: NextRequest) {
       { slideId: slide.id_slide, titre: slide.titre },
     );
   }
+
+  await persistTranslationsForRow({
+    table: 'carrousel',
+    idColumn: 'id_slide',
+    idValue: slide.id_slide,
+    context: 'carousel-slide',
+    fields: [
+      { key: 'titre', value: slide.titre, format: 'plain' },
+      { key: 'texte', value: slide.texte ?? null, format: 'plain' },
+    ],
+  });
 
   return NextResponse.json({ slide }, { status: 201 });
 }

@@ -15,6 +15,11 @@ import {
   buildServerErrorResponse,
   logServerError,
 } from "@/lib/errors/serverError"
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
+import type { AppLocale } from "@/lib/i18n"
 import type { Panier } from "@/lib/supabase/types"
 
 const FIRESTORE_IN_QUERY_LIMIT = 30
@@ -32,6 +37,11 @@ type CartLineRow = {
     prix_ttc: number
     quantite_stock: number
     statut: string
+    source_locale?: string | null
+    traductions?: Record<
+      string,
+      Record<string, string | Record<string, string> | null>
+    > | null
   } | null
 }
 
@@ -93,7 +103,7 @@ async function fetchCartLines(
   const { data, error } = await supabaseAdmin
     .from("ligne_panier")
     .select(
-      "id_ligne_panier, id_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ttc, quantite_stock, statut)",
+      "id_ligne_panier, id_panier, id_produit, quantite, produit:id_produit(nom, slug, prix_ttc, quantite_stock, statut, source_locale, traductions)",
     )
     .eq("id_panier", cartId)
 
@@ -152,6 +162,7 @@ async function fetchProductImages(
 function mapToLinePayload(
   line: CartLineRow,
   imageUrl: string | null,
+  locale: AppLocale,
 ): CartLinePayload {
   const product = line.produit!
   const priceTtc = Number(product.prix_ttc)
@@ -160,7 +171,7 @@ function mapToLinePayload(
   return {
     id: line.id_ligne_panier,
     productId: line.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, "nom", locale, product.nom),
     slug: product.slug,
     priceTtc,
     quantity: line.quantite,
@@ -194,13 +205,15 @@ const EMPTY_CART_RESPONSE = {
 
 // --- Handler ---
 
-export async function GET() {
+export async function GET(request: Request) {
   const configError = ensureRuntimeConfig(
     "api.cart.get",
     "Service panier",
     CART_API_ENV_KEYS,
   )
   if (configError) return configError
+
+  const locale = getRequestLocale(request)
 
   try {
     const cookieStore = await cookies()
@@ -238,7 +251,7 @@ export async function GET() {
     const imageMap = await fetchProductImages(productIds)
 
     const lines = validLines.map((line) =>
-      mapToLinePayload(line, imageMap.get(line.id_produit) ?? null),
+      mapToLinePayload(line, imageMap.get(line.id_produit) ?? null, locale),
     )
 
     const totals = computeCartTotals(lines)

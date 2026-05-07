@@ -9,6 +9,7 @@ import {
   isStaticPageSlug,
   STATIC_PAGE_DEFAULTS,
 } from '@/lib/static-pages/staticPages';
+import { persistTranslationsAsPerLocaleRows } from '@/lib/translation/persistTranslations';
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -232,6 +233,30 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
         locale,
       }).catch(() => {});
     }
+
+    await persistTranslationsAsPerLocaleRows({
+      table: 'page_statique',
+      slug,
+      context: 'page',
+      fields: [
+        { key: 'titre', value: row.titre, format: 'plain' },
+        {
+          key: 'description',
+          value: row.description ?? null,
+          format: 'plain',
+        },
+        {
+          key: 'contenu_markdown',
+          value: row.contenu_markdown,
+          format: 'markdown',
+        },
+      ],
+      fieldKeysToColumns: {
+        titre: 'titre',
+        description: 'description',
+        contenu_markdown: 'contenu_markdown',
+      },
+    });
 
     return NextResponse.json({
       slug: row.slug,

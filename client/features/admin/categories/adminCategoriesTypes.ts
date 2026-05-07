@@ -6,6 +6,11 @@ export type AdminCategorySortDirection = "asc" | "desc"
 
 export type AdminCategoryStatusFilter = "all" | AdminCategoryStatus
 
+export type AdminCategoryTraductions = Record<
+  string,
+  Record<string, string | Record<string, string> | null>
+>
+
 export type AdminCategory = {
   id_categorie: string
   nom: string
@@ -15,6 +20,8 @@ export type AdminCategory = {
   statut: AdminCategoryStatus
   image_url: string | null
   nombre_produits: number
+  source_locale?: string | null
+  traductions?: AdminCategoryTraductions | null
 }
 
 export type AdminCategoryAssociatedProduct = {

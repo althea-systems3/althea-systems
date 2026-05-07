@@ -3,6 +3,11 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getFirestoreClient } from "@/lib/firebase/admin"
 import { FIRESTORE_IMAGES_PRODUITS } from "@/lib/top-produits/constants"
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
+import type { AppLocale } from "@/lib/i18n"
 import type { Categorie, Produit, ProduitCategorie } from "@/lib/supabase/types"
 
 const DEFAULT_PAGE = 1
@@ -122,12 +127,13 @@ async function fetchProductImages(
 function mapToPayload(
   product: CatalogueProduitRow,
   imageUrl: string | null,
+  locale: AppLocale,
 ): CatalogueProductPayload {
   const resolvedImageUrl = imageUrl ?? null
 
   return {
     id: product.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, "nom", locale, product.nom),
     slug: product.slug,
     imageUrl: resolvedImageUrl,
     price: product.prix_ttc ?? null,
@@ -149,6 +155,7 @@ export async function GET(
   const { slug } = await params
   const { searchParams } = new URL(request.url)
   const { page, pageSize } = parsePaginationParams(searchParams)
+  const locale = getRequestLocale(request)
 
   if (!hasRequiredConfig()) {
     return NextResponse.json(
@@ -219,7 +226,7 @@ export async function GET(
     const { data: rawProducts, error: productsError } = await supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut",
+        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut, source_locale, traductions",
       )
       .in("id_produit", productIds)
       .eq("statut", "publie")
@@ -259,7 +266,7 @@ export async function GET(
 
     return NextResponse.json({
       products: paginated.map((p) =>
-        mapToPayload(p, imageMap.get(p.id_produit) ?? null),
+        mapToPayload(p, imageMap.get(p.id_produit) ?? null, locale),
       ),
       pagination,
     })

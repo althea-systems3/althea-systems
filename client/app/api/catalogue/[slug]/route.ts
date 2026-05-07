@@ -3,6 +3,10 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getFirestoreClient } from "@/lib/firebase/admin"
 import { FIRESTORE_IMAGES_CATEGORIES } from "@/lib/categories/constants"
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
 import type { Categorie } from "@/lib/supabase/types"
 
 type CatalogueCategoryPayload = {
@@ -52,10 +56,11 @@ async function fetchCategoryImageUrl(
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params
+  const locale = getRequestLocale(request)
 
   if (!hasRequiredConfig()) {
     return NextResponse.json(
@@ -69,7 +74,9 @@ export async function GET(
 
     const { data: rawCategory, error } = await supabaseAdmin
       .from("categorie")
-      .select("id_categorie, nom, slug, description, image_url, statut")
+      .select(
+        "id_categorie, nom, slug, description, image_url, statut, source_locale, traductions",
+      )
       .eq("slug", slug)
       .eq("statut", "active")
       .single()
@@ -87,9 +94,14 @@ export async function GET(
 
     const payload: CatalogueCategoryPayload = {
       id: category.id_categorie,
-      name: category.nom,
+      name: pickLocalizedString(category, "nom", locale, category.nom),
       slug: category.slug,
-      description: category.description,
+      description: pickLocalizedString(
+        category,
+        "description",
+        locale,
+        category.description,
+      ),
       imageUrl: firestoreImageUrl ?? category.image_url,
     }
 

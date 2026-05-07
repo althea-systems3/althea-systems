@@ -23,6 +23,7 @@ import {
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 
 type ProductUpdatePayload = {
   nom?: unknown;
@@ -458,6 +459,35 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       await logAdminActivity(currentUser.user.id, 'products.update', {
         productId,
         updatedFields: Object.keys(updatePayload),
+      });
+    }
+
+    const textFieldsChanged =
+      'nom' in updatePayload ||
+      'description' in updatePayload ||
+      'caracteristique_tech' in updatePayload;
+
+    if (textFieldsChanged) {
+      await persistTranslationsForRow({
+        table: 'produit',
+        idColumn: 'id_produit',
+        idValue: productId,
+        context: 'product',
+        fields: [
+          { key: 'nom', value: updatedProduct.nom, format: 'plain' },
+          {
+            key: 'description',
+            value: updatedProduct.description ?? null,
+            format: 'plain',
+          },
+          {
+            key: 'caracteristique_tech',
+            value:
+              (updatedProduct.caracteristique_tech as Record<string, string> | null) ??
+              null,
+            format: 'key-value-map',
+          },
+        ],
       });
     }
 

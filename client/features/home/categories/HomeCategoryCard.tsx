@@ -40,7 +40,7 @@ function HomeCategoryCardImage({ homeCategory }: HomeCategoryCardProps) {
       fill
       loading="lazy"
       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-      className="object-cover transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105"
+      className="object-contain p-4 transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105 sm:p-6"
       onError={() => {
         setHasImageLoadFailed(true)
       }}
@@ -66,12 +66,8 @@ export function HomeCategoryCard({ homeCategory }: HomeCategoryCardProps) {
         })}
       >
         <article>
-          <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+          <div className="relative aspect-[4/3] overflow-hidden bg-white">
             <HomeCategoryCardImage homeCategory={homeCategory} />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent"
-              aria-hidden="true"
-            />
           </div>
           <div className="p-4">
             <h3 className="heading-font min-h-[3rem] break-words text-base leading-snug text-brand-nav sm:text-lg">

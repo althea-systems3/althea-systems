@@ -17,6 +17,7 @@ import {
 } from '@/lib/categories/validation';
 import { FIRESTORE_IMAGES_CATEGORIES } from '@/lib/categories/constants';
 import { fetchCategoryImagesByIds } from '@/lib/admin/categoryImages';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 import type { Categorie, CategoryStatus } from '@/lib/supabase/types';
 
 type CategorySortBy = 'nom' | 'nombre_produits' | 'ordre_affiche';
@@ -365,6 +366,21 @@ export async function POST(request: NextRequest) {
       nom: category.nom,
     });
   }
+
+  await persistTranslationsForRow({
+    table: 'categorie',
+    idColumn: 'id_categorie',
+    idValue: category.id_categorie,
+    context: 'category',
+    fields: [
+      { key: 'nom', value: category.nom, format: 'plain' },
+      {
+        key: 'description',
+        value: category.description ?? null,
+        format: 'plain',
+      },
+    ],
+  });
 
   return NextResponse.json({ category }, { status: 201 });
 }
