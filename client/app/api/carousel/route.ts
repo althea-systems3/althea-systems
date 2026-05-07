@@ -3,6 +3,11 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getFirestoreClient } from "@/lib/firebase/admin"
 import { FIRESTORE_IMAGES_CARROUSEL } from "@/lib/carousel/constants"
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
+import type { AppLocale } from "@/lib/i18n"
 import type { Carrousel } from "@/lib/supabase/types"
 import type { CarouselSlide } from "@/features/home/carousel/carouselTypes"
 
@@ -67,7 +72,9 @@ async function fetchActiveSlides(): Promise<Carrousel[] | null> {
 
   const { data, error } = await supabaseAdmin
     .from("carrousel")
-    .select("id_slide, titre, texte, lien_redirection, ordre, actif, image_url")
+    .select(
+      "id_slide, titre, texte, lien_redirection, ordre, actif, image_url, source_locale, traductions",
+    )
     .eq("actif", true)
     .order("ordre", { ascending: true })
 
@@ -109,25 +116,35 @@ async function fetchSlideImages(
 
 function mapToCarouselSlide(
   slide: Carrousel,
-  imageDoc?: FirestoreImageDoc,
+  imageDoc: FirestoreImageDoc | undefined,
+  locale: AppLocale,
 ): CarouselSlide {
   const imageDesktopUrl = imageDoc?.image_desktop_url ?? slide.image_url ?? ""
   const imageMobileUrl = imageDoc?.image_mobile_url ?? imageDesktopUrl
+  const localizedTitle = pickLocalizedString(slide, "titre", locale, slide.titre)
+  const localizedText = pickLocalizedString(
+    slide,
+    "texte",
+    locale,
+    slide.texte ?? "",
+  )
 
   return {
     id: slide.id_slide,
     imageUrl: imageDesktopUrl,
     imageDesktopUrl,
     imageMobileUrl,
-    imageAlt: slide.titre,
-    title: slide.titre,
-    description: slide.texte ?? "",
+    imageAlt: localizedTitle,
+    title: localizedTitle,
+    description: localizedText ?? "",
     ctaLabel: "Découvrir",
     redirectUrl: slide.lien_redirection ?? "/",
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const locale = getRequestLocale(request)
+
   try {
     if (!hasRequiredConfig()) {
       return createFallbackResponse()
@@ -147,7 +164,7 @@ export async function GET() {
     const imageMap = await fetchSlideImages(slideIds)
 
     const slides = activeSlides.map((slide) => {
-      return mapToCarouselSlide(slide, imageMap.get(slide.id_slide))
+      return mapToCarouselSlide(slide, imageMap.get(slide.id_slide), locale)
     })
 
     return NextResponse.json({ slides, isFallbackData: false })

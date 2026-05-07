@@ -3,6 +3,11 @@ import { NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { getFirestoreClient } from "@/lib/firebase/admin"
 import { FIRESTORE_IMAGES_PRODUITS } from "@/lib/top-produits/constants"
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from "@/lib/translation/pickLocalized"
+import type { AppLocale } from "@/lib/i18n"
 import type { Produit } from "@/lib/supabase/types"
 
 type HomeTopProductPayload = {
@@ -15,9 +20,26 @@ type HomeTopProductPayload = {
   isAvailable: boolean
 }
 
+type FirestoreImageEntry = {
+  url: string
+  est_principale?: boolean
+}
+
 type FirestoreImageDoc = {
   produit_id: string
-  image_url: string
+  image_url?: string
+  images?: FirestoreImageEntry[]
+}
+
+function extractMainImageUrl(imageDoc: FirestoreImageDoc): string | null {
+  if (Array.isArray(imageDoc.images) && imageDoc.images.length > 0) {
+    const main = imageDoc.images.find((img) => img.est_principale === true)
+    return main?.url ?? imageDoc.images[0]?.url ?? null
+  }
+  if (typeof imageDoc.image_url === "string" && imageDoc.image_url.length > 0) {
+    return imageDoc.image_url
+  }
+  return null
 }
 
 type TopProduitRow = Produit
@@ -97,13 +119,14 @@ async function fetchProductImages(
 function mapToPayload(
   product: TopProduitRow,
   fallbackOrder: number,
-  imageDoc?: FirestoreImageDoc,
+  imageDoc: FirestoreImageDoc | undefined,
+  locale: AppLocale,
 ): HomeTopProductPayload {
-  const imageUrl = imageDoc?.image_url ?? null
+  const imageUrl = imageDoc ? extractMainImageUrl(imageDoc) : null
 
   return {
     id: product.id_produit,
-    name: product.nom,
+    name: pickLocalizedString(product, "nom", locale, product.nom),
     slug: product.slug,
     imageUrl,
     price: Number.isFinite(Number(product.prix_ttc))
@@ -114,7 +137,9 @@ function mapToPayload(
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const locale = getRequestLocale(request)
+
   try {
     if (!hasRequiredConfig()) {
       return createFallbackResponse()
@@ -125,7 +150,7 @@ export async function GET() {
     const { data: rawTopProducts, error } = await supabaseAdmin
       .from("produit")
       .select(
-        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut, est_top_produit",
+        "id_produit, nom, slug, prix_ttc, quantite_stock, priorite, statut, est_top_produit, source_locale, traductions",
       )
       .eq("est_top_produit", true)
       .eq("statut", "publie")
@@ -149,7 +174,12 @@ export async function GET() {
     const imageMap = await fetchProductImages(productIds)
 
     const payload = products.map((product, index) => {
-      return mapToPayload(product, index + 1, imageMap.get(product.id_produit))
+      return mapToPayload(
+        product,
+        index + 1,
+        imageMap.get(product.id_produit),
+        locale,
+      )
     })
 
     return NextResponse.json({

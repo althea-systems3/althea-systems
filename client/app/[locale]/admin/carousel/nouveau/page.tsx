@@ -1,5 +1,5 @@
-import { AdminCarouselFormPage } from "@/features/admin/carousel/AdminCarouselFormPage"
+import { redirect } from "next/navigation"
 
 export default function AdminCarouselCreateRoutePage() {
-  return <AdminCarouselFormPage mode="create" />
+  redirect("/admin/carousel")
 }

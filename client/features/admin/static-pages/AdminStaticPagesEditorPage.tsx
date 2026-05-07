@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { adminFetch } from "@/features/admin/adminApi"
+import { AdminTranslationCard } from "@/features/admin/translation/AdminTranslationCard"
 import { locales, type AppLocale } from "@/lib/i18n"
 import {
   STATIC_PAGE_SLUGS,
@@ -74,6 +75,27 @@ export function AdminStaticPagesEditorPage({
   const defaultPreview = useMemo(
     () => STATIC_PAGE_DEFAULTS[selectedSlug],
     [selectedSlug],
+  )
+
+  const staticPageTranslationFields = useMemo(
+    () => [
+      {
+        key: "titre",
+        value: title,
+        format: "plain" as const,
+      },
+      {
+        key: "description",
+        value: description.length > 0 ? description : null,
+        format: "plain" as const,
+      },
+      {
+        key: "contenu_markdown",
+        value: contentMarkdown,
+        format: "markdown" as const,
+      },
+    ],
+    [title, description, contentMarkdown],
   )
 
   useEffect(() => {
@@ -315,6 +337,12 @@ export function AdminStaticPagesEditorPage({
               placeholder="## Titre\nParagraphe..."
             />
           </label>
+
+          <AdminTranslationCard
+            context="page"
+            fields={staticPageTranslationFields}
+            helperText="A la sauvegarde, les autres langues sont generees et enregistrees automatiquement (1 ligne par locale)."
+          />
 
           <div className="flex flex-wrap items-center gap-3">
             <Button

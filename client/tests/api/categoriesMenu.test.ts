@@ -51,7 +51,9 @@ describe('GET /api/categories/menu', () => {
       { nom: 'Audio Pro', slug: 'audio-pro', ordre_affiche: 1, image_url: null },
       { nom: 'Réseau', slug: 'reseau', ordre_affiche: 2, image_url: '/img.png' },
     ]);
-    expect(mockSelect).toHaveBeenCalledWith('id_categorie, nom, slug, ordre_affiche, image_url');
+    expect(mockSelect).toHaveBeenCalledWith(
+      'id_categorie, nom, slug, ordre_affiche, image_url, source_locale, traductions',
+    );
     expect(mockEq).toHaveBeenCalledWith('statut', 'active');
   });
 

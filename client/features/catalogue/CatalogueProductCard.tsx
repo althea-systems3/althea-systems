@@ -48,7 +48,7 @@ function CatalogueProductCardImage({
       loading={shouldPrioritizeLoading ? undefined : "lazy"}
       sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
       className={cn(
-        "object-cover transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105",
+        "object-contain p-3 transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105 sm:p-4",
         !product.isAvailable && "grayscale",
       )}
       onError={() => setHasImageLoadFailed(true)}
@@ -105,14 +105,10 @@ export function CatalogueProductCard({
         })}
       >
         <article>
-          <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+          <div className="relative aspect-[4/3] overflow-hidden bg-white">
             <CatalogueProductCardImage
               product={product}
               shouldPrioritizeLoading={shouldPrioritizeLoading}
-            />
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-transparent"
-              aria-hidden="true"
             />
           </div>
 

@@ -4,6 +4,11 @@ export type AdminCarouselSortBy = "titre" | "ordre" | "actif"
 
 export type AdminCarouselSortDirection = "asc" | "desc"
 
+export type AdminCarouselTraductions = Record<
+  string,
+  Record<string, string | Record<string, string> | null>
+>
+
 export type AdminCarousel = {
   id_slide: string
   titre: string
@@ -12,6 +17,8 @@ export type AdminCarousel = {
   ordre: number
   actif: boolean
   image_url: string | null
+  source_locale?: string | null
+  traductions?: AdminCarouselTraductions | null
 }
 
 export type AdminCarouselsFilters = {

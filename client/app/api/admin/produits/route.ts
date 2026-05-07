@@ -30,6 +30,7 @@ import {
 import { getCurrentUser } from '@/lib/auth/session';
 import { logAdminActivity } from '@/lib/firebase/logActivity';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 
 type ProductStatus = 'publie' | 'brouillon';
 type ProductAvailability = 'all' | 'in_stock' | 'out_of_stock';
@@ -616,6 +617,28 @@ export async function POST(request: Request) {
       });
     }
 
+    const translationResult = await persistTranslationsForRow({
+      table: 'produit',
+      idColumn: 'id_produit',
+      idValue: createdProduct.id_produit,
+      context: 'product',
+      fields: [
+        { key: 'nom', value: createdProduct.nom, format: 'plain' },
+        {
+          key: 'description',
+          value: createdProduct.description ?? null,
+          format: 'plain',
+        },
+        {
+          key: 'caracteristique_tech',
+          value:
+            (createdProduct.caracteristique_tech as Record<string, string> | null) ??
+            null,
+          format: 'key-value-map',
+        },
+      ],
+    });
+
     return NextResponse.json(
       {
         product: {
@@ -624,6 +647,8 @@ export async function POST(request: Request) {
           prix_ht: roundToTwoDecimals(Number(createdProduct.prix_ht ?? 0)),
           prix_ttc: roundToTwoDecimals(Number(createdProduct.prix_ttc ?? 0)),
           date_creation: extractProductCreatedAt(createdProduct),
+          source_locale: translationResult?.detectedSourceLocale ?? 'fr',
+          traductions: translationResult?.translations ?? {},
         },
       },
       { status: 201 },

@@ -14,6 +14,7 @@ import {
   type ChangeEvent,
   type FormEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react"
@@ -48,6 +49,8 @@ import {
   getCategoryImageAlt,
   mapCategoryStatusUi,
 } from "./adminCategoriesUtils"
+import { AdminTranslationCard } from "@/features/admin/translation/AdminTranslationCard"
+import { isAppLocale, type AppLocale } from "@/lib/i18n"
 
 type AdminCategoryFormPageProps = {
   mode: "create" | "edit"
@@ -120,12 +123,34 @@ export function AdminCategoryFormPage({
     string | null
   >(null)
 
+  const [categorySourceLocale, setCategorySourceLocale] =
+    useState<AppLocale | null>(null)
+  const [categoryTranslations, setCategoryTranslations] = useState<
+    Record<string, Record<string, string | Record<string, string> | null>>
+  >({})
+
   const pendingPreviewRef = useRef<string | null>(null)
 
   const pageTitle = isEditMode ? "Édition catégorie" : "Nouvelle catégorie"
   const pageDescription = isEditMode
     ? "Modifiez les informations de la catégorie et son image."
     : "Créez une catégorie avec son statut, son slug et son image."
+
+  const categoryTranslationFields = useMemo(
+    () => [
+      {
+        key: "nom",
+        value: formValues.nom,
+        format: "plain" as const,
+      },
+      {
+        key: "description",
+        value: formValues.description.length > 0 ? formValues.description : null,
+        format: "plain" as const,
+      },
+    ],
+    [formValues.nom, formValues.description],
+  )
 
   useEffect(() => {
     pendingPreviewRef.current = pendingImagePreviewUrl
@@ -156,6 +181,13 @@ export function AdminCategoryFormPage({
 
           setFormValues(mapCategoryToFormValues(payload.category))
           setIsSlugManuallyEdited(true)
+          if (
+            payload.category.source_locale &&
+            isAppLocale(payload.category.source_locale)
+          ) {
+            setCategorySourceLocale(payload.category.source_locale)
+          }
+          setCategoryTranslations(payload.category.traductions ?? {})
         } else {
           setFormValues(createDefaultFormValues())
           setIsSlugManuallyEdited(false)
@@ -643,6 +675,18 @@ export function AdminCategoryFormPage({
               </div>
             </CardContent>
           </Card>
+
+          <AdminTranslationCard
+            context="category"
+            fields={categoryTranslationFields}
+            initialSourceLocale={categorySourceLocale}
+            initialTranslations={categoryTranslations}
+            helperText="A la sauvegarde, les autres langues sont generees automatiquement. Bouton « Re-traduire » pour rafraichir."
+            onTranslated={({ detectedSourceLocale, translations }) => {
+              setCategorySourceLocale(detectedSourceLocale)
+              setCategoryTranslations(translations)
+            }}
+          />
 
           <div className="sticky bottom-4 z-10 rounded-xl border border-border bg-white/95 p-3 shadow-sm backdrop-blur">
             <div className="flex justify-end">

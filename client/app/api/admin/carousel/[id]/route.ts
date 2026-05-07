@@ -13,6 +13,7 @@ import {
   FIRESTORE_IMAGES_CARROUSEL,
   CAROUSEL_STORAGE_PATH,
 } from '@/lib/carousel/constants';
+import { persistTranslationsForRow } from '@/lib/translation/persistTranslations';
 import type { Carrousel } from '@/lib/supabase/types';
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -155,6 +156,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       'carousel.update',
       { slideId: id, updatedFields: Object.keys(updateFields) },
     );
+  }
+
+  const textFieldsChanged = 'titre' in updateFields || 'texte' in updateFields;
+
+  if (textFieldsChanged) {
+    await persistTranslationsForRow({
+      table: 'carrousel',
+      idColumn: 'id_slide',
+      idValue: id,
+      context: 'carousel-slide',
+      fields: [
+        { key: 'titre', value: slide.titre, format: 'plain' },
+        { key: 'texte', value: slide.texte ?? null, format: 'plain' },
+      ],
+    });
   }
 
   return NextResponse.json({ slide });

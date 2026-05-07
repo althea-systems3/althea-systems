@@ -7,6 +7,16 @@ export type PaymentStatus = "valide" | "en_attente" | "echoue" | "rembourse"
 export type InvoiceStatus = "payee" | "en_attente" | "annule"
 export type CreditNoteReason = "annulation" | "remboursement" | "erreur"
 
+export type EntityTraductions = Record<
+  string,
+  Record<string, string | Record<string, string> | null>
+>
+
+export type EntityLocaleSource = {
+  source_locale?: string | null
+  traductions?: EntityTraductions | null
+}
+
 export interface Utilisateur {
   id_utilisateur: string
   email: string
@@ -24,7 +34,7 @@ export interface Utilisateur {
   langue_preferee: string
 }
 
-export interface Categorie {
+export interface Categorie extends EntityLocaleSource {
   id_categorie: string
   nom: string
   description: string | null
@@ -34,7 +44,7 @@ export interface Categorie {
   image_url: string | null
 }
 
-export interface Produit {
+export interface Produit extends EntityLocaleSource {
   id_produit: string
   nom: string
   description: string | null
@@ -50,7 +60,7 @@ export interface Produit {
   est_nouveau: boolean
 }
 
-export interface Carrousel {
+export interface Carrousel extends EntityLocaleSource {
   id_slide: string
   titre: string
   texte: string | null

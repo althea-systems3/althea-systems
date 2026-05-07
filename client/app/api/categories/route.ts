@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getFirestoreClient } from '@/lib/firebase/admin';
 import { FIRESTORE_IMAGES_CATEGORIES } from '@/lib/categories/constants';
+import {
+  getRequestLocale,
+  pickLocalizedString,
+} from '@/lib/translation/pickLocalized';
+import type { AppLocale } from '@/lib/i18n';
 import type { Categorie } from '@/lib/supabase/types';
 
 type HomeCategoryPayload = {
@@ -88,17 +93,19 @@ async function fetchCategoryImages(
 
 function mapToPayload(
   category: Categorie,
-  imageDoc?: FirestoreImageDoc,
+  imageDoc: FirestoreImageDoc | undefined,
+  locale: AppLocale,
 ): HomeCategoryPayload {
   return {
     id: category.id_categorie,
-    name: category.nom,
+    name: pickLocalizedString(category, 'nom', locale, category.nom),
     slug: category.slug,
     imageUrl: imageDoc?.image_url ?? category.image_url,
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const locale = getRequestLocale(request);
   try {
     if (!hasRequiredConfig()) {
       return createFallbackResponse();
@@ -108,7 +115,9 @@ export async function GET() {
 
     const { data: rawCategories, error } = await supabaseAdmin
       .from('categorie')
-      .select('id_categorie, nom, slug, image_url, ordre_affiche, statut')
+      .select(
+        'id_categorie, nom, slug, image_url, ordre_affiche, statut, source_locale, traductions',
+      )
       .eq('statut', 'active')
       .order('ordre_affiche', { ascending: true });
 
@@ -130,7 +139,7 @@ export async function GET() {
     const imageMap = await fetchCategoryImages(categoryIds);
 
     const payload = categories.map((category) => {
-      return mapToPayload(category, imageMap.get(category.id_categorie));
+      return mapToPayload(category, imageMap.get(category.id_categorie), locale);
     });
 
     return NextResponse.json({
