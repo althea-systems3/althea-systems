@@ -72,14 +72,30 @@ export function pickLocalizedRecord(
   return value as Record<string, string>
 }
 
-export function getRequestLocale(request: Request): AppLocale {
-  const url = new URL(request.url)
-  const queryLocale = url.searchParams.get("locale")
-  if (queryLocale && isAppLocale(queryLocale)) {
-    return queryLocale
+export function getRequestLocale(request?: Request | null): AppLocale {
+  if (!request) {
+    return toAppLocale(null)
   }
 
-  const referer = request.headers.get("referer")
+  const rawUrl = typeof request.url === "string" ? request.url : null
+  if (rawUrl) {
+    try {
+      const url = new URL(rawUrl)
+      const queryLocale = url.searchParams.get("locale")
+      if (queryLocale && isAppLocale(queryLocale)) {
+        return queryLocale
+      }
+    } catch {
+      // ignore — fall through to header-based detection
+    }
+  }
+
+  const headers =
+    request.headers && typeof request.headers.get === "function"
+      ? request.headers
+      : null
+
+  const referer = headers?.get("referer") ?? null
   if (referer) {
     try {
       const refererUrl = new URL(referer)
@@ -92,7 +108,7 @@ export function getRequestLocale(request: Request): AppLocale {
     }
   }
 
-  const acceptLanguage = request.headers.get("accept-language")
+  const acceptLanguage = headers?.get("accept-language") ?? null
   if (acceptLanguage) {
     const primary = acceptLanguage.split(",")[0]?.trim().split("-")[0]
     if (primary && isAppLocale(primary)) {
