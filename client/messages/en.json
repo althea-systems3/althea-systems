@@ -59,6 +59,9 @@
   "Layout": {
     "search": "Search",
     "searchPlaceholder": "Search for a product or category...",
+    "searchSuggestionsLoading": "Searching...",
+    "searchSuggestionsEmpty": "No product found",
+    "searchSuggestionsViewAll": "View all results",
     "cart": "Open cart",
     "menu": "Menu",
     "openMenu": "Open menu",

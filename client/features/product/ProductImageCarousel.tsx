@@ -86,7 +86,7 @@ export function ProductImageCarousel({
   return (
     <section aria-label={t("gallery.sectionLabel")} className="space-y-3">
       <div
-        className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-100"
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border/60 bg-white p-4 shadow-sm sm:p-6"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -101,7 +101,7 @@ export function ProductImageCarousel({
             priority={activeIndex === 0}
             loading={activeIndex === 0 ? undefined : "lazy"}
             sizes="(max-width: 1024px) 100vw, 58vw"
-            className="object-cover"
+            className="object-contain p-2"
           />
         ) : (
           <div
@@ -167,7 +167,7 @@ export function ProductImageCarousel({
                   aria-label={t("gallery.goToImage", { index: index + 1 })}
                   onClick={() => setActiveIndex(index)}
                   className={cn(
-                    "relative h-14 w-14 overflow-hidden rounded-md border transition-all",
+                    "relative h-14 w-14 overflow-hidden rounded-md border bg-white p-1 transition-all",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cta focus-visible:ring-offset-2",
                     isActive
                       ? "border-brand-cta ring-1 ring-brand-cta"
@@ -186,7 +186,7 @@ export function ProductImageCarousel({
                     fill
                     loading="lazy"
                     sizes="56px"
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </button>
               )
