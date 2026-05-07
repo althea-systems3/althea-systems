@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import {
   Info,
   Languages,
+  Loader2,
   LogIn,
   LogOut,
   Menu,
@@ -17,6 +18,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react"
+import Image from "next/image"
 import type { ComponentType, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,7 +34,12 @@ import {
   type LayoutMenuItemKey,
   X_SOCIAL_URL,
 } from "@/features/layout/layoutConstants"
+import {
+  formatCatalogueProductPrice,
+  getCatalogueProductPagePath,
+} from "@/features/catalogue/catalogueUtils"
 import { SEARCH_PAGE_PATH } from "@/features/search/searchConstants"
+import { useSearchSuggestions } from "@/features/search/useSearchSuggestions"
 import { useMainLayoutState } from "@/features/layout/useMainLayoutState"
 import { Link, usePathname, useRouter } from "@/i18n/navigation"
 import {
@@ -95,6 +102,37 @@ export function MainLayout({ children }: MainLayoutProps) {
     currentPathname === "/admin" || currentPathname.startsWith("/admin/")
 
   const [globalSearchValue, setGlobalSearchValue] = useState("")
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const searchContainerRef = useRef<HTMLFormElement | null>(null)
+
+  const trimmedSearchValue = globalSearchValue.trim()
+  const isSuggestionsEnabled = isSearchFocused && trimmedSearchValue.length >= 2
+
+  const { suggestions, isSuggestionsLoading } = useSearchSuggestions(
+    globalSearchValue,
+    isSuggestionsEnabled,
+  )
+
+  useEffect(() => {
+    if (!isSearchFocused) {
+      return
+    }
+
+    function handleDocumentMouseDown(mouseEvent: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(mouseEvent.target as Node)
+      ) {
+        setIsSearchFocused(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleDocumentMouseDown)
+
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentMouseDown)
+    }
+  }, [isSearchFocused])
 
   const {
     cartItemCount,
@@ -171,9 +209,18 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 md:grid-cols-[auto_1fr_auto] md:gap-4">
             <Link
               href="/"
-              className="text-base font-semibold tracking-tight text-brand-nav sm:text-lg"
+              className="flex items-center gap-2 text-base font-semibold tracking-tight text-brand-nav sm:text-lg"
             >
-              Althea Systems
+              <Image
+                src="/logo-althea.png"
+                alt=""
+                width={40}
+                height={40}
+                priority
+                className="h-9 w-9 sm:h-10 sm:w-10"
+                aria-hidden="true"
+              />
+              <span>Althea Systems</span>
             </Link>
 
             <div className="flex items-center justify-end gap-1 sm:gap-2 md:order-3">
@@ -233,8 +280,9 @@ export function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             <form
+              ref={searchContainerRef}
               role="search"
-              className="col-span-2 md:col-span-1 md:order-2"
+              className="relative col-span-2 md:col-span-1 md:order-2"
               onSubmit={handleGlobalSearchSubmit}
             >
               <label htmlFor="global-search" className="sr-only">
@@ -248,8 +296,18 @@ export function MainLayout({ children }: MainLayoutProps) {
                   onChange={(changeEvent) =>
                     setGlobalSearchValue(changeEvent.target.value)
                   }
+                  onFocus={() => setIsSearchFocused(true)}
+                  onKeyDown={(keyEvent) => {
+                    if (keyEvent.key === "Escape") {
+                      setIsSearchFocused(false)
+                    }
+                  }}
                   placeholder={translateLayout("searchPlaceholder")}
                   className="ps-9"
+                  autoComplete="off"
+                  aria-autocomplete="list"
+                  aria-expanded={isSuggestionsEnabled}
+                  aria-controls="global-search-suggestions"
                 />
                 <InputGroupAddon
                   align="inline-start"
@@ -258,6 +316,76 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <Search className="size-4" aria-hidden="true" />
                 </InputGroupAddon>
               </InputGroup>
+
+              {isSuggestionsEnabled ? (
+                <div
+                  id="global-search-suggestions"
+                  role="listbox"
+                  className="absolute inset-x-0 top-full z-30 mt-1 max-h-[60vh] overflow-auto rounded-lg border border-border bg-white shadow-xl"
+                >
+                  {isSuggestionsLoading && suggestions.length === 0 ? (
+                    <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
+                      <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                      {translateLayout("searchSuggestionsLoading")}
+                    </div>
+                  ) : suggestions.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-slate-500">
+                      {translateLayout("searchSuggestionsEmpty")}
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {suggestions.map((suggestion) => (
+                        <li key={suggestion.id} role="option" aria-selected="false">
+                          <Link
+                            href={getCatalogueProductPagePath(suggestion.slug)}
+                            className="flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-slate-50"
+                            onClick={() => {
+                              setIsSearchFocused(false)
+                              setGlobalSearchValue("")
+                            }}
+                          >
+                            {suggestion.imageUrl ? (
+                              <span className="relative h-10 w-10 flex-none overflow-hidden rounded-md border border-border">
+                                <Image
+                                  src={suggestion.imageUrl}
+                                  alt=""
+                                  fill
+                                  sizes="40px"
+                                  className="object-cover"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            ) : (
+                              <span className="h-10 w-10 flex-none rounded-md border border-border bg-slate-100" />
+                            )}
+                            <span className="flex min-w-0 flex-1 flex-col">
+                              <span className="truncate text-sm font-medium text-brand-nav">
+                                {suggestion.name}
+                              </span>
+                              {suggestion.priceTtc !== null ? (
+                                <span className="text-xs text-slate-500">
+                                  {formatCatalogueProductPrice(
+                                    suggestion.priceTtc,
+                                    activeLocale,
+                                  )}
+                                </span>
+                              ) : null}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <Link
+                    href={`${SEARCH_PAGE_PATH}?q=${encodeURIComponent(trimmedSearchValue)}`}
+                    onClick={() => setIsSearchFocused(false)}
+                    className="block border-t border-border bg-slate-50 px-4 py-2.5 text-center text-sm font-medium text-brand-cta hover:bg-slate-100"
+                  >
+                    {translateLayout("searchSuggestionsViewAll")} →
+                  </Link>
+                </div>
+              ) : null}
             </form>
           </div>
         </div>
