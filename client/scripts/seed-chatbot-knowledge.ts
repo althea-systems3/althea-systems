@@ -1,14 +1,16 @@
 /**
  * Script de seed de la base de connaissances du chatbot IA.
  *
- * Usage :
- *   npx ts-node --project tsconfig.json scripts/seed-chatbot-knowledge.ts
+ * Exécuter depuis client/ :
+ *   npx tsx scripts/seed-chatbot-knowledge.ts
  *
- * Variables d'environnement requises :
- *   NEXT_PUBLIC_FIREBASE_PROJECT_ID
- *   FIREBASE_CLIENT_EMAIL
- *   FIREBASE_PRIVATE_KEY
+ * Nécessite les variables d'environnement Firebase dans .env.local
  */
+
+import { config } from "dotenv"
+import { resolve } from "path"
+
+config({ path: resolve(__dirname, "../.env.local") })
 
 import admin from "firebase-admin"
 
