@@ -175,6 +175,88 @@ function extractRetryAfterSeconds(error: unknown): number | null {
   return null
 }
 
+async function callGeminiOnce(
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<string> {
+  const client = getClient()
+  try {
+    const response = await Promise.race([
+      client.models.generateContent({
+        model: TRANSLATION_MODEL,
+        contents: userPrompt,
+        config: {
+          systemInstruction: systemPrompt,
+          temperature: 0.2,
+          maxOutputTokens: 32768,
+          responseMimeType: "application/json",
+        },
+      }),
+      new Promise<never>((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Translation request timed out")),
+          TRANSLATION_TIMEOUT_MS,
+        )
+      }),
+    ])
+
+    return response.text ?? ""
+  } catch (error) {
+    if (isRateLimitError(error)) {
+      throw new TranslationRateLimitError(extractRetryAfterSeconds(error))
+    }
+    throw error
+  }
+}
+
+function parseTranslationResponse(rawContent: string):
+  | { ok: true; data: z.infer<typeof TRANSLATION_RESPONSE_SCHEMA> }
+  | { ok: false; reason: string } {
+  if (!rawContent) {
+    return { ok: false, reason: "empty" }
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(rawContent)
+  } catch {
+    return { ok: false, reason: "non-json" }
+  }
+
+  const validated = TRANSLATION_RESPONSE_SCHEMA.safeParse(parsed)
+  if (!validated.success) {
+    return { ok: false, reason: "bad-shape" }
+  }
+
+  return { ok: true, data: validated.data }
+}
+
+async function translateForSingleLocale(
+  request: TranslationRequest,
+  trimmedFields: TranslatableField[],
+  targetLocale: AppLocale,
+): Promise<TranslationResult> {
+  const systemPrompt = buildSystemPrompt(request.context)
+  const userPrompt = buildUserPrompt(trimmedFields, [targetLocale])
+
+  const rawContent = await callGeminiOnce(systemPrompt, userPrompt)
+  const parsed = parseTranslationResponse(rawContent)
+  if (!parsed.ok) {
+    console.warn("Reponse Gemini invalide (single-locale)", {
+      reason: parsed.reason,
+      targetLocale,
+      contextHint: request.context,
+      rawSnippet: rawContent.slice(0, 200),
+    })
+    throw new Error(`Reponse Gemini ${parsed.reason} (single-locale).`)
+  }
+
+  return {
+    detectedSourceLocale: parsed.data.detected_source_locale,
+    translations: parsed.data.translations as TranslationResult["translations"],
+  }
+}
+
 export async function translateContent(
   request: TranslationRequest,
 ): Promise<TranslationResult> {
@@ -196,68 +278,66 @@ export async function translateContent(
       ? request.targetLocales
       : Array.from(locales)
 
-  const client = getClient()
   const systemPrompt = buildSystemPrompt(request.context)
   const userPrompt = buildUserPrompt(trimmedFields, targetLocales)
 
-  let rawContent: string
-  try {
-    const response = await Promise.race([
-      client.models.generateContent({
-        model: TRANSLATION_MODEL,
-        contents: userPrompt,
-        config: {
-          systemInstruction: systemPrompt,
-          temperature: 0.2,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json",
-        },
-      }),
-      new Promise<never>((_, reject) => {
-        setTimeout(
-          () => reject(new Error("Translation request timed out")),
-          TRANSLATION_TIMEOUT_MS,
-        )
-      }),
-    ])
+  // Premier essai : tout traduire en un seul appel (rapide)
+  const rawContent = await callGeminiOnce(systemPrompt, userPrompt)
+  const parsed = parseTranslationResponse(rawContent)
 
-    rawContent = response.text ?? ""
-  } catch (error) {
-    if (isRateLimitError(error)) {
-      throw new TranslationRateLimitError(extractRetryAfterSeconds(error))
+  if (parsed.ok) {
+    const detectedSource = parsed.data.detected_source_locale
+    const allowedTargets = new Set<string>(
+      targetLocales.filter((locale) => locale !== detectedSource),
+    )
+    const filteredTranslations: TranslationResult["translations"] = {}
+
+    for (const [locale, fieldsMap] of Object.entries(parsed.data.translations)) {
+      if (!isAppLocale(locale)) continue
+      if (!allowedTargets.has(locale)) continue
+      filteredTranslations[locale] = fieldsMap
     }
-    throw error
+
+    return {
+      detectedSourceLocale: detectedSource,
+      translations: filteredTranslations,
+    }
   }
 
-  if (!rawContent) {
-    throw new Error("Reponse Gemini vide.")
-  }
+  console.warn("Reponse Gemini invalide (multi-locale), fallback per-locale", {
+    reason: parsed.reason,
+    contextHint: request.context,
+    targetLocales,
+    rawSnippet: rawContent.slice(0, 200),
+  })
 
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(rawContent)
-  } catch {
-    throw new Error("Reponse Gemini non-JSON.")
-  }
-
-  const validated = TRANSLATION_RESPONSE_SCHEMA.safeParse(parsed)
-  if (!validated.success) {
-    throw new Error("Reponse Gemini au mauvais format.")
-  }
-
-  const detectedSource = validated.data.detected_source_locale
-  const allowedTargets = new Set<string>(
-    targetLocales.filter((locale) => locale !== detectedSource),
+  // Fallback : 1 appel par langue cible (reponses plus petites, moins de risque de truncation)
+  const perLocaleResults = await Promise.allSettled(
+    targetLocales.map((locale) =>
+      translateForSingleLocale(request, trimmedFields, locale),
+    ),
   )
+
+  let detectedSource: AppLocale = "fr"
   const filteredTranslations: TranslationResult["translations"] = {}
 
-  for (const [locale, fieldsMap] of Object.entries(
-    validated.data.translations,
-  )) {
-    if (!isAppLocale(locale)) continue
-    if (!allowedTargets.has(locale)) continue
-    filteredTranslations[locale] = fieldsMap
+  perLocaleResults.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      detectedSource = result.value.detectedSourceLocale
+      const localeKey = targetLocales[index]
+      const localeData = result.value.translations[localeKey]
+      if (localeData) {
+        filteredTranslations[localeKey] = localeData
+      }
+    }
+  })
+
+  if (Object.keys(filteredTranslations).length === 0) {
+    throw new Error("Reponse Gemini non-JSON sur tous les fallbacks per-locale.")
   }
+
+  // Filtrer la langue source detectee
+  delete filteredTranslations[detectedSource]
 
   return {
     detectedSourceLocale: detectedSource,
