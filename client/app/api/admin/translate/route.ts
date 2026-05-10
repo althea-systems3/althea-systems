@@ -8,6 +8,8 @@ import {
   type TranslationContext,
 } from "@/lib/translation/translateContent"
 
+export const maxDuration = 300
+
 const TRANSLATION_CONTEXTS = [
   "product",
   "category",
