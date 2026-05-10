@@ -30,6 +30,7 @@ import {
   CategorySalesPieChart,
   DailySalesBarChart,
 } from "@/features/admin/dashboard/DashboardCharts"
+import { AdminTranslationsBackfillCard } from "@/features/admin/translation/AdminTranslationsBackfillCard"
 
 type DashboardKpis = {
   ordersCount: number
@@ -294,6 +295,8 @@ export function AdminDashboardSection() {
           </div>
         </CardContent>
       </Card>
+
+      <AdminTranslationsBackfillCard />
 
       <section aria-labelledby="kpis-revenue">
         <h2

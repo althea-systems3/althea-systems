@@ -33,7 +33,6 @@ import {
   SearchEmptyState,
   SearchErrorState,
   SearchLoadingState,
-  SearchNoCriteriaState,
   SearchPartialDataNotice,
 } from "./SearchPageStates"
 import type {
@@ -46,7 +45,6 @@ import {
   buildSearchParamsFromFilters,
   getResetFilters,
   getSearchTextFields,
-  hasActiveSearchCriteria,
   parseSearchFilters,
 } from "./searchUtils"
 import { useAdvancedSearch } from "./useAdvancedSearch"
@@ -156,8 +154,6 @@ export function SearchPage() {
     hasSearchFacetsError,
   } = useSearchFacets()
 
-  const hasCriteria = hasActiveSearchCriteria(filters)
-
   const {
     products,
     pagination,
@@ -165,15 +161,11 @@ export function SearchPage() {
     isSearchRefreshing,
     hasSearchError,
     isPartialData,
-  } = useAdvancedSearch(filters, hasCriteria)
+  } = useAdvancedSearch(filters, true)
 
   const totalResultCount = pagination?.total ?? products.length
 
   const liveAnnouncement = useMemo(() => {
-    if (!hasCriteria) {
-      return t("announcements.noCriteria")
-    }
-
     if (isSearchLoading) {
       return t("announcements.loading")
     }
@@ -187,7 +179,7 @@ export function SearchPage() {
     }
 
     return t("announcements.results", { count: totalResultCount })
-  }, [hasCriteria, hasSearchError, isSearchLoading, t, totalResultCount])
+  }, [hasSearchError, isSearchLoading, t, totalResultCount])
 
   const categoryNameById = useMemo(() => {
     return new Map(categories.map((category) => [category.id, category.name]))
@@ -826,25 +818,15 @@ export function SearchPage() {
 
           {isPartialData ? <SearchPartialDataNotice /> : null}
 
-          {!hasCriteria ? <SearchNoCriteriaState /> : null}
+          {isSearchLoading ? <SearchLoadingState /> : null}
 
-          {hasCriteria && isSearchLoading ? <SearchLoadingState /> : null}
+          {!isSearchLoading && hasSearchError ? <SearchErrorState /> : null}
 
-          {hasCriteria && !isSearchLoading && hasSearchError ? (
-            <SearchErrorState />
-          ) : null}
-
-          {hasCriteria &&
-          !isSearchLoading &&
-          !hasSearchError &&
-          totalResultCount === 0 ? (
+          {!isSearchLoading && !hasSearchError && totalResultCount === 0 ? (
             <SearchEmptyState />
           ) : null}
 
-          {hasCriteria &&
-          !isSearchLoading &&
-          !hasSearchError &&
-          products.length > 0 ? (
+          {!isSearchLoading && !hasSearchError && products.length > 0 ? (
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {products.map((product, index) => (
                 <CatalogueProductCard
@@ -863,7 +845,7 @@ export function SearchPage() {
             </ul>
           ) : null}
 
-          {hasCriteria && pagination && pagination.totalPages > 1 ? (
+          {pagination && pagination.totalPages > 1 ? (
             <nav
               aria-label={t("results.paginationLabel")}
               className="flex items-center justify-end gap-3"
