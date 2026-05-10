@@ -6,7 +6,7 @@ import { isAppLocale, locales, type AppLocale } from "@/lib/i18n"
 const TRANSLATION_MODEL =
   process.env.GROQ_TRANSLATION_MODEL ?? "llama-3.3-70b-versatile"
 
-const TRANSLATION_TIMEOUT_MS = 25_000
+const TRANSLATION_TIMEOUT_MS = 300_000
 
 export type TranslationContext =
   | "product"
