@@ -18,12 +18,23 @@ type BackfillStat = {
   translated: number
   skipped: number
   failed: number
+  rateLimited?: boolean
+  retryAfterSeconds?: number | null
 }
 
 type BackfillResponse = {
   target: string
   forceRetranslate: boolean
   stats: BackfillStat[]
+  rateLimited?: boolean
+  retryAfterSeconds?: number | null
+}
+
+function formatRetryDelay(seconds: number | null | undefined): string {
+  if (!seconds || seconds <= 0) return "quelques minutes"
+  if (seconds < 60) return `${seconds}s`
+  const mins = Math.ceil(seconds / 60)
+  return `${mins} min`
 }
 
 export function AdminTranslationsBackfillCard() {
@@ -112,6 +123,20 @@ export function AdminTranslationsBackfillCard() {
           <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
             {errorMessage}
           </p>
+        ) : null}
+
+        {lastResult?.rateLimited ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+            <p className="font-semibold">Quota Groq atteint</p>
+            <p className="mt-1">
+              Le backfill a ete interrompu. Limite quotidienne de tokens
+              depassee. Reessayez dans environ{" "}
+              <span className="font-medium">
+                {formatRetryDelay(lastResult.retryAfterSeconds)}
+              </span>
+              , ou passez au tier payant Groq pour eviter cette limite.
+            </p>
+          </div>
         ) : null}
 
         {lastResult ? (

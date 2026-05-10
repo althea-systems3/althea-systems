@@ -1,10 +1,10 @@
-import Groq from "groq-sdk"
+import { GoogleGenAI } from "@google/genai"
 import { z } from "zod"
 
 import { isAppLocale, locales, type AppLocale } from "@/lib/i18n"
 
 const TRANSLATION_MODEL =
-  process.env.GROQ_TRANSLATION_MODEL ?? "llama-3.3-70b-versatile"
+  process.env.GEMINI_TRANSLATION_MODEL ?? "gemini-2.0-flash"
 
 const TRANSLATION_TIMEOUT_MS = 300_000
 
@@ -34,15 +34,30 @@ export type TranslationResult = {
   translations: Record<string, Record<string, TranslatableFieldValue>>
 }
 
-let cachedClient: Groq | null = null
+export class TranslationRateLimitError extends Error {
+  retryAfterSeconds: number | null
+  constructor(retryAfterSeconds: number | null, message?: string) {
+    super(
+      message ??
+        `Quota Gemini atteint. Reessayez dans ${retryAfterSeconds ?? "?"}s.`,
+    )
+    this.name = "TranslationRateLimitError"
+    this.retryAfterSeconds = retryAfterSeconds
+  }
+}
 
-function getClient(): Groq {
+let cachedClient: GoogleGenAI | null = null
+
+function getClient(): GoogleGenAI {
   if (!cachedClient) {
-    const apiKey = process.env.GROQ_API_KEY
+    const apiKey =
+      process.env.GEMINI_API_KEY ?? process.env.GOOGLE_AI_API_KEY ?? null
     if (!apiKey) {
-      throw new Error("Variable d'environnement GROQ_API_KEY manquante.")
+      throw new Error(
+        "Variable d'environnement GEMINI_API_KEY (ou GOOGLE_AI_API_KEY) manquante.",
+      )
     }
-    cachedClient = new Groq({ apiKey })
+    cachedClient = new GoogleGenAI({ apiKey })
   }
   return cachedClient
 }
@@ -63,8 +78,7 @@ const CONTEXT_HINTS: Record<TranslationContext, string> = {
     "Tu traduis une fiche produit B2B medical. Garde les marques, references et numeros de modele tels quels (ex: 'MedPro', 'CE Classe IIa'). Conserve les unites (kg, mm, lux, bpm, %). Si une caracteristique technique est une cle/valeur, traduis les deux mais garde les valeurs numeriques inchangees.",
   category:
     "Tu traduis le nom et la description d'une categorie de produits B2B medicaux. Reste concis et professionnel.",
-  page:
-    "Tu traduis une page editoriale (CGU, mentions legales, a propos). Conserve la structure markdown (titres ##, gras **, italique *, liens [texte](url)). Ne traduis PAS les URLs (les liens internes restent identiques).",
+  page: "Tu traduis une page editoriale (CGU, mentions legales, a propos). Conserve la structure markdown (titres ##, gras **, italique *, liens [texte](url)). Ne traduis PAS les URLs (les liens internes restent identiques).",
   editorial:
     "Tu traduis un bloc editorial (texte d'accueil ou notice). Conserve la structure markdown.",
   "carousel-slide":
@@ -116,6 +130,51 @@ function buildUserPrompt(
   ].join("\n")
 }
 
+function isRateLimitError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false
+
+  const errObj = error as {
+    status?: number
+    statusCode?: number
+    code?: number | string
+    message?: string
+  }
+
+  if (errObj.status === 429 || errObj.statusCode === 429) return true
+  if (errObj.code === 429 || errObj.code === "429") return true
+
+  const msg = (errObj.message ?? "").toLowerCase()
+  return (
+    msg.includes("rate limit") ||
+    msg.includes("quota") ||
+    msg.includes("resource_exhausted") ||
+    msg.includes("too many requests")
+  )
+}
+
+function extractRetryAfterSeconds(error: unknown): number | null {
+  if (typeof error !== "object" || error === null) return null
+
+  const errObj = error as {
+    headers?: { get?: (key: string) => string | null }
+    message?: string
+  }
+
+  const headerValue = errObj.headers?.get?.("retry-after")
+  if (headerValue) {
+    const parsed = Number(headerValue)
+    if (Number.isFinite(parsed) && parsed > 0) return parsed
+  }
+
+  const msgMatch = errObj.message?.match(/retry.{0,15}?(\d+)\s*(s|sec|second|seconds)/i)
+  if (msgMatch) {
+    const parsed = Number(msgMatch[1])
+    if (Number.isFinite(parsed) && parsed > 0) return parsed
+  }
+
+  return null
+}
+
 export async function translateContent(
   request: TranslationRequest,
 ): Promise<TranslationResult> {
@@ -141,40 +200,49 @@ export async function translateContent(
   const systemPrompt = buildSystemPrompt(request.context)
   const userPrompt = buildUserPrompt(trimmedFields, targetLocales)
 
-  const completion = await Promise.race([
-    client.chat.completions.create({
-      model: TRANSLATION_MODEL,
-      response_format: { type: "json_object" },
-      temperature: 0.2,
-      max_tokens: 4096,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-    }),
-    new Promise<never>((_, reject) => {
-      setTimeout(
-        () => reject(new Error("Translation request timed out")),
-        TRANSLATION_TIMEOUT_MS,
-      )
-    }),
-  ])
+  let rawContent: string
+  try {
+    const response = await Promise.race([
+      client.models.generateContent({
+        model: TRANSLATION_MODEL,
+        contents: userPrompt,
+        config: {
+          systemInstruction: systemPrompt,
+          temperature: 0.2,
+          maxOutputTokens: 8192,
+          responseMimeType: "application/json",
+        },
+      }),
+      new Promise<never>((_, reject) => {
+        setTimeout(
+          () => reject(new Error("Translation request timed out")),
+          TRANSLATION_TIMEOUT_MS,
+        )
+      }),
+    ])
 
-  const rawContent = completion.choices[0]?.message?.content
+    rawContent = response.text ?? ""
+  } catch (error) {
+    if (isRateLimitError(error)) {
+      throw new TranslationRateLimitError(extractRetryAfterSeconds(error))
+    }
+    throw error
+  }
+
   if (!rawContent) {
-    throw new Error("Reponse Groq vide.")
+    throw new Error("Reponse Gemini vide.")
   }
 
   let parsed: unknown
   try {
     parsed = JSON.parse(rawContent)
   } catch {
-    throw new Error("Reponse Groq non-JSON.")
+    throw new Error("Reponse Gemini non-JSON.")
   }
 
   const validated = TRANSLATION_RESPONSE_SCHEMA.safeParse(parsed)
   if (!validated.success) {
-    throw new Error("Reponse Groq au mauvais format.")
+    throw new Error("Reponse Gemini au mauvais format.")
   }
 
   const detectedSource = validated.data.detected_source_locale

@@ -7,6 +7,7 @@ import {
   persistTranslationsAsPerLocaleRows,
   persistTranslationsForRow,
 } from "@/lib/translation/persistTranslations"
+import { TranslationRateLimitError } from "@/lib/translation/translateContent"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 300
@@ -31,6 +32,29 @@ type BackfillStat = {
   translated: number
   skipped: number
   failed: number
+  rateLimited?: boolean
+  retryAfterSeconds?: number | null
+}
+
+class BackfillRateLimit extends Error {
+  retryAfterSeconds: number | null
+  constructor(retryAfterSeconds: number | null) {
+    super("Quota Groq atteint pendant le backfill.")
+    this.retryAfterSeconds = retryAfterSeconds
+  }
+}
+
+async function runWithRateLimitGuard<T>(
+  callable: () => Promise<T>,
+): Promise<T | null> {
+  try {
+    return await callable()
+  } catch (error) {
+    if (error instanceof TranslationRateLimitError) {
+      throw new BackfillRateLimit(error.retryAfterSeconds)
+    }
+    throw error
+  }
 }
 
 async function backfillProducts(forceRetranslate: boolean): Promise<BackfillStat> {
@@ -70,31 +94,43 @@ async function backfillProducts(forceRetranslate: boolean): Promise<BackfillStat
       continue
     }
 
-    const result = await persistTranslationsForRow({
-      table: "produit",
-      idColumn: "id_produit",
-      idValue: row.id_produit,
-      context: "product",
-      fields: [
-        { key: "nom", value: row.nom, format: "plain" },
-        {
-          key: "description",
-          value: row.description ?? null,
-          format: "plain",
-        },
-        {
-          key: "caracteristique_tech",
-          value:
-            (row.caracteristique_tech as Record<string, string> | null) ?? null,
-          format: "key-value-map",
-        },
-      ],
-    })
+    try {
+      const result = await runWithRateLimitGuard(() =>
+        persistTranslationsForRow({
+          table: "produit",
+          idColumn: "id_produit",
+          idValue: row.id_produit,
+          context: "product",
+          fields: [
+            { key: "nom", value: row.nom, format: "plain" },
+            {
+              key: "description",
+              value: row.description ?? null,
+              format: "plain",
+            },
+            {
+              key: "caracteristique_tech",
+              value:
+                (row.caracteristique_tech as Record<string, string> | null) ??
+                null,
+              format: "key-value-map",
+            },
+          ],
+        }),
+      )
 
-    if (result) {
-      stats.translated += 1
-    } else {
-      stats.failed += 1
+      if (result) {
+        stats.translated += 1
+      } else {
+        stats.failed += 1
+      }
+    } catch (rateLimit) {
+      if (rateLimit instanceof BackfillRateLimit) {
+        stats.rateLimited = true
+        stats.retryAfterSeconds = rateLimit.retryAfterSeconds
+        break
+      }
+      throw rateLimit
     }
   }
 
@@ -137,25 +173,36 @@ async function backfillCategories(
       continue
     }
 
-    const result = await persistTranslationsForRow({
-      table: "categorie",
-      idColumn: "id_categorie",
-      idValue: row.id_categorie,
-      context: "category",
-      fields: [
-        { key: "nom", value: row.nom, format: "plain" },
-        {
-          key: "description",
-          value: row.description ?? null,
-          format: "plain",
-        },
-      ],
-    })
+    try {
+      const result = await runWithRateLimitGuard(() =>
+        persistTranslationsForRow({
+          table: "categorie",
+          idColumn: "id_categorie",
+          idValue: row.id_categorie,
+          context: "category",
+          fields: [
+            { key: "nom", value: row.nom, format: "plain" },
+            {
+              key: "description",
+              value: row.description ?? null,
+              format: "plain",
+            },
+          ],
+        }),
+      )
 
-    if (result) {
-      stats.translated += 1
-    } else {
-      stats.failed += 1
+      if (result) {
+        stats.translated += 1
+      } else {
+        stats.failed += 1
+      }
+    } catch (rateLimit) {
+      if (rateLimit instanceof BackfillRateLimit) {
+        stats.rateLimited = true
+        stats.retryAfterSeconds = rateLimit.retryAfterSeconds
+        break
+      }
+      throw rateLimit
     }
   }
 
@@ -198,21 +245,32 @@ async function backfillCarousel(
       continue
     }
 
-    const result = await persistTranslationsForRow({
-      table: "carrousel",
-      idColumn: "id_slide",
-      idValue: row.id_slide,
-      context: "carousel-slide",
-      fields: [
-        { key: "titre", value: row.titre, format: "plain" },
-        { key: "texte", value: row.texte ?? null, format: "plain" },
-      ],
-    })
+    try {
+      const result = await runWithRateLimitGuard(() =>
+        persistTranslationsForRow({
+          table: "carrousel",
+          idColumn: "id_slide",
+          idValue: row.id_slide,
+          context: "carousel-slide",
+          fields: [
+            { key: "titre", value: row.titre, format: "plain" },
+            { key: "texte", value: row.texte ?? null, format: "plain" },
+          ],
+        }),
+      )
 
-    if (result) {
-      stats.translated += 1
-    } else {
-      stats.failed += 1
+      if (result) {
+        stats.translated += 1
+      } else {
+        stats.failed += 1
+      }
+    } catch (rateLimit) {
+      if (rateLimit instanceof BackfillRateLimit) {
+        stats.rateLimited = true
+        stats.retryAfterSeconds = rateLimit.retryAfterSeconds
+        break
+      }
+      throw rateLimit
     }
   }
 
@@ -281,34 +339,45 @@ async function backfillStaticPages(
       continue
     }
 
-    const result = await persistTranslationsAsPerLocaleRows({
-      table: "page_statique",
-      slug,
-      context: "page",
-      fields: [
-        { key: "titre", value: sourceRow.titre, format: "plain" },
-        {
-          key: "description",
-          value: sourceRow.description ?? null,
-          format: "plain",
-        },
-        {
-          key: "contenu_markdown",
-          value: sourceRow.contenu_markdown,
-          format: "markdown",
-        },
-      ],
-      fieldKeysToColumns: {
-        titre: "titre",
-        description: "description",
-        contenu_markdown: "contenu_markdown",
-      },
-    })
+    try {
+      const result = await runWithRateLimitGuard(() =>
+        persistTranslationsAsPerLocaleRows({
+          table: "page_statique",
+          slug,
+          context: "page",
+          fields: [
+            { key: "titre", value: sourceRow.titre, format: "plain" },
+            {
+              key: "description",
+              value: sourceRow.description ?? null,
+              format: "plain",
+            },
+            {
+              key: "contenu_markdown",
+              value: sourceRow.contenu_markdown,
+              format: "markdown",
+            },
+          ],
+          fieldKeysToColumns: {
+            titre: "titre",
+            description: "description",
+            contenu_markdown: "contenu_markdown",
+          },
+        }),
+      )
 
-    if (result) {
-      stats.translated += 1
-    } else {
-      stats.failed += 1
+      if (result) {
+        stats.translated += 1
+      } else {
+        stats.failed += 1
+      }
+    } catch (rateLimit) {
+      if (rateLimit instanceof BackfillRateLimit) {
+        stats.rateLimited = true
+        stats.retryAfterSeconds = rateLimit.retryAfterSeconds
+        break
+      }
+      throw rateLimit
     }
   }
 
@@ -377,29 +446,40 @@ async function backfillEditorial(
       continue
     }
 
-    const result = await persistTranslationsAsPerLocaleRows({
-      table: "contenu_editorial",
-      slug,
-      context: "editorial",
-      fields: [
-        { key: "titre", value: sourceRow.titre, format: "plain" },
-        {
-          key: "contenu_markdown",
-          value: sourceRow.contenu_markdown,
-          format: "markdown",
-        },
-      ],
-      fieldKeysToColumns: {
-        titre: "titre",
-        contenu_markdown: "contenu_markdown",
-      },
-      extraColumns: { actif: sourceRow.actif ?? false },
-    })
+    try {
+      const result = await runWithRateLimitGuard(() =>
+        persistTranslationsAsPerLocaleRows({
+          table: "contenu_editorial",
+          slug,
+          context: "editorial",
+          fields: [
+            { key: "titre", value: sourceRow.titre, format: "plain" },
+            {
+              key: "contenu_markdown",
+              value: sourceRow.contenu_markdown,
+              format: "markdown",
+            },
+          ],
+          fieldKeysToColumns: {
+            titre: "titre",
+            contenu_markdown: "contenu_markdown",
+          },
+          extraColumns: { actif: sourceRow.actif ?? false },
+        }),
+      )
 
-    if (result) {
-      stats.translated += 1
-    } else {
-      stats.failed += 1
+      if (result) {
+        stats.translated += 1
+      } else {
+        stats.failed += 1
+      }
+    } catch (rateLimit) {
+      if (rateLimit instanceof BackfillRateLimit) {
+        stats.rateLimited = true
+        stats.retryAfterSeconds = rateLimit.retryAfterSeconds
+        break
+      }
+      throw rateLimit
     }
   }
 
@@ -430,22 +510,48 @@ export async function POST(request: NextRequest) {
   const { target, forceRetranslate } = parsed.data
 
   const stats: BackfillStat[] = []
+  let rateLimitedAt: number | null = null
 
+  const runners: { key: string; fn: () => Promise<BackfillStat> }[] = []
   if (target === "products" || target === "all") {
-    stats.push(await backfillProducts(forceRetranslate))
+    runners.push({ key: "products", fn: () => backfillProducts(forceRetranslate) })
   }
   if (target === "categories" || target === "all") {
-    stats.push(await backfillCategories(forceRetranslate))
+    runners.push({
+      key: "categories",
+      fn: () => backfillCategories(forceRetranslate),
+    })
   }
   if (target === "carousel" || target === "all") {
-    stats.push(await backfillCarousel(forceRetranslate))
+    runners.push({ key: "carousel", fn: () => backfillCarousel(forceRetranslate) })
   }
   if (target === "static-pages" || target === "all") {
-    stats.push(await backfillStaticPages(forceRetranslate))
+    runners.push({
+      key: "static-pages",
+      fn: () => backfillStaticPages(forceRetranslate),
+    })
   }
   if (target === "editorial" || target === "all") {
-    stats.push(await backfillEditorial(forceRetranslate))
+    runners.push({
+      key: "editorial",
+      fn: () => backfillEditorial(forceRetranslate),
+    })
   }
 
-  return NextResponse.json({ target, forceRetranslate, stats })
+  for (const runner of runners) {
+    const stat = await runner.fn()
+    stats.push(stat)
+    if (stat.rateLimited) {
+      rateLimitedAt = stat.retryAfterSeconds ?? null
+      break
+    }
+  }
+
+  return NextResponse.json({
+    target,
+    forceRetranslate,
+    stats,
+    rateLimited: rateLimitedAt !== null,
+    retryAfterSeconds: rateLimitedAt,
+  })
 }
