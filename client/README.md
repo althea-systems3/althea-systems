@@ -70,6 +70,11 @@ Ces variables alimentent les images categories/produits (home, catalogue, panier
 - `GROQ_API_KEY` (requis pour l'appel LLM)
 - `GROQ_MODEL` (optionnel, valeur par defaut possible)
 
+### 8) Traduction auto admin (Gemini)
+
+- `GEMINI_API_KEY` (requis pour la traduction IA des contenus admin) - obtenir sur https://aistudio.google.com/apikey (gratuit, 1500 req/jour)
+- `GEMINI_TRANSLATION_MODEL` (optionnel, defaut `gemini-2.0-flash`)
+
 ## Comportements de robustesse config
 
 - Les routes critiques (`/api/cart`, `/api/cart/items`, `/api/cart/items/[id]`, `/api/cart/count`, `/api/auth/signup`) valident maintenant la config requise.

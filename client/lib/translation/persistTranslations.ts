@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { type AppLocale } from "@/lib/i18n"
 import {
   translateContent,
+  TranslationRateLimitError,
   type TranslatableField,
   type TranslationContext,
   type TranslationResult,
@@ -44,6 +45,14 @@ export async function persistTranslationsForRow(
 
     return result
   } catch (error) {
+    if (error instanceof TranslationRateLimitError) {
+      console.warn("Quota Groq atteint (auto-traduction)", {
+        table: args.table,
+        idValue: args.idValue,
+        retryAfterSeconds: error.retryAfterSeconds,
+      })
+      throw error
+    }
     console.error("Echec auto-traduction (non-bloquant)", {
       table: args.table,
       idValue: args.idValue,
@@ -115,6 +124,14 @@ export async function persistTranslationsAsPerLocaleRows(
 
     return result
   } catch (error) {
+    if (error instanceof TranslationRateLimitError) {
+      console.warn("Quota Groq atteint (auto-traduction per-locale)", {
+        table: args.table,
+        slug: args.slug,
+        retryAfterSeconds: error.retryAfterSeconds,
+      })
+      throw error
+    }
     console.error("Echec auto-traduction per-locale (non-bloquant)", {
       table: args.table,
       slug: args.slug,
