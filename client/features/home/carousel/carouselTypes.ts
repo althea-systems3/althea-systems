@@ -7,7 +7,7 @@ export type CarouselSlide = {
   title: string
   description: string
   ctaLabel: string
-  redirectUrl: string
+  redirectUrl: string | null
 }
 
 export type CarouselApiResponse = {

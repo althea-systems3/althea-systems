@@ -135,16 +135,18 @@ export function HomeCarousel() {
                 <p className="mt-3 text-center text-sm text-slate-100 sm:text-base lg:text-start">
                   {carouselSlide.description}
                 </p>
-                <div className="mt-6 flex justify-center lg:justify-start">
-                  <Button
-                    asChild
-                    className="rounded-full bg-brand-cta px-6 hover:bg-brand-cta/90"
-                  >
-                    <Link href={carouselSlide.redirectUrl}>
-                      {translateCarousel("discoverButton")}
-                    </Link>
-                  </Button>
-                </div>
+                {carouselSlide.redirectUrl ? (
+                  <div className="mt-6 flex justify-center lg:justify-start">
+                    <Button
+                      asChild
+                      className="rounded-full bg-brand-cta px-6 hover:bg-brand-cta/90"
+                    >
+                      <Link href={carouselSlide.redirectUrl}>
+                        {translateCarousel("discoverButton")}
+                      </Link>
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             </div>
           </article>

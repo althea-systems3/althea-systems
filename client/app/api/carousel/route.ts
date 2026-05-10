@@ -129,6 +129,12 @@ function mapToCarouselSlide(
     slide.texte ?? "",
   )
 
+  const trimmedRedirect = slide.lien_redirection?.trim() ?? ""
+  const redirectUrl =
+    trimmedRedirect.length > 0 && trimmedRedirect.startsWith("/")
+      ? trimmedRedirect
+      : null
+
   return {
     id: slide.id_slide,
     imageUrl: imageDesktopUrl,
@@ -138,7 +144,7 @@ function mapToCarouselSlide(
     title: localizedTitle,
     description: localizedText ?? "",
     ctaLabel: "Découvrir",
-    redirectUrl: slide.lien_redirection ?? "/",
+    redirectUrl,
   }
 }
 

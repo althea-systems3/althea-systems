@@ -3,7 +3,6 @@
 import {
   ArrowDown,
   ArrowUp,
-  Eye,
   Pencil,
   Power,
   Search,
@@ -370,16 +369,6 @@ export function AdminCarouselsListPage() {
                             >
                               <Power className="size-4" aria-hidden="true" />
                             </Button>
-                            <Link href={`/admin/carousel/${slide.id_slide}`}>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                aria-label="Voir le slide"
-                              >
-                                <Eye className="size-4" aria-hidden="true" />
-                              </Button>
-                            </Link>
                             <Link
                               href={`/admin/carousel/${slide.id_slide}/edition`}
                             >
@@ -387,7 +376,7 @@ export function AdminCarouselsListPage() {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                aria-label="Éditer le slide"
+                                aria-label="Modifier l'image et la visibilité"
                               >
                                 <Pencil
                                   className="size-4"
